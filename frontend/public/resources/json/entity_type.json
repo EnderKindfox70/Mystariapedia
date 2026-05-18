@@ -1,0 +1,75 @@
+{
+    "entity_types":
+    [
+        {
+            "id": 1,
+            "name": "bestial",
+            "description": "Entities driven by instinct, body strength, hunting patterns, and territorial reactions.",
+            "link": "/entity-types/bestial",
+            "stats":
+            {
+                "hp": 20,
+                "physical_atk": 5,
+                "magical_atk": 0,
+                "mana": 0,
+                "speed": 0
+            }
+        },
+        {
+            "id": 2,
+            "name": "arcane",
+            "description": "Entities shaped by unstable magic, spell-like instincts, and high mana pressure.",
+            "link": "/entity-types/arcane",
+            "stats":
+            {
+                "hp": 0,
+                "physical_atk": 0,
+                "magical_atk": 8,
+                "mana": 25,
+                "speed": 0
+            }
+        },
+        {
+            "id": 3,
+            "name": "undead",
+            "description": "Entities animated by death energy, lingering will, or corrupted remains.",
+            "link": "/entity-types/undead",
+            "stats":
+            {
+                "hp": 15,
+                "physical_atk": 2,
+                "magical_atk": 4,
+                "mana": 10,
+                "speed": -1
+            }
+        },
+        {
+            "id": 4,
+            "name": "elemental",
+            "description": "Entities made from raw natural forces, often bound to a dominant element.",
+            "link": "/entity-types/elemental",
+            "stats":
+            {
+                "hp": 5,
+                "physical_atk": 0,
+                "magical_atk": 6,
+                "mana": 15,
+                "speed": 2
+            }
+        },
+        {
+            "id": 5,
+            "name": "construct",
+            "description": "Artificial or engineered entities built for endurance, obedience, and precise action.",
+            "link": "/entity-types/construct",
+            "stats":
+            {
+                "hp": 30,
+                "physical_atk": 3,
+                "magical_atk": 0,
+                "mana": 0,
+                "speed": -2
+            }
+        }
+    ]
+}

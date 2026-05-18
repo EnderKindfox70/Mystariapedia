@@ -1,0 +1,185 @@
+<article class="entity-sheet">
+  <header class="sheet-header">
+    <div class="creature-mark" aria-hidden="true">
+      <span>{{ entity.name.slice(0, 1) }}</span>
+    </div>
+
+    <div class="title-block">
+      <p class="eyebrow">Bestiaire / Fiche entité</p>
+      <h1>{{ entity.name }}</h1>
+      <div class="tag-line">
+        <span>{{ entityTypeName }}</span>
+        @if (entity.behaviour) {
+          <span>{{ entity.behaviour }}</span>
+        }
+      </div>
+    </div>
+
+    <aside class="threat-register" aria-label="Indice de menace">
+      <span>Danger</span>
+      <strong>{{ threatLevel }}</strong>
+      <small>{{ resolvedTraits.length || entity.affinities.length }} marques relevées</small>
+    </aside>
+  </header>
+
+  <div class="sheet-grid">
+    <main class="sheet-main">
+      <section class="section identity-section" aria-labelledby="identity-title">
+        <h2 id="identity-title">Identité</h2>
+        <div class="info-grid">
+          <div class="info-card">
+            <span>Catégorie</span>
+            <strong>{{ entityTypeName }}</strong>
+          </div>
+          <div class="info-card">
+            <span>Tempérament</span>
+            <strong>{{ entity.behaviour || 'Non documenté' }}</strong>
+          </div>
+          <div class="info-card">
+            <span>Origine</span>
+            <strong>{{ resolvedEntityType?.description || 'Archive incomplète' }}</strong>
+          </div>
+          <div class="info-card">
+            <span>Référence</span>
+            <strong>{{ resolvedEntityType?.link || 'Codex interne' }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section stats-section" aria-labelledby="stats-title">
+        <h2 id="stats-title">Stats de combat</h2>
+        
+        <div class="level-calculator">
+          <span class="level-label">Niveau</span>
+          <button (click)="decreaseLevel()" class="level-btn level-btn-minus" aria-label="Diminuer le niveau">−</button>
+          <span class="level-display">{{ level }}</span>
+          <button (click)="increaseLevel()" class="level-btn level-btn-plus" aria-label="Augmenter le niveau">+</button>
+        </div>
+
+        <div class="stat-list">
+          @for (stat of entity.stats; track stat.key) {
+            <div class="stat-row">
+              <div class="stat-name">{{ stat.label }}</div>
+              <div class="stat-bar-wrap">
+                <span class="stat-bar" [style.width.%]="getStatPercent(stat)"></span>
+              </div>
+              <div class="stat-base">b.{{ getTypeStatBonus(stat.key) || '—' }}</div>
+              <div class="stat-value">{{ getCalculatedStat(stat) }}</div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="section attributes-section" aria-labelledby="attributes-title">
+        <h2 id="attributes-title">Attributs</h2>
+        <div class="attr-grid">
+          @for (attribute of entity.attributes; track attribute.key) {
+            <div class="attr-card" [title]="attribute.label">
+              <span>{{ attribute.shortLabel }}</span>
+              <strong>{{ attribute.value }}</strong>
+              <small>{{ attribute.modifier || '—' }}</small>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="section affinities-section" aria-labelledby="affinities-title">
+        <h2 id="affinities-title">Vulnérabilités & résistances</h2>
+        <div class="affinity-table">
+          <div class="affinity-heading">Type</div>
+          @for (affinity of resolvedAffinities; track affinity.kind) {
+            <div class="affinity-heading" [class]="affinityStyles[affinity.kind]">{{ affinity.label }}</div>
+          }
+
+          <div class="affinity-domain">Dégâts</div>
+          @for (affinity of resolvedAffinities; track affinity.kind) {
+            <div class="affinity-cell">
+              @if (affinity.damageTypes.length) {
+                @for (damageType of affinity.damageTypes; track damageType.id) {
+                  <span class="affinity-chip" [title]="damageType.name">
+                    <span class="damage-mark">{{ damageType.name.slice(0, 1).toUpperCase() }}</span>
+                    {{ damageType.name }}
+                  </span>
+                }
+              } @else {
+                <span class="empty-mark">—</span>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="section habitat-section" aria-labelledby="habitat-title">
+        <h2 id="habitat-title">Habitat</h2>
+        <div class="info-grid detail-grid">
+          <div class="info-card">
+            <span>Région</span>
+            <strong>{{ entity.habitat?.region || '—' }}</strong>
+          </div>
+          <div class="info-card">
+            <span>Fréquence</span>
+            <strong>{{ entity.habitat?.frequency || '—' }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section lore-section" aria-labelledby="lore-title">
+        <h2 id="lore-title">Lore</h2>
+        <div class="field-list">
+          <div class="field-row">
+            <span>Origine</span>
+            <p>{{ entity.lore?.origin || '—' }}</p>
+          </div>
+          <div class="field-row">
+            <span>Relation aux mortels</span>
+            <p>{{ entity.lore?.mortalRelations || '—' }}</p>
+          </div>
+          <div class="field-row">
+            <span>Croyances & superstitions</span>
+            <p>{{ entity.lore?.beliefs || '—' }}</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section usage-section" aria-labelledby="usage-title">
+        <h2 id="usage-title">Notes narratives</h2>
+        <div class="field-list">
+          <div class="field-row">
+            <span>Utilisation</span>
+            <p>{{ entity.usage || '—' }}</p>
+          </div>
+          <div class="field-row">
+            <span>Questions ouvertes</span>
+            <p>{{ entity.openQuestions || '—' }}</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="sheet-side">
+      <div class="portrait-frame">
+        @if (entity.imageUrl) {
+          <img [src]="entity.imageUrl" [alt]="entity.name" />
+        } @else {
+          <div class="image-fallback">{{ entity.name.slice(0, 1) }}</div>
+        }
+      </div>
+
+      <section class="lore-panel">
+        <p class="panel-label">Notice de terrain</p>
+        <p>{{ entity.description }}</p>
+      </section>
+
+      @if (resolvedTraits.length) {
+        <section class="trait-panel" aria-labelledby="traits-title">
+          <h2 id="traits-title">Traits</h2>
+          <div class="trait-list">
+            @for (trait of resolvedTraits; track trait.id) {
+              <span [title]="trait.description" class="trait-chip">{{ trait.name }}</span>
+            }
+          </div>
+        </section>
+      }
+    </aside>
+  </div>
+</article>

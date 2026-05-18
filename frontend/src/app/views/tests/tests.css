@@ -1,0 +1,27 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+    gap: 0;
+}
+
+.layout aside {
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.layout main {
+    flex: 1;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 50% -10%, rgba(75, 46, 89, 0.24), transparent 34rem),
+        linear-gradient(180deg, #120f0d, #0b0908);
+    overflow-y: auto;
+}
+
+.test-page {
+    min-height: 100vh;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 50% -10%, rgba(75, 46, 89, 0.24), transparent 34rem),
+        linear-gradient(180deg, #120f0d, #0b0908);
+}

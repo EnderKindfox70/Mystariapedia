@@ -1,0 +1,35 @@
+{
+    "traits":
+    [
+        {
+            "id": 1,
+            "name": "amphibious",
+            "description": "This entity can breathe and act normally both in water and on land."
+        },
+        {
+            "id": 2,
+            "name": "night hunter",
+            "description": "This entity gains advantage in darkness or low visibility when tracking a target."
+        },
+        {
+            "id": 3,
+            "name": "territorial",
+            "description": "This entity becomes more aggressive when intruders enter its claimed area."
+        },
+        {
+            "id": 4,
+            "name": "mana sensitive",
+            "description": "This entity can detect nearby spell activity, enchanted objects, or concentrated mana."
+        },
+        {
+            "id": 5,
+            "name": "pack instinct",
+            "description": "This entity coordinates naturally with nearby allied entities of a similar type."
+        },
+        {
+            "id": 6,
+            "name": "regeneration",
+            "description": "This entity restores a small amount of vitality at the start of its turn unless disrupted."
+        }
+    ]
+}

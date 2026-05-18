@@ -1,0 +1,121 @@
+<main class="codex">
+  <div class="book-spine" aria-hidden="true"></div>
+
+  <header class="codex-header">
+    <a class="brand" href="/">
+      <span class="sigil" aria-hidden="true">✧</span>
+      <span>
+        <strong>Mystaria</strong>
+        <small>Codex </small>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="Sections principales">
+      <a routerLink="/lore">Lore</a>
+      <a routerLink="/factions">Factions</a>
+      <a routerLink="/entities">Entités</a>
+      <a routerLink="/locations">Lieux</a>
+      <a routerLink="/artifacts">Artéfacts</a>
+      <a routerLink="/timeline">Histoire</a>
+      <a routerLink="/magics">Magie</a>
+      <a routerLink="/bestiary">Bestiaire</a>
+    </nav>
+
+    <label class="search-box">
+      <input type="search" placeholder="Rechercher..." aria-label="Rechercher">
+      <span aria-hidden="true">⌕</span>
+    </label>
+  </header>
+
+  <div class="pages">
+    <section class="left-page">
+      <section class="hero-panel" aria-labelledby="home-title">
+        <div class="hero-copy">
+          <p class="kicker">Bienvenue dans le monde de</p>
+          <h1 id="home-title">MYSTARIA</h1>
+          <div class="ornament" aria-hidden="true"></div>
+          <p>Mystaria est un monde baigné de magie, dont l'histoire est indissociable de celle des entités divines qui l'ont façonné. À l'ère actuelle, les dieux se sont retirés du monde — scellés, endormis ou simplement silencieux — laissant derrière eux un héritage de magie et de mystère que les mortels tentent encore de comprendre.
+           <p class="warning">Lisez. Apprenez. Mais n'oubliez jamais :</p>
+          <em>Certains livres se lisent... et d'autres vous lisent.</em>
+          <a class="cta" href="/lore">Commencer l'exploration</a>
+        </div>
+      </section>
+
+      <section class="explore">
+        <h2>Explorer l'univers</h2>
+        <div class="category-row">
+          <a class="category-card" routerLink="/lore">
+            <img class="card-art" src="/resources/media/icons/lore.svg" alt="" aria-hidden="true">
+            <h3>Lore</h3>
+            <p>Mythes, croyances et fondations du monde.</p>
+            <strong>Explorer →</strong>
+          </a>
+          <a class="category-card" routerLink="/factions">
+            <img class="card-art" src="/resources/media/icons/factions.svg" alt="" aria-hidden="true">
+            <h3>Factions</h3>
+            <p>Peuples, cultes, ordres et organisations.</p>
+            <strong>Explorer →</strong>
+          </a>
+          <a class="category-card" routerLink="/entities">
+            <img class="card-art" src="/resources/media/icons/entities.svg" alt="" aria-hidden="true">
+            <h3>Entités</h3>
+            <p>Dieux anciens et intelligences au-delà de l'entendement.</p>
+            <strong>Explorer →</strong>
+          </a>
+          <a class="category-card" routerLink="/locations">
+            <img class="card-art" src="/resources/media/icons/locations.svg" alt="" aria-hidden="true">
+            <h3>Lieux</h3>
+            <p>Royaumes perdus, cités maudites et lieux empreints de mystère.</p>
+            <strong>Explorer →</strong>
+          </a>
+          <a class="category-card" routerLink="/artifacts">
+            <img class="card-art" src="/resources/media/icons/artifacts.svg" alt="" aria-hidden="true">
+            <h3>Artéfacts</h3>
+            <p>Objets de pouvoir, reliques oubliées et trésors interdits.</p>
+            <strong>Explorer →</strong>
+          </a>
+          <a class="category-card" routerLink="/magics">
+            <img class="card-art" src="/resources/media/icons/magic.svg" alt="" aria-hidden="true">
+            <h3>Magie</h3>
+            <p>Savoirs occultes, rituels et forces qui dépassent la compréhension.</p>
+            <strong>Explorer →</strong>
+          </a>
+        </div>
+        <a class="more-link" routerLink="">Voir toutes les catégories +</a>
+      </section>
+    </section>
+
+    <aside class="right-page">
+      <section class="featured">
+        <h2>À la une</h2>
+        <article class="feature-article">
+          <span class="feature-image" aria-hidden="true"></span>
+          <div>
+            <h3>Yog-Sothoth</h3>
+            <p class="subtitle">La Clé et la Porte</p>
+            <p>Celui qui connaît toutes les portes et tous les chemins. Gardien du savoir impossible.</p>
+            <a href="/entities">Lire l'article →</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="updates">
+        <h2>Dernières mises à jour</h2>
+      </section>
+
+      <section class="quote-box">
+        <h2>Rumeur populaire</h2>
+        <blockquote>
+        « Les dieux ne sont pas morts. Ils dorment. Et certains disent qu'il suffirait d'un rêve ou d'une prière pour les réveiller. »</blockquote>
+        <p class="glyphs">↝ ⊹ ⚚ ☾ ✦ ☿ ⚕ ✧ ☥ ↜</p>
+        <span class="eye-seal" aria-hidden="true">◉</span>
+      </section>
+    </aside>
+  </div>
+
+  <footer class="codex-footer">
+    <span>Veritas foris est. Sapientia interdicitur.</span>
+    <span>☾</span>
+    <span>Dernière mise à jour : 12 mai 2026</span>
+  </footer>
+</main>

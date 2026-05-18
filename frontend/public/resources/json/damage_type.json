@@ -1,0 +1,120 @@
+{
+    "general_damage_types":
+    [
+        {
+            "id": 1,
+            "name": "Physical",
+            "description": "Physical damage is the most common type of damage, and is dealt by most weapons and attacks. It can be reduced by armor and other physical defenses."
+        },
+        {
+            "id": 2,
+            "name": "Magical",
+            "description": "Magical damage is dealt by spells and magical attacks. It can be reduced by magic resistance and other magical defenses."
+        },
+        {
+            "id": 4,
+            "name": "True",
+            "description": "True damage is a type of damage that ignores all defenses and reductions. It is often used for certain powerful attacks or abilities."
+        }
+    ],
+
+    "specific_damage_types": 
+    [
+        {
+            "id": 1,
+            "name": "bludgeoning",
+            "general_damage_type_id": 1,
+            "icon": "bludgeoning_icon.png"
+        },
+        {
+            "id": 2,
+            "name": "piercing",
+            "general_damage_type_id": 1,
+            "icon": "piercing_icon.png"
+        },
+        {
+            "id": 3,
+            "name": "slashing",
+            "general_damage_type_id": 1,
+            "icon": "slashing_icon.png"
+        },
+        {
+            "id": 4,
+            "name": "fire",
+            "general_damage_type_id": 2,
+            "icon": "fire_icon.png"
+        },
+        {
+            "id": 5,
+            "name": "ice",
+            "general_damage_type_id": 2,
+            "icon": "ice_icon.png"
+        },
+        {
+            "id": 6,
+            "name": "lightning",
+            "general_damage_type_id": 2,
+            "icon": "lightning_icon.png"
+        },
+        {
+            "id": 7,
+            "name": "water",
+            "general_damage_type_id": 2,
+            "icon": "water_icon.png"
+        },
+        {
+            "id": 8,
+            "name": "earth",
+            "general_damage_type_id": 2,
+            "icon": "earth_icon.png"
+        },
+        {
+            "id": 9,
+            "name": "wind",
+            "general_damage_type_id": 2,
+            "icon": "wind_icon.png"
+        },
+        {
+            "id": 10,
+            "name": "plant",
+            "general_damage_type_id": 2,
+            "icon": "plant_icon.png"
+        },
+        {
+            "id": 11,
+            "name": "dark",
+            "general_damage_type_id": 2,
+            "icon": "dark_icon.png"
+        },
+        {
+            "id": 12,
+            "name": "light",
+            "general_damage_type_id": 2,
+            "icon": "light_icon.png"
+        },
+        {
+            "id": 13,
+            "name": "life",
+            "general_damage_type_id": 2,
+            "icon": "life_icon.png"
+        },
+        {
+            "id": 14,
+            "name": "death",
+            "general_damage_type_id": 2,
+            "icon": "death_icon.png"
+        },
+        {
+            "id": 15,
+            "name": "space",
+            "general_damage_type_id": 2,
+            "icon": "space_icon.png"
+        },
+        {
+            "id": 16,
+            "name": "time",
+            "general_damage_type_id": 2,
+            "icon": "time_icon.png"
+        }
+    ]
+}
