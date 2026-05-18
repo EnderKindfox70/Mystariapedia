@@ -13,7 +13,7 @@ export const routes: Routes =
     {path: 'home', component: Home} ,
     {path: 'lore', component: Lore},
     {path: 'magics', component: Magics},
-    {path: 'magics/:domain', component: Magics},
+    //{path: 'magics/:domain', component: Magics},
     {path: 'locations', component: Locations},
     {path: 'bestiary', component: Bestiary},
     {path: 'artifacts', component: Artifacts},
