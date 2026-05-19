@@ -7,4 +7,14 @@ import { RouterModule } from '@angular/router';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {}
+export class Home {
+  isNavigationOpen = false;
+
+  toggleNavigation(): void {
+    this.isNavigationOpen = !this.isNavigationOpen;
+  }
+
+  closeNavigation(): void {
+    this.isNavigationOpen = false;
+  }
+}

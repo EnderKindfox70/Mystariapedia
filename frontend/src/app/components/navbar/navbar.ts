@@ -9,6 +9,8 @@ import { AnimationPreferencesService } from '../../services/animation-preference
   styleUrl: './navbar.css',
 })
 export class Navbar {
+  isNavigationOpen = false;
+
   constructor(
     private readonly router: Router,
     private readonly animationPreferences: AnimationPreferencesService,
@@ -20,6 +22,14 @@ export class Navbar {
 
   toggleMagicWriting(): void {
     this.animationPreferences.toggleMagicWriting();
+  }
+
+  toggleNavigation(): void {
+    this.isNavigationOpen = !this.isNavigationOpen;
+  }
+
+  closeNavigation(): void {
+    this.isNavigationOpen = false;
   }
 
   get expandedGroup(): string | null {

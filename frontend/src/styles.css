@@ -124,3 +124,34 @@ h1
 {
   font-size: 3.45rem;
 }
+
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .layout navbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    width: 100%;
+  }
+
+  .paper-surface {
+    width: auto;
+    margin: 18px clamp(12px, 4vw, 28px);
+    padding: clamp(18px, 4vw, 28px);
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .paper-surface {
+    margin: 12px 8px;
+    padding: 16px 14px;
+    border-radius: 6px;
+  }
+}

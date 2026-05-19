@@ -2,7 +2,7 @@
   <div class="book-spine" aria-hidden="true"></div>
 
   <header class="codex-header">
-    <a class="brand" href="/">
+    <a class="brand" routerLink="/">
       <span class="sigil" aria-hidden="true">✧</span>
       <span>
         <strong>Mystaria</strong>
@@ -10,15 +10,28 @@
       </span>
     </a>
 
-    <nav class="nav-links" aria-label="Sections principales">
-      <a routerLink="/lore">Lore</a>
-      <a routerLink="/factions">Factions</a>
-      <a routerLink="/entities">Entités</a>
-      <a routerLink="/locations">Lieux</a>
-      <a routerLink="/artifacts">Artéfacts</a>
-      <a routerLink="/timeline">Histoire</a>
-      <a routerLink="/magics">Magie</a>
-      <a routerLink="/bestiary">Bestiaire</a>
+    <button
+      type="button"
+      class="home-menu-toggle"
+      [class.open]="isNavigationOpen"
+      [attr.aria-expanded]="isNavigationOpen"
+      aria-controls="home-navigation"
+      aria-label="Ouvrir ou fermer la navigation"
+      (click)="toggleNavigation()"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav id="home-navigation" class="nav-links" [class.open]="isNavigationOpen" aria-label="Sections principales">
+      <a routerLink="/lore" (click)="closeNavigation()">Lore</a>
+      <a routerLink="/factions" (click)="closeNavigation()">Factions</a>
+      <a routerLink="/entities" (click)="closeNavigation()">Entités</a>
+      <a routerLink="/locations" (click)="closeNavigation()">Lieux</a>
+      <a routerLink="/artifacts" (click)="closeNavigation()">Artéfacts</a>
+      <a routerLink="/magics" (click)="closeNavigation()">Magie</a>
+      <a routerLink="/bestiary" (click)="closeNavigation()">Bestiaire</a>
     </nav>
 
     <label class="search-box">
@@ -37,7 +50,7 @@
           <p>Mystaria est un monde baigné de magie, dont l'histoire est indissociable de celle des entités divines qui l'ont façonné. À l'ère actuelle, les dieux se sont retirés du monde — scellés, endormis ou simplement silencieux — laissant derrière eux un héritage de magie et de mystère que les mortels tentent encore de comprendre.
            <p class="warning">Lisez. Apprenez. Mais n'oubliez jamais :</p>
           <em>Certains livres se lisent... et d'autres vous lisent.</em>
-          <a class="cta" href="/lore">Commencer l'exploration</a>
+          <a class="cta" routerLink="/lore">Commencer l'exploration</a>
         </div>
       </section>
 
@@ -94,7 +107,7 @@
             <h3>Yog-Sothoth</h3>
             <p class="subtitle">La Clé et la Porte</p>
             <p>Celui qui connaît toutes les portes et tous les chemins. Gardien du savoir impossible.</p>
-            <a href="/entities">Lire l'article →</a>
+            <a routerLink="/entities">Lire l'article →</a>
           </div>
         </article>
       </section>

@@ -2,95 +2,105 @@
     <header class="sidebar-header">
         <div class="logo-sigil"></div>
         <div class="wiki-name">CODEX MYSTARIA</div>
-    </header>
-    <hr class="separator">
-    <nav class="main-navigation">
-        <ul>
-            <li><a routerLink="/">Accueil</a></li>
-            <li class="nav-group" [class.expanded]="expandedGroup === 'lore'">
-                <a class="group-link" routerLink="/lore">Lore</a>
-                <ul class="sub-navigation">
-                    <li><a routerLink="/lore/archives">Archives occultes</a></li>
-                    <li><a routerLink="/lore/mythes">Mythes fondateurs</a></li>
-                    <li><a routerLink="/lore/rituels">Rituels oubliés</a></li>
-                </ul>
-            </li>
-            <li class="nav-group" [class.expanded]="expandedGroup === 'factions'">
-                <a class="group-link" routerLink="/factions">Factions</a>
-                <ul class="sub-navigation">
-                    <li><a routerLink="/factions/ordres">Ordres sacrés</a></li>
-                    <li><a routerLink="/factions/cabal">Cabales secrètes</a></li>
-                    <li><a routerLink="/factions/heritiers">Héritiers perdus</a></li>
-                </ul>
-            </li>
-            <li class="nav-group" [class.expanded]="expandedGroup === 'magie'">
-                <a class="group-link" routerLink="/magics">Magie</a>
-                <ul class="sub-navigation">
-                    <li><a routerLink="/magics/index">Index des magies</a></li>
-                    <li><a routerLink="/magics/awakening">Méthodes d'éveil</a></li>
-                    <li><a routerLink="/magics/mana">Circulation du mana</a></li>
-                    <li><a routerLink="/magics/defense">Renforcement & défense</a></li>
-                    <li><a routerLink="/magics/compatibilites">Compatibilités</a></li>
-                    <li><a routerLink="/magics/rituels">Rituels fondamentaux</a></li>
-                </ul>
-            </li>
-            <li class="nav-group" [class.expanded]="expandedGroup === 'artefacts'">
-                <a class="group-link" routerLink="/artifacts">Artefacts</a>
-                <ul class="sub-navigation">
-                    <li><a routerLink="/artifacts/index">Inventaire</a></li>
-                    <li><a routerLink="/artifacts/armes">Armes & armures</a></li>
-                    <li><a routerLink="/artifacts/reliques">Reliques anciennes</a></li>
-                    <li><a routerLink="/artifacts/grimoires">Grimoires</a></li>
-                </ul>
-            </li>
-            <li class="nav-group" [class.expanded]="expandedGroup === 'lieux'">
-                <a class="group-link" routerLink="/locations">Lieux</a>
-                <ul class="sub-navigation">
-                    <li><a routerLink="/locations/carte">Carte des royaumes</a></li>
-                    <li><a routerLink="/locations/sacres">Sites sacrés</a></li>
-                    <li><a routerLink="/locations/ruines">Ruines oubliées</a></li>
-                    <li><a routerLink="/locations/noeuds">Nœuds magiques</a></li>
-                </ul>
-            </li>
-            <li class="nav-group" [class.expanded]="expandedGroup === 'bestiaire'">
-                <a class="group-link" routerLink="/bestiary">Bestiaire</a>
-                <ul class="sub-navigation">
-                    <li><a routerLink="/bestiary/faune">Faune</a></li>
-                    <li><a routerLink="/bestiary/legendaires">Créatures légendaires</a></li>
-                    <li><a routerLink="/bestiary/esprits">Esprits & ombres</a></li>
-                </ul>
-            </li>
-            <li class="nav-group" [class.expanded]="expandedGroup === 'chronologie'">
-                <a class="group-link" routerLink="/chronology">Chronologie</a>
-                <ul class="sub-navigation">
-                    <li><a routerLink="/chronology/epoques">Époques</a></li>
-                    <li><a routerLink="/chronology/batailles">Grandes batailles</a></li>
-                    <li><a routerLink="/chronology/rituels">Rituels majeurs</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-    <hr class="separator">
-    <section class="animation-settings" aria-label="Préférences d'animation">
-        <span>Écriture magique</span>
         <button
             type="button"
-            class="toggle-button"
-            [class.enabled]="magicWritingEnabled()"
-            [attr.aria-pressed]="magicWritingEnabled()"
-            (click)="toggleMagicWriting()"
+            class="menu-toggle"
+            [class.open]="isNavigationOpen"
+            [attr.aria-expanded]="isNavigationOpen"
+            aria-controls="sidebar-panel"
+            aria-label="Ouvrir ou fermer la navigation"
+            (click)="toggleNavigation()"
         >
-            <span class="toggle-track" aria-hidden="true">
-                <span class="toggle-thumb"></span>
-            </span>
-            <span class="toggle-label">{{ magicWritingEnabled() ? 'Activée' : 'Désactivée' }}</span>
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-    </section>
-    <hr class="separator">
-    <section class="citation-lore">
-        <blockquote>
-            "Dans les ombres des anciens grimoires, la vérité se révèle à ceux qui osent chercher."
-        </blockquote>
-    </section>
-    <hr class="separator">
+    </header>
+
+    <div id="sidebar-panel" class="sidebar-panel" [class.open]="isNavigationOpen">
+        <hr class="separator">
+        <nav class="main-navigation">
+            <ul>
+                <li><a routerLink="/" (click)="closeNavigation()">Accueil</a></li>
+                <li class="nav-group" [class.expanded]="expandedGroup === 'lore'">
+                    <a class="group-link" routerLink="/lore" (click)="closeNavigation()">Lore</a>
+                    <ul class="sub-navigation">
+                        <li><a routerLink="/lore/archives" (click)="closeNavigation()">Archives occultes</a></li>
+                        <li><a routerLink="/lore/mythes" (click)="closeNavigation()">Mythes fondateurs</a></li>
+                        <li><a routerLink="/lore/rituels" (click)="closeNavigation()">Rituels oubliés</a></li>
+                    </ul>
+                </li>
+                <li class="nav-group" [class.expanded]="expandedGroup === 'factions'">
+                    <a class="group-link" routerLink="/factions" (click)="closeNavigation()">Factions</a>
+                    <ul class="sub-navigation">
+                        <li><a routerLink="/factions/ordres" (click)="closeNavigation()">Ordres sacrés</a></li>
+                        <li><a routerLink="/factions/cabal" (click)="closeNavigation()">Cabales secrètes</a></li>
+                        <li><a routerLink="/factions/heritiers" (click)="closeNavigation()">Héritiers perdus</a></li>
+                    </ul>
+                </li>
+                <li class="nav-group" [class.expanded]="expandedGroup === 'magie'">
+                    <a class="group-link" routerLink="/magics" (click)="closeNavigation()">Magie</a>
+                    <ul class="sub-navigation">
+                        <li><a routerLink="/magics/index" (click)="closeNavigation()">Index des magies</a></li>
+                        <li><a routerLink="/magics/awakening" (click)="closeNavigation()">Méthodes d'éveil</a></li>
+                        <li><a routerLink="/magics/mana" (click)="closeNavigation()">Circulation du mana</a></li>
+                        <li><a routerLink="/magics/defense" (click)="closeNavigation()">Renforcement & défense</a></li>
+                        <li><a routerLink="/magics/compatibilites" (click)="closeNavigation()">Compatibilités</a></li>
+                        <li><a routerLink="/magics/rituels" (click)="closeNavigation()">Rituels fondamentaux</a></li>
+                    </ul>
+                </li>
+                <li class="nav-group" [class.expanded]="expandedGroup === 'artefacts'">
+                    <a class="group-link" routerLink="/artifacts" (click)="closeNavigation()">Artefacts</a>
+                    <ul class="sub-navigation">
+                        <li><a routerLink="/artifacts/index" (click)="closeNavigation()">Inventaire</a></li>
+                        <li><a routerLink="/artifacts/armes" (click)="closeNavigation()">Armes & armures</a></li>
+                        <li><a routerLink="/artifacts/reliques" (click)="closeNavigation()">Reliques anciennes</a></li>
+                        <li><a routerLink="/artifacts/grimoires" (click)="closeNavigation()">Grimoires</a></li>
+                    </ul>
+                </li>
+                <li class="nav-group" [class.expanded]="expandedGroup === 'lieux'">
+                    <a class="group-link" routerLink="/locations" (click)="closeNavigation()">Lieux</a>
+                    <ul class="sub-navigation">
+                        <li><a routerLink="/locations/carte" (click)="closeNavigation()">Carte des royaumes</a></li>
+                        <li><a routerLink="/locations/sacres" (click)="closeNavigation()">Sites sacrés</a></li>
+                        <li><a routerLink="/locations/ruines" (click)="closeNavigation()">Ruines oubliées</a></li>
+                        <li><a routerLink="/locations/noeuds" (click)="closeNavigation()">Noeuds magiques</a></li>
+                    </ul>
+                </li>
+                <li class="nav-group" [class.expanded]="expandedGroup === 'bestiaire'">
+                    <a class="group-link" routerLink="/bestiary" (click)="closeNavigation()">Bestiaire</a>
+                    <ul class="sub-navigation">
+                        <li><a routerLink="/bestiary/faune" (click)="closeNavigation()">Faune</a></li>
+                        <li><a routerLink="/bestiary/legendaires" (click)="closeNavigation()">Créatures légendaires</a></li>
+                        <li><a routerLink="/bestiary/esprits" (click)="closeNavigation()">Esprits & ombres</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <hr class="separator">
+        <section class="animation-settings" aria-label="Préférences d'animation">
+            <span>Écriture magique</span>
+            <button
+                type="button"
+                class="toggle-button"
+                [class.enabled]="magicWritingEnabled()"
+                [attr.aria-pressed]="magicWritingEnabled()"
+                (click)="toggleMagicWriting()"
+            >
+                <span class="toggle-track" aria-hidden="true">
+                    <span class="toggle-thumb"></span>
+                </span>
+                <span class="toggle-label">{{ magicWritingEnabled() ? 'Activée' : 'Désactivée' }}</span>
+            </button>
+        </section>
+
+        <hr class="separator">
+        <section class="citation-lore">
+            <blockquote>
+                "Dans les ombres des anciens grimoires, la vérité se révèle à ceux qui osent chercher."
+            </blockquote>
+        </section>
+        <hr class="separator">
+    </div>
 </aside>

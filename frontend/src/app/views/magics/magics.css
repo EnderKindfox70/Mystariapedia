@@ -15,10 +15,45 @@ h2
     margin-bottom: 0;
 }
 
+section > h3
+{
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    margin: 1.65rem 0 .7rem;
+    color: rgba(43, 26, 18, .88);
+    font-size: 1.08rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-shadow: 0 1px 0 rgba(237, 230, 214, .34);
+}
+
+section > h3::before
+{
+    flex: 0 0 .45rem;
+    width: .45rem;
+    height: .45rem;
+    content: '';
+    border: 1px solid rgba(139, 107, 47, .7);
+    background: rgba(116, 34, 37, .7);
+    box-shadow: 0 0 10px rgba(139, 107, 47, .22);
+    transform: rotate(45deg);
+}
+
+section > h3::after
+{
+    flex: 1 1 auto;
+    min-width: 2rem;
+    height: 1px;
+    content: '';
+    background: linear-gradient(90deg, rgba(139, 107, 47, .58), rgba(139, 107, 47, .16), transparent);
+}
+
 p
 {
     line-height: 1.6;
     margin-bottom: 1em;
+    text-align: justify;
 }
 
 p.magic-writing
@@ -169,12 +204,14 @@ h1::after
     position: relative;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
     align-items: center;
     min-height: 14.6rem;
     padding: .8rem .62rem .72rem;
     overflow: hidden;
     color: var(--faded-ivory);
     text-align: center;
+    text-decoration: none;
     background:
         radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--domain-color) 30%, transparent), transparent 34%),
         radial-gradient(circle at 50% 0%, rgba(237, 230, 214, .08), transparent 36%),
@@ -185,6 +222,12 @@ h1::after
         inset 0 0 0 1px rgba(237, 230, 214, .04),
         0 12px 24px rgba(34, 23, 19, .18);
     transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.domain-card:focus-visible
+{
+    outline: 2px solid color-mix(in srgb, var(--domain-color) 68%, #ede6d6);
+    outline-offset: 3px;
 }
 
 .domain-card::before,
@@ -230,6 +273,11 @@ h1::after
     transform: translateY(-3px);
 }
 
+.domain-card p 
+{
+    text-align: center;
+
+}
 .domain-sigil
 {
     position: relative;
