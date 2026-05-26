@@ -19,68 +19,78 @@
 
     <div id="sidebar-panel" class="sidebar-panel" [class.open]="isNavigationOpen">
         <hr class="separator">
-        <nav class="main-navigation">
+
+        <div class="nav-search" role="search">
+            <label for="codex-nav-search">Recherche</label>
+            <div class="nav-search-field">
+                <input
+                    id="codex-nav-search"
+                    type="search"
+                    placeholder="Chercher dans l'index..."
+                    [value]="searchQuery"
+                    (input)="updateSearch($event)"
+                >
+                <button
+                    *ngIf="searchQuery"
+                    type="button"
+                    aria-label="Effacer la recherche"
+                    (click)="clearSearch()"
+                >x</button>
+            </div>
+            <div *ngIf="searchResults.length > 0" class="search-results" aria-label="Resultats de recherche">
+                <a
+                    *ngFor="let result of searchResults"
+                    [routerLink]="result.path"
+                    [fragment]="result.fragment"
+                    (click)="closeNavigation()"
+                >{{ result.label }}</a>
+            </div>
+        </div>
+
+        <hr class="separator">
+
+        <nav class="main-navigation" aria-label="Sections principales">
             <ul>
-                <li><a routerLink="/" (click)="closeNavigation()">Accueil</a></li>
-                <li class="nav-group" [class.expanded]="expandedGroup === 'lore'">
-                    <a class="group-link" routerLink="/lore" (click)="closeNavigation()">Lore</a>
-                    <ul class="sub-navigation">
-                        <li><a routerLink="/lore/archives" (click)="closeNavigation()">Archives occultes</a></li>
-                        <li><a routerLink="/lore/mythes" (click)="closeNavigation()">Mythes fondateurs</a></li>
-                        <li><a routerLink="/lore/rituels" (click)="closeNavigation()">Rituels oubliés</a></li>
-                    </ul>
-                </li>
-                <li class="nav-group" [class.expanded]="expandedGroup === 'factions'">
-                    <a class="group-link" routerLink="/factions" (click)="closeNavigation()">Factions</a>
-                    <ul class="sub-navigation">
-                        <li><a routerLink="/factions/ordres" (click)="closeNavigation()">Ordres sacrés</a></li>
-                        <li><a routerLink="/factions/cabal" (click)="closeNavigation()">Cabales secrètes</a></li>
-                        <li><a routerLink="/factions/heritiers" (click)="closeNavigation()">Héritiers perdus</a></li>
-                    </ul>
-                </li>
-                <li class="nav-group" [class.expanded]="expandedGroup === 'magie'">
-                    <a class="group-link" routerLink="/magics" (click)="closeNavigation()">Magie</a>
-                    <ul class="sub-navigation">
-                        <li><a routerLink="/magics/index" (click)="closeNavigation()">Index des magies</a></li>
-                        <li><a routerLink="/magics/awakening" (click)="closeNavigation()">Méthodes d'éveil</a></li>
-                        <li><a routerLink="/magics/mana" (click)="closeNavigation()">Circulation du mana</a></li>
-                        <li><a routerLink="/magics/defense" (click)="closeNavigation()">Renforcement & défense</a></li>
-                        <li><a routerLink="/magics/compatibilites" (click)="closeNavigation()">Compatibilités</a></li>
-                        <li><a routerLink="/magics/rituels" (click)="closeNavigation()">Rituels fondamentaux</a></li>
-                    </ul>
-                </li>
-                <li class="nav-group" [class.expanded]="expandedGroup === 'artefacts'">
-                    <a class="group-link" routerLink="/artifacts" (click)="closeNavigation()">Artefacts</a>
-                    <ul class="sub-navigation">
-                        <li><a routerLink="/artifacts/index" (click)="closeNavigation()">Inventaire</a></li>
-                        <li><a routerLink="/artifacts/armes" (click)="closeNavigation()">Armes & armures</a></li>
-                        <li><a routerLink="/artifacts/reliques" (click)="closeNavigation()">Reliques anciennes</a></li>
-                        <li><a routerLink="/artifacts/grimoires" (click)="closeNavigation()">Grimoires</a></li>
-                    </ul>
-                </li>
-                <li class="nav-group" [class.expanded]="expandedGroup === 'lieux'">
-                    <a class="group-link" routerLink="/locations" (click)="closeNavigation()">Lieux</a>
-                    <ul class="sub-navigation">
-                        <li><a routerLink="/locations/carte" (click)="closeNavigation()">Carte des royaumes</a></li>
-                        <li><a routerLink="/locations/sacres" (click)="closeNavigation()">Sites sacrés</a></li>
-                        <li><a routerLink="/locations/ruines" (click)="closeNavigation()">Ruines oubliées</a></li>
-                        <li><a routerLink="/locations/noeuds" (click)="closeNavigation()">Noeuds magiques</a></li>
-                    </ul>
-                </li>
-                <li class="nav-group" [class.expanded]="expandedGroup === 'bestiaire'">
-                    <a class="group-link" routerLink="/bestiary" (click)="closeNavigation()">Bestiaire</a>
-                    <ul class="sub-navigation">
-                        <li><a routerLink="/bestiary/faune" (click)="closeNavigation()">Faune</a></li>
-                        <li><a routerLink="/bestiary/legendaires" (click)="closeNavigation()">Créatures légendaires</a></li>
-                        <li><a routerLink="/bestiary/esprits" (click)="closeNavigation()">Esprits & ombres</a></li>
+                <li
+                    *ngFor="let item of navItems"
+                    class="nav-item"
+                    [class.nav-group]="item.children"
+                    [class.current]="expandedGroup === item.key"
+                    [class.expanded]="isGroupOpen(item.key)"
+                    (mouseenter)="item.children && openGroup(item.key)"
+                >
+                    <button
+                        *ngIf="item.children; else simpleLink"
+                        type="button"
+                        class="main-link group-link"
+                        [attr.aria-expanded]="isGroupOpen(item.key)"
+                        [routerLink]="item.path"
+                        (click)="toggleGroup(item.key)"
+                    >{{ item.label }}</button>
+                    <ng-template #simpleLink>
+                        <a
+                            class="main-link"
+                            [routerLink]="item.path"
+                            [fragment]="item.fragment"
+                            (click)="closeNavigation()"
+                        >{{ item.label }}</a>
+                    </ng-template>
+                    <ul *ngIf="item.children" class="sub-navigation">
+                        <li *ngFor="let child of item.children">
+                            <a
+                                [routerLink]="child.path"
+                                [fragment]="child.fragment"
+                                (click)="closeNavigation()"
+                            >{{ child.label }}</a>
+                        </li>
                     </ul>
                 </li>
             </ul>
         </nav>
 
         <hr class="separator">
-        <section class="animation-settings" aria-label="Préférences d'animation">
-            <span>Écriture magique</span>
+        <section class="animation-settings" aria-label="Preferences d'animation">
+            <span>Ecriture magique</span>
             <button
                 type="button"
                 class="toggle-button"
@@ -91,14 +101,14 @@
                 <span class="toggle-track" aria-hidden="true">
                     <span class="toggle-thumb"></span>
                 </span>
-                <span class="toggle-label">{{ magicWritingEnabled() ? 'Activée' : 'Désactivée' }}</span>
+                <span class="toggle-label">{{ magicWritingEnabled() ? 'Activee' : 'Desactivee' }}</span>
             </button>
         </section>
 
         <hr class="separator">
         <section class="citation-lore">
             <blockquote>
-                "Dans les ombres des anciens grimoires, la vérité se révèle à ceux qui osent chercher."
+                "Dans les ombres des anciens grimoires, la verite se revele a ceux qui osent chercher."
             </blockquote>
         </section>
         <hr class="separator">

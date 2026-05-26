@@ -306,6 +306,7 @@ li
     background: rgba(34, 23, 19, .04);
     border: 1px solid rgba(34, 23, 19, .14);
     transition: background .2s ease, border-color .2s ease, opacity .2s ease;
+    cursor: pointer;
 }
 
 .domain-pie__item strong
@@ -657,6 +658,7 @@ h1::after
     {
         grid-template-columns: .75rem 1fr 4.4rem;
         gap: .65rem;
+        cursor: pointer;
     }
 
     .domain-distribution

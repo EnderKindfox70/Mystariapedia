@@ -55,6 +55,27 @@
             </article>
         </section>
 
+                <section class="codex-panel">
+            <h2>Sous-domaines</h2>
+            <div class="manifest-grid">
+                <article *ngFor="let subdomain of subdomains">
+                    <span class="flame-dot" aria-hidden="true"></span>
+                    <h3>{{ subdomain.title }}</h3>
+                    <p>{{ subdomain.text }}</p>
+                </article>
+            </div>
+        </section>
+        <br>
+        <section class="codex-panel">
+            <h2>Combinaisons Domaniales</h2>
+            <div class="combo-grid">
+                <article *ngFor="let combo of combinations">
+                    <h3>{{ combo.title }}</h3>
+                    <p>{{ combo.text }}</p>
+                </article>
+            </div>
+        </section>
+
 
 
         <section class="panel-grid">
@@ -85,7 +106,7 @@
             </article>
 
             <article class="codex-panel">
-                <h2>Métaux associés</h2>
+                <h2>Materiaux associés</h2>
                 <div class="compact-list">
                     <div *ngFor="let metal of metals">
                         <strong>{{ metal.title }}</strong>
@@ -119,29 +140,9 @@
                 }
                 </div>
             </article>
-            </section>
+        </section>
 
-        <section class="codex-panel">
-            <h2>Sous-domaines</h2>
-            <div class="manifest-grid">
-                <article *ngFor="let subdomain of subdomains">
-                    <span class="flame-dot" aria-hidden="true"></span>
-                    <h3>{{ subdomain.title }}</h3>
-                    <p>{{ subdomain.text }}</p>
-                </article>
-            </div>
-        </section>
-        <br>
-        <section class="codex-panel">
-            <h2>Combinaisons Domainales</h2>
-            <div class="combo-grid">
-                <article *ngFor="let combo of combinations">
-                    <h3>{{ combo.title }}</h3>
-                    <p>{{ combo.text }}</p>
-                </article>
-            </div>
-        </section>
-        <br>
+
         <section class="panel-grid">
             <article class="codex-panel">
                 <h2>Sorts anciens</h2>
@@ -158,7 +159,7 @@
 
         <section class="split-ledger">
             <article class="codex-panel">
-                <h2>Objets associés</h2>
+                <h2>Objets magique et artefacts associés</h2>
                 <div class="compact-list">
                     <div *ngFor="let object of objects">
                         <strong>{{ object.title }}</strong>
