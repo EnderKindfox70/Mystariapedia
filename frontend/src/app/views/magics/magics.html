@@ -18,7 +18,9 @@
             <p>Les théoriciens des États Souterrains ont une théorie. Les chamanes du Royaume Abandonné en ont une autre. Le clergé elfique en a une troisième, et aucune des trois ne ressemble aux deux premières. Sur l'origine de la mana, chaque civilisation de Mystaria a développé ses propres réponses — et toutes contiennent une part de vérité.</p>
             <p>Ce sur quoi elles s'accordent, sans toujours le formuler ainsi : la mana appartient au monde. Pas aux dieux, pas aux mortels. Au monde.</p>
             <p>Mystaria produit de la mana comme un être vivant produit de la chaleur,continûment, naturellement, sans intention. Elle circule dans la roche, dans les cours d'eau, dans l'air que respirent les animaux et les mortels. Tout être né en ce monde en absorbe passivement, stockant dans son corps une réserve qui s'accumule et se renouvelle au contact de la terre, de l'eau, de l'air de Mystaria. Ce n'est pas un don. C'est une condition d'existence sur ce monde.</p>
-            <p>Les dieux n'ont pas créé la mana. Ils l'ont structurée. Leur présence prolongée sur Mystaria a imprimé dans cette énergie des fréquences distinctes — douze, correspondant aux douze natures divines. C'est pourquoi la magie se divise en douze domaines et non en cent, ou en un seul. La mana brute est neutre. Ce sont les empreintes des dieux qui lui ont donné ses couleurs. Aujourd'hui, les dieux sont absents. Mais leurs fréquences persistent dans le tissu même du monde et dans les corps des mortels qui y résonnent.</p>
+            <blockquote>Les dieux n'ont pas créé la mana. Ils l'ont marquée. </blockquote>
+            <p>Leur présence sur Mystaria a imprimé dans le tissu du monde des fréquences de résonance — des traces de ce qu'ils étaient, persistant bien après leur retrait. La mana est neutre. Ce sont ces empreintes qui lui donnent une direction quand un corps sait l'y conduire. C'est pourquoi la magie se divise en douze domaines et non en un seul ou en cent — non pas parce que quelqu'un l'a décidé, mais parce que douze présences ont laissé douze traces, et que le monde s'en souvient encore.</p>
+            <blockquote>Les dieux sont partis. Les fréquences, elles, sont restées.</blockquote>
         </section>
 
         <section>
@@ -28,13 +30,52 @@
             <h3>Repartition naturelle</h3>
             <p>La capacité à utiliser la magie élémentaire n'est pas universelle. Sur cent mortels nés à Mystaria, dix ne pourront jamais canaliser un domaine magique — leur corps est incapable de réguler la mana de façon stable. Les quatre-vingt-dix restants portent un potentiel dormant, une affinité latente pour un ou plusieurs des douze domaines. Ce potentiel ne se manifeste jamais seul. Il attend.</p>
             <p><strong>La répartition documentée par les théoriciens du royaume Elfique, considérée comme la plus fiable à ce jour :</strong></p>
-            <ul>
-                <li>> 75% de la population porte une affinité unique — un seul domaine, accessible à l'éveil</li>
-                <li>> 11% porte deux affinités — rares, souvent instables dans leur pratique initiale</li>
-                <li>> 4% porte trois affinités ou plus — exceptionnels, parfois soupçonnés d'ascendance divine non documentée</li>
-                <li>> 10% sont incapables de réguler la mana — ni affinité, ni éveil possible par voie ordinaire</li>
-            </ul>
-            <br>
+            <div class="affinity-chart pie-chart" [attr.aria-label]="affinityChart.title">
+                <svg class="pie-chart__wheel" viewBox="0 0 100 100" role="img" [attr.aria-label]="affinityChart.title">
+                    <circle class="pie-chart__base" cx="50" cy="50" r="45"></circle>
+                    <circle
+                        *ngFor="let slice of affinityChart.slices"
+                        class="pie-chart__slice"
+                        [class.is-highlighted]="isSliceHighlighted(affinityChart.key, slice.key)"
+                        [class.is-dimmed]="isChartDimmed(affinityChart.key) && !isSliceHighlighted(affinityChart.key, slice.key)"
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        pathLength="100"
+                        [attr.stroke]="slice.color"
+                        [attr.stroke-dasharray]="slice.value + ' ' + (100 - slice.value)"
+                        [attr.stroke-dashoffset]="-slice.start"
+                        (mouseenter)="setHoveredSlice(affinityChart.key, slice.key)"
+                        (mouseleave)="clearHoveredSlice()"
+                    >
+                        <title>{{ slice.label }} : {{ slice.value }}%</title>
+                    </circle>
+                    <circle class="pie-chart__core" cx="50" cy="50" r="26"></circle>
+                    <text class="pie-chart__center" x="50" y="44" text-anchor="middle">
+                        <tspan x="50">Affinités</tspan>
+                        <tspan x="50" dy="6">natives</tspan>
+                    </text>
+                </svg>
+
+                <div class="pie-chart__legend">
+                    <div
+                        *ngFor="let slice of affinityChart.slices"
+                        class="pie-chart__item"
+                        [class.is-highlighted]="isSliceHighlighted(affinityChart.key, slice.key)"
+                        [class.is-dimmed]="isChartDimmed(affinityChart.key) && !isSliceHighlighted(affinityChart.key, slice.key)"
+                        [style.--chart-color]="slice.color"
+                        (mouseenter)="setHoveredSlice(affinityChart.key, slice.key)"
+                        (mouseleave)="clearHoveredSlice()"
+                    >
+                        <span class="pie-chart__mark" aria-hidden="true"></span>
+                        <div class="pie-chart__label">
+                            <strong>{{ slice.label }}</strong>
+                            <span>{{ slice.details }}</span>
+                        </div>
+                        <span class="pie-chart__value">{{ slice.value }}%</span>
+                    </div>
+                </div>
+            </div>
             <p>Ces chiffres représentent le potentiel de naissance. Pas le nombre de mages actifs. Une grande part de la population ne vivra jamais une situation d'éveil et mourra sans avoir jamais utilisé la magie élémentaire. Le taux de mages réellement éveillés varie fortement selon les cultures, les régions et les pratiques sociales.</p>
 
             <h3>Les dons latents</h3>
@@ -47,8 +88,8 @@
                 <li><strong>Le Sourcier: </strong>trouve l'eau souterraine, prédit la pluie avec précision, cicatrisation accélérée au contact de l'eau. Peau qui ne sèche jamais vraiment. Don valorisé — agriculteurs, navigateurs, explorateurs.</li>
                 <li><strong>Le Sismique: </strong>sent les vibrations du sol avec une sensibilité exceptionnelle, orientation parfaite en toutes circonstances, stabilité émotionnelle remarquable.</li>
                 <li><strong>Le Murmure: </strong>ouïe d'une acuité anormale, prédit les changements climatiques des heures à l'avance, légèreté naturelle dans les mouvements. Imitateur de voix instinctif. Don neutre, discrétion perçue comme un trait de caractère.</li>
-                <li><strong>Le Verdoyant: </strong>les plantes prospèrent en sa présence, les fleurs coupées ne fanent pas entre ses mains, lien intuitif avec les animaux. Cicatrisation rapide des coupures superficielles. Don valorisé — jardiniers, soigneurs, agriculteurs.</li>
-                <li><strong>L'Ombre: </strong>passe des heures dans une pièce sans être remarqué, vision nocturne supérieure. Les gens lui confient des secrets sans comprendre pourquoi. Don craint, espions, manipulateurs. Caché instinctivement par ceux qui le portent avant même qu'ils comprennent ce qu'il est.</li>
+                <li><strong>Le Verdoyant: </strong>les plantes prospèrent en sa présence, les fleurs coupées ne fanent pas entre ses mains, semble capable de savoir quelles baies et champignos sont comestible de celle qui ne le sont pas. Cicatrisation rapide des coupures superficielles. Don valorisé — jardiniers, soigneurs, agriculteurs.</li>
+                <li><strong>L'Ombre: </strong>peut passer des heures dans une pièce sans être remarqué, vision nocturne supérieure. Les gens lui confient des secrets sans comprendre pourquoi. Don craint, espions, manipulateurs. Caché instinctivement par ceux qui le portent avant même qu'ils comprennent ce qu'il est.</li>
                 <li><strong>Le Médium: </strong>perçoit les présences spectrales sans les voir clairement, entend des voix indistinctes dans les lieux chargés d'histoire, rêve de personnes mortes inconnues. Sa présence calme les lieux hantés. Don ambigu — consulté la nuit, évité le jour. Le spiritisme est une pratique sociale établie autour de ce don, largement infiltrée par les charlatans.</li>
                 <li><strong>Le Voyant: </strong>éclairs de prescience, déjà-vu intenses et fréquents, rêves prophétiques fragmentés. Finit les phrases des autres sans l'avoir voulu. Vieillissement légèrement ralenti. Don ambigu — respecté et craint. La voyance est une pratique connue, mais le lien avec la magie du Temps reste ignoré du grand public.</li>
                 <li><strong>Le Guide: </strong>sens de l'orientation absolu, intuition des distances précise au mètre, besoin instinctif d'espace autour de lui. "Rate" parfois des portes et arrive quelques mètres plus loin sans explication. Don valorisé — explorateurs, messagers, cartographes.</li>
@@ -75,9 +116,91 @@
             </ul>
         </section>
 
-        <section class="domains-section">
+        <section>
+            <div class="section-heading">
+                <h2><span>III</span> - Le flux, la réserve et l'épuisement</h2>
+            </div>
+
+            <h3>Le flux et la réserve</h3>
+            <p>La pratique de la magie élémentaire repose sur deux dimensions physiologiques distinctes et indépendantes — le flux et la réserve.</p>
+            <p><strong>La réserve </strong>est la quantité totale de mana qu'un individu peut contenir dans son corps à un moment donné. Elle est déterminée biologiquement — fixée par la naissance, par la race, par des facteurs que les théoriciens ne comprennent pas tous. Elle ne se renforce pas par l'effort comme un muscle. Ce qu'un mage peut faire en revanche, c'est apprendre à puiser dans la mana environnante pour compléter sa réserve — absorber activement l'énergie ambiante de Mystaria plutôt que de se contenter de la recharge passive naturelle. Cette technique s'apprend et se maîtrise progressivement. Elle ne change pas la taille de la réserve — elle change la vitesse à laquelle elle se remplit et la capacité à fonctionner plus longtemps sans atteindre le vide.</p>
+            <p><strong>Le flux </strong>est la vitesse à laquelle un mage peut puiser dans sa réserve et diriger la mana vers un effet. Un flux élevé permet des sorts rapides, enchaînés, réactifs. Un flux faible impose des temps de canalisation plus longs, des sorts moins immédiats. Le flux est lui aussi d'origine biologique — mais contrairement à la réserve, il peut évoluer avec le temps et l'entraînement. Lentement. Sur des années, parfois des décennies. C'est une progression réelle mais jamais spectaculaire.</p>
+            <p>Ces deux dimensions produisent des profils de mages très différents, et aucun n'est universellement supérieur à l'autre.</p>
+            <p>Un mage avec une grande réserve et un flux faible dispose d'une endurance exceptionnelle — il peut maintenir des sorts longtemps, encaisser les combats prolongés, ne jamais tomber à court. Mais ses sorts sont lents à lancer et moins percutants que ceux d'un mage au flux équivalent. Il peut lancer des sorts puissants — techniquement rien ne l'en empêche — mais le résultat sera inférieur à ce que produirait un mage dont le flux est à la hauteur de l'ambition du sort. Sa force est dans la durée, pas dans l'impact.</p>
+            <p>Un mage avec une petite réserve et un flux élevé est à l'opposé capable de quelque chose de dévastateur dans les premières secondes d'un combat, et de rien ensuite. Sa réserve s'épuise vite, son flux ne compense pas ce qui n'est plus là. Il joue tout sur l'ouverture.</p>
+            <p>La médiane, réserve et flux équilibrés est souvent ce que les académies cherchent à développer, non parce que c'est le profil le plus puissant mais parce que c'est le plus polyvalent et le plus prévisible à former.</p>
+        
+            <h3>Les domaines et leur repartitions</h3>
+            <p>L'affinité magique d'un individu n'est pas distribuée au hasard. Elle dépend de plusieurs facteurs qui s'entrecroisent — la race, le lieu de naissance, et dans une moindre mesure des facteurs moins quantifiables comme le tempérament ou des prédispositions héritées de lignées particulières.</p>
+            <p>Les théoriciens du royaume de la lumière ont tenté d'établir des tables de probabilité par race. Leurs travaux sont incomplets et contestés — les échantillons sont limités et les races sont rarement "pures" dans leurs origines — mais ils constituent la référence la plus rigoureuse disponible à ce jour.</p>
+
+            <h4>La répartition des domaines</h4>
+            <p>Les humains présentent la distribution la plus équilibrée de toutes les races. Les six domaines élémentaires communs — Feu, Eau, Terre, Air, Électricité, Plantes — sont statistiquement équivalents entre eux. Lumière et Ténèbres apparaissent chacun chez environ 14% des humains éveillés. Vie et Mort aux alentours de 11% chacun. Temps et Espace restent rares à environ 2% chacun.</p>
+            <p>Les nains ont une affinité marquée pour la Terre et l'Électricité — cohérente avec des millénaires passés dans les profondeurs, au contact des fréquences géologiques et des accumulations minérales. Les autres domaines sont accessibles mais statistiquement moins fréquents.</p>
+            <p>Les elfes tendent vers les Plantes et la Vie — lien direct avec leur histoire, leur territoire et leur culture. L'Arbre sacré au cœur de leur capitale irradie des fréquences de Vie depuis des millénaires, ce qui influence probablement les naissances dans un large rayon. Lumière et Ténèbres apparaissent plus fréquemment chez les elfes que dans d'autres races — peut-être un héritage de la division originelle de la divinité de l'Équilibre dont leur culture garde une mémoire religieuse.</p>
+            <p>Les beast humans selon les théoriciens présentent des variations importantes selon les tribus et les environnements — ceux du Royaume Abandonné montrent des affinités pour la Terre et le Feu, les tribus marines de l'Archipel pour l'Eau et l'Air. Leurs affinités semblent plus directement liées à leur environnement immédiat que celles des autres races.</p>
+            <p>Les Marcheurs des Profondeurs déconnectés de leur arbre-mère présentent des affinités variables et difficiles à catégoriser — l'Eau est fréquente, mais leurs conditions d'éveil particulières produisent parfois des domaines inattendus.</p>
+
+            <div class="domain-distribution" aria-label="Répartition des domaines par population">
+                <article *ngFor="let chart of domainCharts" class="domain-pie pie-chart" [attr.aria-label]="chart.title">
+                    <h5>{{ chart.title }}</h5>
+                    <svg class="pie-chart__wheel pie-chart__wheel--compact" viewBox="0 0 100 100" role="img" [attr.aria-label]="'Répartition des domaines - ' + chart.title">
+                        <circle class="pie-chart__base" cx="50" cy="50" r="45"></circle>
+                        <circle
+                            *ngFor="let slice of chart.slices"
+                            class="pie-chart__slice"
+                            [class.is-highlighted]="isSliceHighlighted(chart.key, slice.key)"
+                            [class.is-dimmed]="isChartDimmed(chart.key) && !isSliceHighlighted(chart.key, slice.key)"
+                            cx="50"
+                            cy="50"
+                            r="45"
+                            pathLength="100"
+                            [attr.stroke]="slice.color"
+                            [attr.stroke-dasharray]="slice.value + ' ' + (100 - slice.value)"
+                            [attr.stroke-dashoffset]="-slice.start"
+                            (mouseenter)="setHoveredSlice(chart.key, slice.key)"
+                            (mouseleave)="clearHoveredSlice()"
+                        >
+                            <title>{{ slice.label }} : {{ slice.value }}%</title>
+                        </circle>
+                        <circle class="pie-chart__core" cx="50" cy="50" r="26"></circle>
+                        <text class="pie-chart__center" x="50" y="47" text-anchor="middle">{{ chart.center }}</text>
+                    </svg>
+
+                    <div class="domain-pie__legend">
+                        <div
+                            *ngFor="let slice of chart.slices"
+                            class="domain-pie__item"
+                            [class.is-highlighted]="isSliceHighlighted(chart.key, slice.key)"
+                            [class.is-dimmed]="isChartDimmed(chart.key) && !isSliceHighlighted(chart.key, slice.key)"
+                            [style.--chart-color]="slice.color"
+                            (mouseenter)="setHoveredSlice(chart.key, slice.key)"
+                            (mouseleave)="clearHoveredSlice()"
+                        >
+                            <span class="pie-chart__mark" aria-hidden="true"></span>
+                            <span>{{ slice.label }}</span>
+                            <strong>{{ slice.value }}%</strong>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <p>Le lieu de naissance influe également indépendamment de la race. Un enfant humain né et grandi dans le Royaume elfique aura statistiquement plus de chances d'une affinité Plantes ou Vie qu'un humain né dans le Royaume de la Lumière. Les fréquences de résonance ambiantes imprègnent les corps dès la naissance — peut-être même avant.</p>
+            <p>Le tempérament est le facteur le moins bien compris et le plus controversé. Certains théoriciens avancent que des dispositions psychologiques profondes — une tendance naturelle à la patience, à l'impulsivité, à la discrétion — peuvent refléter ou même influencer légèrement l'affinité. La corrélation est observée, la causalité n'est pas établie. S'agit-il de l'affinité qui façonne le tempérament dès la naissance via les dons latents, ou du tempérament qui oriente légèrement l'affinité ? La réponse honnête est que personne ne sait.</p>
+
+            <h4>Epuisements et conséquences</h4>
+            <p>La mana n'est pas une ressource abstraite. C'est une énergie physiologique réelle dont l'épuisement a des conséquences physiques concrètes et progressives.</p>
+            <p><strong>Épuisement léger</strong> la réserve est basse mais pas vide. Fatigue physique modérée, maux de tête, légère difficulté de concentration. La canalisation reste possible mais moins précise. Récupération complète après quelques heures de repos en environnement normal.</p>
+            <p><strong>Épuisement profond</strong> la réserve est quasi vide. Fatigue intense, sensibilité accrue aux stimuli, tremblements des mains. La canalisation devient douloureuse et peu fiable — les sorts produits sont instables, parfois dangereux. Forcer dans cet état aggrave les symptômes rapidement.</p>
+            <p><strong>Vide total</strong>  la réserve est entièrement épuisée. Le corps réagit comme à un manque sévère — sueurs froides, nausées, confusion mentale, incapacité à se concentrer sur quoi que ce soit. Dans les cas d'épuisement brutal, une perte de connaissance est possible — pas un coma, pas une mort, mais un effondrement du système qui force le repos. La durée de l'inconscience dépend de la profondeur du vide et de la capacité naturelle de récupération du mage. Certains se réveillent en quelques minutes. D'autres en plusieurs heures.</p>
+            <p>Un mage qui reste conscient après un vide total présente des symptômes comparables au manque — irritabilité, hypersensibilité, impression de vide physique dans la poitrine que certains décrivent comme une faim impossible à satisfaire. Ces symptômes disparaissent progressivement à mesure que la réserve se recharge.</p>
+            <h4>Cas particulier des sorts anciens</h4>
+            <p>Les sorts anciens ne consomment pas uniquement de la mana. Ils sollicitent directement les canaux du mage au-delà de ce pour quoi ils ont été formés — en forçant un contact avec la fréquence divine brute plutôt qu'avec son écho filtré dans le monde. L'usure qui en résulte est celle des canaux eux-mêmes, pas du carburant. Vieillissement accéléré, dégradation mémorielle progressive, instabilité des canaux qui se manifeste par des sorts incontrôlés même dans les domaines maîtrisés depuis des années. Ces effets s'accumulent. Ils ne se réversent pas.</p>
+        </section>
+
+        <section id="domains" class="domains-section">
             <div class="section-heading domains-heading">
-                <h2><span>III</span> - Les 12 Domaines</h2>
+                <h2><span>IV</span> - Les 12 Domaines</h2>
             </div>
             <p>Les douze domaines ne sont pas des catégories inventées par les mortels pour classifier la magie. Ils sont des réalités physiques — des fréquences imprimées dans la mana de Mystaria par la présence historique de douze entités divines. Chaque domaine porte la signature de son dieu d'origine, et chaque mage éveillé à l'un d'eux résonne avec cette signature sans nécessairement le savoir.</p>
             <div class="domains-grid" aria-label="Les douze domaines de magie">
@@ -159,18 +282,18 @@
 
         <section>
             <div class="section-heading">
-                <h2><span>IV</span> - La magie non polarisée</h2>
+                <h2><span>V</span> - La magie non polarisée</h2>
             </div>
             <p>Il existe un usage de la mana qui précède les domaines — ou plutôt qui les ignore. La magie non polarisée est la manipulation de la mana brute, sans la laisser résonner avec l'une des douze fréquences divines. Elle ne crée pas de flamme, ne déplace pas l'eau, ne manipule ni le temps ni l'espace. Elle fait deux choses, et deux choses seulement : renforcer et protéger.</p>
             <p>Canalisée dans le corps ou dans un objet, la mana brute en renforce la structure — muscles plus denses, os plus résistants, lame plus tranchante, armure plus solide. Déployée vers l'extérieur comme un voile, elle réduit la puissance des sorts qui atteignent l'utilisateur, absorbant une partie de l'impact magique avant qu'il ne se traduise en dégâts réels.</p>
             <p>Ce qui distingue fondamentalement la magie non polarisée des douze domaines, c'est son accessibilité. Elle ne nécessite pas d'éveil. Elle ne requiert pas d'affinité naturelle. Elle s'apprend — lentement, exigeamment, mais elle s'apprend. N'importe quel mortel capable de percevoir sa propre mana peut théoriquement y accéder, à condition d'y consacrer le temps et la discipline nécessaires.</p>
-            <p>Il y a cependant une subtilité importante. Un mortel qui s'éveille à un ou plusieurs domaines magiques développe immédiatement une relation instinctive avec sa mana — son corps sait naturellement comment la canaliser, mais uniquement à travers le prisme de son affinité. La mana d'un mage du Feu nouvellement éveillé tend spontanément vers la chaleur et la combustion, comme de l'eau qui cherche sa pente naturelle. Pour accéder à la magie non polarisée, il devra apprendre à dissocier sa mana de ce réflexe — à la tenir neutre, à l'empêcher de "tomber" vers son domaine avant de la déployer. C'est un apprentissage à part entière, distinct de la maîtrise de son domaine, et que beaucoup de mages éveillés négligent ou ignorent complètement.</p>
+            <p>Un mage nouvellement éveillé se retrouve avec deux choses qu'il ne sait pas encore dissocier — une réserve d'énergie et des canaux biologiques qui n'attendent que de l'accueillir. Le réflexe naturel est de les connecter immédiatement : l'énergie afflue, les canaux la prennent, le domaine s'exprime. C'est instinctif, presque involontaire dans les premiers temps. Pour accéder à la magie non polarisée, il devra apprendre à retenir cette connexion — à laisser l'énergie disponible sans la laisser glisser vers ses canaux naturels. Tenir les deux séparés le temps de les diriger autrement. C'est un apprentissage à part entière, qui demande une discipline que la maîtrise du domaine n'enseigne pas, et que beaucoup de mages éveillés n'entreprennent jamais.</p>
             <p>En ce sens, un non-éveillé qui s'est entraîné à la magie non polarisée peut avoir une longueur d'avance sur un mage éveillé qui n'y a jamais réfléchi. La mana brute ne connaît pas de favori.</p>
         </section>
 
         <section>
             <div class="section-heading">
-                <h2><span>V</span> - Règles fondamentales de la magie</h2>
+                <h2><span>VI</span> - Règles fondamentales de la magie</h2>
             </div>
             <p>Ce qui suit n'est pas une liste de conventions académiques. Ce sont des vérités observées, documentées et confirmées par suffisamment de praticiens sur suffisamment de siècles pour ne plus être discutées — du moins dans leurs grandes lignes. Les théoriciens débattent encore des mécanismes précis. Personne ne débat des effets.</p>
             <ul>
@@ -178,7 +301,7 @@
                 <li><strong>Loi II - La loi de manipulation</strong><br>Ce qui est manipulé — et non créé — persiste tant que les conditions physiques le permettent. Un mage de l'Eau qui solidifie l'eau environnante en glace ne crée pas de glace : il modifie l'état de quelque chose qui existe déjà. Cette glace est réelle. Elle fondra si la température remonte. Elle ne se dissoudra pas parce que le mage s'éloigne ou s'épuise. La distinction entre créer et manipuler est la ligne la plus importante que tout mage apprend à tracer. D'un côté, l'esquisse. De l'autre, la réalité.</li>
                 <li><strong>Loi III - La loi d'ancrage</strong><br>La mana est produite par Mystaria. Elle ne peut être rechargée que sur Mystaria. Un mage qui quitte le monde emporte avec lui sa réserve constituée — fixe, non renouvelable hors de la planète. Une fois épuisée loin de Mystaria, elle ne revient pas. Cette loi a une implication que peu de mages considèrent (a juste titre) avant d'en avoir besoin : la puissance d'un mage hors de son monde est une question de temps, pas de talent.</li>
                 <li><strong>Loi IV - La loi de résonance</strong><br> Un mage ne peut accéder qu'aux domaines pour lesquels son corps possède une affinité naturelle. Cette affinité est fixée à la naissance. Elle ne se modifie pas, ne se transfère pas, ne s'apprend pas. On peut développer la maîtrise d'un domaine que l'on possède. On ne peut pas acquérir un domaine que l'on ne possède pas. <br>La seule exception documentée est l'éveil chaotique accordé directement par un dieu et les séquelles qui l'accompagnent suggèrent que l'exception confirme la règle plutôt qu'elle ne la contredit. </li>
-                <li><strong>Loi V - La loi d'équivalence</strong><br> Toute manifestation magique exige un prix proportionnel à son ampleur : plus un sort engendre de matière ou altère profondément un concept, plus le tribut exigé par la magie est élevé.</li>
+                <li><strong>Loi V - La loi d'équivalence</strong><br> Toute manifestation magique a un coût proportionnel à ce qu'elle accomplit. Altérer ce qui existe demande moins que créer ce qui n'existe pas. Effleurer un concept demande moins qu'en modifier la nature. La magie ne refuse rien — elle facture.</li>
             </ul>
             <strong>Note des théoriciens</strong>
             <blockquote>Ces 5 lois décrivent ce qui est observé. Elles ne décrivent pas pourquoi. La question du pourquoi, pourquoi la mana est-elle native à Mystaria, pourquoi les domaines sont-ils exactement douze. Les réponses les plus honnêtes pointent vers les dieux. Les dieux ne répondent plus. Les questions restent.</blockquote>
@@ -186,7 +309,7 @@
 
         <section>
             <div class="section-heading">
-                <h2><span>VI</span> - Disciplines dérivées</h2>
+                <h2><span>VII</span> - Disciplines dérivées</h2>
             </div>
             <p>La magie élémentaire n'est pas la seule façon d'interagir avec la mana à Mystaria. Au fil des siècles, les mortels ont développé des disciplines qui utilisent la mana non pas comme une force à projeter, mais comme un outil de transformation, de fabrication et de création. Ces disciplines sont plus accessibles que la magie élémentaire, certaines ne nécessitent pas d'éveil  mais elles demandent une connaissance théorique approfondie, une patience considérable, et dans les niveaux les plus avancés, une affinité magique correspondante.</p>
             <h3>La transmutation</h3>
@@ -200,8 +323,8 @@
             <p>Les ingrédients alchimiques se divisent en trois catégories selon leur propriété.</p>
             <ul>
                 <li><strong>Les ingrédients naturels à propriétés magiques passives</strong> des plantes, des minéraux ou des organes d'animaux ayant été exposée à des faibles mais constante influences des domaines magiques. Leurs propriétés magiques sont faibles mais stables — fiables, reproductibles, sûres à manipuler. Herbe de clarté poussant près des temples de Lumière, racine de pierre-noire du Royaume Abandonné, spores de champignons abyssaux des profondeurs : chacun porte en lui une trace de l'environnement magique qui l'a formé.</li>
-                <li><strong>Les ingrédients magiques concentrés</strong> sont des matières à haute teneur en mana — cristaux élémentaires des États Souterrains, sang d'élémentaire, fruits de mana poussant sur des lignes de concentration naturelle, plumes de créatures divines. Rares, chers, et pour certains dangereux à manipuler sans précautions. Leur concentration élevée est ce qui permet les potions de grade rare et supérieur. Elle est aussi ce qui rend les erreurs de dosage particulièrement graves.</li>
-                <li><strong>Les catalyseurs</strong> n'ont pas de propriété magique propre mais permettent aux autres ingrédients de réagir de façon stable. Eau de source primaire neutre magiquement, sel de grotte profonde, cire d'abeilles nourries à la mana — sans eux, les mélanges les plus puissants seraient instables à la préparation autant qu'à la consommation.</li>
+                <li><strong>Les ingrédients magiques concentrés</strong> sont des matières aillant été éxposées a une importante influence d'un domaine — cristaux primordiaux, sang d'élémentaire, fruits de mana poussant sur des lignes de concentration naturelle, foie de Marche-Vent Blanc. Rares, chers, et pour certains dangereux à manipuler sans précautions. Leur concentration élevée est ce qui permet les potions de grade rare et supérieur. Elle est aussi ce qui rend les erreurs de dosage particulièrement graves.</li>
+                <li><strong>Les catalyseurs</strong> n'ont pas de propriété magique propre mais permettent aux autres ingrédients de réagir de façon stable. Eau de source primaire neutre magiquement, sel de grotte profonde, cire d'abeilles — sans eux, les mélanges les plus puissants seraient instables à la préparation autant qu'à la consommation.</li>
             </ul>
             <h4><strong>Les conditions de préparations</strong></h4>
             <p>L'Alchimie n'est pas insensible à son environnement. Certaines potions exigent des conditions précises pour atteindre leur plein potentiel ou simplement pour réussir.</p>
@@ -209,9 +332,31 @@
             <p><strong>L'affinité du praticien</strong>  devient nécessaire pour les potions de grade rare et supérieur. La dernière étape de préparation — la fixation du mélange — exige que l'alchimiste insuffle une part de sa propre mana dans le breuvage pour le stabiliser. Sans affinité correspondante, la potion se déstabilise lors de cette étape. C'est la frontière entre l'artisanat alchimique accessible à tous et la pratique de haut niveau réservée aux mages.</p>
             <p><strong>La fraîcheur des ingrédients</strong> influe directement sur la puissance du résultat. Les ingrédients vivants ou frais produisent des potions plus puissantes que leurs équivalents séchés ou stockés. Certaines formules perdent leur efficacité en quelques heures après préparation. D'autres se conservent des années si correctement conditionnées.</p>
             <button>Voir le catalogue -></button>
+            <h3>Les objets magiques simple</h3>
+            <p>La magie ne passe pas uniquement par les mages. Avant qu'un mortel apprenne à canaliser sa propre énergie — avant même qu'il s'éveille — il existe des façons d'accéder aux effets magiques sans passer par soi-même. Les objets magiques simples en sont la manifestation la plus répandue et la plus accessible.</p>
+            <p>Ils ne contiennent pas de conscience. Ils ne demandent pas de rituel complexe. Ils sont des contenants — des structures dans lesquelles une énergie de domaine a été fixée, et qui la restituent de façon définie quand on les active correctement. Leur force est leur accessibilité. Leur limite est leur plafond.</p>
+            <h4><strong>Les éclats primordiaux</strong></h4>
+            <p>À la base de tout objet magique simple se trouve l'éclat primordial — une formation minérale dont la nature même a été altérée par une exposition prolongée aux fréquences de résonance d'un domaine. Ce n'est pas une accumulation. C'est une transformation — le minerai d'origine a changé de ce qu'il est fondamentalement, lié désormais à un domaine dont il exprime les propriétés de façon permanente et involontaire.</p>
+            <p>Cette expression est continue et passive — la mana ambiante s'engouffre naturellement dans l'éclat, traverse sa nouvelle nature, et en ressort teintée du domaine auquel il appartient. Un éclat de Feu est légèrement chaud au toucher en permanence. Un éclat d'Électricité peut décharger de petites impulsions à qui le manipule sans précaution. Un éclat d'Eau laisse une humidité persistante sur les surfaces proches. Ces effets ne sont pas contrôlés — ils sont la conséquence directe de ce que l'éclat est devenu. Pour obtenir un effet utile, maîtrisé et à pleine puissance, il faut y injecter activement de la mana — via le mage qui le tient, ou via un mécanisme relié à un conteneur dédié.</p>
+            <p>Le domaine d'un éclat est fixé par son environnement de formation. Il ne peut pas être changé après coup.</p>
+            <p>Il existe également des éclats non polarisés des cristaux ayant développé la capacité de stocker de la mana sans avoir été exposés à la fréquence d'un domaine particulier. Ils ne produisent aucun effet passif propre mais constituent d'excellents conteneurs de mana brute, utiles comme réservoirs d'alimentation pour des mécanismes ou comme matière première pour ceux qui savent les travailler. La plupart des praticiens les considèrent comme la seule forme transmutable d'éclat, une croyance répandue, pas nécessairement complète.</p>
+            <h4><strong>Origine et répartition</strong></h4>
+            <p>Les éclats primordiaux se forment naturellement dans les zones d'influence prolongée d'un domaine. Une caverne traversée depuis des siècles par des gaz volcaniques produira des éclats de Feu dans ses parois. Une forêt primaire millénaire verra des éclats de Plantes émerger dans ses racines les plus profondes. Une côte battue par des tempêtes permanentes générera des éclats d'Air et d'Eau dans ses falaises.</p>
+            <p>Cette logique explique leur abondance exceptionnelle dans les États Souterrains. Les réseaux de cavernes profondes concentrent les fréquences de résonance d'une façon que la surface ne peut pas reproduire — les failles géologiques, les nappes souterraines, les gaz remontant du manteau créent des environnements saturés dans lesquels les éclats se forment naturellement sur des millénaires, en quantités considérables, pour presque tous les domaines. Ils y sont si communs qu'ils sont traités comme une matière première ordinaire.</p>
+            <p>À la surface, ils sont rares. Présents mais dispersés, jamais en concentrations comparables. Un marchand de surface qui possède quelques éclats de qualité les traite comme des objets précieux. Cette asymétrie est l'une des raisons pour lesquelles les États Souterrains restent isolés — leur richesse principale est une ressource que le reste du monde ne sait pas vraiment évaluer, parce que le reste du monde ne sait pas vraiment qu'ils existent.</p>
+            <p>L'effet obtenu dépend directement de la quantité de mana injectée dans l'éclat. Un objet intégré utilisé passivement — sans injection active — produit un effet faible mais permanent, proportionnel au flux naturel de mana ambiante qui traverse l'éclat. Un objet alimenté activement — par un mage ou par un mécanisme relié à un conteneur de mana — produit son plein effet tant que l'alimentation dure.</p>
+            <h4><strong>Les runes</strong></h4>
+            <p>Au-delà de la simple intégration, certains artisans ont développé l'art de graver des runes dans les éclats primordiaux pour affiner et diriger leur énergie. Une rune est une instruction — un symbole gravé dans la structure même de l'éclat qui ne change pas ce qu'il contient mais change la façon dont il le restitue.</p>
+            <p>Un éclat de Feu brut produit une chaleur diffuse dans toutes les directions. Le même éclat correctement runé produit une flamme directionnelle, une chaleur concentrée sur une zone précise, ou une combustion retardée déclenchée par un signal spécifique. La rune ne crée pas d'énergie supplémentaire — elle en optimise la distribution.</p>
+            <p>Les systèmes runiques les plus élaborés enchaînent plusieurs éclats de domaines différents, chacun gravé pour interagir avec les autres selon une séquence définie. Un éclat d'Électricité runé pour détecter une présence, relié à un éclat d'Air runé pour déclencher une alarme sonore, relié à un éclat de Lumière runé pour signaler la direction — ce type d'assemblage est courant dans les infrastructures souterraines et représente la sophistication la plus élevée des objets magiques simples.</p>
+            <p>La gravure de runes est une discipline artisanale à part entière. Elle ne requiert pas d'éveil — elle requiert de la précision, une connaissance approfondie de la géométrie des éclats, et une compréhension théorique du domaine dont on veut diriger l'énergie. Un runiste sans affinité magique peut produire des objets plus efficaces qu'un mage éveillé qui se contenterait d'insuffler de l'énergie sans structure. Un runiste avec une affinité correspondante peut aller plus loin encore — les deux approches ne s'excluent pas, elles se complètent.</p>
+
+            <h4><strong>Les objets intégrés</strong></h4>
+            <p>La technologie magique des États Souterrains repose sur un principe simple : enchâsser des éclats primordiaux dans des objets fonctionnels pour leur conférer les propriétés du domaine correspondant. Un marteau avec un éclat de Terre dans le manche frappe plus fort contre la roche. Une lampe avec un éclat de Lumière éclaire sans combustible. Un soufflet avec un éclat d'Air produit un flux continu sans effort mécanique.</p>
+            <p>Ces objets ne demandent ni éveil ni affinité. Ils demandent de savoir monter un éclat correctement et de comprendre comment l'activer — une connaissance artisanale transmise de génération en génération dans les guildes souterraines. N'importe qui peut utiliser une lampe à éclat. Pas n'importe qui peut en fabriquer une qui durera vingt ans plutôt que six mois.</p>
             <h3>La fabrication d'artefacts</h3>
             <p>La fabrication d'artefacts à âme est la discipline la plus rare, la plus réglementée et la plus controversée des trois. Elle repose sur un principe fondamental qui divise encore les théoriciens : une conscience peut être transférée dans un objet inerte, et cet objet devient alors quelque chose de plus qu'un outil. <br>Ce "quelque chose de plus" est précisément ce qui pose problème.</p>
-            <strong>Le principe</strong>
+            <h4><strong>Le principe</strong></h4>
             <p>Deux domaines permettent de créer des artefacts à âme, il y'a aussi une troisième voie, dissociée des domaines divins, et ils produisent des résultats légèrement différents bien que se reposant sur le même principe.</p>
             <p><strong>La voie de la vie</strong> insuffle une âme vierge dans l'objet. une conscience qui n'a aucun passé, aucun trait défini, aucune affinité. Elle grandira selon ses expériences, développera une volonté propre, et évoluera dans des directions que le créateur ne peut pas prédire. Une arme animée par une âme vierge pourrait, après des années d'existence, refuser d'être utilisée contre certaines cibles. Elle pourrait développer des préférences, des loyautés, des limites morales. Ce que le créateur a fabriqué, l'âme l'habite — mais elle n'en est pas l'esclave.</p>
             <p><strong>La voie de la mort</strong> extrait une âme existante, celle d'un être qui a vécu et l'insuffle dans l'objet. Elle apporte immédiatement tout ce qu'elle était : sa personnalité, ses compétences, ses affinités, ses rancœurs. Une arme animée par l'âme d'un grand guerrier est dangereuse dès le premier jour. Mais l'âme emprisonnée sait qu'elle est emprisonnée. Elle se souvient de ce qu'elle était. Elle n'a aucune raison d'être loyale à qui que ce soit.</p>
@@ -229,7 +374,7 @@ La règle transmise dans les rares cercles qui enseignent cette pratique est sim
 
         <section>
             <div class="section-heading">
-                <h2><span>VII</span> - La magie à travers les régions</h2>
+                <h2><span>VIII</span> - La magie à travers les régions</h2>
             </div>
             <p>La magie est universelle à Mystaria. La façon dont on la perçoit, l'encadre, l'enseigne et la craint ne l'est pas. Chaque civilisation a développé un rapport distinct avec cet héritage divin — façonné par son histoire, sa géographie, ses croyances et ses intérêts. Ce qui est sacré dans un royaume est un outil bureaucratique dans un autre. Ce qui est interdit au grand jour ici est enseigné discrètement là.</p>
             <p>Ce qui suit n'est pas une liste exhaustive — chaque région possède sa propre page détaillée. C'est un aperçu des grandes lignes, des tensions et des particularités qui définissent le rapport de chaque culture à la magie.</p>
@@ -242,7 +387,7 @@ La règle transmise dans les rares cercles qui enseignent cette pratique est sim
             <p>Ici, la magie est avant tout une affaire de pouvoir et d'économie. La couronne enregistre chaque éveillé, note chaque affinité, oriente chaque mage vers un rôle social défini par son domaine. Un mage du Feu est orienté vers l'armée ou les forges. Un mage de la Lumière vers l'administration ou le clergé. Un mage de la Vie vers les soins encadrés par l'État.</p>
             <p>Ce contrôle a une logique claire : un mage non encadré est une ressource gaspillée. Il a aussi une implication que le gouvernement reconnaît sans jamais le formuler ainsi: un mage encadré est un mage sous surveillance.</p>
 
-            <h3>Archipel de la Nuit — la magie comme rite de passage</h3>
+            <h3><span [mistTranslate]="'Archipel de la Nuit'" mistBaseColor="#6b1f1f" [mistDuration]="6">Pō pae ʻāina</span> — la magie comme rite de passage</h3>
             <p>Dans l'Archipel, la magie ne s'enseigne pas dans des académies. Elle se rencontre. Le Tour des Îles — le rite de passage à l'âge adulte — est conçu pour créer les conditions d'un éveil naturel à travers l'épreuve, l'effort et la confrontation avec soi-même. Chaque île, chaque gardien, chaque épreuve est une situation qui pousse le candidat vers ses limites... et souvent au-delà.</p>
             <p>La magie ici est perçue comme un don de Mahina Lun'a, transmis non pas par naissance mais par mérite — une perception inexacte théoriquement, mais culturellement cohérente avec l'observation que les éveils surviennent lors des épreuves et non avant. Le lien entre les dons latents et la magie est partiellement connu — les anciens le reconnaissent, même s'ils l'expriment en termes de "bénédiction précoce" plutôt que de physiologie magique.</p>
             <p>La magie non polarisée est pratiquée instinctivement par beaucoup — les guerriers de l'Archipel renforçant leur corps avant le combat sans nécessairement la nommer ainsi.De plus certaines traditions font part de la création de masque aux propriétés magique, ceux-ci étant probablement des artefacts forgée à l'aide de la "voie du soi". La théorisation formelle de la magie n'est pas une valeur culturelle ici. L'expérience l'est.</p>
