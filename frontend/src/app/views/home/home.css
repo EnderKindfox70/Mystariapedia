@@ -113,30 +113,12 @@
   box-shadow: inset 0 0 0 8px rgba(139, 107, 47, .09);
 }
 
-.sigil::before,
-.sigil::after {
-  position: absolute;
-  content: '';
-}
-
-.sigil::before {
-  inset: 9px;
-  border: 1px solid rgba(34, 23, 19, .7);
-  border-radius: 50%;
-  background:
-    linear-gradient(30deg, transparent 48%, rgba(34, 23, 19, .72) 49% 51%, transparent 52%),
-    linear-gradient(90deg, transparent 48%, rgba(34, 23, 19, .72) 49% 51%, transparent 52%),
-    linear-gradient(150deg, transparent 48%, rgba(34, 23, 19, .72) 49% 51%, transparent 52%);
-}
-
-.sigil::after {
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--red);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 6px rgba(139, 107, 47, .16),
-    0 0 12px rgba(107, 31, 31, .24);
+.sigil2
+{
+  display: block;
+  width: 58px;
+  height: 58px;
+  margin: 12px auto 0;
 }
 
 .brand strong {

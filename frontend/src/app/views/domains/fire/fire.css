@@ -34,6 +34,10 @@
   min-height: 28rem;
   overflow: hidden;
   padding: clamp(18px, 3vw, 34px);
+  background-image: url('/resources/media/pictures/fire_bannier.png');
+  background-position: 100% 0;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .breadcrumb {

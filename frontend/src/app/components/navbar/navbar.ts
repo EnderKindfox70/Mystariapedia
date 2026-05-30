@@ -49,13 +49,14 @@ export class Navbar {
       label: 'Magie',
       path: '/magics',
       children: [
-        { key: 'index-magies', label: 'Index des magies', path: '/magics', fragment: 'index' },
-        { key: 'domaines', label: 'Domaines', path: '/magics', fragment: 'domains' },
-        { key: 'eveil', label: 'Eveil', path: '/magics', fragment: 'awakening' },
+        { key: 'règles fondamentales', label: 'Règles fondamentales', path: '/magics', fragment: 'rules' },
+        { key: 'eveil', label: 'Don & Eveil', path: '/magics', fragment: 'awakening' },
+        { key: 'domaines', label: 'Domaines', path: '/magics', fragment: 'domains', children: [
+          {key: 'fire', label: 'Feu', path: '/magics/fire'}
+         ]},
         { key: 'mana', label: 'Mana', path: '/magics', fragment: 'mana' },
-        { key: 'compatibilites', label: 'Compatibilites', path: '/magics', fragment: 'compatibilities' },
-        { key: 'rituels', label: 'Rituels', path: '/magics', fragment: 'rituals' },
-        { key: 'limites', label: 'Limites', path: '/magics', fragment: 'limits' },
+        { key: 'Autre disciplines', label: 'Autre disciplines', path: '/magics', fragment: 'other-disciplines' },
+        { key: 'Magie non polarisée', label: 'Magie non polarisée', path: '/magics', fragment: 'non-polarized-magic' },
       ],
     },
     {
