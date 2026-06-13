@@ -1,0 +1,42 @@
+{
+    "name": "Croc de loup",
+    "subtitle": "Dépouille de créature",
+    "image": "/resources/media/pictures/natural-resources/remains/croc_de_loup.png",
+    "icon": "",
+    "description": [
+        "Canine recourbée prélevée sur un loup des plaines, encore imprégnée de l'instinct de chasse de la bête.",
+        "Les artisans la recherchent pour les enchantements de morsure et les talismans de meute."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Ossement / croc" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "source",  "label": "Provenance",  "value": "Loup des plaines" },
+        { "key": "usage",   "label": "Utilisation", "value": "Talismans, armes, rituels de chasse" }
+    ],
+    "properties": [
+        "Renforce les enchantements de tranchant et de morsure.",
+        "Confère un surcroît de férocité aux invocations bestiales.",
+        "Conserve une fragilité naturelle s'il est mal traité."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Récolté sur les loups abattus dans les forêts et les plaines du nord de Mystaria.",
+            "Conseil : prélevez-le rapidement après la chasse, avant que l'énergie vitale ne se dissipe."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "loup-des-plaines", "collection": "bestiary", "label": "Loup des plaines" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "life", "collection": "domains", "label": "Vie" }
+            ]
+        }
+    ]
+}

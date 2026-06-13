@@ -1,0 +1,26 @@
+{
+    "name": "Lumière",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Là où je passe, les ombres ne disparaissent pas. Elles se précisent.",
+    "usage-quote": "Ne projette pas la lumière. Sois la source, et laisse-la rayonner.",
+    "subdomains": 
+    [
+        {"name": "Illumination", "icon": "", "spells": []},
+        {"name": "Ordre & Commandement", "icon": "", "spells": []},
+        {"name": "Purification", "icon": "", "spells": []},
+        {"name": "Révélation", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

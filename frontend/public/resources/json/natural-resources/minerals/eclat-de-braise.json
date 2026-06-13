@@ -1,0 +1,36 @@
+{
+    "name": "Éclat de braise",
+    "subtitle": "Cristal élémentaire",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Ce cristal incandescent se forme au cœur des veines volcaniques de Mystaria, là où la roche n'a jamais cessé de brûler.",
+        "Il conserve une chaleur perpétuelle et libère son énergie lorsqu'il est brisé, ce qui en fait une source de puissance recherchée des alchimistes."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal igné" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "habitat", "label": "Gisement",    "value": "Veines volcaniques, grottes thermales" },
+        { "key": "usage",   "label": "Utilisation", "value": "Forge, enchantements, potions de feu" }
+    ],
+    "properties": [
+        "Diffuse une chaleur constante sans se consumer.",
+        "Amplifie les effets des potions et rituels liés au feu.",
+        "Peut surchauffer et fissurer les mélanges instables."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le déterre dans les galeries proches des chambres magmatiques, souvent serti dans la roche noire refroidie.",
+            "Conseil : manipulez-le avec des gants traités, car il reste brûlant longtemps après extraction."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "fire", "collection": "domains", "label": "Feu" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+{
+    "name": "Sel cristallin",
+    "subtitle": "Minerai commun",
+    "image": "/resources/media/pictures/natural-resources/minerals/sel_cristallin.png",
+    "icon": "",
+    "description": [
+        "Cristal de sel purifié, souvent trouvé dans les grottes salines des montagnes de Mystaria.",
+        "Il est utilisé dans les rituels de purification et les enchantements liés à l'eau."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Minerai" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "habitat", "label": "Gisement",    "value": "Flanc de montagne" },
+        { "key": "usage",   "label": "Utilisation", "value": "Utiliser dans des rituels, potions et la transmutation" }
+    ],
+    "properties": [
+        "Utilisé pour renforcer les potions de purification et les rituels de protection contre les malédictions.",
+        "Peut être broyé en poudre pour créer des barrières magiques contre les entités maléfiques.",
+        "Conserve une énergie purifiante qui peut neutraliser les poisons et les énergies corrompues."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le trouve dans les veines de sel des montagnes, souvent à proximité de sources d'eau pure."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "water", "collection": "domains", "label": "Eau" }
+            ]
+        }
+    ]
+}

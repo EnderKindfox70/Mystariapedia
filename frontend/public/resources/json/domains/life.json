@@ -1,0 +1,26 @@
+{
+    "name": "Vie",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Je ne distingue pas le beau du monstrueux. Je crée. Le reste ne me regarde pas.",
+    "usage-quote": "Ne dirige pas la vie. Accompagne-la. Elle sait où elle va mieux que toi.",
+    "subdomains": 
+    [
+        {"name": "Soin & vitalité", "icons":"", "spells": []},
+        {"name": "Manipulation de la chair", "icon": "", "spells": []},
+        {"name": "Création d'âme", "icon": "", "spells": []}
+        
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

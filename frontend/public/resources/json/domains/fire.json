@@ -1,0 +1,26 @@
+{
+    "name": "Feu",
+    "icon": "",
+    "banner": "/resources/media/pictures/fire_banniere.png",
+    "first-quote": "J'embrase tout ce que je touche. Je transforme tout ce que je consomme. Je suis la fin et le commencement.",
+    "usage-quote": "Ne contrôle pas la flamme. Deviens la raison pour laquelle elle brûle",
+    "subdomains": 
+    [
+        {"name": "Combustion", "icon": "", "spells": []},
+        {"name": "Chaleur", "icon": "", "spells": []} ,
+        {"name": "Destruction", "icon": "", "spells": []},
+        {"name": "Passion & rage", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

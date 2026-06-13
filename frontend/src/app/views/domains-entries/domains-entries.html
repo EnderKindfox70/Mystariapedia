@@ -1,0 +1,222 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main [class]="'paper-surface domain-entry domain-' + domainSlug()">
+
+    <!-- ── Hero : nom + citation gauche / emblème droit ── -->
+    <section class="de-hero">
+      <div class="de-hero__text">
+        <span class="de-hero__kicker">Domaine de</span>
+        <h1 class="de-hero__name">{{ entry().name }}</h1>
+        <div class="de-hero__rule" aria-hidden="true"></div>
+        @if (entry()['first-quote']) {
+          <blockquote class="de-hero__quote">
+            <span class="de-hero__guillemet">«</span>
+            <em>{{ entry()['first-quote'] }}</em>
+            <span class="de-hero__guillemet">»</span>
+            @if (entry()['first-quote-author']) {
+              <cite class="de-hero__cite">– {{ entry()['first-quote-author'] }}</cite>
+            }
+          </blockquote>
+        }
+      </div>
+
+      <div class="de-hero__emblem" aria-hidden="true">
+        <div class="de-hero__circle"></div>
+        @if (entry().icon) {
+          <img class="de-hero__icon" [src]="entry().icon" [alt]="entry().name">
+        }
+      </div>
+    </section>
+
+    <!-- ── Essence ── -->
+    @if (entry().description) {
+      <section class="de-section">
+        <div class="de-section-heading"><h2>Essence</h2></div>
+        <p class="de-description">{{ entry().description }}</p>
+      </section>
+    }
+
+    <!-- ── Aspects + Manifestations (deux colonnes) ── -->
+    @if (entry().subdomains.length || entry().manifestations?.length) {
+      <div class="de-twin">
+
+        @if (entry().subdomains.length) {
+          <section class="de-twin__panel">
+            <div class="de-section-heading"><h2>Aspects</h2></div>
+            <ul class="de-icon-list">
+              @for (sub of entry().subdomains; track sub.name) {
+                <li class="de-icon-item">
+                  <div class="de-icon-wrap">
+                    @if (sub.icon) {
+                      <img class="de-icon-img" [src]="sub.icon" [alt]="">
+                    } @else {
+                      <div class="de-icon-placeholder"></div>
+                    }
+                  </div>
+                  <div class="de-icon-body">
+                    <strong class="de-icon-name">{{ sub.name }}</strong>
+                    @if (sub.description) {
+                      <p class="de-icon-desc">{{ sub.description }}</p>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (entry().manifestations?.length) {
+          <section class="de-twin__panel">
+            <div class="de-section-heading"><h2>Manifestations</h2></div>
+            <ul class="de-icon-list">
+              @for (m of entry().manifestations!; track m.name) {
+                <li class="de-icon-item">
+                  <div class="de-icon-wrap">
+                    @if (m.icon) {
+                      <img class="de-icon-img" [src]="m.icon" [alt]="">
+                    } @else {
+                      <div class="de-icon-placeholder"></div>
+                    }
+                  </div>
+                  <div class="de-icon-body">
+                    <strong class="de-icon-name">{{ m.name }}</strong>
+                    @if (m.description) {
+                      <p class="de-icon-desc">{{ m.description }}</p>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+      </div>
+    }
+
+    <!-- ── Liens & Affinités ── -->
+    @let aff = entry().affinities;
+    @if (aff) {
+      <section class="de-section">
+        <div class="de-section-heading"><h2>Liens & Affinités</h2></div>
+        <div class="de-affinities">
+
+          @if (aff.natural) {
+            <div class="de-affinity de-affinity--natural">
+              <span class="de-affinity__type">Affinité naturelle</span>
+              <div class="de-affinity__icon-wrap"><div class="de-affinity__icon"></div></div>
+              <strong class="de-affinity__label">{{ aff.natural.label }}</strong>
+              <p class="de-affinity__desc">{{ aff.natural.description }}</p>
+            </div>
+          }
+          @if (aff.harmonic) {
+            <div class="de-affinity de-affinity--harmonic">
+              <span class="de-affinity__type">Affinité harmonieuse</span>
+              <div class="de-affinity__icon-wrap"><div class="de-affinity__icon"></div></div>
+              <strong class="de-affinity__label">{{ aff.harmonic.label }}</strong>
+              <p class="de-affinity__desc">{{ aff.harmonic.description }}</p>
+            </div>
+          }
+          @if (aff.resistance) {
+            <div class="de-affinity de-affinity--resistance">
+              <span class="de-affinity__type">Résistance</span>
+              <div class="de-affinity__icon-wrap"><div class="de-affinity__icon"></div></div>
+              <strong class="de-affinity__label">{{ aff.resistance.label }}</strong>
+              <p class="de-affinity__desc">{{ aff.resistance.description }}</p>
+            </div>
+          }
+          @if (aff.opposition) {
+            <div class="de-affinity de-affinity--opposition">
+              <span class="de-affinity__type">Opposition</span>
+              <div class="de-affinity__icon-wrap"><div class="de-affinity__icon"></div></div>
+              <strong class="de-affinity__label">{{ aff.opposition.label }}</strong>
+              <p class="de-affinity__desc">{{ aff.opposition.description }}</p>
+            </div>
+          }
+
+          @if (entry()['usage-quote']) {
+            <blockquote class="de-affinities__aside">
+              {{ entry()['usage-quote'] }}
+            </blockquote>
+          }
+
+        </div>
+      </section>
+    }
+
+    <!-- ── Combinaisons ── -->
+    @if (combinations().length) {
+      <section class="de-section">
+        <div class="de-section-heading"><h2>Combinaisons de domaines</h2></div>
+        <ul class="de-combo-list">
+          @for (combo of combinations(); track combo.name) {
+            <li class="de-combo-item">
+              <span class="de-combo-name">{{ combo.name }}</span>
+              <span class="de-combo-tags">
+                @for (c of combo.components; track c; let last = $last) {
+                  <span [class]="'de-tag domain-' + c">{{ c }}</span>
+                  @if (!last) {
+                    <span class="de-combo-plus" aria-hidden="true">+</span>
+                  }
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── Références (artefacts, faune, flore) ── -->
+    @for (section of crossRefSections(); track section.label) {
+      @if (section.items.length) {
+        <section class="de-section">
+          <div class="de-section-heading"><h2>{{ section.label }}</h2></div>
+          <ul class="de-ref-list">
+            @for (ref of section.items; track ref.ref) {
+              <li><a [routerLink]="ref | wikiLink" class="de-ref-link">{{ ref.label }}</a></li>
+            }
+          </ul>
+        </section>
+      }
+    }
+
+    <!-- ── Enseignement ancestral ── -->
+    @if (entry().teaching) {
+      <div class="de-teaching">
+        <div class="de-section-heading"><h2>Enseignement Ancestral</h2></div>
+        <p class="de-teaching__text">{{ entry().teaching }}</p>
+      </div>
+    }
+
+    <!-- ── Navigation domaines ── -->
+    <nav class="de-domain-nav" aria-label="Navigation entre domaines">
+
+      <a [routerLink]="'/magics/' + prevDomain().slug"
+         [class]="'de-domain-nav__link de-domain-nav__link--prev domain-' + prevDomain().slug">
+        <span class="de-domain-nav__arrow">←</span>
+        <span class="de-domain-nav__sigil" aria-hidden="true">{{ prevDomain().sigil }}</span>
+        <span class="de-domain-nav__info">
+          <span class="de-domain-nav__hint">Domaine précédent</span>
+          <span class="de-domain-nav__name">{{ prevDomain().label }}</span>
+        </span>
+      </a>
+
+      <a routerLink="/magics" fragment="domains" class="de-domain-nav__index">
+        <span class="de-domain-nav__index-sigil" aria-hidden="true">✦</span>
+        <span class="de-domain-nav__index-label">Tous les domaines</span>
+      </a>
+
+      <a [routerLink]="'/magics/' + nextDomain().slug"
+         [class]="'de-domain-nav__link de-domain-nav__link--next domain-' + nextDomain().slug">
+        <span class="de-domain-nav__info">
+          <span class="de-domain-nav__hint">Domaine suivant</span>
+          <span class="de-domain-nav__name">{{ nextDomain().label }}</span>
+        </span>
+        <span class="de-domain-nav__sigil" aria-hidden="true">{{ nextDomain().sigil }}</span>
+        <span class="de-domain-nav__arrow">→</span>
+      </a>
+
+    </nav>
+
+  </main>
+</div>

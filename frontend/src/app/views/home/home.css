@@ -76,7 +76,7 @@
 
 .codex-header {
   display: grid;
-  grid-template-columns: 310px minmax(0, 1fr) 210px;
+  grid-template-columns: 310px minmax(0, 1fr) 250px;
   gap: 18px;
   align-items: center;
   width: calc(100% - 2px);
@@ -149,6 +149,23 @@
 
 .home-menu-toggle {
   display: none;
+}
+
+/* Bloc de droite de l'en-tête : recherche + porte d'accès discrète. */
+.header-end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-end .search-box {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-door {
+  flex: 0 0 auto;
+  color: #4a2018;
 }
 
 .search-box {
@@ -805,7 +822,7 @@
     border-bottom: 1px solid rgba(34, 23, 19, .16);
   }
 
-  .search-box {
+  .header-end {
     grid-column: 1 / -1;
   }
 

@@ -1,0 +1,27 @@
+{
+    "name": "Tenèbres",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Je suis le silence dans lequel tu te caches. Je suis l'ombre que tu fuis. Je suis la peur que tu ressens.",
+    "usage-quote": "Dissimule d'abord ta propre présence. Ce que tu ne peux pas cacher en toi, tu ne peux pas cacher ailleurs.",
+    "subdomains": 
+    [
+        {"name": "Ombre", "icon": "", "spells": []},
+        {"name": "Obfuscation & Secret", "icon": "", "spells": []},
+        {"name": "Sommeil & Rêve", "icon": "", "spells": []},
+        {"name": "Peur & terreur", "icon": "", "spells": []},
+        {"name": "Néant", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

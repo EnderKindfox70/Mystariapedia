@@ -1,0 +1,195 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface potion-entry">
+
+    <div class="pe-kicker" aria-hidden="true">— Potions —</div>
+
+    <!-- ── Hero : illustration + identité ── -->
+    <section class="pe-hero">
+      <div class="pe-illustration">
+        @if (entry().image) {
+          <img [src]="entry().image" [alt]="entry().name">
+        } @else {
+          <div class="pe-illustration__placeholder" aria-hidden="true">⚗</div>
+        }
+      </div>
+
+      <div class="pe-hero__body">
+        <h1 class="pe-title">{{ entry().name }}</h1>
+        @if (entry().subtitle) {
+          <p class="pe-subtitle">{{ entry().subtitle }}</p>
+        }
+        <div class="pe-rule" aria-hidden="true"></div>
+
+        @for (p of entry().description; track $index) {
+          <p class="pe-desc">{{ p }}</p>
+        }
+
+        @if (entry().effects.length || entry()['secondary-effects']?.length) {
+          <div class="pe-effects-row">
+            @if (entry().effects.length) {
+              <div class="pe-block">
+                <div class="pe-block__heading"><span>✦</span> Effets</div>
+                <ul class="pe-effects">
+                  @for (eff of entry().effects; track $index) {
+                    <li><span class="pe-effects__mark" aria-hidden="true">✦</span>{{ eff }}</li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (entry()['secondary-effects']?.length) {
+              <div class="pe-block">
+                <div class="pe-block__heading"><span>✦</span> Effets secondaires</div>
+                <ul class="pe-effects pe-effects--secondary">
+                  @for (eff of entry()['secondary-effects']!; track $index) {
+                    <li><span class="pe-effects__mark" aria-hidden="true">✦</span>{{ eff }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        }
+
+        @if (entry().quote) {
+          <blockquote class="pe-quote">
+            <span class="pe-quote__guillemet" aria-hidden="true">“</span>
+            <em>{{ entry().quote }}</em>
+            @if (entry()['quote-author']) {
+              <cite class="pe-quote__cite">— {{ entry()['quote-author'] }}</cite>
+            }
+          </blockquote>
+        }
+      </div>
+    </section>
+
+    <!-- ── Ingrédients + Préparation ── -->
+    <div class="pe-twin">
+
+      @if (entry().ingredients.length) {
+        <section class="pe-twin__panel">
+          <div class="pe-block__heading"><span>✦</span> Ingrédients</div>
+          <ul class="pe-ingredients">
+            @for (ing of entry().ingredients; track ing.name) {
+              <li class="pe-ingredient">
+                <div class="pe-ingredient__icon" aria-hidden="true">
+                  @if (ingredientImage(ing); as img) {
+                    <img [src]="img" [alt]="ing.name">
+                  } @else {
+                    <span>✦</span>
+                  }
+                </div>
+                <div class="pe-ingredient__body">
+                  @if (ing.ref) {
+                    <a class="pe-ingredient__name pe-ingredient__name--link" [routerLink]="ing.ref | wikiLink">{{ ing.name }}</a>
+                  } @else {
+                    <span class="pe-ingredient__name">{{ ing.name }}</span>
+                  }
+                  @if (ing.quantity) {
+                    <span class="pe-ingredient__qty">{{ ing.quantity }}</span>
+                  }
+                  @if (ing.note) {
+                    <p class="pe-ingredient__note">{{ ing.note }}</p>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (entry().preparation.length) {
+        <section class="pe-twin__panel">
+          <div class="pe-block__heading"><span>✦</span> Préparation</div>
+          <ol class="pe-steps">
+            @for (step of entry().preparation; track $index) {
+              <li class="pe-step">
+                <span class="pe-step__num" aria-hidden="true">{{ $index + 1 }}</span>
+                <span class="pe-step__text">{{ step }}</span>
+              </li>
+            }
+          </ol>
+
+          <!-- ── Bande d'identité (Type / Rareté / Poids / Valeur) ── -->
+          @if (entry().info.length) {
+            <ul class="pe-info-grid">
+              @for (field of entry().info; track field.label) {
+                <li class="pe-info">
+                  <span class="pe-info__icon" aria-hidden="true">
+                    @switch (field.key) {
+                      @case ('type') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                          <path d="M9 3h6v3l-1 1v3l4 8a2 2 0 0 1-1.8 2.9H7.8A2 2 0 0 1 6 21l4-8V7L9 6Z" stroke-linejoin="round"/>
+                        </svg>
+                      }
+                      @case ('rarity') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                          <path d="M12 3l2.2 6.2H20l-4.9 3.8 1.9 6L12 15.3 7 19l1.9-6L4 9.2h5.8Z" stroke-linejoin="round"/>
+                        </svg>
+                      }
+                      @case ('weight') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                          <path d="M9 7a3 3 0 0 1 6 0" stroke-linecap="round"/>
+                          <path d="M6 8h12l1.5 11a1 1 0 0 1-1 1.1H5.5a1 1 0 0 1-1-1.1Z" stroke-linejoin="round"/>
+                        </svg>
+                      }
+                      @case ('value') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                          <ellipse cx="12" cy="7" rx="7" ry="3"/>
+                          <path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7" stroke-linecap="round"/>
+                          <path d="M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5" stroke-linecap="round"/>
+                        </svg>
+                      }
+                      @default {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                          <path d="M12 4l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" stroke-linejoin="round"/>
+                        </svg>
+                      }
+                    }
+                  </span>
+                  <span class="pe-info__label">{{ field.label }}</span>
+                  <span class="pe-info__value">{{ field.value }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+    </div>
+
+    <!-- ── Références croisées ── -->
+    @for (group of entry().references ?? []; track group.label) {
+      @if (group.items?.length) {
+        <section class="pe-section">
+          <div class="pe-block__heading"><span>✦</span> {{ group.label }}</div>
+          <ul class="pe-ref-list">
+            @for (ref of group.items; track ref.ref) {
+              <li><a [routerLink]="ref | wikiLink" class="pe-ref-link">{{ ref.label }}</a></li>
+            }
+          </ul>
+        </section>
+      }
+    }
+
+    <!-- ── Notes des alchimistes ── -->
+    @if (entry().notes?.length) {
+      <div class="pe-notes">
+        <div class="pe-notes__heading">Notes des alchimistes <span aria-hidden="true">✦</span></div>
+        @for (note of entry().notes!; track $index) {
+          <p class="pe-notes__text">{{ note }}</p>
+        }
+      </div>
+    }
+
+    <!-- ── Retour ── -->
+    <nav class="pe-nav" aria-label="Navigation potions">
+      <a routerLink="/alchemy" class="pe-nav__back">
+        <span class="pe-nav__arrow" aria-hidden="true">←</span>
+        <span>Retour au catalogue</span>
+      </a>
+    </nav>
+
+  </main>
+</div>

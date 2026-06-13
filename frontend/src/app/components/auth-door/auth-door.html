@@ -1,0 +1,28 @@
+@if (isAuthenticated()) {
+    <button
+        type="button"
+        class="auth-door"
+        [title]="'Se déconnecter — ' + (user()?.username ?? '')"
+        aria-label="Se déconnecter"
+        (click)="logout()"
+    >
+        <svg class="door-glyph leaving" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="door-frame" d="M13 3h6a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-6" />
+            <path class="door-arrow" d="M14 12H3m4-4-4 4 4 4" />
+            <circle class="door-knob" cx="16" cy="12" r="0.9" />
+        </svg>
+    </button>
+} @else {
+    <a
+        class="auth-door"
+        routerLink="/login"
+        title="Se connecter"
+        aria-label="Se connecter"
+    >
+        <svg class="door-glyph entering" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="door-frame" d="M13 3h6a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-6" />
+            <path class="door-arrow" d="M3 12h11m-4-4 4 4-4 4" />
+            <circle class="door-knob" cx="16" cy="12" r="0.9" />
+        </svg>
+    </a>
+}

@@ -1,0 +1,24 @@
+{
+    "name": "Electricité",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Je suis rapide, imprevisible, je suis dans le ciel et dans ton corps.",
+    "usage-quote": "Laisse l'impulsion venir. Si tu la construis, tu arrives trop tard.",
+    "subdomains": 
+    [
+        {"name": "Décharge", "icon": "", "spells": []},
+        {"name": "Électromagnétisme", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

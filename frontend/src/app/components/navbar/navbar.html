@@ -1,9 +1,16 @@
-<aside class="sidebar">
+<aside
+    class="sidebar"
+    [style.--floating-panel-top]="floatingPanelTop + 'px'"
+    [style.--floating-panel-left]="floatingPanelLeft + 'px'"
+>
     <header class="sidebar-header">
         <div class="logo-sigil">
             <img src="/resources/media/pictures/eye.png" alt="Sigil de Mystaria">
         </div>
         <div class="wiki-name">CODEX MYSTARIA</div>
+
+        <auth-door class="sidebar-door"></auth-door>
+
         <button
             type="button"
             class="menu-toggle"
@@ -59,16 +66,16 @@
                     [class.nav-group]="item.children"
                     [class.current]="expandedGroup === item.key"
                     [class.expanded]="isGroupOpen(item.key)"
-                    (mouseenter)="item.children && openGroup(item.key)"
+                    (mouseenter)="item.children && openGroup(item.key, $event)"
                 >
-                    <button
+                    <a
                         *ngIf="item.children; else simpleLink"
-                        type="button"
                         class="main-link group-link"
-                        [attr.aria-expanded]="isGroupOpen(item.key)"
                         [routerLink]="item.path"
-                        (click)="toggleGroup(item.key)"
-                    >{{ item.label }}</button>
+                        [fragment]="item.fragment"
+                        [attr.aria-expanded]="isGroupOpen(item.key)"
+                        (click)="closeNavigation()"
+                    >{{ item.label }}</a>
                     <ng-template #simpleLink>
                         <a
                             class="main-link"

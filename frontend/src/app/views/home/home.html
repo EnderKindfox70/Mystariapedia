@@ -31,15 +31,18 @@
       <a routerLink="/factions" (click)="closeNavigation()">Factions</a>
       <a routerLink="/entities" (click)="closeNavigation()">Entités</a>
       <a routerLink="/locations" (click)="closeNavigation()">Lieux</a>
-      <a routerLink="/artifacts" (click)="closeNavigation()">Artéfacts</a>
+      <a routerLink="/objects" (click)="closeNavigation()">Objets</a>
       <a routerLink="/magics" (click)="closeNavigation()">Magie</a>
       <a routerLink="/bestiary" (click)="closeNavigation()">Bestiaire</a>
     </nav>
 
-    <label class="search-box">
-      <input type="search" placeholder="Rechercher..." aria-label="Rechercher">
-      <span aria-hidden="true">⌕</span>
-    </label>
+    <div class="header-end">
+      <label class="search-box">
+        <input type="search" placeholder="Rechercher..." aria-label="Rechercher">
+        <span aria-hidden="true">⌕</span>
+      </label>
+      <auth-door class="home-door"></auth-door>
+    </div>
   </header>
 
   <div class="pages">

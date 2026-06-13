@@ -1,0 +1,463 @@
+.potion-entry > * {
+  position: relative;
+  z-index: 1;
+}
+
+.potion-entry {
+  flex: 1;
+  overflow-y: auto;
+  align-self: flex-start;
+  min-height: calc(100vh - 48px);
+  margin-block: 24px;
+  --pe-ink: #3a2a1c;
+  --pe-ink-soft: rgba(58, 42, 28, .72);
+  --pe-line: rgba(58, 42, 28, .34);
+  --pe-gold: var(--ancient-gold, #8b6b2f);
+}
+
+.pe-kicker {
+  margin-bottom: 1.4rem;
+  text-align: center;
+  color: var(--pe-ink-soft);
+  font: 600 .82rem var(--font-title);
+  letter-spacing: .35em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.pe-hero {
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+  gap: clamp(1rem, 3vw, 2.4rem);
+  align-items: start;
+}
+
+.pe-illustration {
+  display: grid;
+  place-items: center;
+  position: sticky;
+  top: 1rem;
+  min-height: 18rem;
+  padding: 1rem;
+}
+
+.pe-illustration img {
+  max-width: 100%;
+  max-height: 30rem;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 16px rgba(34, 23, 19, .3));
+}
+
+.pe-illustration__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 18rem;
+  border: 1px dashed var(--pe-line);
+  color: rgba(58, 42, 28, .3);
+  font-size: 4rem;
+}
+
+.pe-title {
+  margin: 0;
+  color: #16110d;
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: .03em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.pe-subtitle {
+  margin: .4rem 0 0;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--pe-ink-soft);
+}
+
+.pe-rule {
+  width: 100%;
+  height: 1px;
+  margin: 1rem 0;
+  background: linear-gradient(90deg, var(--pe-line), transparent);
+}
+
+.pe-desc {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--pe-ink);
+}
+
+/* Bloc à titre simple (Effets) */
+.pe-block {
+  margin-top: 1.6rem;
+}
+
+/* Effets / Effets secondaires côte à côte, avec retour à la ligne si étroit */
+.pe-effects-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+
+.pe-effects-row .pe-block {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.pe-block__heading {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .9rem;
+  color: #16110d;
+  font: 600 1rem var(--font-title);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.pe-block__heading span {
+  color: var(--pe-gold);
+  font-size: .85em;
+}
+
+.pe-effects {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.pe-effects li {
+  display: flex;
+  gap: .8rem;
+  align-items: baseline;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--pe-ink);
+}
+
+.pe-effects__mark {
+  flex-shrink: 0;
+  color: var(--pe-gold);
+  font-size: .8rem;
+}
+
+/* Effets secondaires : ton plus discret */
+.pe-effects--secondary li {
+  color: var(--pe-ink-soft);
+  font-style: italic;
+}
+
+.pe-effects--secondary .pe-effects__mark {
+  color: rgba(58, 42, 28, .45);
+}
+
+/* Citation encadrée */
+.pe-quote {
+  position: relative;
+  margin: 1.8rem 0 0;
+  padding: 1.3rem 1.5rem;
+  border: 1px solid var(--pe-line);
+  outline: 1px solid var(--pe-line);
+  outline-offset: 5px;
+  background: rgba(217, 204, 184, .24);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--pe-ink);
+  text-align: center;
+}
+
+.pe-quote__guillemet {
+  display: block;
+  margin-bottom: .2rem;
+  color: var(--pe-gold);
+  font-family: var(--font-occult, var(--font-title));
+  font-size: 1.6rem;
+  line-height: 0;
+}
+
+.pe-quote__cite {
+  display: block;
+  margin-top: .8rem;
+  font-size: .85rem;
+  font-style: normal;
+  text-align: right;
+  color: var(--pe-ink-soft);
+}
+
+/* ═══════════════════════════════════════════
+   INGRÉDIENTS + PRÉPARATION
+═══════════════════════════════════════════ */
+.pe-twin {
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+  gap: clamp(1rem, 3vw, 2.4rem);
+  margin-top: 2.4rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--pe-line);
+}
+
+.pe-ingredients {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.pe-ingredient {
+  display: flex;
+  gap: .9rem;
+  align-items: flex-start;
+}
+
+.pe-ingredient__icon {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--pe-line);
+  border-radius: 4px;
+  background: rgba(217, 204, 184, .35);
+  overflow: hidden;
+  color: rgba(58, 42, 28, .35);
+}
+
+.pe-ingredient__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pe-ingredient__name {
+  display: block;
+  font: 600 1.02rem var(--font-title);
+  color: #16110d;
+}
+
+.pe-ingredient__name--link {
+  color: var(--pe-gold);
+  text-decoration: none;
+  transition: opacity .2s;
+}
+
+.pe-ingredient__name--link:hover {
+  opacity: .7;
+  text-decoration: underline;
+}
+
+.pe-ingredient__qty {
+  display: block;
+  font-size: .88rem;
+  font-style: italic;
+  color: var(--pe-ink-soft);
+}
+
+.pe-ingredient__note {
+  margin: .25rem 0 0;
+  font-size: .85rem;
+  line-height: 1.45;
+  color: rgba(58, 42, 28, .62);
+}
+
+/* Préparation numérotée */
+.pe-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pe-step {
+  display: flex;
+  gap: .9rem;
+  align-items: flex-start;
+}
+
+.pe-step__num {
+  flex-shrink: 0;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--pe-gold);
+  border-radius: 50%;
+  font: 600 .85rem var(--font-title);
+  color: var(--pe-gold);
+}
+
+.pe-step__text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--pe-ink);
+}
+
+/* ═══════════════════════════════════════════
+   BANDE D'IDENTITÉ
+═══════════════════════════════════════════ */
+.pe-info-grid {
+  list-style: none;
+  margin: 1.8rem 0 0;
+  padding: 1.2rem 1.3rem;
+  border: 1px solid var(--pe-line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem 1rem;
+}
+
+.pe-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: .7rem;
+  align-items: center;
+}
+
+.pe-info__icon {
+  grid-row: 1 / 3;
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--pe-gold);
+}
+
+.pe-info__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pe-info__label {
+  font: 700 .8rem var(--font-title);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--pe-ink);
+}
+
+.pe-info__value {
+  grid-column: 2;
+  font-size: .92rem;
+  color: var(--pe-ink-soft);
+}
+
+/* ═══════════════════════════════════════════
+   RÉFÉRENCES
+═══════════════════════════════════════════ */
+.pe-section {
+  margin-top: 2.2rem;
+}
+
+.pe-ref-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+}
+
+.pe-ref-link {
+  display: inline-block;
+  padding: .3rem .9rem;
+  border: 1px solid var(--pe-line);
+  border-radius: 2px;
+  background: rgba(217, 204, 184, .3);
+  font-size: .9rem;
+  color: var(--pe-gold);
+  text-transform: capitalize;
+  transition: background .2s, border-color .2s;
+}
+
+.pe-ref-link:hover {
+  background: rgba(217, 204, 184, .55);
+  border-color: var(--pe-gold);
+}
+
+/* ═══════════════════════════════════════════
+   NOTES DES ALCHIMISTES
+═══════════════════════════════════════════ */
+.pe-notes {
+  margin-top: 2.6rem;
+  padding: 1.5rem 1.8rem;
+  border: 1px solid var(--pe-line);
+  border-block: 3px double rgba(139, 107, 47, .48);
+  background:
+    radial-gradient(circle at 50% 0, rgba(139, 107, 47, .12), transparent 70%),
+    rgba(217, 204, 184, .22);
+  text-align: center;
+}
+
+.pe-notes__heading {
+  margin-bottom: .8rem;
+  color: #16110d;
+  font: 600 1rem var(--font-title);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.pe-notes__heading span {
+  color: var(--pe-gold);
+}
+
+.pe-notes__text {
+  margin: .3rem 0 0;
+  font-size: .95rem;
+  line-height: 1.7;
+  font-style: italic;
+  color: var(--pe-ink-soft);
+}
+
+/* ═══════════════════════════════════════════
+   RETOUR
+═══════════════════════════════════════════ */
+.pe-nav {
+  margin-top: 2.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--pe-line);
+}
+
+.pe-nav__back {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .6rem 1.1rem;
+  border: 1px solid var(--pe-line);
+  border-radius: 4px;
+  background: rgba(217, 204, 184, .18);
+  color: var(--pe-ink);
+  font: 600 .95rem var(--font-title);
+  text-decoration: none;
+  transition: background .22s, border-color .22s;
+}
+
+.pe-nav__back:hover {
+  background: rgba(217, 204, 184, .42);
+  border-color: var(--pe-gold);
+}
+
+.pe-nav__arrow {
+  color: var(--pe-gold);
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .pe-hero { grid-template-columns: 1fr; }
+  .pe-illustration { position: static; }
+  .pe-twin { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .pe-info-grid { grid-template-columns: 1fr; }
+  .potion-entry { margin-block: 12px; }
+}

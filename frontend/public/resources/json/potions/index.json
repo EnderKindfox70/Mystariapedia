@@ -1,0 +1,23 @@
+[
+  {
+    "slug": "potion_de_mana_faible",
+    "name": "Potion de mana faible",
+    "subtitle": "Potion commune",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/potions/potion_de_mana_faible.png"
+  },
+  {
+    "slug": "potion_de_mana_intermediaire",
+    "name": "Potion de mana Intermédiaire",
+    "subtitle": "Potion commune",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/potions/potion_de_mana_intermediaire.png"
+  },
+  {
+    "slug": "potion_de_mana_superieure",
+    "name": "Potion de mana supérieure",
+    "subtitle": "Potion rare",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/potions/potion_de_mana_superieure.png"
+  }
+]

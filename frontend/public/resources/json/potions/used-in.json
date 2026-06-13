@@ -1,0 +1,62 @@
+{
+  "resources/flora/fruit_de_mana": [
+    {
+      "ref": "potion_de_mana_faible",
+      "collection": "potions",
+      "label": "Potion de mana faible"
+    },
+    {
+      "ref": "potion_de_mana_intermediaire",
+      "collection": "potions",
+      "label": "Potion de mana Intermédiaire"
+    },
+    {
+      "ref": "potion_de_mana_superieure",
+      "collection": "potions",
+      "label": "Potion de mana supérieure"
+    }
+  ],
+  "resources/liquids/eau-pure": [
+    {
+      "ref": "potion_de_mana_faible",
+      "collection": "potions",
+      "label": "Potion de mana faible"
+    },
+    {
+      "ref": "potion_de_mana_intermediaire",
+      "collection": "potions",
+      "label": "Potion de mana Intermédiaire"
+    },
+    {
+      "ref": "potion_de_mana_superieure",
+      "collection": "potions",
+      "label": "Potion de mana supérieure"
+    }
+  ],
+  "resources/flora/racine-de-ginseng": [
+    {
+      "ref": "potion_de_mana_faible",
+      "collection": "potions",
+      "label": "Potion de mana faible"
+    }
+  ],
+  "resources/flora/racine_d_arbre_ancien": [
+    {
+      "ref": "potion_de_mana_intermediaire",
+      "collection": "potions",
+      "label": "Potion de mana Intermédiaire"
+    },
+    {
+      "ref": "potion_de_mana_superieure",
+      "collection": "potions",
+      "label": "Potion de mana supérieure"
+    }
+  ],
+  "resources/minerals/sel_cristallin": [
+    {
+      "ref": "potion_de_mana_superieure",
+      "collection": "potions",
+      "label": "Potion de mana supérieure"
+    }
+  ]
+}

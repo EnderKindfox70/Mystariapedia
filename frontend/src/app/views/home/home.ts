@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AuthDoor } from '../../components/auth-door/auth-door';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule],
+  imports: [RouterModule, AuthDoor],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

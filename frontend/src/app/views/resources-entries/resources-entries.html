@@ -1,0 +1,165 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main [class]="'paper-surface resource-entry resource-' + category()">
+
+    <!-- ── Titre + sous-titre ── -->
+    <header class="re-header">
+      <h1 class="re-title">{{ entry().name }}</h1>
+      <div class="re-rule" aria-hidden="true"></div>
+      @if (entry().subtitle) {
+        <p class="re-subtitle">{{ entry().subtitle }}</p>
+      }
+    </header>
+
+    <!-- ── Illustration + description ── -->
+    <section class="re-intro">
+      <div class="re-illustration">
+        @if (entry().image) {
+          <img [src]="entry().image" [alt]="entry().name">
+        } @else {
+          <div class="re-illustration__placeholder" aria-hidden="true">✦</div>
+        }
+      </div>
+
+      <div class="re-desc-box">
+        <span class="re-desc-box__star" aria-hidden="true">✦</span>
+        <div class="re-desc-box__body">
+          @for (p of entry().description; track $index) {
+            <p>{{ p }}</p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Informations ── -->
+    @if (entry().info.length) {
+      <section class="re-section">
+        <div class="re-divider"><span>Informations</span></div>
+        <ul class="re-info-grid">
+          @for (field of entry().info; track field.label) {
+            <li class="re-info">
+              <span class="re-info__icon" aria-hidden="true">
+                @switch (field.key) {
+                  @case ('type') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M5 19c0-7 5-13 14-14 0 9-6 14-14 14Z" stroke-linejoin="round"/>
+                      <path d="M5 19C8 14 12 11 16 9" stroke-linecap="round"/>
+                    </svg>
+                  }
+                  @case ('rarity') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <circle cx="12" cy="12" r="8"/>
+                      <circle cx="12" cy="12" r="3.2"/>
+                    </svg>
+                  }
+                  @case ('habitat') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M12 21c5-5 7-8.5 7-12a7 7 0 1 0-14 0c0 3.5 2 7 7 12Z" stroke-linejoin="round"/>
+                      <circle cx="12" cy="9" r="2.4"/>
+                    </svg>
+                  }
+                  @case ('usage') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M9 7a3 3 0 0 1 6 0" stroke-linecap="round"/>
+                      <path d="M6 8h12l1.5 11a1 1 0 0 1-1 1.1H5.5a1 1 0 0 1-1-1.1Z" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                  @case ('state') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M12 3c4 5 6 8.2 6 11a6 6 0 0 1-12 0c0-2.8 2-6 6-11Z" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                  @case ('source') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <circle cx="7" cy="9" r="1.5"/>
+                      <circle cx="12" cy="7" r="1.5"/>
+                      <circle cx="17" cy="9" r="1.5"/>
+                      <path d="M8 16c0-2.4 1.8-4 4-4s4 1.6 4 4-1.8 3.5-4 3.5S8 18.4 8 16Z" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                  @default {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M12 4l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                }
+              </span>
+              <span class="re-info__label">{{ field.label }}</span>
+              <span class="re-info__value">{{ field.value }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── Propriétés ── -->
+    @if (entry().properties.length) {
+      <section class="re-section re-panel">
+        <div class="re-divider"><span>Propriétés</span></div>
+        <ul class="re-properties">
+          @for (prop of entry().properties; track $index) {
+            <li>
+              <span class="re-properties__mark" aria-hidden="true">✦</span>
+              <span>{{ prop }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── Où en trouver ── -->
+    @if (entry().location; as loc) {
+      <section class="re-section re-panel">
+        <div class="re-divider"><span>Où en trouver</span></div>
+        <div class="re-location">
+          @if (loc.image) {
+            <img class="re-location__img" [src]="loc.image" alt="">
+          } @else {
+            <div class="re-location__img re-location__img--placeholder" aria-hidden="true"></div>
+          }
+          <div class="re-location__text">
+            @for (p of loc.paragraphs; track $index) {
+              <p>{{ p }}</p>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ── Références croisées saisies (domaines, lieux, provenance…) ── -->
+    @for (group of referenceGroups(); track group.label) {
+      @if (group.items?.length) {
+        <section class="re-section">
+          <div class="re-divider"><span>{{ group.label }}</span></div>
+          <ul class="re-ref-list">
+            @for (ref of group.items; track ref.ref) {
+              <li><a [routerLink]="ref | wikiLink" class="re-ref-link">{{ ref.label }}</a></li>
+            }
+          </ul>
+        </section>
+      }
+    }
+
+    <!-- ── Utilisé dans (dérivé des ingrédients des potions) ── -->
+    @if (usedIn().length) {
+      <section class="re-section">
+        <div class="re-divider"><span>{{ usedInLabel }}</span></div>
+        <ul class="re-ref-list">
+          @for (ref of usedIn(); track ref.ref) {
+            <li><a [routerLink]="ref | wikiLink" class="re-ref-link">{{ ref.label }}</a></li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── Retour ── -->
+    <nav class="re-nav" aria-label="Navigation ressources">
+      <a routerLink="/resources" [fragment]="category()" class="re-nav__back">
+        <span class="re-nav__arrow" aria-hidden="true">←</span>
+        <span>Retour à la {{ categoryLabel() }}</span>
+      </a>
+    </nav>
+
+  </main>
+</div>

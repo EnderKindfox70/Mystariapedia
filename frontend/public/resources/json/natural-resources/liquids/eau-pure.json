@@ -1,0 +1,42 @@
+{
+    "name": "Eau pure",
+    "subtitle": "Liquide fondamental",
+    "image": "/resources/media/pictures/natural-resources/liquids/eau_pure.png",
+    "icon": "",
+    "description": [
+        "Eau dépourvue de toute impureté, recueillie aux sources de montagne ou distillée par les alchimistes de Mystaria.",
+        "Sa neutralité parfaite en fait le solvant de référence : elle accueille n'importe quelle essence sans en altérer la nature."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Liquide" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "state",   "label": "État",        "value": "Liquide limpide et inodore" },
+        { "key": "usage",   "label": "Utilisation", "value": "Base de potions, dilutions, rituels" }
+    ],
+    "properties": [
+        "Solvant universel : dissout la plupart des essences.",
+        "N'apporte aucune saveur ni propriété magique propre.",
+        "Indispensable pour stabiliser les préparations concentrées."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On la puise aux sources d'altitude, dans les grottes glaciaires ou auprès des distillateurs.",
+            "Conseil : conservez-la dans un flacon scellé, car elle absorbe vite les impuretés de l'air."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "water", "collection": "domains", "label": "Eau" }
+            ]
+        },
+        {
+            "label": "Localisations",
+            "items": [
+                { "ref": "sources-de-givrecime", "collection": "locations", "label": "Sources de Givrecime" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "name": "Racine d'arbre ancien",
+    "subtitle": "Ingrédient de base",
+    "image": "/resources/media/pictures/natural-resources/flora/racine_d_arbre_ancien.png",
+    "icon": "",
+    "description": [
+        "Cette racine précieuse pousse dans les forêts profondes de Mystaria, souvent à proximité d'arbres millénaires imprégnés de magie ancienne.",
+        "Il est souvent utilisé comme ingrédient de base pour les potions de mana, grâce à sa forte concentration en énergie magique." ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Racine" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "habitat", "label": "Habitat",     "value": "Forêt primaire" },
+        { "key": "usage",   "label": "Utilisation", "value": "Remèdes, potions" }
+    ],
+    "properties": [
+        "Mangeable mais très amer, il peut être utilisé pour certains remède traditionnels."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On les trouves dans les anciennes forêts de Mystaria, souvent à proximité d'arbres millénaires imprégnés de magie ancienne."
+        ]
+    },
+    "references": [
+        {
+            "label": "Localisations",
+            "items": [
+                { "ref": "Forêt primaire", "collection": "locations", "label": "Forêt primaire" }
+            ]
+        }
+    ]
+}

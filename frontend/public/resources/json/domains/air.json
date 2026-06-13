@@ -1,0 +1,25 @@
+{
+    "name": "Air",
+    "icon": "",
+    "banner": "",
+    "first-quote": "On ne me voit jamais. On ne voit que ce que je déplace.",
+    "usage-quote": "Ne t'attaches pas. Laisse-toi porter. Le vent est libre.",
+    "subdomains": 
+    [
+        {"name": "Vent", "icon": "", "spells": []},
+        {"name": "Météo", "icon": "", "spells": []},
+        {"name": "Son", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

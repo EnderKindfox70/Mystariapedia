@@ -1,0 +1,53 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface nr-index">
+
+    <header class="nr-header">
+      <span class="nr-header__kicker">Codex de Mystaria</span>
+      <h1 class="nr-header__title">Ressources naturelles</h1>
+      <div class="nr-header__rule" aria-hidden="true"></div>
+      <p class="nr-header__intro">
+        Tout ce que la terre, l'eau et les créatures de Mystaria offrent aux alchimistes :
+        ingrédients, réactifs et matières brutes, classés par nature.
+      </p>
+    </header>
+
+    @for (cat of categories; track cat.slug) {
+      <section class="nr-section" [id]="cat.slug">
+        <div class="nr-divider"><span>{{ cat.label }}</span></div>
+        <p class="nr-section__blurb">{{ cat.blurb }}</p>
+
+        @if (cat.entries().length) {
+          <ul class="nr-grid">
+            @for (item of cat.entries(); track item.slug) {
+              <li>
+                <a class="nr-card" [routerLink]="['/resources', cat.slug, item.slug]">
+                  <div class="nr-card__media" aria-hidden="true">
+                    @if (item.image) {
+                      <img [src]="item.image" [alt]="item.name">
+                    } @else {
+                      <span class="nr-card__glyph">✦</span>
+                    }
+                  </div>
+                  <div class="nr-card__body">
+                    <h3 class="nr-card__name">{{ item.name }}</h3>
+                    @if (item.subtitle) {
+                      <p class="nr-card__subtitle">{{ item.subtitle }}</p>
+                    }
+                    @if (item.rarity) {
+                      <span class="nr-card__rarity">{{ item.rarity }}</span>
+                    }
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="nr-empty">Aucune entrée pour l'instant.</p>
+        }
+      </section>
+    }
+
+  </main>
+</div>

@@ -1,0 +1,26 @@
+{
+    "name": "Plante",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Chaque graine contient une forêt. Chaque forêt contient un monde.",
+    "usage-quote": "La plante ne pousse pas vers la lumière par volonté. Elle pousse parce que c'est sa nature. Trouve la tienne",
+    "subdomains": 
+    [
+        {"name": "Croissance végétale", "icon": "", "spells": []},
+        {"name": "Poison & Médecine naturelle", "icon": "", "spells": []},
+        {"name": "Spores & Mycologie", "icon": "", "spells": []},
+        {"name": "Symbiose & Parasitisme", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

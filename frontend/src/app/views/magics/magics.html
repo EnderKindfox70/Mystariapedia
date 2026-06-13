@@ -1,11 +1,20 @@
 <div class="layout">
     <navbar></navbar>
-    <main id="index" class="paper-surface">
-        <h1>Magie</h1>
-        <p>La magie de Mystaria n'a pas été inventée. Elle n'a pas été découverte. Elle a été laissée.
-            Quand les dieux se sont retirés du monde, scellés, endormis, ou simplement silencieux, ils ont emporté leur présence mais pas leur empreinte. Chaque sort lancé aujourd'hui est un écho de quelque chose d'infiniment plus grand qui a traversé ce monde et y a imprimé sa nature. Les mortels ne font pas de la magie. Ils en héritent.
-            Ce qu'ils en font est une autre question.
-        </p>
+    <main id="index" class="paper-surface magics-paper">
+        <section class="magic-hero" aria-labelledby="magic-title">
+            <div class="magic-hero__content">
+                <span class="magic-hero__kicker">Codex Mystaria</span>
+                <h1 id="magic-title">Magie</h1>
+                <div class="magic-hero__rule" aria-hidden="true"></div>
+                <p>La magie de Mystaria n'a pas été inventée. Elle n'a pas été découverte. Elle a été laissée.
+                    Quand les dieux se sont retirés du monde, scellés, endormis, ou simplement silencieux, ils ont emporté leur présence mais pas leur empreinte. Chaque sort lancé aujourd'hui est un écho de quelque chose d'infiniment plus grand qui a traversé ce monde et y a imprimé sa nature. Les mortels ne font pas de la magie. Ils en héritent.
+                    Ce qu'ils en font est une autre question.
+                </p>
+            </div>
+            <div class="magic-hero__artifact" aria-hidden="true">
+                <img src="/resources/media/pictures/magics_symbol.png">
+            </div>
+        </section>
 
         <blockquote>
             « Toute flamme conjurée est une prière adressée à quelque chose qui ne répond plus. Elle brûle quand même. »
@@ -337,7 +346,7 @@
             <p><strong>le lieu de préparation </strong> amplifie les potions dont le domaine correspond à l'environnement magique local. Une potion de soin préparée dans le Royaume elfique, riche en energie du domaine de la Vie, sera significativement plus efficace que la même potion préparée dans les États Souterrains. Certains alchimistes voyagent spécifiquement pour préparer leurs formules les plus importantes dans les zones appropriées.</p>
             <p><strong>L'affinité du praticien</strong>  devient nécessaire pour les potions de grade rare et supérieur. La dernière étape de préparation — la fixation du mélange — exige que l'alchimiste insuffle une part de sa propre mana dans le breuvage pour le stabiliser. Sans affinité correspondante, la potion se déstabilise lors de cette étape. C'est la frontière entre l'artisanat alchimique accessible à tous et la pratique de haut niveau réservée aux mages.</p>
             <p><strong>La fraîcheur des ingrédients</strong> influe directement sur la puissance du résultat. Les ingrédients vivants ou frais produisent des potions plus puissantes que leurs équivalents séchés ou stockés. Certaines formules perdent leur efficacité en quelques heures après préparation. D'autres se conservent des années si correctement conditionnées.</p>
-            <button>Voir le catalogue -></button>
+            <codex-button label="voir le catalogue" route="/alchemy"></codex-button>
             <h3>Les objets magiques simple</h3>
             <p>La magie ne passe pas uniquement par les mages. Avant qu'un mortel apprenne à canaliser sa propre énergie — avant même qu'il s'éveille — il existe des façons d'accéder aux effets magiques sans passer par soi-même. Les objets magiques simples en sont la manifestation la plus répandue et la plus accessible.</p>
             <p>Ils ne contiennent pas de conscience. Ils ne demandent pas de rituel complexe. Ils sont des contenants — des structures dans lesquelles une énergie de domaine a été fixée, et qui la restituent de façon définie quand on les active correctement. Leur force est leur accessibilité. Leur limite est leur plafond.</p>

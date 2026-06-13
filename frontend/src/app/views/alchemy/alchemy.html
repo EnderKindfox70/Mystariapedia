@@ -1,0 +1,50 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface alchemy-index">
+
+    <header class="ai-header">
+      <span class="ai-header__kicker">Codex de Mystaria</span>
+      <h1 class="ai-header__title">Alchimie</h1>
+      <div class="ai-header__rule" aria-hidden="true"></div>
+      <p class="ai-header__intro">
+        Le grand œuvre des alchimistes de Mystaria : élixirs, philtres et décoctions,
+        chacun né d'un équilibre fragile entre ingrédients et patience.
+      </p>
+    </header>
+
+    <section class="ai-section">
+      <div class="ai-divider"><span>Potions</span></div>
+
+      @if (potions().length) {
+        <ul class="ai-grid">
+          @for (potion of potions(); track potion.slug) {
+            <li>
+              <a class="ai-card" [routerLink]="['/alchemy', potion.slug]">
+                <div class="ai-card__media" aria-hidden="true">
+                  @if (potion.image && !broken.has(potion.slug)) {
+                    <img [src]="potion.image" [alt]="potion.name" (error)="broken.add(potion.slug)">
+                  } @else {
+                    <span class="ai-card__glyph">⚗</span>
+                  }
+                </div>
+                <div class="ai-card__body">
+                  <h3 class="ai-card__name">{{ potion.name }}</h3>
+                  @if (potion.subtitle) {
+                    <p class="ai-card__subtitle">{{ potion.subtitle }}</p>
+                  }
+                  @if (potion.rarity) {
+                    <span class="ai-card__rarity">{{ potion.rarity }}</span>
+                  }
+                </div>
+              </a>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="ai-empty">Aucune potion répertoriée pour l'instant.</p>
+      }
+    </section>
+
+  </main>
+</div>

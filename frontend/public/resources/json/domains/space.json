@@ -1,0 +1,28 @@
+{
+    "name": "Espace",
+    "icon": "",
+    "banner": "",
+    "first-quote": "J'existe entre toute chose. Je suis le vide qui les sépare, et le lien qui les unit.",
+    "usage-quote": "Oublie la distance. Elle n'existe que parce que tu y crois.",
+    "subdomains": 
+    [
+        {"name": "Frontière & limite", "icon": "", "spells": []},
+        {"name": "Portail & teleportation", "icon": "", "spells": []},
+        {"name": "Gravité", "icon": "", "spells": []},
+        {"name": "Distance & éloignement", "icon": "", "spells": []},
+        {"name": "Dimension", "icon": "", "spells": []}
+
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

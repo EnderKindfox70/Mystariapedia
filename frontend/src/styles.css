@@ -224,19 +224,50 @@ body::before {
 
 .paper-surface {
   background:
-    radial-gradient(circle at 20% 12%, rgba(255, 248, 220, .28), transparent 24%),
-    linear-gradient(90deg, rgba(42, 24, 14, .2), transparent 15% 85%, rgba(42, 24, 14, .22)),
+    /* Fondu de bord : chaque côté part EXACTEMENT de la couleur de la bordure
+       (#847059) sur la jointure, puis s'efface vers le centre. On fond vers
+       rgba(132,112,89,0) et non `transparent` pour éviter un gris sale. */
+    linear-gradient(to right,  #847059, rgba(132, 112, 89, 0) 120px),
+    linear-gradient(to left,   #847059, rgba(132, 112, 89, 0) 120px),
+    linear-gradient(to bottom, #847059, rgba(132, 112, 89, 0) 120px),
+    linear-gradient(to top,    #847059, rgba(132, 112, 89, 0) 120px),
+    /* texture/lumière d'origine */
+    radial-gradient(circle at 20% 12%, rgba(255, 248, 220, .22), transparent 28%),
     var(--burned-paper);
+  /* keep the paper fill inside the torn ring so it never bleeds through the
+     transparent parts of the border image */
+  background-clip: padding-box;
   color: #221713;
-  padding: 24px;
-  padding-left: 32px;
-  padding-right: 32px;
-  border: 1px solid rgba(34, 23, 19, .52);
-  border-radius: 8px;
-  box-shadow: inset 0 0 54px rgba(61, 38, 23, .54), 0 10px 30px rgba(0, 0, 0, .25);
+  /* border carries the torn parchment image; padding is the gap between border
+     and text. box-sizing:border-box (global) keeps total width = margin box,
+     so there is NO overflow. */
+  padding: 18px 26px;
+  border: 38px solid transparent;
+  /* border-image: url('https://res.cloudinary.com/dangvxnul/image/upload/v1716309479/paper-border1_rvbod3.png') 45 round; */
+  border-image: url('/resources/media/pictures/parchement_border.png') 45 round;
+  /* 1er plan : anneau plein #847059 collé au périmètre intérieur (padding-box).
+     Il masque le liseré clair d'anti-aliasing à la jointure avec la bordure,
+     sans déborder sur la zone déchirée extérieure.
+     2e/3e : glow interne (même ton) + ombre portée. */
+  box-shadow:
+    inset 0 0 0 2px #847059,
+    inset 0 0 50px rgba(132, 112, 89, .5),
+    0 10px 30px rgba(0, 0, 0, .25);
   margin-left: 5vw;
   margin-right: 5vw;
 }
+
+.paper-surface::before {
+  content: '';
+  background-size: 100vh;
+  position: absolute;
+  inset: 0;
+  /* Overlay purement décoratif : il ne doit jamais intercepter les clics ni la
+     saisie du contenu (sans quoi tout formulaire posé dans .paper-surface
+     devient inutilisable). */
+  pointer-events: none;
+}
+
 
 a {
   color: inherit;
@@ -460,7 +491,8 @@ h1
   .paper-surface {
     width: auto;
     margin: 18px clamp(12px, 4vw, 28px);
-    padding: clamp(18px, 4vw, 28px);
+    border-width: 30px; /* thinner torn border on tablets */
+    padding: clamp(14px, 3vw, 22px);
   }
 
   h1 {
@@ -471,7 +503,7 @@ h1
 @media (max-width: 560px) {
   .paper-surface {
     margin: 12px 8px;
-    padding: 16px 14px;
-    border-radius: 6px;
+    border-width: 22px; /* thinner torn border on phones */
+    padding: 14px 12px;
   }
 }

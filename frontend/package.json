@@ -3,8 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "gen:index": "node scripts/generate-resource-index.mjs",
+    "prestart": "npm run gen:index",
     "start": "ng serve",
+    "prebuild": "npm run gen:index",
     "build": "ng build",
+    "prewatch": "npm run gen:index",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:frontend": "node dist/frontend/server/server.mjs"

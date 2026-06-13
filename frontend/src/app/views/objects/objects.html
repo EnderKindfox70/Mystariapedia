@@ -1,0 +1,37 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface objects-hub">
+
+    <header class="oh-header">
+      <span class="oh-header__kicker">Codex de Mystaria</span>
+      <h1 class="oh-header__title">Objets</h1>
+      <div class="oh-header__rule" aria-hidden="true"></div>
+      <p class="oh-header__intro">
+        Des matières brutes du monde aux merveilles façonnées par la main des hommes :
+        trois grands ensembles rassemblent tout ce qui se récolte, se forge ou se distille à travers Mystaria.
+      </p>
+    </header>
+
+    <ul class="oh-grid">
+      @for (entry of entries; track entry.id) {
+        <li>
+          <a class="oh-card" [routerLink]="entry.link" [id]="entry.id">
+            <div class="oh-card__glyph" aria-hidden="true">{{ entry.glyph }}</div>
+            <h2 class="oh-card__title">{{ entry.label }}</h2>
+            <p class="oh-card__blurb">{{ entry.blurb }}</p>
+            <ul class="oh-card__tags">
+              @for (ex of entry.examples; track ex) {
+                <li>{{ ex }}</li>
+              }
+            </ul>
+            <span class="oh-card__cta">
+              {{ entry.linkLabel }} <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+
+  </main>
+</div>

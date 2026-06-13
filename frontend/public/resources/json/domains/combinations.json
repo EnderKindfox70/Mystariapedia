@@ -1,0 +1,16 @@
+[
+    {"name": "Lave", "components": ["fire", "earth"]},
+    {"name": "Sécheresse", "components": ["fire", "air"]},
+    {"name": "Boue", "components": ["water", "earth"]},
+    {"name": "Pluie", "components": ["water", "air"]},
+    {"name": "Neige & blizzard", "components": ["water", "air"]},
+    {"name": "Tempête", "components": ["water", "air", "electricity"]},
+    {"name": "Abysse", "components": ["water", "darkness"]},
+    {"name": "Pesanteur", "components": ["earth", "space"]},
+    {"name": "Équilibre", "components": ["light", "darkness"]},
+    {"name": "Siphonnage vital", "components": ["life", "death"]},
+    {"name": "Eclipse", "components": ["light", "darkness"]},
+    {"name": "Doppelganger", "components": ["life", "darkness"]},
+    {"name": "Combustion de force vitale", "components": ["life", "fire"]},
+    {"name": "Hellfire", "components": ["fire", "death"]}
+]

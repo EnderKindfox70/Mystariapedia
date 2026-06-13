@@ -1,0 +1,65 @@
+<div class="layout">
+    <navbar></navbar>
+    <main class="auth-page">
+        <section class="auth-card">
+            <div class="auth-sigil" aria-hidden="true">
+                <img src="/resources/media/pictures/eye.png" alt="">
+            </div>
+            <h1>Rejoindre le Codex</h1>
+            <p class="auth-subtitle">Inscrivez votre nom dans les registres de Mystaria.</p>
+
+            <form (ngSubmit)="submit()" #form="ngForm" novalidate>
+                <label class="auth-field">
+                    <span>Nom d'utilisateur</span>
+                    <input
+                        type="text"
+                        name="username"
+                        [(ngModel)]="username"
+                        required
+                        minlength="3"
+                        autocomplete="username"
+                        placeholder="Archiviste"
+                    >
+                </label>
+
+                <label class="auth-field">
+                    <span>Adresse e-mail</span>
+                    <input
+                        type="email"
+                        name="email"
+                        [(ngModel)]="email"
+                        required
+                        autocomplete="email"
+                        placeholder="mage@mystaria.fr"
+                    >
+                </label>
+
+                <label class="auth-field">
+                    <span>Mot de passe</span>
+                    <input
+                        type="password"
+                        name="password"
+                        [(ngModel)]="password"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                        placeholder="6 caractères minimum"
+                    >
+                </label>
+
+                @if (error()) {
+                    <p class="auth-error">{{ error() }}</p>
+                }
+
+                <button type="submit" class="auth-submit" [disabled]="form.invalid || submitting()">
+                    {{ submitting() ? 'Inscription...' : "Créer mon compte" }}
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                Déjà initié ?
+                <a routerLink="/login">Se connecter</a>
+            </p>
+        </section>
+    </main>
+</div>

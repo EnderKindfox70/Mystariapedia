@@ -1,0 +1,42 @@
+{
+    "name": "Algue de courant",
+    "subtitle": "Ingrédient de base",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Cette algue commune pousse dans les rivières et les courants peu profonds à travers Mystaria.",
+        "Souple et résistante, elle absorbe naturellement les énergies en mouvement, ce qui en fait un ingrédient essentiel pour de nombreuses potions."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Plante aquatique" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "habitat", "label": "Habitat",     "value": "Rivières, courants et ruisseaux" },
+        { "key": "usage",   "label": "Utilisation", "value": "Potions, teintures, infusions" }
+    ],
+    "properties": [
+        "Favorise l'écoulement des fluides.",
+        "Renforce les effets des potions liées à l'eau et au mouvement.",
+        "Stabilise les mélanges instables."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On la trouve facilement dans les rivières peu profondes, près des chutes d'eau et des zones à fort courant.",
+            "Conseil : Récoltez-la de préférence le matin, lorsque le courant est le plus pur."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "water", "collection": "domains", "label": "Eau" }
+            ]
+        },
+        {
+            "label": "Localisations",
+            "items": [
+                { "ref": "rivieres-d-aelmar", "collection": "locations", "label": "Rivières d'Aelmar" }
+            ]
+        }
+    ]
+}

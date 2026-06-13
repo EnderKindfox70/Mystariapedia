@@ -1,0 +1,32 @@
+.codex-button {
+   display: inline-flex;
+  margin-top: 18px;
+  padding: 9px 20px;
+  color: #caa45e;
+  background: rgba(23, 12, 8, .86);
+  border: 1px solid rgba(139, 107, 47, .7);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+/* Ligne décorative intérieure */
+
+
+.codex-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(139, 107, 47, .35);
+}
+
+.codex-button:active {
+  transform: translateY(1px);
+
+  box-shadow:
+    inset 0 0 15px rgba(0, 0, 0, 0.45);
+}
+
+.codex-button:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 2px rgba(197, 163, 109, 0.25),
+    0 0 20px rgba(197, 163, 109, 0.2);
+}

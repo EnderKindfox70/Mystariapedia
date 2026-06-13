@@ -1,0 +1,60 @@
+{
+    "name": "Potion de mana Intermédiaire",
+    "subtitle": "Potion commune",
+    "image": "/resources/media/pictures/potions/potion_de_mana_intermediaire.png",
+    "icon": "",
+    "description": [
+        "La potion de mana originelle qui restaure une quantité médiane de mana."
+    ],
+    "effects": [
+        "Restaure une quantité de mana"
+    ],
+    "secondary-effects": [
+        "Peut provoquer une sensation de nausée si consommée en grande quantité."
+    ],
+    "quote": "La mana est comme une rivière : elle coule, s'adapte et trouve toujours son chemin.",
+    "quote-author": "Proverbe des erudits du royaume Elfique",
+    "ingredients": [
+        {
+            "name": "Fruit de mana",
+            "icon": "",
+            "quantity": "2 unités",
+            "note": "Trouvable dans les forêts ayant une haute concentration de mana.",
+            "ref": { "ref": "fruit_de_mana", "collection": "resources/flora", "label": "Fruit de mana" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "100 ml",
+            "note": "Prélevée à la source d'une rivière sacrée.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        },
+        {
+            "name": "Racine d'arbre ancien",
+            "icon": "",
+            "quantity": "1 unité",
+            "note": "Apporte une énergie revitalisante.",
+            "ref": { "ref": "racine_d_arbre_ancien", "collection": "resources/flora", "label": "Racine d'arbre ancien" }
+        }
+    ],
+    "preparation": [
+        "Écraser le fruit de mana pour en extraire le jus.",
+        "Faire infuser la racine d'arbre ancien dans l'eau de source pendant 5 minutes.",
+        "Ajouter le jus de fruit de mana à l'infusion et remuer doucement.",
+        "Laisser reposer pendant 60 minutes avant consommation."
+
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Potion" },
+        { "key": "rarity", "label": "Rareté",  "value": "Commune" },
+        { "key": "weight", "label": "Poids",   "value": "0,3 kg" },
+        { "key": "value",   "label": "Valeur",  "value": "83 pièces d'or"}
+    ],
+    "notes": [
+        "L'ajout d'une goutte d'extrait de lune bleue peut prolonger la durée des effets.",
+        "Attention à ne pas trop remuer après l'ajout de la perle, au risque de briser l'équilibre."
+    ],
+    "references": [
+
+    ]
+}

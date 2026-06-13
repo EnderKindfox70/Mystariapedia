@@ -8,41 +8,36 @@ import { Artifacts } from './views/artifacts/artifacts';
 import { Lore } from './views/lore/lore';
 import { Factions } from './views/factions/factions';
 import { Entities } from './entities/entities';
-import { Fire } from './views/domains/fire/fire';
-import { Water } from './views/domains/water/water';
-import { Earth } from './views/domains/earth/earth';
-import { Air } from './views/domains/air/air';
-import { Electricity } from './views/domains/electricity/electricity';
-import { Plant } from './views/domains/plant/plant';
-import { Light } from './views/domains/light/light';
-import { Darkness } from './views/domains/darkness/darkness';
-import { Life } from './views/domains/life/life';
-import { Death } from './views/domains/death/death';
-import { Time } from './views/domains/time/time';
-import { Space } from './views/domains/space/space';
+import { Alchemy } from './views/alchemy/alchemy';
+import { DomainEntryComponent } from './views/domains-entries/domains-entries';
+import { Objects } from './views/objects/objects';
+import { NaturalResources } from './views/natural-resources/natural-resources';
+import { ResourceEntryComponent } from './views/resources-entries/resources-entries';
+import { PotionEntryComponent } from './views/potions-entries/potions-entries';
+import { domainResolver } from './resolvers/domain.resolver';
+import { resourceResolver } from './resolvers/resource.resolver';
+import { potionResolver } from './resolvers/potion.resolver';
+import { Login } from './views/auth/login/login';
+import { Register } from './views/auth/register/register';
 
-export const routes: Routes = 
+export const routes: Routes =
 [
-    {path: '', component: Home},
-    {path: 'home', component: Home} ,
-    {path: 'lore', component: Lore},
-    {path: 'magics', component: Magics},
-    {path: 'magics/fire', component: Fire},
-    {path: 'magics/water', component: Water},
-    {path: 'magics/earth', component: Earth},
-    {path: 'magics/air', component: Air},
-    {path: 'magics/electricity', component: Electricity},
-    {path: 'magics/plant', component: Plant},
-    {path: 'magics/light', component: Light},
-    {path: 'magics/darkness', component: Darkness},
-    {path: 'magics/life', component: Life},
-    {path: 'magics/death', component: Death},
-    {path: 'magics/time', component: Time},
-    {path: 'magics/space', component: Space},
-    {path: 'locations', component: Locations},
-    {path: 'entities', component: Entities},
-    {path: 'bestiary', component: Bestiary},
-    {path: 'artifacts', component: Artifacts},
-    {path: 'factions' , component: Factions},
-    {path: 'tests', component: Tests}
+    { path: '', component: Home },
+    { path: 'home', component: Home },
+    { path: 'lore', component: Lore },
+    { path: 'magics', component: Magics },
+    { path: 'magics/:domain', component: DomainEntryComponent, resolve: { entry: domainResolver } },
+    { path: 'objects', component: Objects },
+    { path: 'resources', component: NaturalResources },
+    { path: 'resources/:category/:slug', component: ResourceEntryComponent, resolve: { entry: resourceResolver } },
+    { path: 'locations', component: Locations },
+    { path: 'entities', component: Entities },
+    { path: 'bestiary', component: Bestiary },
+    { path: 'artifacts', component: Artifacts },
+    { path: 'alchemy', component: Alchemy },
+    { path: 'alchemy/:slug', component: PotionEntryComponent, resolve: { entry: potionResolver } },
+    { path: 'factions', component: Factions },
+    { path: 'login', component: Login },
+    { path: 'register', component: Register },
+    { path: 'tests', component: Tests },
 ];

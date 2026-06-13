@@ -1,0 +1,22 @@
+[
+  {
+    "slug": "algue-de-courant",
+    "name": "Algue de courant",
+    "subtitle": "Ingrédient de base",
+    "rarity": "Commune"
+  },
+  {
+    "slug": "fruit_de_mana",
+    "name": "Fruit de mana",
+    "subtitle": "Ingrédient de base",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/natural-resources/flora/fruit_de_mana.png"
+  },
+  {
+    "slug": "racine_d_arbre_ancien",
+    "name": "Racine d'arbre ancien",
+    "subtitle": "Ingrédient de base",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/natural-resources/flora/racine_d_arbre_ancien.png"
+  }
+]

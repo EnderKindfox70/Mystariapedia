@@ -5,10 +5,11 @@ import { Navbar } from '../../components/navbar/navbar';
 import { MagicWritingDirective } from '../../directive/magic-writing.directive';
 import { buildSlices, DOMAIN_DISTRIBUTION_CHARTS, PieChart } from './domain-distribution';
 import { MistTranslateDirective } from '../../directive/mist-translate.directive';
+import { CodexButton } from '../../components/codex-button/codex-button';
 
 @Component({
   selector: 'app-magics',
-  imports: [CommonModule, Navbar, MagicWritingDirective, RouterLink, MistTranslateDirective],
+  imports: [CommonModule, Navbar, MagicWritingDirective, RouterLink, MistTranslateDirective, CodexButton],
   templateUrl: './magics.html',
   styleUrl: './magics.css',
 })

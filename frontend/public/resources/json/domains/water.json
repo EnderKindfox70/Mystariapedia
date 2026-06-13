@@ -1,0 +1,28 @@
+{
+    "name": "Eau",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Je peux être douce. Je peux être profonde. Je peux être les deux en même temps.",
+    "usage-quote": "Ne force pas le chemin. Trouve la fissure.",
+    "subdomains": 
+    [
+        {"name": "Forme de l'eau", "icon": "", "spells": []},
+        {"name": "Glace", "icon": "", "spells": []},
+        {"name": "Vapeur", "icon": "", "spells": []} ,
+        {"name": "purification", "icon": "", "spells": []},
+        {"name": "Océan", "icon": "", "spells": []}
+
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

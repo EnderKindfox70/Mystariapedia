@@ -1,0 +1,26 @@
+{
+    "name": "Terre",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Creuse assez profond et tu trouveras ce que le monde a voulu oublier.",
+    "usage-quote": "La précipitation est étrangère à ce domaine. Si tu es pressé, tu n'es pas prêt.",
+    "subdomains": 
+    [
+        {"name": "Roche", "icon": "", "spells": []},
+        {"name": "Métal", "icon": "", "spells": []},
+        {"name": "Seisme et vibrations", "icon": "", "spells": []},
+        {"name": "Mémoire géologique", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}

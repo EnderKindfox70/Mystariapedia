@@ -1,0 +1,36 @@
+{
+    "name": "Fruit de mana",
+    "subtitle": "Ingrédient de base",
+    "image": "/resources/media/pictures/natural-resources/flora/fruit_de_mana.png",
+    "icon": "",
+    "description": [
+        "Ce fruit commun pousse dans les forêts riche en mana de Mystaria.",
+        "Il est souvent utilisé comme ingrédient de base pour les potions de mana, grâce à sa forte concentration en énergie magique." ,
+        "Le fruit possède un gout sucré et sont très juteux, ce qui en fait un régal pour les créatures magiques et les aventuriers."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Fruit" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "habitat", "label": "Habitat",     "value": "Forêt primaire, lieux à haute concentration de mana" },
+        { "key": "usage",   "label": "Utilisation", "value": "Potions, teintures, infusions" }
+    ],
+    "properties": [
+        "Riche en mana, ce fruit est un ingrédient clé pour les potions de mana." ,
+        "Peut être mangé cru pour une petite restauration de mana"
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le trouve facilement dans les forêts à haute concentration de mana.",
+            "Conseil : Récoltez celles qui sont bien mûres pour maximiser les effets de vos potions."
+        ]
+    },
+    "references": [
+        {
+            "label": "Localisations",
+            "items": [
+                { "ref": "Forêt primaire", "collection": "locations", "label": "Forêt primaire" }
+            ]
+        }
+    ]
+}

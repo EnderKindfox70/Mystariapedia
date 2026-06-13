@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AnimationPreferencesService } from '../../services/animation-preferences.service';
+import { AuthDoor } from '../auth-door/auth-door';
 
 type NavItem = {
   key: string;
@@ -13,7 +14,7 @@ type NavItem = {
 
 @Component({
   selector: 'navbar',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AuthDoor],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -21,6 +22,8 @@ export class Navbar {
   isNavigationOpen = false;
   activeGroup: string | null = null;
   searchQuery = '';
+  floatingPanelTop = 0;
+  floatingPanelLeft = 0;
 
   readonly navItems: NavItem[] = [
     { key: 'accueil', label: 'Accueil', path: '/' },
@@ -31,7 +34,10 @@ export class Navbar {
       children: [
         { key: 'archives-occultes', label: 'Archives occultes', path: '/lore/archives' },
         { key: 'mythes-fondateurs', label: 'Mythes fondateurs', path: '/lore/mythes' },
-        { key: 'rituels-oublies', label: 'Rituels oublies', path: '/lore/rituels' },
+        { key: 'personnages', label: 'Personnages', path: '/lore/personnages' },
+        { key: 'chronologie', label: 'Chronologie', path: '/lore', fragment: 'chronologie' },
+        { key: 'eres', label: 'Eres anciennes', path: '/lore', fragment: 'chronologie' },
+        { key: 'retrait-dieux', label: 'Retrait des dieux', path: '/lore', fragment: 'chronologie' },
       ],
     },
     {
@@ -60,14 +66,13 @@ export class Navbar {
       ],
     },
     {
-      key: 'artefacts',
-      label: 'Artefacts',
-      path: '/artifacts',
+      key: 'objets',
+      label: 'Objets',
+      path: '/objects',
       children: [
-        { key: 'inventaire', label: 'Inventaire', path: '/artifacts/index' },
-        { key: 'armes-armures', label: 'Armes & armures', path: '/artifacts/armes' },
-        { key: 'reliques', label: 'Reliques anciennes', path: '/artifacts/reliques' },
-        { key: 'grimoires', label: 'Grimoires', path: '/artifacts/grimoires' },
+        { key: 'ressources-naturelles', label: 'Ressources naturelles', path: '/resources' },
+        { key: 'artefacts', label: 'Artefacts & objets magiques', path: '/artifacts' },
+        { key: 'potions', label: 'Potions', path: '/alchemy' },
       ],
     },
     {
@@ -91,17 +96,6 @@ export class Navbar {
         { key: 'sites-sacres', label: 'Sites sacres', path: '/locations/sacres' },
         { key: 'ruines-oubliees', label: 'Ruines oubliees', path: '/locations/ruines' },
         { key: 'noeuds-magiques', label: 'Noeuds magiques', path: '/locations/noeuds' },
-      ],
-    },
-    {
-      key: 'chronologie',
-      label: 'Chronologie',
-      path: '/lore',
-      fragment: 'chronologie',
-      children: [
-        { key: 'eres', label: 'Eres anciennes', path: '/lore', fragment: 'chronologie' },
-        { key: 'retrait-dieux', label: 'Retrait des dieux', path: '/lore', fragment: 'chronologie' },
-        { key: 'archives-datees', label: 'Archives datees', path: '/lore', fragment: 'chronologie' },
       ],
     },
   ];
@@ -129,11 +123,17 @@ export class Navbar {
     this.searchQuery = '';
   }
 
-  toggleGroup(groupKey: string): void {
+  toggleGroup(groupKey: string, event?: MouseEvent): void {
+    if (event) {
+      this.updateFloatingPanelPosition(event);
+    }
     this.activeGroup = this.activeGroup === groupKey ? null : groupKey;
   }
 
-  openGroup(groupKey: string): void {
+  openGroup(groupKey: string, event?: MouseEvent): void {
+    if (event) {
+      this.updateFloatingPanelPosition(event);
+    }
     this.activeGroup = groupKey;
   }
 
@@ -150,19 +150,17 @@ export class Navbar {
     const query = this.normalize(this.searchQuery);
     if (!query) return [];
 
-    return this.navItems.flatMap((item) => {
-      const entries = [item, ...(item.children ?? [])];
-      return entries.filter((entry) => this.normalize(entry.label).includes(query));
-    });
+    return this.navItems
+      .flatMap((item) => this.flattenNavItem(item))
+      .filter((entry) => this.normalize(entry.label).includes(query));
   }
 
   get expandedGroup(): string | null {
     const path = this.router.url.split('?')[0];
     if (path.startsWith('/magics')) return 'magie';
-    if (path.startsWith('/artifacts')) return 'artefacts';
+    if (path.startsWith('/objects') || path.startsWith('/artifacts') || path.startsWith('/resources') || path.startsWith('/alchemy')) return 'objets';
     if (path.startsWith('/locations')) return 'lieux';
     if (path.startsWith('/bestiary')) return 'bestiaire';
-    if (path.startsWith('/chronology')) return 'chronologie';
     if (path.startsWith('/lore')) return 'lore';
     if (path.startsWith('/factions')) return 'factions';
     return null;
@@ -186,5 +184,30 @@ export class Navbar {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .trim();
+  }
+
+  private flattenNavItem(item: NavItem): NavItem[] {
+    return [item, ...(item.children ?? []).flatMap((child) => this.flattenNavItem(child))];
+  }
+
+  private updateFloatingPanelPosition(event: MouseEvent): void {
+    const target = event.currentTarget as HTMLElement | null;
+    if (!target) return;
+
+    const panelWidth = 300;
+    const panelHeightEstimate = 280;
+    const viewportMargin = 12;
+    const sidebar = target.closest('.sidebar') as HTMLElement | null;
+    const sidebarRect = sidebar?.getBoundingClientRect();
+    const rect = target.getBoundingClientRect();
+
+    this.floatingPanelLeft = Math.min(
+      sidebarRect?.right ?? rect.right,
+      window.innerWidth - panelWidth - viewportMargin,
+    );
+    this.floatingPanelTop = Math.max(
+      viewportMargin,
+      Math.min(rect.top, window.innerHeight - panelHeightEstimate - viewportMargin),
+    );
   }
 }

@@ -1,0 +1,51 @@
+<div class="layout">
+    <navbar></navbar>
+    <main class="auth-page">
+        <section class="auth-card">
+            <div class="auth-sigil" aria-hidden="true">
+                <img src="/resources/media/pictures/eye.png" alt="">
+            </div>
+            <h1>Franchir le seuil</h1>
+            <p class="auth-subtitle">Identifiez-vous pour pénétrer dans le Codex.</p>
+
+            <form (ngSubmit)="submit()" #form="ngForm" novalidate>
+                <label class="auth-field">
+                    <span>Adresse e-mail</span>
+                    <input
+                        type="email"
+                        name="email"
+                        [(ngModel)]="email"
+                        required
+                        autocomplete="email"
+                        placeholder="mage@mystaria.fr"
+                    >
+                </label>
+
+                <label class="auth-field">
+                    <span>Mot de passe</span>
+                    <input
+                        type="password"
+                        name="password"
+                        [(ngModel)]="password"
+                        required
+                        autocomplete="current-password"
+                        placeholder="••••••••"
+                    >
+                </label>
+
+                @if (error()) {
+                    <p class="auth-error">{{ error() }}</p>
+                }
+
+                <button type="submit" class="auth-submit" [disabled]="form.invalid || submitting()">
+                    {{ submitting() ? 'Ouverture...' : 'Se connecter' }}
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                Pas encore de compte ?
+                <a routerLink="/register">Créer un compte</a>
+            </p>
+        </section>
+    </main>
+</div>

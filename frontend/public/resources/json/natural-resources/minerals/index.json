@@ -1,0 +1,15 @@
+[
+  {
+    "slug": "eclat-de-braise",
+    "name": "Éclat de braise",
+    "subtitle": "Cristal élémentaire",
+    "rarity": "Peu commune"
+  },
+  {
+    "slug": "sel_cristallin",
+    "name": "Sel cristallin",
+    "subtitle": "Minerai commun",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/natural-resources/minerals/sel_cristallin.png"
+  }
+]

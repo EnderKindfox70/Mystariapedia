@@ -1,0 +1,26 @@
+{
+    "name": "Mort",
+    "icon": "",
+    "banner": "",
+    "first-quote": "Tu m'appelles quand tu as peur. Tu m'oublies quand tu ne l'es plus. Je suis là dans les deux cas.",
+    "usage-quote": "Ne pense pas à la fin. Pense au seuil. C'est là que tu travailles.",
+    "subdomains": 
+    [
+        {"name": "Putréfaction", "icon": "", "spells": []},
+        {"name": "Âme", "icon": "", "spells": []},
+        {"name": "Nécromancie", "icon": "", "spells": []},
+        {"name": "Mediumnité", "icon": "", "spells": []}
+    ],
+    "magic-items-and-artifacts":
+    [
+
+    ],
+    "fauna":
+    [
+
+    ],
+    "flora":
+    [
+
+    ]
+}
