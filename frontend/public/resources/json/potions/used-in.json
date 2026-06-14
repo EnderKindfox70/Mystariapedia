@@ -33,7 +33,7 @@
       "label": "Potion de mana supérieure"
     }
   ],
-  "resources/flora/racine-de-ginseng": [
+  "resources/flora/ginseng": [
     {
       "ref": "potion_de_mana_faible",
       "collection": "potions",

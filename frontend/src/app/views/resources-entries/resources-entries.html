@@ -78,6 +78,13 @@
                       <path d="M8 16c0-2.4 1.8-4 4-4s4 1.6 4 4-1.8 3.5-4 3.5S8 18.4 8 16Z" stroke-linejoin="round"/>
                     </svg>
                   }
+                  @case ('value') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <ellipse cx="12" cy="6.5" rx="7" ry="2.6"/>
+                      <path d="M5 6.5v5c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6v-5" stroke-linecap="round"/>
+                      <path d="M5 11.5v5c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6v-5" stroke-linecap="round"/>
+                    </svg>
+                  }
                   @default {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
                       <path d="M12 4l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" stroke-linejoin="round"/>
@@ -142,15 +149,44 @@
     }
 
     <!-- ── Utilisé dans (dérivé des ingrédients des potions) ── -->
-    @if (usedIn().length) {
+    @if (usedInCards().length) {
       <section class="re-section">
         <div class="re-divider"><span>{{ usedInLabel }}</span></div>
-        <ul class="re-ref-list">
-          @for (ref of usedIn(); track ref.ref) {
-            <li><a [routerLink]="ref | wikiLink" class="re-ref-link">{{ ref.label }}</a></li>
+        <ul class="re-card-grid">
+          @for (ref of usedInCards(); track ref.ref) {
+            <li>
+              <a class="re-card" [routerLink]="ref | wikiLink">
+                <div class="re-card__media" aria-hidden="true">
+                  @if (ref.image) {
+                    <img [src]="ref.image" [alt]="ref.label">
+                  } @else {
+                    <span class="re-card__glyph">✦</span>
+                  }
+                </div>
+                <div class="re-card__body">
+                  <h3 class="re-card__name">{{ ref.label }}</h3>
+                  @if (ref.subtitle) {
+                    <p class="re-card__subtitle">{{ ref.subtitle }}</p>
+                  }
+                  @if (ref.rarity) {
+                    <span class="re-card__rarity">{{ ref.rarity }}</span>
+                  }
+                </div>
+              </a>
+            </li>
           }
         </ul>
       </section>
+    }
+
+    <!-- ── Notes des alchimistes ── -->
+    @if (entry().notes?.length) {
+      <div class="re-notes">
+        <div class="re-notes__heading">Notes des alchimistes <span aria-hidden="true">✦</span></div>
+        @for (note of entry().notes!; track $index) {
+          <p class="re-notes__text">{{ note }}</p>
+        }
+      </div>
     }
 
     <!-- ── Retour ── -->

@@ -1,0 +1,41 @@
+{
+    "name": "Éclat de bourrasque",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/air_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai dont les fréquences de résonance de l'Air ont changé l'identité même, l'Éclat de bourrasque exprime l'air en permanence, soutenu par la mana ambiante qui le traverse.",
+        "Presque immatériel — léger, froid, la surface étrangement humide malgré l'absence d'humidité visible."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal éolien" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Cimes ventées, grottes d'altitude" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, potions d'air" },
+        { "key": "value",   "label": "Valeur",      "value": "72 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Génère de très faibles courants d'air constants (la poussière tourne en lentes spirales dans une pièce close) ; les sons paraissent plus clairs à proximité.",
+        "Actif — Alimenté en mana, il peut lever des vents puissants, amplifier ou étouffer les sons sur une large zone, ou créer des poches de vide localisées."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le récolte sur les corniches et les sommets exposés, là où le vent ne faiblit jamais.",
+            "Conseil : arrimez-le solidement, car un éclat libre tend à s'envoler à la moindre rafale."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "air", "collection": "domains", "label": "Air" }
+            ]
+        }
+    ]
+}

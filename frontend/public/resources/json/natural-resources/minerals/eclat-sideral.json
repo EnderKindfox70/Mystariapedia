@@ -1,0 +1,41 @@
+{
+    "name": "Éclat sidéral",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/space_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai dont l'identité a été transmutée par les fréquences de résonance de l'Espace, l'Éclat sidéral exprime la distance et le lieu, porté par la mana ambiante qui le traverse — le plus insaisissable des éclats.",
+        "Bleu nocturne piqueté de points lumineux, comme un fragment de ciel étoilé pris dans la roche."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal sidéral" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Cavités reculées, poches de vide" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, rituels de téléportation" },
+        { "key": "value",   "label": "Valeur",      "value": "140 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Aucun effet sensoriel direct ; les sensibles rapportent des distances qui ne correspondent pas tout à fait au regard, des coins plus proches ou plus lointains qu'ils ne devraient, et des objets légèrement décalés de leur ombre.",
+        "Actif — Alimenté en mana, il peut créer des distorsions spatiales localisées, modifier la distance perçue entre deux points ou ouvrir un passage entre deux espaces."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le découvre dans les poches creusées au plus profond, où les distances semblent fausses et les échos décalés.",
+            "Conseil : marquez soigneusement le chemin, car les galeries qui le recèlent égarent souvent ceux qui s'y aventurent."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "space", "collection": "domains", "label": "Espace" }
+            ]
+        }
+    ]
+}

@@ -233,6 +233,8 @@ export interface ResourceEntry {
   properties: string[];
   /** Encart « Où en trouver ». */
   location?: ResourceLocation;
+  /** Notes des alchimistes (encart final, optionnel). */
+  notes?: string[];
   /**
    * Références croisées groupées vers d'autres pages (domaines, potions, lieux,
    * créatures d'origine…). Chaque groupe rend une section autonome.

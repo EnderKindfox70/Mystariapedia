@@ -1,22 +1,22 @@
 {
     "name": "Éclat de braise",
-    "subtitle": "Cristal élémentaire",
-    "image": "",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/fire_shard.png",
     "icon": "",
     "description": [
-        "Ce cristal incandescent se forme au cœur des veines volcaniques de Mystaria, là où la roche n'a jamais cessé de brûler.",
-        "Il conserve une chaleur perpétuelle et libère son énergie lorsqu'il est brisé, ce qui en fait une source de puissance recherchée des alchimistes."
+        "Né d'un minerai si longtemps baigné dans les fréquences de résonance du Feu que sa nature en a été transmutée, l'Éclat de braise n'accumule pas la chaleur : il est devenu chaleur. Il la rayonne en permanence, par simple passage de la mana ambiante à travers sa nouvelle nature.",
+        "On le tire des veines volcaniques de Mystaria, où la roche n'a jamais cessé de couver."
     ],
     "info": [
         { "key": "type",    "label": "Type",        "value": "Cristal igné" },
-        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Veines volcaniques, grottes thermales" },
-        { "key": "usage",   "label": "Utilisation", "value": "Forge, enchantements, potions de feu" }
+        { "key": "usage",   "label": "Utilisation", "value": "Forge, enchantements, potions de feu" },
+        { "key": "value",   "label": "Valeur",      "value": "88 pièces d'or l'éclat" }
     ],
     "properties": [
-        "Diffuse une chaleur constante sans se consumer.",
-        "Amplifie les effets des potions et rituels liés au feu.",
-        "Peut surchauffer et fissurer les mélanges instables."
+        "Passif — Légèrement chaud au toucher en permanence ; sans danger en temps normal, mais sa chaleur croît avec la mana ambiante qui le traverse.",
+        "Actif — Alimenté en mana, il peut carboniser ce qu'il touche, produire une chaleur intense localisée ou amorcer une combustion."
     ],
     "location": {
         "image": "",
@@ -25,6 +25,11 @@
             "Conseil : manipulez-le avec des gants traités, car il reste brûlant longtemps après extraction."
         ]
     },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
     "references": [
         {
             "label": "Domaines liés",

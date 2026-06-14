@@ -1,0 +1,41 @@
+{
+    "name": "Éclat de marée",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/water_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai dont la nature a été transmutée par une longue exposition aux fréquences de résonance de l'Eau, l'Éclat de marée exprime désormais l'eau en permanence, porté par la mana ambiante qui le traverse.",
+        "Légèrement froid — le froid de l'eau profonde, non celui de la glace — il garde toujours une humidité à sa surface."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal aqueux" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Grottes immergées, sources profondes" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, potions d'eau" },
+        { "key": "value",   "label": "Valeur",      "value": "70 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Laisse une humidité persistante sur les surfaces proches et fait perler une légère condensation, même en air sec ; frais au toucher.",
+        "Actif — Alimenté en mana, il peut saturer l'air d'humidité, projeter de l'eau depuis une source proche ou manipuler des masses d'eau environnantes."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le détache des parois des galeries inondées et des cavités proches des nappes souterraines.",
+            "Conseil : transportez-le dans un linge sec, car il humidifie tout ce qu'il touche."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "water", "collection": "domains", "label": "Eau" }
+            ]
+        }
+    ]
+}

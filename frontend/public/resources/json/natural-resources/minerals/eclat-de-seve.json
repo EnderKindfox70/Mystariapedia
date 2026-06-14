@@ -1,0 +1,41 @@
+{
+    "name": "Éclat de sève",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/life_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai transmuté par les fréquences de résonance de la Vie, l'Éclat de sève est devenu vitalité, qu'il diffuse en permanence tant que la mana ambiante le traverse.",
+        "Vert tendre veiné d'or, il est tiède d'une chaleur organique — moins intense que celle du Feu, plus intime."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal vivace" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Cavités fertiles, lits de rivière souterraine" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, potions de soin" },
+        { "key": "value",   "label": "Valeur",      "value": "120 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Les plantes proches s'améliorent (feuilles plus vertes, tiges plus fermes, fleurs plus durables) et les blessures superficielles de qui le tient cicatrisent un peu plus vite.",
+        "Actif — Alimenté en mana, il peut accélérer massivement la régénération biologique, renforcer les fonctions vitales ou, dans ses usages les plus avancés, insuffler une étincelle vitale à un objet inerte."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le récolte dans les cavités où une eau riche et tiède entretient une végétation souterraine inattendue.",
+            "Conseil : prélevez-le sans l'assécher, car il perd sa chaleur — et sa vertu — s'il reste trop longtemps à l'air sec."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "life", "collection": "domains", "label": "Vie" }
+            ]
+        }
+    ]
+}

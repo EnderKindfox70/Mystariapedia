@@ -1,0 +1,38 @@
+{
+    "name": "Minerai d'or",
+    "subtitle": "Minerai précieux",
+    "image": "/resources/media/pictures/natural-resources/minerals/gold_ore.png",
+    "icon": "",
+    "description": [
+        "Roche veinée d'or natif, extraite des filons profonds des montagnes de Mystaria, là où la chaleur de la terre a concentré le métal au fil des âges.",
+        "Au-delà de sa valeur marchande, l'or conduit remarquablement bien les énergies magiques, ce qui en fait un support de choix pour les enchantements durables et les conducteurs runiques."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Métal précieux" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Filons profonds, lits de rivière aurifères" },
+        { "key": "usage",   "label": "Utilisation", "value": "Monnaie, orfèvrerie, conducteurs d'enchantements" },
+        { "key": "value",   "label": "Valeur",      "value": "50 pièces d'or le lingot brut" }
+    ],
+    "properties": [
+        "Conduit et stabilise durablement les flux magiques sans se corrompre.",
+        "Inaltérable : ne ternit ni ne rouille, idéal pour les talismans portés à même la peau.",
+        "Sa malléabilité permet de le travailler en feuilles fines pour sertir des runes.",
+        "Peut être transmuté en Solarium, un alliage magique utilisé pour les talismans et les armes sacrées."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On l'extrait des galeries minières les plus profondes, ou on le pannote dans le lit des rivières descendant des massifs.",
+            "Conseil : un filon visible en surface n'est souvent que la pointe d'une veine bien plus riche en profondeur."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "light", "collection": "domains", "label": "Lumière" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,41 @@
+{
+    "name": "Éclat de ronce",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/plant_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai dont la nature a été transmutée par les fréquences de résonance de la Plante, l'Éclat de ronce exprime la croissance en permanence, nourri par la mana ambiante qui le traverse.",
+        "Vert sombre et hérissé d'arêtes acérées, légèrement humide, il dégage une subtile odeur de terre et de feuilles fraîches."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal végétal" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Galeries envahies de racines, cavités fertiles" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, potions de croissance" },
+        { "key": "value",   "label": "Valeur",      "value": "76 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Les plantes tout près poussent un peu plus vite (imperceptible en un jour, net en une semaine) ; mousses et lichens gagnent sa surface à l'air libre.",
+        "Actif — Alimenté en mana, il peut accélérer drastiquement la croissance végétale, libérer des spores aux propriétés diverses ou tisser des réseaux racinaires en quelques secondes."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le trouve dans les galeries envahies par les racines des grands arbres. Il est même commun de le voir serti dans le bois lui même.",
+            "Conseil : extrayez-le avec précaution, car ses arêtes coupantes entaillent aisément les mains nues."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "plant", "collection": "domains", "label": "Plante" }
+            ]
+        }
+    ]
+}

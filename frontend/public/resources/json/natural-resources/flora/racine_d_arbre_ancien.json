@@ -10,7 +10,8 @@
         { "key": "type",    "label": "Type",        "value": "Racine" },
         { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
         { "key": "habitat", "label": "Habitat",     "value": "Forêt primaire" },
-        { "key": "usage",   "label": "Utilisation", "value": "Remèdes, potions" }
+        { "key": "usage",   "label": "Utilisation", "value": "Remèdes, potions" },
+        { "key": "value",   "label": "Valeur",      "value": "8 pièces d'or l'unité" }
     ],
     "properties": [
         "Mangeable mais très amer, il peut être utilisé pour certains remède traditionnels."

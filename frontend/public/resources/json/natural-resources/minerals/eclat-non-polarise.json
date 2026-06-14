@@ -1,0 +1,33 @@
+{
+    "name": "Éclat non polarisé",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/unpolarized_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai cristallin qui n'a jamais été exposé assez longtemps aux fréquences d'un domaine pour en adopter la nature : il demeure neutre, sans identité propre.",
+        "Il ne rayonne aucune fréquence, mais accueille et retient la mana brute, ce qui en fait à la fois le réservoir des artisans et la matière première de tous les autres éclats."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal neutre" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "habitat", "label": "Gisement",    "value": "Filons cristallins, cavités profondes" },
+        { "key": "usage",   "label": "Utilisation", "value": "Réservoir de mana, alimentation d'éclats, transmutation" },
+        { "key": "value",   "label": "Valeur",      "value": "30 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Aucun effet propre : ne radie aucune fréquence de domaine.",
+        "Actif — Sert de conteneur de mana brute : réservoir d'alimentation pour d'autres éclats, mécanismes et objets enchantés, ou matière première pour la transmutation."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le récolte dans les filons cristallins des profondeurs, avant qu'une longue exposition à un domaine ne vienne le polariser.",
+            "Conseil : tenez-le à l'écart des autres éclats si vous souhaitez qu'il reste neutre."
+        ]
+    },
+    "notes": [
+        "Exposé assez longtemps aux fréquences de résonance d'un domaine, un éclat non polarisé finit par se transmuter en l'éclat primordial correspondant.",
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface."
+    ],
+    "references": []
+}

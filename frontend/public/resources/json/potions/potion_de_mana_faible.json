@@ -34,7 +34,7 @@
             "icon": "",
             "quantity": "1 unité",
             "note": "Apporte une énergie revitalisante.",
-            "ref": { "ref": "racine-de-ginseng", "collection": "resources/flora", "label": "Racine de ginseng" }
+            "ref": { "ref": "ginseng", "collection": "resources/flora", "label": "Racine de ginseng" }
         }
     ],
     "preparation": [

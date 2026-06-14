@@ -1,0 +1,41 @@
+{
+    "name": "Éclat de foudre",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/electric_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai transmuté par les fréquences de résonance de l'Électricité, l'Éclat de foudre est devenu charge vive, qu'il laisse filer dès que la mana ambiante le traverse.",
+        "Jaune électrique et crépitant, il pique la peau d'un léger fourmillement dès qu'on l'approche."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal fulgurant" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Filons métalliques, cavités chargées" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, potions de foudre" },
+        { "key": "value",   "label": "Valeur",      "value": "82 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Décharge de petites impulsions à qui le manipule sans précaution ; dresse les poils alentour et perturbe légèrement les autres éclats proches par micro-décharges.",
+        "Actif — Alimenté en mana, il peut produire des arcs électriques puissants, perturber les systèmes runiques voisins ou charger des objets conducteurs."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le déterre dans les veines de métal des hauteurs et des cavités où les courants telluriques s'accumulent.",
+            "Conseil : maniez-le avec un outil isolant, car une décharge mal anticipée peut être douloureuse."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "electricity", "collection": "domains", "label": "Électricité" }
+            ]
+        }
+    ]
+}

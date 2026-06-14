@@ -12,7 +12,8 @@
         { "key": "type",    "label": "Type",        "value": "Fruit" },
         { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
         { "key": "habitat", "label": "Habitat",     "value": "Forêt primaire, lieux à haute concentration de mana" },
-        { "key": "usage",   "label": "Utilisation", "value": "Potions, teintures, infusions" }
+        { "key": "usage",   "label": "Utilisation", "value": "Potions, teintures, infusions" },
+        { "key": "value",   "label": "Valeur",      "value": "5 pièces d'or l'unité" }
     ],
     "properties": [
         "Riche en mana, ce fruit est un ingrédient clé pour les potions de mana." ,

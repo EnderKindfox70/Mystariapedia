@@ -1,0 +1,41 @@
+{
+    "name": "Éclat horaire",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/time_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai transmuté par les fréquences de résonance du Temps, l'Éclat horaire exprime le temps lui-même, porté par la mana ambiante qui le traverse — le plus subtil de tous les éclats.",
+        "Ambré, ses inclusions semblent s'écouler avec une infinie lenteur, comme un sable figé en plein mouvement."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal temporel" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Cavernes anciennes, poches scellées" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, rituels du temps" },
+        { "key": "value",   "label": "Valeur",      "value": "140 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Aucun effet physique évident ; les sensibles rapportent des objets qui semblent avoir bougé entre deux regards, des sons arrivant une fraction de seconde avant leur source, et, chez les dormeurs proches, des rêves souvent prophétiques ou peuplés de mémoires d'inconnus.",
+        "Actif — Alimenté en mana, il peut révéler le passé d'un lieu, ralentir ou accélérer la perception du temps sur une zone, ou restaurer un objet à un état antérieur."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le trouve dans les poches scellées depuis des âges, où la roche n'a presque pas changé malgré les millénaires.",
+            "Conseil : datez vos repères avec soin, car le temps passé près d'un éclat horaire est trompeur."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "time", "collection": "domains", "label": "Temps" }
+            ]
+        }
+    ]
+}

@@ -11,7 +11,8 @@
         { "key": "type",    "label": "Type",        "value": "Plante aquatique" },
         { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
         { "key": "habitat", "label": "Habitat",     "value": "Rivières, courants et ruisseaux" },
-        { "key": "usage",   "label": "Utilisation", "value": "Potions, teintures, infusions" }
+        { "key": "usage",   "label": "Utilisation", "value": "Potions, teintures, infusions" },
+        { "key": "value",   "label": "Valeur",      "value": "2 pièces d'argent la botte" }
     ],
     "properties": [
         "Favorise l'écoulement des fluides.",

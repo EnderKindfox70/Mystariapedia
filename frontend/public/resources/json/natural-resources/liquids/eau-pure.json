@@ -11,7 +11,8 @@
         { "key": "type",    "label": "Type",        "value": "Liquide" },
         { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
         { "key": "state",   "label": "État",        "value": "Liquide limpide et inodore" },
-        { "key": "usage",   "label": "Utilisation", "value": "Base de potions, dilutions, rituels" }
+        { "key": "usage",   "label": "Utilisation", "value": "Base de potions, dilutions, rituels" },
+        { "key": "value",   "label": "Valeur",      "value": "1 pièce d'argent le flacon" }
     ],
     "properties": [
         "Solvant universel : dissout la plupart des essences.",

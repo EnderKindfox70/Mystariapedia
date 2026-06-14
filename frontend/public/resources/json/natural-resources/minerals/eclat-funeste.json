@@ -1,0 +1,41 @@
+{
+    "name": "Éclat funeste",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/death_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai dont la nature a été transmutée par les fréquences de résonance de la Mort, l'Éclat funeste exprime l'absence de vie en permanence, porté par la mana ambiante qui le traverse.",
+        "Grisâtre et terne, il est froid d'une façon particulière — une absence de chaleur plutôt qu'une présence de froid."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal nécrotique" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Nécropoles, cryptes souterraines" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, rituels de mort" },
+        { "key": "value",   "label": "Valeur",      "value": "120 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Étouffe légèrement les sons à proximité ; les animaux l'évitent d'instinct et il attire les manifestations spectrales dans son voisinage (perceptible pour les sensibles).",
+        "Actif — Alimenté en mana, il peut hâter la décomposition organique, établir une connexion avec les âmes proches ou activer les sous-domaines de manipulation des âmes."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le déterre dans les cryptes effondrées et les anciennes nécropoles enfouies sous la montagne.",
+            "Conseil : ne le portez jamais à même la peau trop longtemps, car sa froideur ronge la vigueur de qui le manie."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "death", "collection": "domains", "label": "Mort" }
+            ]
+        }
+    ]
+}

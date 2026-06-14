@@ -11,7 +11,8 @@
         { "key": "type",    "label": "Type",        "value": "Ossement / croc" },
         { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
         { "key": "source",  "label": "Provenance",  "value": "Loup des plaines" },
-        { "key": "usage",   "label": "Utilisation", "value": "Talismans, armes, rituels de chasse" }
+        { "key": "usage",   "label": "Utilisation", "value": "Talismans, armes, rituels de chasse" },
+        { "key": "value",   "label": "Valeur",      "value": "4 pièces d'or l'unité" }
     ],
     "properties": [
         "Renforce les enchantements de tranchant et de morsure.",

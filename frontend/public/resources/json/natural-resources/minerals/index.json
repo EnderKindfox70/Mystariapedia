@@ -1,9 +1,108 @@
 [
   {
+    "slug": "eclat-d-aube",
+    "name": "Éclat d'aube",
+    "subtitle": "Éclat primordial",
+    "rarity": "Très rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/light_shard.png"
+  },
+  {
+    "slug": "eclat-d-ombre",
+    "name": "Éclat d'ombre",
+    "subtitle": "Éclat primordial",
+    "rarity": "Très rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/dark_shard.png"
+  },
+  {
+    "slug": "eclat-de-bourrasque",
+    "name": "Éclat de bourrasque",
+    "subtitle": "Éclat primordial",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/air_shard.png"
+  },
+  {
     "slug": "eclat-de-braise",
     "name": "Éclat de braise",
-    "subtitle": "Cristal élémentaire",
-    "rarity": "Peu commune"
+    "subtitle": "Éclat primordial",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/fire_shard.png"
+  },
+  {
+    "slug": "eclat-de-foudre",
+    "name": "Éclat de foudre",
+    "subtitle": "Éclat primordial",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/electric_shard.png"
+  },
+  {
+    "slug": "eclat-de-maree",
+    "name": "Éclat de marée",
+    "subtitle": "Éclat primordial",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/water_shard.png"
+  },
+  {
+    "slug": "eclat-de-roche",
+    "name": "Éclat de roche",
+    "subtitle": "Éclat primordial",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/earth_shard.png"
+  },
+  {
+    "slug": "eclat-de-ronce",
+    "name": "Éclat de ronce",
+    "subtitle": "Éclat primordial",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/plant_shard.png"
+  },
+  {
+    "slug": "eclat-de-seve",
+    "name": "Éclat de sève",
+    "subtitle": "Éclat primordial",
+    "rarity": "Très rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/life_shard.png"
+  },
+  {
+    "slug": "eclat-funeste",
+    "name": "Éclat funeste",
+    "subtitle": "Éclat primordial",
+    "rarity": "Très rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/death_shard.png"
+  },
+  {
+    "slug": "eclat-horaire",
+    "name": "Éclat horaire",
+    "subtitle": "Éclat primordial",
+    "rarity": "Très rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/time_shard.png"
+  },
+  {
+    "slug": "eclat-non-polarise",
+    "name": "Éclat non polarisé",
+    "subtitle": "Éclat primordial",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/natural-resources/minerals/unpolarized_shard.png"
+  },
+  {
+    "slug": "eclat-sideral",
+    "name": "Éclat sidéral",
+    "subtitle": "Éclat primordial",
+    "rarity": "Très rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/space_shard.png"
+  },
+  {
+    "slug": "minerai_d_argent",
+    "name": "Minerai d'argent",
+    "subtitle": "Minerai précieux",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/silver_ore.png"
+  },
+  {
+    "slug": "minerai_d_or",
+    "name": "Minerai d'or",
+    "subtitle": "Minerai précieux",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/minerals/gold_ore.png"
   },
   {
     "slug": "sel_cristallin",

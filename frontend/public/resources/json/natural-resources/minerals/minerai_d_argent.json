@@ -1,0 +1,38 @@
+{
+    "name": "Minerai d'argent",
+    "subtitle": "Minerai précieux",
+    "image": "/resources/media/pictures/natural-resources/minerals/silver_ore.png",
+    "icon": "",
+    "description": [
+        "Roche grise parcourue de veines d'argent brillant, tirée des galeries fraîches et humides des montagnes de Mystaria.",
+        "L'argent est réputé pour sa résonance avec les énergies lunaires et purifiantes : c'est le métal de prédilection contre les créatures maudites et les morts-vivants."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Métal précieux" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Galeries humides, veines de montagne" },
+        { "key": "usage",   "label": "Utilisation", "value": "Monnaie, armes bénies, rituels de purification" },
+        { "key": "value",   "label": "Valeur",      "value": "17 pièces d'or le lingot brut" }
+    ],
+    "properties": [
+        "Blesse durablement les créatures maudites, lycanthropes et morts-vivants.",
+        "Amplifie les rituels liés à la lune et à la purification.",
+        "Se ternit au contact des énergies corrompues, servant ainsi de révélateur de malédiction.",
+        "Peut être transmuté en Lunarium, un alliage magique utilisé pour les talismans et les armes sacrées."
+    ],
+    "location": {
+        "image": "",  
+        "paragraphs": [
+            "On le déterre dans les veines fraîches des galeries de montagne, souvent mêlé au plomb et au sel cristallin.",
+            "Conseil : un éclat d'argent qui noircit sans raison signale la présence d'une énergie maléfique à proximité."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "darkness", "collection": "domains", "label": "Ténèbres" }
+            ]
+        }
+    ]
+}

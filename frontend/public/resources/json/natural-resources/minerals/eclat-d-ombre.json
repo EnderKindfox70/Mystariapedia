@@ -1,0 +1,41 @@
+{
+    "name": "Éclat d'ombre",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/dark_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai dont l'identité a été transmutée par les fréquences de résonance des Ténèbres, l'Éclat d'ombre exprime l'obscurité en permanence, porté par la mana ambiante qui le traverse.",
+        "D'un noir si profond qu'il boit la lumière, il ne laisse qu'un reflet violacé à sa surface."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal obscur" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Abîmes, gouffres privés de lumière" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, potions de ténèbres" },
+        { "key": "value",   "label": "Valeur",      "value": "110 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Absorbe un peu de la lumière dans son rayon immédiat (les sources proches semblent moins vives) ; froid sec et profond, distinct de l'Eau ou de l'Air, et les sons paraissent étouffés à proximité.",
+        "Actif — Alimenté en mana, il peut plonger une zone dans l'obscurité totale, amplifier les ombres existantes ou créer des zones d'obfuscation résistantes à la Révélation ordinaire."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le déterre au fond des gouffres et des galeries effondrées que nulle lumière n'a jamais touchées.",
+            "Conseil : repérez-le au toucher plutôt qu'à l'œil, car il se confond avec l'obscurité qui l'entoure."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "darkness", "collection": "domains", "label": "Ténèbres" }
+            ]
+        }
+    ]
+}

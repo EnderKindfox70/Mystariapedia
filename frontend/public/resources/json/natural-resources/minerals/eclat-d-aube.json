@@ -1,0 +1,41 @@
+{
+    "name": "Éclat d'aube",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/light_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai transmuté par les fréquences de résonance de la Lumière, l'Éclat d'aube est devenu clarté pure, qu'il rayonne sans chaleur tant que la mana ambiante le traverse.",
+        "Translucide, il retient une lueur douce, comme une parcelle d'aube prise dans la pierre."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal radieux" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Cavernes profondes, géodes lumineuses" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alchimie, enchantements, potions de lumière" },
+        { "key": "value",   "label": "Valeur",      "value": "110 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Émet une lueur douce et constante, comparable à une bougie stable, sans chaleur ni consommation ; déstabilise les illusions faibles à proximité, et les mensonges prononcés tout près mettent mal à l'aise leur auteur (perceptible pour les sensibles).",
+        "Actif — Alimenté en mana, il peut produire une lumière aveuglante, purifier des enchantements corrompus ou déclencher une révélation sur une zone."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le trouve serti dans les géodes des cavernes les plus profondes, là où sa lueur trahit sa présence dans l'obscurité totale.",
+            "Conseil : voilez-le lors du transport, car son éclat attire l'attention à des lieues à la ronde."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "light", "collection": "domains", "label": "Lumière" }
+            ]
+        }
+    ]
+}

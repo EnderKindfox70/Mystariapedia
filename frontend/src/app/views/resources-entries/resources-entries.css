@@ -174,7 +174,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
   gap: 1rem;
 }
 
@@ -183,7 +183,8 @@
   grid-template-columns: auto 1fr;
   grid-template-rows: auto auto;
   column-gap: .7rem;
-  align-items: center;
+  align-items: start;
+  align-content: start;
   padding: 0 1rem;
   border-left: 1px solid var(--re-line);
 }
@@ -311,6 +312,126 @@
 }
 
 /* ═══════════════════════════════════════════
+   UTILISÉ DANS (cards illustrées)
+═══════════════════════════════════════════ */
+.re-card-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1.1rem;
+}
+
+.re-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--re-line);
+  background: rgba(217, 204, 184, .22);
+  color: var(--re-ink);
+  text-decoration: none;
+  transition: background .22s, border-color .22s, box-shadow .22s, transform .22s;
+}
+
+.re-card:hover {
+  background: rgba(217, 204, 184, .42);
+  border-color: var(--re-gold);
+  box-shadow: 0 4px 14px rgba(34, 23, 19, .18);
+  transform: translateY(-2px);
+}
+
+.re-card__media {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  padding: .6rem;
+  border-bottom: 1px solid var(--re-line);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(139, 107, 47, .14), transparent 70%),
+    rgba(217, 204, 184, .3);
+  overflow: hidden;
+}
+
+.re-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.re-card__glyph {
+  color: rgba(58, 42, 28, .35);
+  font-size: 2.4rem;
+}
+
+.re-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: .9rem 1rem 1.1rem;
+}
+
+.re-card__name {
+  margin: 0;
+  font: 600 1.05rem var(--font-title);
+  letter-spacing: .03em;
+  color: #16110d;
+}
+
+.re-card__subtitle {
+  margin: 0;
+  font-size: .85rem;
+  font-style: italic;
+  color: var(--re-ink-soft);
+}
+
+.re-card__rarity {
+  margin-top: .35rem;
+  align-self: flex-start;
+  padding: .12rem .6rem;
+  border: 1px solid var(--re-line);
+  border-radius: 2px;
+  font: 600 .7rem var(--font-title);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--re-gold);
+}
+
+/* ═══════════════════════════════════════════
+   NOTES DES ALCHIMISTES
+═══════════════════════════════════════════ */
+.re-notes {
+  margin-top: 2.6rem;
+  padding: 1.5rem 1.8rem;
+  border: 1px solid var(--re-line);
+  border-block: 3px double rgba(139, 107, 47, .48);
+  background:
+    radial-gradient(circle at 50% 0, rgba(139, 107, 47, .12), transparent 70%),
+    rgba(217, 204, 184, .22);
+  text-align: center;
+}
+
+.re-notes__heading {
+  margin-bottom: .8rem;
+  color: #16110d;
+  font: 600 1rem var(--font-title);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.re-notes__heading span {
+  color: var(--re-gold);
+}
+
+.re-notes__text {
+  margin: .3rem 0 0;
+  font-size: .95rem;
+  line-height: 1.7;
+  font-style: italic;
+  color: var(--re-ink-soft);
+}
+
+/* ═══════════════════════════════════════════
    RETOUR
 ═══════════════════════════════════════════ */
 .re-nav {
@@ -354,5 +475,6 @@
 @media (max-width: 600px) {
   .re-info-grid  { grid-template-columns: 1fr; }
   .re-location   { grid-template-columns: 1fr; }
+  .re-card-grid  { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
   .resource-entry { margin-block: 12px; }
 }

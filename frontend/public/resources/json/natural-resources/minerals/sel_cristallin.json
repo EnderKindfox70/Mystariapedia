@@ -4,24 +4,27 @@
     "image": "/resources/media/pictures/natural-resources/minerals/sel_cristallin.png",
     "icon": "",
     "description": [
-        "Cristal de sel purifié, souvent trouvé dans les grottes salines des montagnes de Mystaria.",
-        "Il est utilisé dans les rituels de purification et les enchantements liés à l'eau."
+        "Sel gemme aux cristaux cubiques limpides, né de l'évaporation d'anciennes mers prisonnières de la roche. On l'extrait en blocs des veines salines des montagnes de Mystaria ou on le récolte sur les marais asséchés.",
+        "Indispensable pour assaisonner et conserver les aliments, il fut longtemps une monnaie d'échange. Les alchimistes le prisent aussi pour ses vertus purifiantes et son affinité avec l'eau."
     ],
     "info": [
-        { "key": "type",    "label": "Type",        "value": "Minerai" },
+        { "key": "type",    "label": "Type",        "value": "Sel gemme (cristal cubique)" },
         { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
-        { "key": "habitat", "label": "Gisement",    "value": "Flanc de montagne" },
-        { "key": "usage",   "label": "Utilisation", "value": "Utiliser dans des rituels, potions et la transmutation" }
+        { "key": "habitat", "label": "Gisement",    "value": "Veines salines, marais salants, grottes" },
+        { "key": "usage",   "label": "Utilisation", "value": "Conservation, assaisonnement, rituels de purification" },
+        { "key": "value",   "label": "Valeur",      "value": "3 pièces d'argent la mesure" }
     ],
     "properties": [
-        "Utilisé pour renforcer les potions de purification et les rituels de protection contre les malédictions.",
-        "Peut être broyé en poudre pour créer des barrières magiques contre les entités maléfiques.",
-        "Conserve une énergie purifiante qui peut neutraliser les poisons et les énergies corrompues."
+        "Très soluble dans l'eau : se dissout vite et rehausse les préparations liquides.",
+        "Conserve les denrées en asséchant l'humidité qui nourrit la pourriture.",
+        "Hygroscopique : attire l'humidité de l'air, d'où l'usage de le garder au sec.",
+        "En poudre, sert à tracer cercles et barrières lors des rituels de purification."
     ],
     "location": {
         "image": "",
         "paragraphs": [
-            "On le trouve dans les veines de sel des montagnes, souvent à proximité de sources d'eau pure."
+            "On le taille dans les veines de sel gemme des montagnes, ou on le ramasse en croûte sur les marais salants après l'assèchement estival.",
+            "Conseil : stockez-le dans un récipient hermétique, car il s'agglomère en captant l'humidité de l'air."
         ]
     },
     "references": [

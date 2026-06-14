@@ -1,0 +1,41 @@
+{
+    "name": "Éclat de roche",
+    "subtitle": "Éclat primordial",
+    "image": "/resources/media/pictures/natural-resources/minerals/earth_shard.png",
+    "icon": "",
+    "description": [
+        "Minerai transmuté par les fréquences de résonance de la Terre, l'Éclat de roche ne fait pas que peser : il est devenu densité et stabilité, qu'il rayonne tant que la mana ambiante le traverse.",
+        "Brut et anormalement lourd, il garde la lente mémoire de la pierre."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Cristal tellurique" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Gisement",    "value": "Strates profondes, failles rocheuses" },
+        { "key": "usage",   "label": "Utilisation", "value": "Forge, enchantements, potions de terre" },
+        { "key": "value",   "label": "Valeur",      "value": "68 pièces d'or l'éclat" }
+    ],
+    "properties": [
+        "Passif — Plus lourd que sa taille ne le laisse croire ; rend plus stables les objets posés près de lui et vibre imperceptiblement lors des séismes, même lointains.",
+        "Actif — Alimenté en mana, il peut renforcer les structures environnantes, déplacer la roche ou amplifier la pesanteur locale."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On l'extrait des galeries les plus profondes et des failles ouvertes par les séismes anciens.",
+            "Conseil : prévoyez un attelage solide, car même un petit éclat pèse le poids d'une pierre bien plus grosse."
+        ]
+    },
+    "notes": [
+        "Bien plus fréquents dans les profondeurs souterraines, les éclats primordiaux se raréfient fortement à l'approche de la surface ; la rareté indiquée ici vaut pour les gisements de surface.",
+        "Effet passif permanent, proportionnel à la mana ambiante qui le traverse ; effet actif obtenu en y injectant de la mana, qui le porte à son plein potentiel.",
+        "Peut être runé pour créer des objets magiques ou lancer des sorts spécifiques à son domaine."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "earth", "collection": "domains", "label": "Terre" }
+            ]
+        }
+    ]
+}

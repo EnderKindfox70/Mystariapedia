@@ -1,0 +1,37 @@
+{
+    "name": "Racine de ginseng",
+    "subtitle": "Ingrédient de base",
+    "image": "/resources/media/pictures/natural-resources/flora/ginseng.png",
+    "icon": "",
+    "description": [
+        "Racine charnue et pâle à la silhouette curieusement humaine, le ginseng pousse lentement dans l'ombre fraîche des forêts de montagne et met cinq à six ans avant d'atteindre sa pleine maturité.",
+        "Réputé comme tonique et adaptogène, il aide le corps à résister à la fatigue et au stress. À Mystaria, les alchimistes l'emploient comme base revitalisante : sa lente croissance lui ferait accumuler l'énergie du sol au fil des saisons."
+    ],
+    "info": [
+        { "key": "type",    "label": "Type",        "value": "Racine" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "habitat", "label": "Habitat",     "value": "Sous-bois frais des forêts de montagne" },
+        { "key": "usage",   "label": "Utilisation", "value": "Toniques, infusions, potions de vigueur" },
+        { "key": "value",   "label": "Valeur",      "value": "2 pièces d'or la racine" }
+    ],
+    "properties": [
+        "Adaptogène : aide l'organisme à résister à la fatigue, au stress et au froid.",
+        "Stimule l'énergie et la concentration ; soutient les défenses naturelles.",
+        "Saveur âcre et terreuse, légèrement amère, plus douce une fois séchée ou infusée."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On le récolte à l'automne dans les sous-bois frais et ombragés des forêts de montagne, là où le sol reste humide et riche en humus.",
+            "Conseil : ne déterrez que les pieds âgés d'au moins cinq ans ; un plant trop jeune offre une racine maigre et sans vertu."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "life", "collection": "domains", "label": "Vie" }
+            ]
+        }
+    ]
+}
