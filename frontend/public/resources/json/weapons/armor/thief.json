@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de voleur",
+  "subtitle": "Cuir souple et capuche, pour passer inaperçu",
+  "description": [
+    "Une tenue sombre et silencieuse, taillée dans un cuir souple qui n'entrave aucun geste. Idéale pour escalader, se faufiler et disparaître."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Capuche de cuir",     "physicalArmor": 1, "magicalProtection": 0, "weight": 0.4 },
+    { "slot": "body", "label": "Veste de cuir souple", "physicalArmor": 2, "magicalProtection": 0, "weight": 2.5 },
+    { "slot": "legs", "label": "Pantalon ajusté",      "physicalArmor": 1, "magicalProtection": 0, "weight": 1 },
+    { "slot": "feet", "label": "Bottes feutrées",      "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Légère et discrète", "N'entrave ni l'escalade ni l'acrobatie"]
+}

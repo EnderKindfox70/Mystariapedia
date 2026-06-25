@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de tueur à gages",
+  "subtitle": "Sombre, sobre, silencieuse",
+  "description": [
+    "Une tenue d'un noir mat qui n'accroche pas la lumière, conçue pour approcher sans bruit et frapper une seule fois."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Capuche noire",       "physicalArmor": 1, "magicalProtection": 0, "weight": 0.4 },
+    { "slot": "body", "label": "Justaucorps sombre",   "physicalArmor": 2, "magicalProtection": 0, "weight": 2.5 },
+    { "slot": "legs", "label": "Pantalon sombre",      "physicalArmor": 1, "magicalProtection": 0, "weight": 1 },
+    { "slot": "feet", "label": "Bottes silencieuses",  "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Peu commune" }],
+  "properties": ["N'accroche pas la lumière", "Gaines discrètes pour lames et fioles"]
+}

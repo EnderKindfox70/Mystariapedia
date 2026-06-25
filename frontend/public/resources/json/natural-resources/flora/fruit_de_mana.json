@@ -9,6 +9,7 @@
         "Le fruit possède un gout sucré et sont très juteux, ce qui en fait un régal pour les créatures magiques et les aventuriers."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.2 kg" },
         { "key": "type",    "label": "Type",        "value": "Fruit" },
         { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
         { "key": "habitat", "label": "Habitat",     "value": "Forêt primaire, lieux à haute concentration de mana" },

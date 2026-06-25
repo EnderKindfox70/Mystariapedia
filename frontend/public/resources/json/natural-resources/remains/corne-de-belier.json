@@ -1,0 +1,45 @@
+{
+    "name": "Corne de bélier",
+    "subtitle": "Dépouille de créature",
+    "image": "/resources/media/pictures/natural-resources/remains/ram_horn.png",
+    "icon": "",
+    "description": [
+        "Corne recourbée et striée prélevée sur un bélier des cimes, dense et résistante, façonnée par les charges répétées de la bête contre la roche.",
+        "Les artisans la travaillent pour les talismans d'endurance et les enchantements de robustesse, et les apothicaires en réduisent la pointe en poudre fortifiante."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.8 kg" },
+        { "key": "type",    "label": "Type",        "value": "Corne / kératine" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "source",  "label": "Provenance",  "value": "Bélier des cimes" },
+        { "key": "usage",   "label": "Utilisation", "value": "Talismans, poudres fortifiantes, manches d'outils" },
+        { "key": "value",   "label": "Valeur",      "value": "5 pièces d'or l'unité" }
+    ],
+    "properties": [
+        "Renforce les enchantements de robustesse et d'encaissement.",
+        "Sa densité naturelle en fait un excellent support runique pour les talismans de ténacité.",
+        "Broyée en poudre, elle entre dans les préparations fortifiantes pour les convalescents.",
+        "Solide mais cassante sous un choc sec : à travailler lentement, sans la chauffer."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Récoltée sur les béliers des cimes abattus dans les massifs et les hauts pâturages de Mystaria.",
+            "Conseil : choisissez les cornes des bêtes âgées, dont la striure serrée trahit une kératine plus dense."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "belier-des-cimes", "collection": "bestiary", "label": "Bélier des cimes" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "earth", "collection": "domains", "label": "Terre" }
+            ]
+        }
+    ]
+}

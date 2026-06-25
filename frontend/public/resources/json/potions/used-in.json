@@ -1,5 +1,48 @@
 {
-  "resources/flora/fruit_de_mana": [
+  "resources/remains/venin-de-serpent-fantome": [
+    {
+      "ref": "elixir_d_eveil",
+      "collection": "potions",
+      "label": "Élixir d'éveil forcé"
+    }
+  ],
+  "resources/flora/champignon-linceul": [
+    {
+      "ref": "elixir_d_eveil",
+      "collection": "potions",
+      "label": "Élixir d'éveil forcé"
+    }
+  ],
+  "resources/remains/pollen-de-scarabee-pollinisateur": [
+    {
+      "ref": "elixir_d_eveil",
+      "collection": "potions",
+      "label": "Élixir d'éveil forcé"
+    }
+  ],
+  "resources/minerals/sel_cristallin": [
+    {
+      "ref": "elixir_d_eveil",
+      "collection": "potions",
+      "label": "Élixir d'éveil forcé"
+    },
+    {
+      "ref": "potion_de_mana_superieure",
+      "collection": "potions",
+      "label": "Potion de mana supérieure"
+    },
+    {
+      "ref": "potion_peau_de_pierre",
+      "collection": "potions",
+      "label": "Potion de peau de pierre"
+    }
+  ],
+  "resources/liquids/eau-pure": [
+    {
+      "ref": "elixir_d_eveil",
+      "collection": "potions",
+      "label": "Élixir d'éveil forcé"
+    },
     {
       "ref": "potion_de_mana_faible",
       "collection": "potions",
@@ -14,9 +57,14 @@
       "ref": "potion_de_mana_superieure",
       "collection": "potions",
       "label": "Potion de mana supérieure"
+    },
+    {
+      "ref": "potion_peau_de_pierre",
+      "collection": "potions",
+      "label": "Potion de peau de pierre"
     }
   ],
-  "resources/liquids/eau-pure": [
+  "resources/flora/fruit_de_mana": [
     {
       "ref": "potion_de_mana_faible",
       "collection": "potions",
@@ -52,11 +100,18 @@
       "label": "Potion de mana supérieure"
     }
   ],
-  "resources/minerals/sel_cristallin": [
+  "resources/remains/corne-de-belier": [
     {
-      "ref": "potion_de_mana_superieure",
+      "ref": "potion_peau_de_pierre",
       "collection": "potions",
-      "label": "Potion de mana supérieure"
+      "label": "Potion de peau de pierre"
+    }
+  ],
+  "resources/remains/glande-de-lezard-rocailleux": [
+    {
+      "ref": "potion_peau_de_pierre",
+      "collection": "potions",
+      "label": "Potion de peau de pierre"
     }
   ]
 }

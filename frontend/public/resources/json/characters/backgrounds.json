@@ -1,0 +1,180 @@
+[
+  {
+    "key": "criminal",
+    "name": "Criminel",
+    "min_money": 0,
+    "max_money":50,
+    "subbackgrounds": [
+      { "key": "thief", "name": "Voleur", "startingWeapon": "dague" },
+      { "key": "spy", "name": "Espion", "startingWeapon": "dague" },
+      {"key": "hitman", "name": "Tueur à gages", "startingWeapon": "dague"},
+      {"key": "vigilante", "name": "Vigilante", "startingWeapon": "baton"}
+    ],
+    "subattributes":
+    [
+      {"key": "stealth", "name": "Discrétion", "value":1},
+      {"key": "deception", "name": "Tromperie", "value":1}
+
+    ]
+  },
+  {
+    "key": "soldat",
+    "name": "Soldat",
+    "min_money": 15,
+    "max_money":30,
+    "subbackgrounds": [
+      { "key": "footman", "name": "Fantassin", "startingWeapon": "lance" },
+      { "key": "range-shooter", "name": "Tireur de précision", "startingWeapon": "arc-long" },
+      { "key": "field-medic", "name": "Médecin d'armée", "startingWeapon": "dague" }
+    ],
+    "traits":
+    [
+      {"key": "martial-training", "name": "Entrainement martial", "description": "Vous avez acquis le savoir necessaire pour utiliser le renforcement de la magie non polarisé"}
+    ],
+    "subattributes":
+    [
+      {"key": "athletism", "name": "Athletisme", "value":1},
+      {"key": "intimidation", "name": "Intimidation", "value":1}
+
+    ]
+  },
+  {
+    "key": "sage",
+    "name": "Sage",
+    "min_money": 0,
+    "max_money":20,
+    "subbackgrounds": [
+      { "key": "scholar", "name": "Érudit", "startingWeapon": "baton" },
+      { "key": "alchemist", "name": "Alchimiste", "startingWeapon": "dague" },
+      { "key": "astronomer", "name": "Astronome", "startingWeapon": "baton" }
+    ],
+    "traits":
+    [
+      {"key": "magical-study", "name": "Etude magiques", "description": "Vous avez acquis le savoir necessaire pour utiliser le voile de la magie non polarisé"}
+    ],
+    "subattributes":
+    [
+      {"key": "arcana", "name": "Arcane", "value":1},
+      {"key": "history", "name": "Histoire", "value":1}
+    ]
+  },
+  {
+    "key": "artisan",
+    "name": "Artisan",
+    "min_money": 10,
+    "max_money":20,
+    "subbackgrounds": [
+      { "key": "forgeron", "name": "Forgeron", "startingWeapon": "masse-d-armes" },
+      { "key": "runiste", "name": "Runiste", "startingWeapon": "baton" }
+    ],
+    "subattributes":
+    [
+      {"key": "crafting", "name": "Artisanat", "value":1}
+
+    ]
+  },
+  {
+    "key": "nomad",
+    "name": "Nomade",
+    "min_money": 0,
+    "max_money":15,
+    "subbackgrounds": [
+      { "key": "adventurer", "name": "Aventurier", "startingWeapon": "epee-longue" },
+      { "key": "gatherer-wanderer", "name": "Récolteur-Vagabond", "startingWeapon": "dague"},
+      {"key": "wandering-merchant", "name": "Marchand ambulant", "startingWeapon": "dague"}
+    ],
+    "subattributes": 
+    [
+      {"key": "survival", "name": "Survie", "value":1},
+      {"key": "nature", "name": "Nature", "value":1}
+    ]
+  },
+  { 
+    "key": "noble", 
+    "name": "Noble", 
+    "min_money": 40,
+    "max_money":80,
+  "subbackgrounds": 
+    [
+      {"key": "heir", "name": "Héritier", "startingWeapon": "rapiere"},
+      {"key": "knight-aspirant", "name": "Chevalier aspirant", "startingWeapon": "epee-longue"},
+      {"key": "aristocratic-merchant", "name": "Marchand aristocratique", "startingWeapon": "rapiere"}
+    ],
+    "subattributes": 
+    [
+      {"key": "history", "name": "Histoire", "value":1},
+      {"key": "religion", "name": "Religion", "value":1}
+    ]
+  },
+  {
+    "key": "sailor",
+    "name": "Marin",
+    "min_money": 15,
+    "max_money":40,
+    "subbackgrounds": [
+      { "key": "deckhand", "name": "Matelot", "startingWeapon": "dague" },
+      { "key": "navigator", "name": "Navigateur", "startingWeapon": "sabre" },
+      { "key": "pirate", "name": "Pirate", "startingWeapon": "sabre" }
+    ],
+    "traits":
+    [
+      {"key": "swimmer", "name": "Nageur", "description": "Vous pouvez traverser les points d'eau"}
+    ],
+    "subattributes":
+    [
+      {"key": "athletism", "name": "Athletisme", "value":1},
+      {"key": "perception", "name": "Perception", "value":1}
+
+    ]
+  },
+  {
+    "key": "peasant",
+    "name": "Paysans",
+    "min_money": 0,
+    "max_money":10,
+    "subbackgrounds": [
+      { "key": "farmer", "name": "Fermier", "startingWeapon": "baton" },
+      {"key": "sheperd", "name": "Berger", "startingWeapon": "fronde"},
+      {"key": "lumberjack", "name": "Bucheron", "startingWeapon": "hache"}
+    ],
+    "subattributes":
+    [
+      {"key": "athletism", "name": "Athletisme", "value":1},
+      {"key": "animal-handling", "name": "Dressage", "value":1}
+    ]
+  },
+  {
+    "key": "hunter",
+    "name": "Chasseur",
+    "min_money": 15,
+    "max_money":50,
+    "subbackgrounds":[
+      {"key": "tracker", "name": "Traqueur", "startingWeapon": "arc-court"},
+      {"key": "trapper", "name": "Trappeur", "startingWeapon": "dague"}
+    ],
+    "subattributes":
+    [
+      {"key": "stealth", "name": "Discrétion", "value":1},
+      {"key": "nature", "name": "Nature", "value":1}
+    ]
+  },
+  {
+    "key": "fisherman",
+    "name": "Pécheur",
+    "min_money": 5,
+    "max_money":30,
+    "subbackgrounds":[
+      {"key": "coastline-fisher", "name": "pécheur des côtes", "startingWeapon": "lance"},
+      {"key": "river-angler","name": "pécheur des eaux douces", "startingWeapon": "dague"}
+    ],
+    "traits":
+    [
+      {"key": "swimmer", "name": "Nageur", "description": "Vous pouvez traverser les points d'eau"}
+    ],
+    "subattributes":
+    [
+      {"key": "perception", "name": "Perception", "value":1},
+      {"key": "nature", "name": "Nature", "value":1}
+    ]
+  }
+]

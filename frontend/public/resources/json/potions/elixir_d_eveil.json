@@ -1,0 +1,76 @@
+{
+    "name": "Élixir d'éveil forcé",
+    "subtitle": "Élixir dangereux",
+    "image": "/resources/media/pictures/potions/awakening_elixir.png",
+    "icon": "",
+    "description": [
+        "Un élixir d'un bleu-violet profond, dont la surface est parcourue de volutes sombres qui semblent fumer hors du flacon comme une ombre vivante. On le prépare pour forcer, chez celui qui le boit, les conditions d'un éveil à la magie : une crise violente qui imite la situation limite déclenchant naturellement la perception de la mana.",
+        "Sa réputation tient autant à sa rareté qu'à ses dangers : le venin qu'il contient pousse le corps vers ses limites, et seul un second composé, à activation retardée, détermine si la crise se résorbe sans séquelle. Cette résorption n'a rien de magique : elle ne dépend que de la qualité de cet antidote et du métabolisme du buveur, jamais de sa capacité à être éveillé."
+    ],
+    "effects": [
+        "Provoque une crise neurologique violente d'environ 10 minutes, reproduisant les conditions d'un éveil naturel par situation limite (tachycardie, suffocation, vision qui se rétrécit)."
+    ],
+    "secondary-effects": [
+        "Si le second composé neutralise le poison dans sa fenêtre idéale (~10 minutes), le buveur traverse un épuisement profond mais récupère complètement sur plusieurs semaines, avec une hypersensibilité au stress qui peut persister des mois. Si mal dosé, le venin peut provoquer des séquelles graves, voire la mort."
+    ],
+    "quote": "On ne donne pas la vue à un aveugle de naissance sans qu'il en pleure d'abord de douleur.",
+    "quote-author": "Maître alchimiste de la tour d'Ivoire",
+    "ingredients": [
+        {
+            "name": "Venin de serpent fantôme",
+            "icon": "",
+            "quantity": "Quelques gouttes",
+            "note": "L'ingrédient le plus rare. Cible spécifiquement les canaux magiques, dormants ou actifs, et déclenche la crise.",
+            "ref": { "ref": "venin-de-serpent-fantome", "collection": "resources/remains", "label": "Venin de serpent fantôme" }
+        },
+        {
+            "name": "Spores de Champignon-Linceul",
+            "icon": "",
+            "quantity": "1 pincée",
+            "note": "Antidote à activation retardée : leur coque se dégrade en environ 10 minutes, libérant un composé qui neutralise le venin.",
+            "ref": { "ref": "champignon-linceul", "collection": "resources/flora", "label": "Champignon-Linceul" }
+        },
+        {
+            "name": "Pollen de scarabée pollinisateur géant",
+            "icon": "",
+            "quantity": "1 pincée",
+            "note": "Déclenche la germination des spores. Un pollen trop vieux ou un mauvais timing d'ajout rend toute la potion inerte.",
+            "ref": { "ref": "pollen-de-scarabee-pollinisateur", "collection": "resources/remains", "label": "Pollen de scarabée pollinisateur géant" }
+        },
+        {
+            "name": "sel cristallin",
+            "icon": "",
+            "quantity": "1 pincée",
+            "note": "Stabilisant ajouté en dernier, fige la composition finale.",
+            "ref": { "ref": "sel_cristallin", "collection": "resources/minerals", "label": "Sel cristallin" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "200 ml",
+            "note": "Base neutre du mélange.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Jour 1 : faire infuser le venin de serpent fantôme dans l'eau de source primaire pendant 24h. Le mélange doit prendre une couleur noiratre homogène ; s'il ne l'est pas, tout recommencer.",
+        "Jour 2 : ajouter simultanément les spores de Champignon-Linceul et le pollen de scarabée, dans cet ordre précis. Un ordre inversé ou un délai entre les deux empêche la germination des spores et rend l'élixir inerte.",
+        "Ajouter le sel de grotte profonde en dernier pour stabiliser la préparation finale. Des volutes sombres doivent apparaître à la surface : un élixir qui n'en produit pas est raté ou inerte."
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Élixir" },
+        { "key": "rarity", "label": "Rareté",  "value": "Rare" },
+        { "key": "weight", "label": "Poids",   "value": "0,4 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "800 pièces d'or" }
+    ],
+    "notes": [
+        "Illégal partout sans encadrement médical. À Luxarion, autorisé sous supervision en cas de don latent confirmé sans opportunité d'éveil naturel. Marché noir actif partout.",
+        "Le poison ne fait que reproduire les conditions d'un éveil. Il ne crée ni ne garantit rien, et les spores ne 'réparent' jamais l'éveil lui-même : elles ne déterminent que la propreté de la résorption du venin.",
+        "À ne jamais administrer à un enfant ou un sujet affaibli : la crise initiale est identique pour tous, capable d'éveil ou non, et le risque de séquelles graves ne dépend que du timing de l'antidote.",
+        "Variante Royaume Abandonné : remplace le venin de serpent fantôme par du Sang de Chaos dilué, plus accessible mais avec un taux de mutation encore plus élevé, pour des raisons inexpliquées.",
+        "Variante États Souterrains (Compas Runé) : remplace le pollen de scarabée par un catalyseur runé calibré qui stabilise le timing de germination des spores, réduisant (sans l'annuler) le risque de résorption tardive. Tests contrôlés sur volontaires."
+    ],
+    "references": [
+
+    ]
+}

@@ -1,0 +1,670 @@
+<div class="layout cs-root">
+  <navbar></navbar>
+  <main class="cs-main">
+    <!-- Barre d'outils (non imprimée) -->
+    <div class="cs-toolbar no-print">
+      <a class="cs-back" routerLink="/characters">← Mes personnages</a>
+      <div class="cs-toolbar__actions">
+        @if (justSaved()) {
+          <span class="cs-saved">✓ Enregistré</span>
+        }
+        @if (error()) {
+          <span class="cs-error">{{ error() }}</span>
+        }
+        <button type="button" class="cs-btn cs-btn--ghost" [disabled]="exporting()" (click)="downloadPdf()">
+          {{ exporting() ? 'Génération…' : '⤓ Télécharger PDF' }}
+        </button>
+        <button type="button" class="cs-btn" [disabled]="saving()" (click)="save()">
+          {{ saving() ? 'Enregistrement…' : (sheetId ? 'Enregistrer' : 'Créer la fiche') }}
+        </button>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <p class="cs-loading no-print">Chargement de la fiche…</p>
+    } @else {
+    <div class="cs-grid">
+      <!-- ───────────────── COLONNE FORMULAIRE ───────────────── -->
+      <form class="cs-form no-print" (ngSubmit)="save()">
+        <fieldset class="cs-fieldset">
+          <legend>Identité</legend>
+
+          <div class="cs-portrait-row">
+            <div class="cs-portrait-preview" [class.is-empty]="!model.identity.portrait">
+              @if (model.identity.portrait) {
+                <img [src]="model.identity.portrait" alt="Portrait du personnage" />
+              } @else {
+                <span>Tête</span>
+              }
+            </div>
+            <div class="cs-portrait-actions">
+              <span class="cs-file-title">Portrait (tête)</span>
+              <label class="cs-file-btn">
+                Choisir une image
+                <input type="file" accept="image/*" (change)="onPortraitSelected($event)" hidden />
+              </label>
+              @if (model.identity.portrait) {
+                <button type="button" class="cs-file-remove" (click)="removePortrait()">Retirer</button>
+              }
+              <span class="cs-file-hint">PNG / JPG — 2 Mo max</span>
+            </div>
+          </div>
+
+          @if (model.identity.portrait) {
+            <div class="cs-crop">
+              <label class="cs-crop__row">
+                <span>Zoom</span>
+                <input type="range" min="1" max="3" step="0.05" name="pzoom" [(ngModel)]="model.identity.portraitZoom" (ngModelChange)="rebakePortrait()" />
+              </label>
+              <label class="cs-crop__row">
+                <span>Horizontal</span>
+                <input type="range" min="0" max="100" step="1" name="ppx" [(ngModel)]="model.identity.portraitPosX" (ngModelChange)="rebakePortrait()" />
+              </label>
+              <label class="cs-crop__row">
+                <span>Vertical</span>
+                <input type="range" min="0" max="100" step="1" name="ppy" [(ngModel)]="model.identity.portraitPosY" (ngModelChange)="rebakePortrait()" />
+              </label>
+            </div>
+          }
+
+          <div class="cs-portrait-row">
+            <div class="cs-portrait-preview cs-portrait-preview--full" [class.is-empty]="!model.identity.fullImage">
+              @if (model.identity.fullImage) {
+                <img [src]="model.identity.fullImage" alt="Personnage en pied" />
+              } @else {
+                <span>Corps entier</span>
+              }
+            </div>
+            <div class="cs-portrait-actions">
+              <span class="cs-file-title">Image plein corps</span>
+              <label class="cs-file-btn">
+                Choisir une image
+                <input type="file" accept="image/*" (change)="onFullImageSelected($event)" hidden />
+              </label>
+              @if (model.identity.fullImage) {
+                <button type="button" class="cs-file-remove" (click)="removeFullImage()">Retirer</button>
+              }
+              <span class="cs-file-hint">PNG / JPG — 5 Mo max</span>
+            </div>
+          </div>
+
+          <label class="cs-field">
+            <span>Nom</span>
+            <input type="text" name="name" [(ngModel)]="model.identity.name" placeholder="Nom du personnage" />
+          </label>
+
+          <div class="cs-row">
+            <label class="cs-field">
+              <span>Race</span>
+              <select name="race" [(ngModel)]="model.identity.race" (ngModelChange)="onRaceChange()">
+                <option value="">— Choisir —</option>
+                @for (r of races(); track r.key) { <option [value]="r.name">{{ r.name }}</option> }
+              </select>
+            </label>
+            @if (subracesForSelected.length > 0) {
+              <label class="cs-field">
+                <span>Sous-race</span>
+                <select name="subrace" [(ngModel)]="model.identity.subrace">
+                  <option value="">— Choisir —</option>
+                  @for (s of subracesForSelected; track s.key) { <option [value]="s.name">{{ s.name }}</option> }
+                </select>
+              </label>
+            }
+          </div>
+
+          <div class="cs-row">
+            <label class="cs-field">
+              <span>Background</span>
+              <select name="background" [(ngModel)]="model.identity.background" (ngModelChange)="onBackgroundChange()">
+                <option value="">— Choisir —</option>
+                @for (b of backgrounds(); track b.key) { <option [value]="b.name">{{ b.name }}</option> }
+              </select>
+            </label>
+            @if (subbackgroundsForSelected.length > 0) {
+              <label class="cs-field">
+                <span>Sous-background</span>
+                <select name="subbackground" [(ngModel)]="model.identity.subbackground">
+                  <option value="">— Choisir —</option>
+                  @for (s of subbackgroundsForSelected; track s.key) { <option [value]="s.name">{{ s.name }}</option> }
+                </select>
+              </label>
+            }
+          </div>
+
+          <div class="cs-row">
+            <label class="cs-field">
+              <span>Classe</span>
+              <select name="class" [(ngModel)]="model.identity.class" (ngModelChange)="onClassChange()">
+                <option value="">— Choisir —</option>
+                @for (c of classes(); track c.key) { <option [value]="c.name">{{ c.name }}</option> }
+              </select>
+            </label>
+            <label class="cs-field cs-field--narrow">
+              <span>Niveau</span>
+              <input type="number" name="level" min="1" max="20" [(ngModel)]="model.level" (ngModelChange)="clampLevel()" />
+            </label>
+            <label class="cs-field cs-field--narrow">
+              <span>Âge</span>
+              <input type="text" name="age" [(ngModel)]="model.identity.age" placeholder="—" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Statistiques</legend>
+          <p class="cs-stats-note">
+            Calculées automatiquement : génétique de la race + montée de niveau de la classe + effets des traits.
+          </p>
+          <div class="cs-stat-mode">
+            <div class="cs-seg" role="group" aria-label="Mode de calcul">
+              <button type="button" [class.is-active]="model.statMode === 'random'" (click)="setStatMode('random')">Aléatoire</button>
+              <button type="button" [class.is-active]="model.statMode === 'mean'" (click)="setStatMode('mean')">Moyenne</button>
+            </div>
+            @if (model.statMode === 'random') {
+              <button type="button" class="cs-add" (click)="rerollStats()">⟳ Relancer les dés</button>
+            }
+          </div>
+          <p class="cs-stats-note">Or de départ (background) : <strong>{{ gold }}</strong></p>
+          @let fsForm = finalStats;
+          <div class="cs-stats-grid">
+            @for (st of stats; track st.key) {
+              <div class="cs-stat-readout">
+                <span>{{ st.label }}</span>
+                <strong>{{ fsForm[st.key] }}</strong>
+              </div>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Traits (selon race / sous-race)</legend>
+          @if (traits.length === 0) {
+            <p class="cs-stats-note">Choisis une race (et sa sous-race) pour révéler ses traits.</p>
+          } @else {
+            <div class="cs-traits">
+              @for (t of traits; track t.key) {
+                <div class="cs-trait">
+                  <svg class="cs-trait__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="t.icon" /></svg>
+                  <div class="cs-trait__body">
+                    <span class="cs-trait__name">{{ t.name }}</span>
+                    @if (t.description) { <span class="cs-trait__desc">{{ t.description }}</span> }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Domaines de magie ({{ model.domains.length }}/3)</legend>
+          <div class="cs-domains">
+            @for (d of domains; track d.key) {
+              <button
+                type="button"
+                class="cs-domain"
+                [class.is-selected]="isDomainSelected(d.key)"
+                [disabled]="!isDomainSelected(d.key) && model.domains.length >= 3"
+                (click)="toggleDomain(d.key)"
+              >
+                <span class="cs-domain__sigil" aria-hidden="true">{{ d.sigil }}</span>
+                <span>{{ d.name }}</span>
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Attributs</legend>
+
+          <div class="cs-stat-mode">
+            <div class="cs-seg" role="group" aria-label="Mode de génération des attributs">
+              <button type="button" [class.is-active]="attributeMode === 'pointbuy'" (click)="setAttributeMode('pointbuy')">Achat de points</button>
+              <button type="button" [class.is-active]="attributeMode === 'roll'" (click)="setAttributeMode('roll')">Lancer de dés</button>
+            </div>
+          </div>
+
+          @if (attributeMode === 'pointbuy') {
+            <div class="cs-points" [class.is-empty]="pointsRemaining === 0" [class.is-over]="pointsRemaining < 0">
+              <span>Points à répartir</span>
+              <strong>{{ pointsRemaining }} / {{ attributePoints }}</strong>
+            </div>
+            <p class="cs-stats-note">Base {{ baseAttribute }} par attribut, {{ attributePoints }} points à dépenser jusqu'à {{ maxAttribute }} (14 et 15 coûtent plus cher). Descendre jusqu'à {{ minAttribute }} rend des points. Le total inclut les bonus de race/sous-race/background.</p>
+          } @else {
+            <div class="cs-roll-bar">
+              <button type="button" class="cs-add" (click)="rollAttributes()">🎲 Lancer 4d6 (×6)</button>
+              @if (attributeRolls.length) {
+                <span class="cs-roll-pool" aria-label="Résultats des dés">
+                  @for (v of attributeRolls; track $index) {
+                    <span class="cs-roll-chip" [class.is-used]="isRollUsed($index)">{{ v }}</span>
+                  }
+                </span>
+              }
+            </div>
+            <p class="cs-stats-note">4d6, on retire le dé le plus bas, six fois. Attribuez chaque résultat à un attribut ({{ rollsAssigned }}/6 affectés). Le total inclut les bonus de race/sous-race/background.</p>
+          }
+
+          <div class="cs-attrs-head" aria-hidden="true">
+            <span>Attribut</span><span>Base</span><span>Total</span><span>Mod</span>
+          </div>
+          <div class="cs-attrs">
+            @for (a of attributes; track a.key) {
+              <div class="cs-attr">
+                <span class="cs-attr__label">
+                  {{ a.label }}
+                  @if (attrBonus(a.key)) { <em class="cs-attr__bonus">{{ formatBonus(attrBonus(a.key)) }}</em> }
+                </span>
+                @if (attributeMode === 'pointbuy') {
+                  <div class="cs-stepper">
+                    <button type="button" (click)="decAttr(a.key)" [disabled]="!canDecAttr(a.key)" aria-label="Diminuer">−</button>
+                    <span class="cs-stepper__val">{{ model.attributes[a.key] }}</span>
+                    <button type="button" (click)="incAttr(a.key)" [disabled]="!canIncAttr(a.key)" aria-label="Augmenter">+</button>
+                  </div>
+                } @else {
+                  <select
+                    class="cs-roll-select"
+                    [name]="'roll-' + a.key"
+                    [ngModel]="assignmentOf(a.key)"
+                    (ngModelChange)="assignRoll(a.key, $event)"
+                    [disabled]="!attributeRolls.length"
+                  >
+                    <option [ngValue]="-1">—</option>
+                    @for (opt of rollOptionsFor(a.key); track opt.idx) {
+                      <option [ngValue]="opt.idx">{{ opt.value }}</option>
+                    }
+                  </select>
+                }
+                <em class="cs-attr__total">{{ finalAttributes[a.key] }}</em>
+                <em class="cs-attr__mod">{{ formatBonus(modifier(a.key)) }}</em>
+              </div>
+            }
+          </div>
+
+          <label class="cs-field cs-field--narrow">
+            <span>Bonus de maîtrise</span>
+            <input type="number" name="prof" [(ngModel)]="model.proficiencyBonus" />
+          </label>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Compétences</legend>
+
+          @if (backgroundSkills.size > 0) {
+            <p class="cs-stats-note">Accordées par le background :
+              @for (s of skills; track s.key) {
+                @if (backgroundSkills.get(s.key)) { <span class="cs-skill-chip">{{ s.label }} +{{ backgroundSkills.get(s.key) }}</span> }
+              }
+            </p>
+          }
+
+          @if (classSkillChoices > 0) {
+            <div class="cs-points" [class.is-empty]="chosenSkillCount >= classSkillChoices">
+              <span>Compétences de classe</span>
+              <strong>{{ chosenSkillCount }} / {{ classSkillChoices }}</strong>
+            </div>
+            <div class="cs-skills">
+              @for (key of classSkillOptions; track key) {
+                <label class="cs-skill">
+                  <input
+                    type="checkbox"
+                    [name]="'skill-' + key"
+                    [checked]="isSkillChosen(key)"
+                    [disabled]="!isSkillChosen(key) && chosenSkillCount >= classSkillChoices"
+                    (change)="toggleSkill(key)"
+                  />
+                  <span class="cs-skill__name">{{ skillLabel(key) }}</span>
+                </label>
+              }
+            </div>
+          } @else {
+            <p class="cs-stats-note">Choisis une classe pour sélectionner des compétences.</p>
+          }
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Sorts — Connus</legend>
+          @if (model.domains.length === 0) {
+            <p class="cs-stats-note">Sélectionne au moins un domaine de magie pour proposer des sorts.</p>
+          }
+          @for (spell of model.spells.known; track trackByIndex($index)) {
+            <div class="cs-spell">
+              <input type="number" class="cs-spell__lvl" [name]="'kl-' + $index" [(ngModel)]="spell.level" [readonly]="!!spell.key" title="Niveau de déblocage" />
+              <select class="cs-spell__name" [name]="'kn-' + $index" [(ngModel)]="spell.key" (ngModelChange)="onSpellKeyChange(spell)" title="Sort">
+                <option value="">— Choisir un sort —</option>
+                @for (s of availableSpells; track s.key) {
+                  <option [value]="s.key">{{ domainSpellSigils(s) }} {{ s.name }} — Niv. {{ s.level }} · {{ s.mana }} mana</option>
+                }
+              </select>
+              <select class="cs-spell__school" [name]="'ks-' + $index" [(ngModel)]="spell.school" title="Domaine">
+                <option value="">—</option>
+                @for (d of domains; track d.key) { <option [value]="d.key">{{ d.name }}</option> }
+              </select>
+              <button type="button" class="cs-mini-del" (click)="removeSpell(model.spells.known, $index)">✕</button>
+            </div>
+            @if (spellDescription(spell)) {
+              <p class="cs-spell__desc"><span class="cs-spell__mana">Niv. {{ spell.level }} · {{ spellMana(spell) }} mana</span> — {{ spellDescription(spell) }}</p>
+            }
+          }
+          <button type="button" class="cs-add" (click)="addSpell(model.spells.known)">＋ Ajouter un sort connu</button>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Compétences de classe</legend>
+          @if (classSpells.length === 0) {
+            <p class="cs-stats-note">Choisis une classe pour voir ses sorts/compétences.</p>
+          } @else {
+            <p class="cs-stats-note">Débloquées automatiquement selon le niveau ({{ model.level }}).</p>
+            <div class="cs-classpells">
+              @for (sp of classSpells; track sp.name) {
+                <div class="cs-classpell" [class.is-locked]="!spellUnlocked(sp)">
+                  <div class="cs-classpell__head">
+                    <span class="cs-classpell__lvl">Niv. {{ sp.level }}</span>
+                    <span class="cs-classpell__name">{{ sp.name }}</span>
+                    <span class="cs-classpell__end">{{ sp.endurance }} end.</span>
+                    @if (!spellUnlocked(sp)) { <span class="cs-classpell__lock">🔒</span> }
+                  </div>
+                  <p class="cs-classpell__desc">{{ sp.description }}</p>
+                </div>
+              }
+            </div>
+          }
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Équipement</legend>
+          <button
+            type="button"
+            class="cs-add"
+            (click)="autoEquipStartingGear()"
+            [disabled]="!canAutoEquip"
+            title="Équipe la tenue et l'arme de départ du sous-background choisi"
+          >⚔ Équiper la tenue de départ</button>
+          <div class="cs-equip-grid">
+            @for (slot of equipmentSlots; track slot.key) {
+              <label class="cs-equip">
+                <span>{{ slot.label }}</span>
+                <input type="text" [name]="'eq-' + slot.key" [(ngModel)]="model.equipment[slot.key]" [attr.list]="'equip-' + slot.key" placeholder="—" />
+                <datalist [id]="'equip-' + slot.key">
+                  @for (opt of equipmentOptions()[slot.key] || []; track opt) {
+                    <option [value]="opt"></option>
+                  }
+                </datalist>
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Sac</legend>
+          <datalist id="itemList">
+            @for (it of itemCatalog(); track it.name) { <option [value]="it.name"></option> }
+          </datalist>
+          @for (item of model.inventory; track trackByIndex($index)) {
+            <div class="cs-item">
+              <input type="text" class="cs-item__name" list="itemList" [name]="'in-' + $index" [(ngModel)]="item.name" (ngModelChange)="onItemNameChange(item)" placeholder="Objet (liste ou libre)" />
+              <input type="number" class="cs-item__qty" min="1" max="99" [name]="'iq-' + $index" [(ngModel)]="item.qty" (ngModelChange)="clampQty(item)" title="Quantité (max 99)" />
+              <input type="number" class="cs-item__weight" [name]="'iw-' + $index" [(ngModel)]="item.weight" title="Poids unitaire" />
+              <button type="button" class="cs-mini-del" (click)="removeItem($index)">✕</button>
+            </div>
+          }
+          <button type="button" class="cs-add" (click)="addItem()">＋ Ajouter un objet</button>
+          <p class="cs-total" [class.is-over]="overweight">Poids total : {{ totalWeight }} / {{ carryCapacity }}</p>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Notes</legend>
+          <textarea name="notes" rows="5" [(ngModel)]="model.notes" placeholder="Histoire, traits, alliés…"></textarea>
+        </fieldset>
+      </form>
+
+      <!-- ───────────────── COLONNE APERÇU (imprimée) ───────────────── -->
+      <div class="cs-preview-wrap">
+        <article class="sheet" #sheetRef>
+          <!-- PERSONNAGE -->
+          <section class="sheet-block sheet-character">
+            <h2 class="sheet-banner">Personnage</h2>
+            <div class="sheet-character__top">
+              <div class="sheet-portrait" [class.is-empty]="!model.identity.portrait">
+                @if (model.identity.portrait) {
+                  <img [src]="model.identity.portrait" alt="Portrait" />
+                }
+              </div>
+              <div class="sheet-identity">
+                <p><strong>Nom :</strong> {{ model.identity.name || '—' }}</p>
+                <p><strong>Race :</strong> {{ raceDisplay || '—' }}</p>
+                <p><strong>Classe :</strong> {{ model.identity.class || '—' }} <em class="sheet-level">— Niv. {{ model.level }}</em></p>
+                <p><strong>Background :</strong> {{ backgroundDisplay || '—' }}</p>
+                <p><strong>Âge :</strong> {{ model.identity.age || '—' }}</p>
+                <p><strong>Or :</strong> {{ gold }}</p>
+              </div>
+            </div>
+            <div class="sheet-domains">
+              <span class="sheet-domains__label">Domaines de magie</span>
+              <div class="sheet-domains__circles">
+                @for (key of model.domains; track key) {
+                  <span class="sheet-domains__circle" [title]="domainName(key)">{{ domainSigil(key) }}</span>
+                } @empty {
+                  <span class="sheet-domains__none">—</span>
+                }
+              </div>
+            </div>
+          </section>
+
+          <!-- ATTRIBUTS -->
+          @let fa = finalAttributes;
+          <section class="sheet-block sheet-attrs">
+            <h2 class="sheet-banner">Attributs</h2>
+            <ul>
+              @for (a of attributes; track a.key) {
+                <li>
+                  <span class="sheet-attr__name">{{ a.label }}</span>
+                  <span class="sheet-attr__score">{{ fa[a.key] }}</span>
+                  <span class="sheet-attr__mod">{{ formatBonus(modifier(a.key)) }}</span>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <!-- STATISTIQUES -->
+          @let fs = finalStats;
+          @let maxBar = barScale;
+          <section class="sheet-block sheet-stats">
+            <h2 class="sheet-banner">Statistiques</h2>
+            <div class="sheet-stats-layout">
+              <ul class="sheet-bars">
+                @for (st of barStats; track st.key) {
+                  <li class="sheet-bar">
+                    <svg class="sheet-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path [attr.d]="st.icon" />
+                    </svg>
+                    <div class="sheet-bar__track">
+                      <div class="sheet-bar__fill" [style.width.%]="barPct(fs[st.key], maxBar)"></div>
+                    </div>
+                    <span class="sheet-bar__val">{{ fs[st.key] }}</span>
+                    <div class="stat-tip" role="tooltip">
+                      <strong>{{ st.label }}</strong>
+                      @for (p of statParts(st.key); track p.label) {
+                        <span class="stat-tip__row"><span>{{ p.label }}</span><b>{{ formatBonus(p.value) }}</b></span>
+                      } @empty {
+                        <span class="stat-tip__row stat-tip__muted">Aucune source</span>
+                      }
+                      <span class="stat-tip__row stat-tip__total"><span>Total</span><b>{{ fs[st.key] }}</b></span>
+                    </div>
+                  </li>
+                }
+              </ul>
+              <div class="sheet-defenses">
+                @for (st of defenseStats; track st.key) {
+                  <div class="sheet-defense">
+                    <svg class="sheet-defense__icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path [attr.d]="st.icon" />
+                      @if (st.key === 'def_mag') {
+                        <path class="sheet-defense__spark" [attr.d]="magicDefenseSpark" />
+                      }
+                    </svg>
+                    <span class="sheet-defense__val">{{ fs[st.key] }}</span>
+                    <div class="stat-tip stat-tip--defense" role="tooltip">
+                      <strong>{{ st.label }}</strong>
+                      @for (p of statParts(st.key); track p.label) {
+                        <span class="stat-tip__row"><span>{{ p.label }}</span><b>{{ formatBonus(p.value) }}</b></span>
+                      } @empty {
+                        <span class="stat-tip__row stat-tip__muted">Aucune source</span>
+                      }
+                      <span class="stat-tip__row stat-tip__total"><span>Total</span><b>{{ fs[st.key] }}</b></span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </section>
+
+          <!-- TRAITS -->
+          <section class="sheet-block sheet-traits">
+            <h2 class="sheet-banner">Traits</h2>
+            <div class="sheet-traits-grid">
+              @for (t of traits; track t.key) {
+                <div class="sheet-trait">
+                  <svg class="sheet-trait__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="t.icon" /></svg>
+                  <div class="sheet-trait__body">
+                    <span class="sheet-trait__name">{{ t.name }}</span>
+                    @if (t.description) { <span class="sheet-trait__desc">{{ t.description }}</span> }
+                  </div>
+                </div>
+              } @empty {
+                <p class="sheet-empty">Aucun trait</p>
+              }
+            </div>
+          </section>
+
+          <!-- COMPÉTENCES -->
+          <section class="sheet-block sheet-skills">
+            <h2 class="sheet-banner">Compétences</h2>
+            <ul>
+              @for (s of skills; track s.key) {
+                <li [class.is-proficient]="isSkillTrained(s.key)">
+                  <span class="sheet-skill__dot" aria-hidden="true"></span>
+                  <span class="sheet-skill__name">{{ s.label }}</span>
+                  <span class="sheet-skill__bonus">{{ formatBonus(skillBonus(s.key, s.attribute)) }}</span>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <!-- SORTS -->
+          <section class="sheet-block sheet-spells">
+            <h2 class="sheet-banner">Sorts</h2>
+            <ul class="sheet-spell-list">
+              @for (spell of model.spells.known; track trackByIndex($index)) {
+                <li>
+                  <span class="sheet-spell__lvl">{{ spell.level }}</span>
+                  <span class="sheet-spell__name">{{ spell.name }}</span>
+                  @if (spellMana(spell) !== null) {
+                    <span class="sheet-spell__mana" title="Coût en mana">{{ spellMana(spell) }} mana</span>
+                  } @else {
+                    <span class="sheet-spell__mana"></span>
+                  }
+                  <span class="sheet-spell__school" [title]="domainName(spell.school)">{{ spellSigils(spell) }}</span>
+                </li>
+              } @empty {
+                <li class="sheet-empty">Aucun sort connu</li>
+              }
+            </ul>
+          </section>
+
+          <!-- COMPÉTENCES DE CLASSE -->
+          <section class="sheet-block sheet-classpells">
+            <h2 class="sheet-banner">Compétences</h2>
+            <ul class="sheet-cspell-list">
+              @for (sp of unlockedClassSpells; track sp.name) {
+                <li>
+                  <div class="sheet-cspell__head">
+                    <span class="sheet-cspell__lvl">Niv. {{ sp.level }}</span>
+                    <span class="sheet-cspell__name">{{ sp.name }}</span>
+                    <span class="sheet-cspell__end" title="Coût en endurance">{{ sp.endurance }} end.</span>
+                  </div>
+                  <span class="sheet-cspell__desc">{{ sp.description }}</span>
+                </li>
+              } @empty {
+                <li class="sheet-empty">Aucune compétence débloquée</li>
+              }
+            </ul>
+          </section>
+
+          <!-- ÉQUIPEMENT -->
+          <section class="sheet-block sheet-equipment">
+            <h2 class="sheet-banner">Équipement</h2>
+            <div class="sheet-paperdoll">
+              <div class="sheet-slots">
+                @for (slot of leftSlots; track slot.key) {
+                  <div class="sheet-slot" [class.is-empty]="!model.equipment[slot.key]">
+                    <span class="sheet-slot__label">{{ slot.label }}</span>
+                    <span class="sheet-slot__item">{{ model.equipment[slot.key] || '—' }}</span>
+                    @if (armorForSlot(slot.key); as a) {
+                      <span class="sheet-slot__dmg">Arm. {{ a.physicalArmor }} · Mag. {{ a.magicalProtection }}</span>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="sheet-figure">
+                @if (model.identity.fullImage) {
+                  <img [src]="model.identity.fullImage" alt="Personnage" />
+                } @else {
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 1.6c-5 0-9 3-9 7V22h18v-1.4c0-4-4-7-9-7z" />
+                  </svg>
+                }
+              </div>
+              <div class="sheet-slots">
+                @for (slot of rightSlots; track slot.key) {
+                  <div class="sheet-slot" [class.is-empty]="!model.equipment[slot.key]">
+                    <span class="sheet-slot__label">{{ slot.label }}</span>
+                    <span class="sheet-slot__item">{{ model.equipment[slot.key] || '—' }}</span>
+                    @if (weaponForSlot(slot.key); as w) {
+                      <span class="sheet-slot__dmg">{{ w.minDamage }}–{{ w.maxDamage }} ({{ w.modMin }}–{{ w.modMax }})</span>
+                    }
+                    @if (armorForSlot(slot.key); as a) {
+                      <span class="sheet-slot__dmg">Arm. {{ a.physicalArmor }} · Mag. {{ a.magicalProtection }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </section>
+
+          <!-- SAC -->
+          <section class="sheet-block sheet-inventory">
+            <h2 class="sheet-banner">Sac</h2>
+            <ul class="sheet-inv-list">
+              <li class="sheet-inv__head">
+                <span>Objet</span><span>Qté</span><span>Poids</span>
+              </li>
+              @for (item of model.inventory; track trackByIndex($index)) {
+                <li>
+                  <span class="sheet-inv__name">{{ item.name }}</span>
+                  <span class="sheet-inv__qty">{{ item.qty }}</span>
+                  <span class="sheet-inv__weight">{{ round2(item.qty * item.weight) }}</span>
+                </li>
+              } @empty {
+                <li class="sheet-empty">Sac vide</li>
+              }
+            </ul>
+            <p class="sheet-inv__total" [class.is-over]="overweight">Poids total : {{ totalWeight }} / {{ carryCapacity }}</p>
+          </section>
+
+          <!-- NOTES -->
+          <section class="sheet-block sheet-notes">
+            <h2 class="sheet-banner">Notes</h2>
+            <p class="sheet-notes__body">{{ model.notes }}</p>
+          </section>
+
+          <!-- ILLUSTRATION PLEIN CORPS -->
+          @if (model.identity.fullImage) {
+            <section class="sheet-block sheet-artwork">
+              <img [src]="model.identity.fullImage" alt="Personnage en pied" />
+            </section>
+          }
+        </article>
+      </div>
+    </div>
+    }
+  </main>
+</div>

@@ -1,0 +1,23 @@
+{
+  "name": "Masse d'armes",
+  "subtitle": "Tête de métal pour broyer les armures",
+  "description": [
+    "Là où la lame glisse sur l'acier, la masse écrase. Sa tête de métal massif transmet toute la force du porteur à travers les plaques les plus épaisses.",
+    "Arme de choix face aux chevaliers lourdement protégés, elle ne tranche pas mais brise os et armatures sous le poids de ses coups."
+  ],
+  "weaponCategory": "mace",
+  "minDamage": 5,
+  "maxDamage": 11,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "2 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+  ],
+  "properties": [
+    "Efficace contre les armures de plaques",
+    "Ne s'émousse pas comme une lame",
+    "Demande force et endurance"
+  ],
+  "notes": [
+    "Le clergé martial l'affectionne : on dit qu'elle ne verse pas le sang puisqu'elle brise sans trancher."
+  ]
+}

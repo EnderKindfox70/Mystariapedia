@@ -1,0 +1,85 @@
+[
+  {
+    "key": "warrior",
+    "name": "Guerrier",
+    "stats": [{"key": "hp", "value": 15}, {"key": "endurance", "value": 10}, {"key": "atk_phy", "value": 8}, {"key": "atk_mag", "value": 4}, {"key": "mana", "value":3}, {"key": "speed", "value": 6}],
+    "skillChoices": 2,
+    "skillOptions": ["athletism", "intimidation", "perception", "survival", "animal-handling", "acrobatics"],
+    "spells": [
+      {"name": "Frappe puissante", "level": 1, "endurance": 5, "description": "Concentre la mana brute dans une attaque pour décupler les dégâts physiques d'un coup."},
+      {"name": "Cri de guerre", "level": 3, "endurance": 8, "description": "Un hurlement qui ébranle les ennemis proches et affaiblit leur résolve."},
+      {"name": "Garde inébranlable", "level": 5, "endurance": 12, "description": "Renforce sa défense physique durant plusieurs tours, encaissant les coups les plus lourds."},
+      {"name": "Maître d'armes", "level": 8, "endurance": 18, "description": "Enchaîne deux attaques en une seule action."},
+      {"name": "Brise-garde", "level": 11, "endurance": 20, "description": "Une frappe qui fracasse la défense adverse et ignore une partie de l'armure."},
+      {"name": "Second souffle", "level": 14, "endurance": 16, "description": "Puise dans sa volonté pour récupérer une partie de ses points de vie en plein combat."},
+      {"name": "Bastion", "level": 17, "endurance": 26, "description": "S'ancre au sol et devient quasi inébranlable, protégeant les alliés derrière lui."},
+      {"name": "Fureur du champion", "level": 20, "endurance": 35, "description": "Déchaîne une rafale d'attaques dévastatrices pendant un bref instant de furie."}
+    ]
+  },
+  {
+    "key": "mage",
+    "name": "Mage",
+    "stats": [{"key": "hp", "value": 4}, {"key": "endurance", "value": 4}, {"key": "atk_phy", "value": 2}, {"key": "atk_mag", "value": 10}, {"key": "mana", "value":10}, {"key": "speed", "value": 6}],
+    "skillChoices": 2,
+    "skillOptions": ["arcana", "history", "religion", "investigation", "insight", "nature"],
+    "spells": [
+      {"name": "Trait élémentaire", "level": 1, "endurance": 4, "description": "Projette une décharge de mana teintée du domaine maîtrisé."},
+      {"name": "Meditation", "level": 3, "endurance": 10, "description": "Se concentre pour manipuler la mana ambiante et l'absorbe"},
+      {"name": "Incantation", "level": 5, "endurance": 10, "description": "Chante des incantations et noms honorifiques pour doubler les dégâts du prochain sort"},
+      {"name": "Mémoire arcanique", "level": 9, "endurance": 8, "description": "Garde en mémoire un sort lancé récemment et le relance sans nouvelle préparation."},
+      {"name": "Flux maîtrisé", "level": 14, "endurance": 6, "description": "Discipline son flux : réduit durablement le coût en mana de ses sorts."},
+      {"name": "Archimage", "level": 20, "endurance": 20, "description": "Maîtrise absolue de la canalisation : ses sorts s'enchaînent presque sans temps de préparation."}
+    ]
+  },
+  {
+    "key": "ranger",
+    "name": "Ranger",
+    "stats": [{"key": "hp", "value": 6}, {"key": "endurance", "value": 6}, {"key": "atk_phy", "value": 6}, {"key": "atk_mag", "value": 4}, {"key": "mana", "value":4}, {"key": "speed", "value": 8}],
+    "skillChoices": 3,
+    "skillOptions": ["survival", "nature", "perception", "stealth", "animal-handling", "athletism", "acrobatics"],
+    "spells": [
+      {"name": "Tir précis", "level": 1, "endurance": 4, "description": "Vise un point faible pour un tir à distance d'une précision redoutable."},
+      {"name": "Pister", "level": 3, "endurance": 6, "description": "Lit les traces et la mana résiduelle pour suivre une cible sur de longues distances."},
+      {"name": "Flèche empoisonnée", "level": 5, "endurance": 9, "description": "Enduit son projectile d'un venin qui affaiblit la cible dans la durée."},
+      {"name": "Compagnon animal", "level": 8, "endurance": 14, "description": "Noue un lien avec une bête qui combat à ses côtés."},
+      {"name": "Tir multiple", "level": 11, "endurance": 16, "description": "Décoche plusieurs projectiles sur des cibles différentes en une action."},
+      {"name": "Camouflage", "level": 14, "endurance": 12, "description": "Se fond dans l'environnement naturel, devenant presque indétectable à l'arrêt."},
+      {"name": "Œil du faucon", "level": 17, "endurance": 18, "description": "Aiguise ses sens pour repérer les ennemis dissimulés à grande distance."},
+      {"name": "Maître chasseur", "level": 20, "endurance": 30, "description": "Marque une proie : dégâts massifs contre elle et impossible pour elle de le semer."}
+    ]
+  },
+  {
+    "key": "rogue",
+    "name": "Vagabond",
+    "stats": [{"key": "hp", "value": 6}, {"key": "endurance", "value": 4}, {"key": "atk_phy", "value": 6}, {"key": "atk_mag", "value": 4}, {"key": "mana", "value":6}, {"key": "speed", "value": 10}],
+    "skillChoices": 4,
+    "skillOptions": ["stealth", "deception", "acrobatics", "sleight-of-hand", "perception", "persuasion", "investigation", "intimidation"],
+    "spells": [
+      {"name": "Attaque sournoise", "level": 1, "endurance": 5, "description": "Frappe un ennemi pris au dépourvu pour infliger des dégâts bonus."},
+      {"name": "Pas de l'ombre", "level": 3, "endurance": 7, "description": "Se fond dans les ombres pour se déplacer sans être vu."},
+      {"name": "Crochetage expert", "level": 5, "endurance": 6, "description": "Ouvre serrures et mécanismes les plus complexes en un instant."},
+      {"name": "Disparition", "level": 8, "endurance": 15, "description": "Devient brièvement intraçable, échappant à toute poursuite."},
+      {"name": "Lame empoisonnée", "level": 11, "endurance": 12, "description": "Applique un poison à ses armes, affaiblissant les cibles touchées."},
+      {"name": "Esquive surnaturelle", "level": 14, "endurance": 14, "description": "Réflexes affûtés à l'extrême : annule l'essentiel d'une attaque qui l'aurait touché."},
+      {"name": "Coup fatal", "level": 17, "endurance": 22, "description": "Vise un organe vital pour des dégâts dévastateurs sur une cible affaiblie."},
+      {"name": "Ombre parfaite", "level": 20, "endurance": 32, "description": "Se dédouble d'illusions d'ombre et frappe depuis un angle mort absolu."}
+    ]
+  },
+  {
+    "key": "pugilist",
+    "name": "Pugiliste",
+    "stats": [{"key": "hp", "value": 8}, {"key": "endurance", "value": 6}, {"key": "atk_phy", "value": 10}, {"key": "atk_mag", "value": 2}, {"key": "mana", "value": 2}, {"key": "speed", "value": 8}],
+    "skillChoices": 2,
+    "skillOptions": ["athletism", "acrobatics", "intimidation", "insight", "perception"],
+    "spells": [
+      {"name": "Combo rapide", "level": 1, "endurance": 5, "description": "Enchaîne une série de coups rapides à mains nues."},
+      {"name": "Garde haute", "level": 3, "endurance": 7, "description": "Adopte une posture défensive qui réduit les dégâts encaissés."},
+      {"name": "Coup étourdissant", "level": 5, "endurance": 10, "description": "Frappe un point vital pour étourdir brièvement la cible."},
+      {"name": "Transe de combat", "level": 8, "endurance": 16, "description": "Entre dans un état second qui décuple vitesse et puissance des frappes."},
+      {"name": "Déferlante de coups", "level": 11, "endurance": 18, "description": "Submerge l'adversaire sous un torrent d'attaques ininterrompues."},
+      {"name": "Contre", "level": 14, "endurance": 12, "description": "Intercepte une attaque adverse et la retourne immédiatement."},
+      {"name": "Poing de fer", "level": 17, "endurance": 22, "description": "Durcit ses poings avec la mana brute, brisant gardes et armures."},
+      {"name": "Avatar du combat", "level": 20, "endurance": 35, "description": "Atteint la perfection martiale : chaque coup devient une frappe parfaite."}
+    ]
+  }
+]

@@ -8,6 +8,7 @@
         "Grisâtre et terne, il est froid d'une façon particulière — une absence de chaleur plutôt qu'une présence de froid."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal nécrotique" },
         { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Nécropoles, cryptes souterraines" },

@@ -1,0 +1,174 @@
+.characters-paper {
+  display: block;
+  min-height: 100vh;
+}
+
+.characters-hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.characters-kicker {
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dust-brown);
+}
+
+.characters-hero h1 {
+  color: #2a1c14;
+}
+
+.characters-sub {
+  margin-top: 0.4rem;
+  max-width: 42ch;
+  font-style: italic;
+  color: #4c382a;
+}
+
+.characters-new {
+  display: inline-block;
+  padding: 0.65rem 1.2rem;
+  font-family: var(--font-title);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faded-ivory);
+  background: linear-gradient(180deg, var(--dust-brown), #3a2a1c);
+  border: 1px solid var(--ancient-gold);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.1s ease;
+}
+
+.characters-new:hover {
+  filter: brightness(1.12);
+}
+
+.characters-state {
+  font-style: italic;
+  color: #4c382a;
+}
+
+.characters-state--error {
+  color: var(--ritual-red);
+}
+
+.characters-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #4c382a;
+}
+
+.characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.character-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem 1.2rem;
+  background: linear-gradient(180deg, rgba(255, 248, 220, 0.32), rgba(94, 70, 50, 0.12));
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 55%, transparent);
+  border-radius: 9px;
+  box-shadow: inset 0 0 24px rgba(132, 112, 89, 0.25);
+}
+
+.character-card__link {
+  display: block;
+  cursor: pointer;
+}
+
+.character-card__portrait {
+  width: 100%;
+  height: 180px;
+  margin-bottom: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 45%, transparent);
+  border-radius: 7px;
+  background: rgba(94, 70, 50, 0.15);
+}
+.character-card__portrait img { width: 100%; height: 100%; object-fit: cover; }
+.character-card__portrait.is-empty {
+  color: color-mix(in srgb, var(--ancient-gold) 60%, transparent);
+  font-size: 2rem;
+}
+
+.character-card__name {
+  font-size: 1.25rem;
+  color: #2a1c14;
+  text-transform: none;
+}
+
+.character-card__race {
+  margin-top: 0.2rem;
+  font-style: italic;
+  color: #5e4632;
+}
+
+.character-card__date {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  color: #6b5340;
+}
+
+.character-card__actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.character-card__edit,
+.character-card__delete {
+  flex: 1;
+  padding: 0.45rem 0.5rem;
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.character-card__edit {
+  color: #3a2a1c;
+  border: 1px solid var(--dust-brown);
+}
+
+.character-card__edit:hover {
+  background: rgba(94, 70, 50, 0.18);
+}
+
+.character-card__delete {
+  color: var(--ritual-red);
+  border: 1px solid color-mix(in srgb, var(--ritual-red) 60%, transparent);
+}
+
+.character-card__delete:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ritual-red) 16%, transparent);
+}
+
+.character-card__delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

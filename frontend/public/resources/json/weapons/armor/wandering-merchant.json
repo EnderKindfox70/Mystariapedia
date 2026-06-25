@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de marchand ambulant",
+  "subtitle": "Habits pratiques aux multiples poches",
+  "description": [
+    "Confortable et bardée de poches et de bourses, la tenue du colporteur lui permet de transporter monnaie et menue marchandise à portée de main."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Chapeau de feutre",  "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
+    { "slot": "body", "label": "Veste à bourses",     "physicalArmor": 1, "magicalProtection": 0, "weight": 2.2 },
+    { "slot": "legs", "label": "Pantalon confortable", "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 },
+    { "slot": "feet", "label": "Bottes de route",     "physicalArmor": 1, "magicalProtection": 0, "weight": 0.9 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Bourses et poches sécurisées", "Faite pour les longues marches commerciales"]
+}

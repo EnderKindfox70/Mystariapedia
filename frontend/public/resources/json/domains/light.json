@@ -4,23 +4,83 @@
     "banner": "",
     "first-quote": "Là où je passe, les ombres ne disparaissent pas. Elles se précisent.",
     "usage-quote": "Ne projette pas la lumière. Sois la source, et laisse-la rayonner.",
-    "subdomains": 
-    [
-        {"name": "Illumination", "icon": "", "spells": []},
-        {"name": "Ordre & Commandement", "icon": "", "spells": []},
-        {"name": "Purification", "icon": "", "spells": []},
-        {"name": "Révélation", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Illumination",
+            "icon": ""
+        },
+        {
+            "name": "Ordre & Commandement",
+            "icon": ""
+        },
+        {
+            "name": "Purification",
+            "icon": ""
+        },
+        {
+            "name": "Révélation",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "light-trait-de-lumiere",
+            "name": "Trait de lumière",
+            "description": "Concentre la lumière en un rayon brûlant qui transperce les ténèbres et les créatures impies.",
+            "mana": 3,
+            "level": 1,
+            "subdomains": [
+                "Illumination"
+            ]
+        },
+        {
+            "key": "light-luciole",
+            "name": "Luciole",
+            "description": "Invoque une petite bulle de lumière qui permet d'éclairer les environs",
+            "mana": 1,
+            "level": 1 ,
+            "subdomains": ["Illumination"]
+        },
+        {
+            "key": "light-verbe-d-autorite",
+            "name": "Verbe d'autorité",
+            "description": "Prononce un ordre empreint d'une autorité irrésistible que la cible peine à désobéir.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Ordre & Commandement"
+            ]
+        },
+        {
+            "key": "light-lumiere-purificatrice",
+            "name": "Lumière purificatrice",
+            "description": "Baigne une créature d'une clarté sacrée qui dissipe corruptions, malédictions et souillures.",
+            "mana": 4,
+            "level": 5,
+            "subdomains": [
+                "Purification"
+            ]
+        },
+        {
+            "key": "light-champ-de-verite",
+            "name": "Champ de verité",
+            "description": "Crée une zone autour du lanceur ou la verité est la seule chose qui peut être exprimer",
+            "mana": 3,
+            "level": 3,
+            "subdomains":["Révélation"]
+        },
+        {
+            "key": "light-lumiere-revelatrice",
+            "name": "Lumière révélatrice",
+            "description": "Baigne une zone d'une clarté qui dévoile l'invisible, les illusions et les intentions cachées.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Révélation"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

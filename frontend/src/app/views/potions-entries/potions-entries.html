@@ -103,10 +103,17 @@
         <section class="pe-twin__panel">
           <div class="pe-block__heading"><span>✦</span> Préparation</div>
           <ol class="pe-steps">
-            @for (step of entry().preparation; track $index) {
-              <li class="pe-step">
-                <span class="pe-step__num" aria-hidden="true">{{ $index + 1 }}</span>
-                <span class="pe-step__text">{{ step }}</span>
+            @for (step of steps(); track $index) {
+              <li class="pe-step" [class.pe-step--optional]="step.optional">
+                @if (!step.optional) {
+                  <span class="pe-step__num" aria-hidden="true">{{ step.num }}</span>
+                }
+                <span class="pe-step__text">
+                  @if (step.optional) {
+                    <span class="pe-step__badge">Facultatif</span>
+                  }
+                  {{ step.text }}
+                </span>
               </li>
             }
           </ol>
@@ -161,7 +168,7 @@
 
     <!-- ── Références croisées ── -->
     @for (group of entry().references ?? []; track group.label) {
-      @if (group.items?.length) {
+      @if (group.items.length) {
         <section class="pe-section">
           <div class="pe-block__heading"><span>✦</span> {{ group.label }}</div>
           <ul class="pe-ref-list">

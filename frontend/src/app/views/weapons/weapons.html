@@ -1,0 +1,53 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface art-index">
+
+    <header class="art-header">
+      <span class="art-header__kicker">Codex de Mystaria</span>
+      <h1 class="art-header__title">Armes & armures</h1>
+      <div class="art-header__rule" aria-hidden="true"></div>
+      <p class="art-header__intro">
+        L'arsenal de Mystaria : des lames forgées pour la guerre aux armures
+        qui protègent ceux qui les portent, classés selon leur usage.
+      </p>
+    </header>
+
+    @for (cat of categories; track cat.slug) {
+      <section class="art-section" [id]="cat.slug">
+        <div class="art-divider"><span>{{ cat.label }}</span></div>
+        <p class="art-section__blurb">{{ cat.blurb }}</p>
+
+        @if (cat.entries().length) {
+          <ul class="art-grid">
+            @for (item of cat.entries(); track item.slug) {
+              <li>
+                <a class="art-card" [routerLink]="['/weapons', cat.slug, item.slug]">
+                  <div class="art-card__media" aria-hidden="true">
+                    @if (item.image && !broken.has(item.slug)) {
+                      <img [src]="item.image" [alt]="item.name" (error)="broken.add(item.slug)">
+                    } @else {
+                      <span class="art-card__glyph">❖</span>
+                    }
+                  </div>
+                  <div class="art-card__body">
+                    <h3 class="art-card__name">{{ item.name }}</h3>
+                    @if (item.subtitle) {
+                      <p class="art-card__subtitle">{{ item.subtitle }}</p>
+                    }
+                    @if (item.rarity) {
+                      <span class="art-card__rarity">{{ item.rarity }}</span>
+                    }
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="art-empty">Aucune entrée pour l'instant.</p>
+        }
+      </section>
+    }
+
+  </main>
+</div>

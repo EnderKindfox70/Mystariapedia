@@ -1,0 +1,15 @@
+{
+  "name": "Robe de runiste",
+  "subtitle": "Étoffe gravée de runes mineures",
+  "description": [
+    "Chaque ourlet de cette robe est brodé de runes discrètes qui murmurent une faible protection. L'artisan des glyphes porte son art sur lui."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Capuche runique",   "physicalArmor": 0, "magicalProtection": 1, "weight": 0.4 },
+    { "slot": "body", "label": "Robe gravée",        "physicalArmor": 1, "magicalProtection": 2, "weight": 2 },
+    { "slot": "legs", "label": "Pantalon brodé",     "physicalArmor": 0, "magicalProtection": 1, "weight": 1 },
+    { "slot": "feet", "label": "Bottines de cuir",   "physicalArmor": 1, "magicalProtection": 0, "weight": 0.8 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Peu commune" }],
+  "properties": ["Runes mineures de protection", "Support idéal pour graver de nouveaux glyphes"]
+}

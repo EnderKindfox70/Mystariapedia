@@ -4,23 +4,99 @@
     "banner": "/resources/media/pictures/fire_banniere.png",
     "first-quote": "J'embrase tout ce que je touche. Je transforme tout ce que je consomme. Je suis la fin et le commencement.",
     "usage-quote": "Ne contrôle pas la flamme. Deviens la raison pour laquelle elle brûle",
-    "subdomains": 
-    [
-        {"name": "Combustion", "icon": "", "spells": []},
-        {"name": "Chaleur", "icon": "", "spells": []} ,
-        {"name": "Destruction", "icon": "", "spells": []},
-        {"name": "Passion & rage", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Combustion",
+            "icon": ""
+        },
+        {
+            "name": "Chaleur",
+            "icon": ""
+        },
+        {
+            "name": "Destruction",
+            "icon": ""
+        },
+        {
+            "name": "Passion & rage",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "fire-embers",
+            "name": "Braises",
+            "description": "Emet de multiple braises qui brule ce qu'elles touchent",
+            "mana": 2,
+            "level":1,
+            "subdomains":["Combustion"]
+        },
+        {
+            "key": "fire-fireball",
+            "name": "Boule de feu",
+            "description": "Projète une boule de feu qui explose au contact, causant une déflagration déstructrice",
+            "mana": 10,
+            "level": 5,
+            "subdomains": [
+                "Combustion"
+            ]
+        },
+        {
+            "key": "fire-inferno",
+            "name": "Inferno",
+            "description": "Concentre une enorme quantité de flammes en un point seul, puis explose en une déflagration sans precedent causant de massif dégâts, même le lanceur en est affecté.",
+            "level": 15,
+            "mana": 45,
+            "subdomains": ["Combustion"]
+        },
+        {
+            "key": "fire-echauffement",
+            "name": "Echauffement",
+            "description": "Augmente la temperature interne du corps pour augmenter la vigueur de celui-ci",
+            "level": 1,
+            "mana": 3,
+            "subdomains": ["Chaleur"]
+        },
+        {
+            "key": "fire-vague-de-chaleur",
+            "name": "Vague de chaleur",
+            "description": "Élève brutalement la température autour du lanceur, épuisant et désorientant les créatures prises dans la zone.",
+            "mana": 4,
+            "level": 2,
+            "subdomains": [
+                "Chaleur"
+            ]
+        },
+        {
+            "key": "fire-physical-destruction",
+            "name": "Destruction au contact",
+            "description": "Concentre une energie déstructrice au niveau de la main et detruit au contact quelquonque objet de la taille d'un poing. Cela endommage l'integrité physique de la main.",
+            "mana": 16,
+            "level": 5,
+            "subdomains": [
+                "Destruction"
+            ]
+        },
+        {
+            "key": "fire-rage",
+            "name": "Colère tempéré",
+            "description": "Fait passer le lanceur dans un etat proche de la rage augmentant legerement sa force",
+            "mana": 2,
+            "level": 3,
+            "subdomains": [
+                "Passion & rage"
+            ]
+        },
+        {
+            "key": "fire-frenzy",
+            "name": "Frenzy",
+            "description": "Influence une à trois personne en les rendant plus irritable.",
+            "level": 5,
+            "mana": 7,
+            "subdomains": ["Passion & rage"]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

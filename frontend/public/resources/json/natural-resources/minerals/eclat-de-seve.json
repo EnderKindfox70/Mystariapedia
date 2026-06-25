@@ -8,6 +8,7 @@
         "Vert tendre veiné d'or, il est tiède d'une chaleur organique — moins intense que celle du Feu, plus intime."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal vivace" },
         { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Cavités fertiles, lits de rivière souterraine" },

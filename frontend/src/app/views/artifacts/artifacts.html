@@ -1,7 +1,53 @@
 <div class="layout">
-    <navbar></navbar>
-    <main class="paper-surface">
-        <h1>Artifacts</h1>
-        <p>Bienvenue dans la section artifacts de Mystariapedia !</p>
-    </main>
+  <navbar></navbar>
+<!--  -->
+  <main class="paper-surface art-index">
+
+    <header class="art-header">
+      <span class="art-header__kicker">Codex de Mystaria</span>
+      <h1 class="art-header__title">Artefacts</h1>
+      <div class="art-header__rule" aria-hidden="true"></div>
+      <p class="art-header__intro">
+        Les objets façonnés par la magie de Mystaria : du simple talisman enchanté
+        aux reliques douées d'une âme, classés selon leur complexité.
+      </p>
+    </header>
+
+    @for (cat of categories; track cat.slug) {
+      <section class="art-section" [id]="cat.slug">
+        <div class="art-divider"><span>{{ cat.label }}</span></div>
+        <p class="art-section__blurb">{{ cat.blurb }}</p>
+
+        @if (cat.entries().length) {
+          <ul class="art-grid">
+            @for (item of cat.entries(); track item.slug) {
+              <li>
+                <a class="art-card" [routerLink]="['/artifacts', cat.slug, item.slug]">
+                  <div class="art-card__media" aria-hidden="true">
+                    @if (item.image && !broken.has(item.slug)) {
+                      <img [src]="item.image" [alt]="item.name" (error)="broken.add(item.slug)">
+                    } @else {
+                      <span class="art-card__glyph">❖</span>
+                    }
+                  </div>
+                  <div class="art-card__body">
+                    <h3 class="art-card__name">{{ item.name }}</h3>
+                    @if (item.subtitle) {
+                      <p class="art-card__subtitle">{{ item.subtitle }}</p>
+                    }
+                    @if (item.rarity) {
+                      <span class="art-card__rarity">{{ item.rarity }}</span>
+                    }
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="art-empty">Aucune entrée pour l'instant.</p>
+        }
+      </section>
+    }
+
+  </main>
 </div>

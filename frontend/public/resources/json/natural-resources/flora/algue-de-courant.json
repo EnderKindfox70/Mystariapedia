@@ -8,6 +8,7 @@
         "Souple et résistante, elle absorbe naturellement les énergies en mouvement, ce qui en fait un ingrédient essentiel pour de nombreuses potions."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.1 kg" },
         { "key": "type",    "label": "Type",        "value": "Plante aquatique" },
         { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
         { "key": "habitat", "label": "Habitat",     "value": "Rivières, courants et ruisseaux" },

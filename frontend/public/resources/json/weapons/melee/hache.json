@@ -1,0 +1,23 @@
+{
+  "name": "Hache de guerre",
+  "subtitle": "Tranchant lourd à une main",
+  "description": [
+    "La hache de guerre concentre tout son poids derrière un tranchant unique. Moins élégante que l'épée, elle compense par une puissance brute qui fend boucliers et heaumes.",
+    "Outil du bûcheron devenu arme du soldat, elle reste bon marché à forger et redoutable entre des mains robustes."
+  ],
+  "weaponCategory": "axe",
+  "minDamage": 4,
+  "maxDamage": 9,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "1,8 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Forte puissance de coupe",
+    "Peut crocheter un bouclier",
+    "Maniable d'une seule main"
+  ],
+  "notes": [
+    "Une hache n'a pas besoin d'être belle pour faire tomber un arbre — ou un homme."
+  ]
+}

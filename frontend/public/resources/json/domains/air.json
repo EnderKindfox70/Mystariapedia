@@ -4,22 +4,81 @@
     "banner": "",
     "first-quote": "On ne me voit jamais. On ne voit que ce que je déplace.",
     "usage-quote": "Ne t'attaches pas. Laisse-toi porter. Le vent est libre.",
-    "subdomains": 
-    [
-        {"name": "Vent", "icon": "", "spells": []},
-        {"name": "Météo", "icon": "", "spells": []},
-        {"name": "Son", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Vent",
+            "icon": ""
+        },
+        {
+            "name": "Météo",
+            "icon": ""
+        },
+        {
+            "name": "Son",
+            "icon": ""
+        },
+        {
+            "name": "Vide",
+            "icon": ""
+        },
+        {
+            "name": "Liberté",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "air-bourrasque",
+            "name": "Bourrasque",
+            "description": "Libère une rafale de vent qui repousse les créatures et disperse projectiles, gaz et brumes.",
+            "mana": 2,
+            "level": 1,
+            "subdomains": [
+                "Vent"
+            ]
+        },
+        {
+            "key": "air-caprice-du-ciel",
+            "name": "Caprice du ciel",
+            "description": "Infléchit le temps local — brume, rafales ou éclaircie — sur une zone pendant un moment.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Météo"
+            ]
+        },
+        {
+            "key": "air-cri-sonique",
+            "name": "Cri sonique",
+            "description": "Concentre l'air en une onde sonore tranchante qui assourdit et meurtrit ce qu'elle frappe.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Son"
+            ]
+        },
+        {
+            "key": "air-poche-de-vide",
+            "name": "Poche de vide",
+            "description": "Aspire l'air d'une zone pour y créer un vide qui étouffe flammes, sons et souffle des créatures.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Vide"
+            ]
+        },
+        {
+            "key": "air-pas-du-vent",
+            "name": "Pas du vent",
+            "description": "Allège le corps du lanceur, lui offrant une rapidité et une agilité libérées de toute entrave.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Liberté"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

@@ -4,23 +4,67 @@
     "banner": "",
     "first-quote": "Chaque graine contient une forêt. Chaque forêt contient un monde.",
     "usage-quote": "La plante ne pousse pas vers la lumière par volonté. Elle pousse parce que c'est sa nature. Trouve la tienne",
-    "subdomains": 
-    [
-        {"name": "Croissance végétale", "icon": "", "spells": []},
-        {"name": "Poison & Médecine naturelle", "icon": "", "spells": []},
-        {"name": "Spores & Mycologie", "icon": "", "spells": []},
-        {"name": "Symbiose & Parasitisme", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Croissance végétale",
+            "icon": ""
+        },
+        {
+            "name": "Poison & Médecine naturelle",
+            "icon": ""
+        },
+        {
+            "name": "Spores & Mycologie",
+            "icon": ""
+        },
+        {
+            "name": "Symbiose & Parasitisme",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "plant-ronces-etreignantes",
+            "name": "Ronces étreignantes",
+            "description": "Fait surgir des ronces du sol qui enserrent et immobilisent les créatures dans la zone.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Croissance végétale"
+            ]
+        },
+        {
+            "key": "plant-toxine-vegetale",
+            "name": "Toxine végétale",
+            "description": "Distille une sève toxique appliquée à une arme ou projetée, empoisonnant la cible.",
+            "mana": 2,
+            "level": 1,
+            "subdomains": [
+                "Poison & Médecine naturelle"
+            ]
+        },
+        {
+            "key": "plant-nuage-de-spores",
+            "name": "Nuage de spores",
+            "description": "Libère un nuage de spores fongiques qui désoriente et affaiblit ceux qui le respirent.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Spores & Mycologie"
+            ]
+        },
+        {
+            "key": "plant-greffe-parasitaire",
+            "name": "Greffe parasitaire",
+            "description": "Implante dans une cible une pousse parasite qui draine sa vigueur au profit du lanceur.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Symbiose & Parasitisme"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

@@ -4,23 +4,67 @@
     "banner": "",
     "first-quote": "Creuse assez profond et tu trouveras ce que le monde a voulu oublier.",
     "usage-quote": "La précipitation est étrangère à ce domaine. Si tu es pressé, tu n'es pas prêt.",
-    "subdomains": 
-    [
-        {"name": "Roche", "icon": "", "spells": []},
-        {"name": "Métal", "icon": "", "spells": []},
-        {"name": "Seisme et vibrations", "icon": "", "spells": []},
-        {"name": "Mémoire géologique", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Roche & sédiments",
+            "icon": ""
+        },
+        {
+            "name": "Métal",
+            "icon": ""
+        },
+        {
+            "name": "Seisme et vibrations",
+            "icon": ""
+        },
+        {
+            "name": "Mémoire géologique",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "earth-mur-de-pierre",
+            "name": "Mur de pierre",
+            "description": "Fait jaillir du sol une muraille de roche solide pour bloquer le passage ou abriter ses alliés.",
+            "mana": 4,
+            "level": 2,
+            "subdomains": [
+                "Roche & sédiments"
+            ]
+        },
+        {
+            "key": "earth-faconnage-du-metal",
+            "name": "Façonnage du métal",
+            "description": "Plie, durcit ou affûte le métal d'une arme ou d'une armure d'une simple volonté.",
+            "mana": 3,
+            "level": 1,
+            "subdomains": [
+                "Métal"
+            ]
+        },
+        {
+            "key": "earth-tremblement",
+            "name": "Tremblement",
+            "description": "Provoque une secousse localisée qui déséquilibre et fait chuter les créatures au sol.",
+            "mana": 5,
+            "level": 3,
+            "subdomains": [
+                "Seisme et vibrations"
+            ]
+        },
+        {
+            "key": "earth-echo-de-la-pierre",
+            "name": "Écho de la pierre",
+            "description": "Sonde la mémoire de la roche pour lire les événements et passages qu'un lieu a connus.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Mémoire géologique"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

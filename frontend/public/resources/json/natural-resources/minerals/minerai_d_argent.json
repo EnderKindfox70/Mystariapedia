@@ -8,6 +8,7 @@
         "L'argent est réputé pour sa résonance avec les énergies lunaires et purifiantes : c'est le métal de prédilection contre les créatures maudites et les morts-vivants."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "1 kg" },
         { "key": "type",    "label": "Type",        "value": "Métal précieux" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Galeries humides, veines de montagne" },

@@ -94,6 +94,15 @@
 .ai-divider span::before { margin-right: .8em; }
 .ai-divider span::after  { margin-left: .8em; }
 
+.ai-section__blurb {
+  margin: -.4rem 0 1.3rem;
+  font-size: .92rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--ai-ink-soft);
+  text-align: center;
+}
+
 /* ── Grille ── */
 .ai-grid {
   list-style: none;

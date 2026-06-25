@@ -303,6 +303,33 @@
   color: var(--pe-ink);
 }
 
+/* ── Étape facultative ── */
+.pe-step--optional {
+  padding: .7rem .9rem;
+  border: 1px dashed var(--pe-gold);
+  border-radius: 4px;
+  background: rgba(139, 107, 47, .06);
+}
+
+.pe-step--optional .pe-step__text {
+  font-style: italic;
+  color: var(--pe-ink-soft, rgba(58, 42, 28, .78));
+}
+
+.pe-step__badge {
+  display: inline-block;
+  margin-right: .5rem;
+  padding: .08rem .5rem;
+  border: 1px solid var(--pe-gold);
+  border-radius: 2px;
+  font: 600 .65rem var(--font-title);
+  font-style: normal;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--pe-gold);
+  vertical-align: .1em;
+}
+
 /* ═══════════════════════════════════════════
    BANDE D'IDENTITÉ
 ═══════════════════════════════════════════ */

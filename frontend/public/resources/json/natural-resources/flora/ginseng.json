@@ -8,6 +8,7 @@
         "Réputé comme tonique et adaptogène, il aide le corps à résister à la fatigue et au stress. À Mystaria, les alchimistes l'emploient comme base revitalisante : sa lente croissance lui ferait accumuler l'énergie du sol au fil des saisons."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.1 kg" },
         { "key": "type",    "label": "Type",        "value": "Racine" },
         { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
         { "key": "habitat", "label": "Habitat",     "value": "Sous-bois frais des forêts de montagne" },

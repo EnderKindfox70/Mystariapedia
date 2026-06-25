@@ -1,9 +1,48 @@
 [
   {
+    "slug": "corne-de-belier",
+    "name": "Corne de bélier",
+    "subtitle": "Dépouille de créature",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/natural-resources/remains/ram_horn.png",
+    "weight": 0.8
+  },
+  {
     "slug": "croc-de-loup",
     "name": "Croc de loup",
     "subtitle": "Dépouille de créature",
     "rarity": "Peu commune",
-    "image": "/resources/media/pictures/natural-resources/remains/croc_de_loup.png"
+    "image": "/resources/media/pictures/natural-resources/remains/croc_de_loup.png",
+    "weight": 0.1
+  },
+  {
+    "slug": "glande-de-lezard-rocailleux",
+    "name": "Glande de Lézard rocailleux",
+    "subtitle": "Dépouille de créature",
+    "rarity": "Peu commune",
+    "weight": 0.05
+  },
+  {
+    "slug": "pollen-de-scarabee-pollinisateur",
+    "name": "Pollen de scarabée pollinisateur géant",
+    "subtitle": "Dépouille de créature",
+    "rarity": "Rare",
+    "weight": 0.02
+  },
+  {
+    "slug": "venin-de-serpent",
+    "name": "Venin de serpent",
+    "subtitle": "Dépouille de créature",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/natural-resources/remains/snake_poison.png",
+    "weight": 0.05
+  },
+  {
+    "slug": "venin-de-serpent-fantome",
+    "name": "Venin de serpent fantôme",
+    "subtitle": "Dépouille de créature",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/natural-resources/remains/ghost_snake_poison.png",
+    "weight": 0.05
   }
 ]

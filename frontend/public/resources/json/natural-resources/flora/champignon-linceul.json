@@ -1,0 +1,39 @@
+{
+    "name": "Champignon-Linceul",
+    "subtitle": "Ingrédient de base",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Cryptogame blafard à la chair pâle et translucide, le Champignon-Linceul ne pousse que sur la matière en décomposition, dans l'obscurité humide des cryptes et des sous-bois pourrissants. Son voile membraneux, qui retombe sur le pied comme un drap, lui a valu son nom.",
+        "Ce sont ses spores qui intéressent les alchimistes : libérées à maturité, elles sont enfermées dans une coque résistante qui se dégrade lentement au contact de l'air. Environ dix minutes après leur libération, elles s'ouvrent et relâchent un composé neutralisant prisé comme antidote à action retardée."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.05 kg" },
+        { "key": "type",    "label": "Type",        "value": "Champignon (spores)" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "habitat", "label": "Habitat",     "value": "Cryptes, charniers et sous-bois en décomposition" },
+        { "key": "usage",   "label": "Utilisation", "value": "Antidotes à retardement, élixirs, philtres de neutralisation" },
+        { "key": "value",   "label": "Valeur",      "value": "18 pièces d'or la pincée de spores" }
+    ],
+    "properties": [
+        "La coque de ses spores se dégrade en une dizaine de minutes, libérant un composé neutralisant : un antidote dont l'effet se déclenche de lui-même, avec un délai naturel.",
+        "Recherché dans les préparations où le poison doit agir avant d'être contré, comme l'Élixir d'éveil forcé.",
+        "Les spores sont très sensibles à l'humidité : une fois récoltées, elles doivent être conservées au sec, sous peine de germer prématurément et de perdre toute vertu.",
+        "Inertes tant que leur coque est intacte ; leur germination peut être accélérée par certains pollens catalyseurs."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On récolte ses chapeaux mûrs dans les lieux clos et humides où la matière organique se décompose à l'abri du soleil, puis on en recueille les spores.",
+            "Conseil : prélevez à la nuit tombée, lorsque les coques sont les plus fermes, et scellez les spores aussitôt dans un flacon hermétique."
+        ]
+    },
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "death", "collection": "domains", "label": "Mort" }
+            ]
+        }
+    ]
+}

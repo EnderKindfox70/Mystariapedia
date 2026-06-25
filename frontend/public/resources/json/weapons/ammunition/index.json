@@ -1,0 +1,23 @@
+[
+  {
+    "slug": "fleches",
+    "name": "Flèches",
+    "subtitle": "Munition des arcs",
+    "rarity": "Commune",
+    "weight": 0.05
+  },
+  {
+    "slug": "carreaux",
+    "name": "Carreaux",
+    "subtitle": "Munition lourde des arbalètes",
+    "rarity": "Commune",
+    "weight": 0.08
+  },
+  {
+    "slug": "billes-de-fronde",
+    "name": "Billes de fronde",
+    "subtitle": "Munition de plomb ou de pierre",
+    "rarity": "Commune",
+    "weight": 0.04
+  }
+]

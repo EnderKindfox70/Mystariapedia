@@ -1,0 +1,15 @@
+{
+  "name": "Tenue d'aventurier",
+  "subtitle": "Habits robustes du baroudeur",
+  "description": [
+    "Cuir et toile solides, éprouvés par mille routes. Une tenue polyvalente qui encaisse autant la pluie que les ronces."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Capuche de voyage",  "physicalArmor": 1, "magicalProtection": 0, "weight": 0.5 },
+    { "slot": "body", "label": "Veste de cuir",       "physicalArmor": 2, "magicalProtection": 0, "weight": 2.6 },
+    { "slot": "legs", "label": "Pantalon renforcé",   "physicalArmor": 1, "magicalProtection": 0, "weight": 1.3 },
+    { "slot": "feet", "label": "Bottes de marche",    "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Polyvalente par tous les temps", "Solide face aux ronces et aux intempéries"]
+}

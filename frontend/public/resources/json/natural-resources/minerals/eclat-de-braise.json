@@ -8,6 +8,7 @@
         "On le tire des veines volcaniques de Mystaria, où la roche n'a jamais cessé de couver."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal igné" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Veines volcaniques, grottes thermales" },

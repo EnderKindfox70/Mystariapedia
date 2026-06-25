@@ -1,0 +1,45 @@
+{
+    "name": "Pollen de scarabée pollinisateur géant",
+    "subtitle": "Dépouille de créature",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Poudre dorée récoltée sur le corps duveteux du scarabée pollinisateur géant, un insecte de la taille d'un poing qui butine les fleurs des clairières chargées de mana et s'en couvre entièrement.",
+        "Ce pollen possède une propriété singulière : il réveille la vie en sommeil. Les alchimistes l'emploient comme catalyseur pour déclencher la germination de spores autrement inertes."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.02 kg" },
+        { "key": "type",    "label": "Type",        "value": "Pollen / matière organique" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "source",  "label": "Provenance",  "value": "Scarabée pollinisateur géant" },
+        { "key": "usage",   "label": "Utilisation", "value": "Catalyseur de germination, élixirs, philtres de vigueur" },
+        { "key": "value",   "label": "Valeur",      "value": "15 pièces d'or la pincée" }
+    ],
+    "properties": [
+        "Déclenche la germination de spores et de graines dormantes, dont les spores de Champignon-Linceul.",
+        "Son efficacité dépend de sa fraîcheur : un pollen trop vieux ou ajouté au mauvais moment rend la préparation entièrement inerte.",
+        "Recherché pour l'Élixir d'éveil forcé, où il commande l'activation de l'antidote au moment précis.",
+        "Se conserve mal : perd sa vertu catalytique en quelques jours s'il n'est pas séché à froid et tenu à l'abri de la lumière."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Brossé délicatement sur le dos et les pattes des scarabées pollinisateurs géants, capturés vivants dans les clairières fleuries à forte concentration de mana.",
+            "Conseil : relâchez l'insecte après la récolte ; un scarabée vivant refera sa réserve de pollen, là où une bête morte ne donne qu'une pincée souillée."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "scarabee-pollinisateur-geant", "collection": "bestiary", "label": "Scarabée pollinisateur géant" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "life", "collection": "domains", "label": "Vie" }
+            ]
+        }
+    ]
+}

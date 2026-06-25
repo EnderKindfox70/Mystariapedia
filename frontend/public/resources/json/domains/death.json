@@ -4,23 +4,67 @@
     "banner": "",
     "first-quote": "Tu m'appelles quand tu as peur. Tu m'oublies quand tu ne l'es plus. Je suis là dans les deux cas.",
     "usage-quote": "Ne pense pas à la fin. Pense au seuil. C'est là que tu travailles.",
-    "subdomains": 
-    [
-        {"name": "Putréfaction", "icon": "", "spells": []},
-        {"name": "Âme", "icon": "", "spells": []},
-        {"name": "Nécromancie", "icon": "", "spells": []},
-        {"name": "Mediumnité", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Putréfaction",
+            "icon": ""
+        },
+        {
+            "name": "Âme",
+            "icon": ""
+        },
+        {
+            "name": "Nécromancie",
+            "icon": ""
+        },
+        {
+            "name": "Mediumnité",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "death-toucher-necrotique",
+            "name": "Toucher nécrotique",
+            "description": "Au contact, fait pourrir et flétrir la chair de la cible, drainant sa vigueur.",
+            "mana": 3,
+            "level": 1,
+            "subdomains": [
+                "Putréfaction"
+            ]
+        },
+        {
+            "key": "death-emprise-sur-l-ame",
+            "name": "Emprise sur l'âme",
+            "description": "Saisit l'âme d'une créature affaiblie pour la lier, l'entraver ou la marchander.",
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Âme"
+            ]
+        },
+        {
+            "key": "death-releve-les-morts",
+            "name": "Relève les morts",
+            "description": "Réanime un cadavre proche en serviteur mort-vivant lié à la volonté du lanceur.",
+            "mana": 5,
+            "level": 3,
+            "subdomains": [
+                "Nécromancie"
+            ]
+        },
+        {
+            "key": "death-contact-spectral",
+            "name": "Contact spectral",
+            "description": "Ouvre un bref canal vers l'au-delà pour interroger une âme ou percevoir les esprits alentour.",
+            "mana": 4,
+            "level": 2,
+            "subdomains": [
+                "Mediumnité"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

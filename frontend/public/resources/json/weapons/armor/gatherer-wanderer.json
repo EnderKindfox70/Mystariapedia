@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de récolteur-vagabond",
+  "subtitle": "Vêtements rapiécés et besace de cueilleur",
+  "description": [
+    "Des habits modestes, reprisés au fil des saisons, couverts de poches et de sacoches pour ranger plantes, graines et trouvailles du chemin."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Chapeau de paille",  "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
+    { "slot": "body", "label": "Veste à sacoches",    "physicalArmor": 1, "magicalProtection": 0, "weight": 2.3 },
+    { "slot": "legs", "label": "Pantalon rapiécé",    "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 },
+    { "slot": "feet", "label": "Souliers usés",       "physicalArmor": 0, "magicalProtection": 0, "weight": 0.8 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Multiples poches pour la cueillette", "Chapeau contre le soleil et la pluie"]
+}

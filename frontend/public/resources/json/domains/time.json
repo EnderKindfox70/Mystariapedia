@@ -4,20 +4,34 @@
     "banner": "",
     "first-quote": "Rien ne commence. Rien ne finit. Le temps est un cycle sans fin.",
     "usage-quote": "Cesse de penser au maintenant. Le temps ne vit pas dans l'instant — il vit dans l'écart.",
-    "subdomains": 
-    [
-
+    "subdomains": [],
+    "spells": [
+        {
+            "key": "time-vision-temporelle",
+            "name": "Vision temporelle",
+            "description": "Entrevoit les échos du passé proche ou les futurs immédiats d'un lieu ou d'un objet.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": []
+        },
+        {
+            "key": "time-ralentissement",
+            "name": "Ralentissement",
+            "description": "Étire le temps autour d'une cible, ralentissant ses mouvements et ses réactions.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": []
+        },
+        {
+            "key": "time-acceleration",
+            "name": "Accélération",
+            "description": "Comprime le temps autour d'un allié, lui accordant des actions supplémentaires.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": []
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
-    ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

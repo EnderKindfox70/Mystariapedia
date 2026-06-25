@@ -8,6 +8,7 @@
         "Les artisans la recherchent pour les enchantements de morsure et les talismans de meute."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.1 kg" },
         { "key": "type",    "label": "Type",        "value": "Ossement / croc" },
         { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
         { "key": "source",  "label": "Provenance",  "value": "Loup des plaines" },

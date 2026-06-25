@@ -1,0 +1,27 @@
+{
+  "name": "Armure de plaques",
+  "subtitle": "Protection lourde des chevaliers",
+  "description": [
+    "Sommet de l'art de l'armurier, l'armure de plaques enveloppe le corps de tôles d'acier articulées. Rien, ou presque, ne transperce un chevalier ainsi harnaché.",
+    "Son coût et son poids la réservent à la noblesse et aux ordres fortunés. Forgée sur mesure, chaque pièce épouse le corps de son porteur."
+  ],
+  "resistances": ["slashing", "piercing"],
+  "weaknesses": ["bludgeoning", "lightning"],
+  "pieces": [
+    { "slot": "head", "label": "Heaume",     "physicalArmor": 8,  "magicalProtection": 2, "weight": 3 },
+    { "slot": "body", "label": "Plastron",   "physicalArmor": 18, "magicalProtection": 4, "weight": 10 },
+    { "slot": "legs", "label": "Cuissards",  "physicalArmor": 12, "magicalProtection": 3, "weight": 5 },
+    { "slot": "feet", "label": "Solerets",   "physicalArmor": 6,  "magicalProtection": 2, "weight": 2 }
+  ],
+  "info": [
+    { "key": "rarity", "label": "Rareté", "value": "Rare" }
+  ],
+  "properties": [
+    "Protection supérieure sur tout le corps",
+    "Forgée sur mesure, coûteuse",
+    "Lourde : exige entraînement et endurance"
+  ],
+  "notes": [
+    "Bien équilibrée, une armure de plaques laisse son porteur courir et rouler ; mal ajustée, elle devient un cercueil debout."
+  ]
+}

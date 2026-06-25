@@ -23,6 +23,15 @@ const COLLECTIONS = [
   { path: 'natural-resources', nested: true },
 ];
 
+/** Extrait un poids numérique d'une fiche (champ `weight` racine, ou champ
+ *  `info` de clé 'weight' du type « 0.3 kg »). Renvoie 0 si absent/illisible. */
+function parseWeight(data) {
+  const raw = data.weight ?? data.info?.find((f) => f?.key === 'weight')?.value;
+  if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
+  const n = parseFloat(String(raw ?? '').replace(',', '.'));
+  return Number.isFinite(n) ? n : 0;
+}
+
 /** Champs légers exposés dans l'index, dérivés d'une fiche complète. */
 function toIndexEntry(slug, data) {
   const rarity =
@@ -35,6 +44,8 @@ function toIndexEntry(slug, data) {
   if (rarity) entry.rarity = rarity;
   if (data.image) entry.image = data.image;
   if (data.icon) entry.icon = data.icon;
+  // Poids unitaire pour l'inventaire des fiches de personnage (0 si non défini).
+  entry.weight = parseWeight(data);
   return entry;
 }
 

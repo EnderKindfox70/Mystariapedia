@@ -1,0 +1,23 @@
+{
+  "name": "Arbalète de poing",
+  "subtitle": "Tir discret à une main",
+  "description": [
+    "Miniature mécanique, l'arbalète de poing se manie d'une seule main et se dissimule sous un manteau. Sa portée est courte, mais son carreau frappe sans prévenir.",
+    "Arme de prédilection des espions et des duellistes fourbes, elle complète une lame plus qu'elle ne la remplace."
+  ],
+  "weaponCategory": "handCrossbow",
+  "minDamage": 4,
+  "maxDamage": 8,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "1,3 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+  ],
+  "properties": [
+    "Maniable à une main et dissimulable",
+    "Tir silencieux et inattendu",
+    "Faible portée, rechargement délicat"
+  ],
+  "notes": [
+    "Une lame dans la main droite, un carreau dans la gauche : voilà comment on gagne un duel déloyal."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Espadon",
+  "subtitle": "Épée à deux mains de guerre",
+  "description": [
+    "L'espadon est la grande épée de guerre par excellence : longue, équilibrée, conçue pour la mêlée ouverte. Sa lame large taille profond et son estoc perce les défenses.",
+    "Arme noble et coûteuse, elle exige une formation rigoureuse pour exploiter sa portée sans s'exposer."
+  ],
+  "weaponCategory": "greatsword",
+  "minDamage": 7,
+  "maxDamage": 15,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "3 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Rare" }
+  ],
+  "properties": [
+    "Polyvalent : taille et estoc puissants",
+    "Grande allonge",
+    "Demande de l'espace et de la technique"
+  ],
+  "notes": [
+    "Le maître d'armes le dit : l'espadon ne se manie pas avec les bras, mais avec les hanches."
+  ]
+}

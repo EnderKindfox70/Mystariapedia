@@ -1,0 +1,23 @@
+{
+  "name": "Dague",
+  "subtitle": "Lame courte, rapide et discrète",
+  "description": [
+    "Courte et légère, la dague se dissimule sous une manche ou dans une botte. Arme de dernier recours du soldat comme outil quotidien du voyageur.",
+    "Entre des mains expertes, sa vitesse compense sa faible allonge : on l'emploie pour parer, désarmer ou frapper dans les interstices d'une armure."
+  ],
+  "weaponCategory": "dagger",
+  "minDamage": 2,
+  "maxDamage": 5,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "0,5 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Légère et dissimulable",
+    "Peut être lancée à courte portée",
+    "Idéale pour viser les défauts d'une armure"
+  ],
+  "notes": [
+    "On dit que la dague est la seule amie qui ne trahit jamais... tant qu'on la tient par le bon bout."
+  ]
+}

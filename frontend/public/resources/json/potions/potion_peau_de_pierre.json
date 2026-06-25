@@ -1,0 +1,69 @@
+{
+    "name": "Potion de peau de pierre",
+    "subtitle": "Potion peu commune",
+    "image": "/resources/media/pictures/potions/rocky_skin_potion.png",
+    "icon": "",
+    "description": [
+        "Une potion épaisse et grisâtre, parcourue de fines paillettes minérales qui se déposent au repos et qu'il faut remuer avant de boire. Préparée à partir de poudre de corne de bélier et d'une glande de lezard rocailleux, elle durcit temporairement la peau de celui qui l'ingère, lui conférant la résistance d'une carapace de pierre.",
+        "Prisée des aventuriers et des mercenaires avant un affrontement, elle ne rend pas invulnérable : elle amortit les coups et brise l'élan des lames, au prix d'une lourdeur croissante à mesure que l'effet s'installe."
+    ],
+    "effects": [
+        "30 secondes après la consommation, le buveur voit sa peau durcir pendant environ 10-15 minutes, réduisant fortement les dégâts physiques tranchants et contondants."
+    ],
+    "secondary-effects": [
+        "Ralentit les mouvements et alourdit la démarche tant que l'effet persiste. Un usage répété sur une courte période provoque des raideurs articulaires durables."
+        ,"Provoque des rougeurs et des irritations cutanées la ou les plaques se sont formées. Ces irritations disparaissent en quelques heures après la fin de l'effet."
+        ,"Si consommée de manière répétée sans délai suffisant entre les doses, une accumulation de dépot calcique se formera sur les articulations, syndrome connu chez les mercenaires vétérans sous le nom 'articulations de pierre', potentiellement irréversible"
+    ],
+    "quote": "Mieux vaut une seconde de lenteur qu'une éternité de poussière.",
+    "quote-author": "Adage de mercenaire",
+    "ingredients": [
+        {
+            "name": "Corne de bélier",
+            "icon": "",
+            "quantity": "1 corne réduite en poudre",
+            "note": "Apporte une partie du calcium nécessaire à la solidification de la peau.",
+            "ref": { "ref": "corne-de-belier", "collection": "resources/remains", "label": "Corne de bélier" }
+        },
+        {
+            "name": "Glande de Lezard rocailleux",
+            "icon": "",
+            "quantity": "1 pincée",
+            "note": "Partie du corps du lezard qui a l'effet de créer une couche protectrice sur sa peau.",
+            "ref": { "ref": "glande-de-lezard-rocailleux", "collection": "resources/remains", "label": "Glande de Lezard rocailleux" }
+        },
+        {
+            "name": "sel cristallin",
+            "icon": "",
+            "quantity": "1 pincée",
+            "note": "Stabilise la suspension minérale et empêche la poudre de figer trop vite.",
+            "ref": { "ref": "sel_cristallin", "collection": "resources/minerals", "label": "Sel cristallin" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "200 ml",
+            "note": "Base neutre du mélange.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Réduire la corne de bélier en poudre fine, puis la délayer lentement dans l'eau de source en remuant sans interruption pour éviter les grumeaux.",
+        "Ajouter la glande de lezard rocailleux en pincée, en remuant doucement pour bien la répartir.",
+        "Ajouter le sel cristallin en dernier pour stabiliser la suspension. La potion doit prendre une teinte gris perle homogène ; un mélange qui se sépare en deux couches est raté.",
+        { "text": "Un praticien à affinité Terre canalise un peu de sa magie dans la potion avant la mise en flacon. Sans cette étape, la minéralisation chez le buveur sera incontrôlée et inégale.", "optional": true }
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Potion" },
+        { "key": "rarity", "label": "Rareté",  "value": "Peu commune" },
+        { "key": "weight", "label": "Poids",   "value": "0,4 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "120 pièces d'or" }
+    ],
+    "notes": [
+        "L'effet est purement physique : il n'offre aucune protection contre la magie, le poison ou le feu.",
+        "Ne jamais en boire deux coup sur coup : le durcissement cumulé peut bloquer les articulations et immobiliser le buveur."
+    ],
+    "references": [
+
+    ]
+}

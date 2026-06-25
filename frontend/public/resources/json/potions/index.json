@@ -1,23 +1,42 @@
 [
   {
+    "slug": "elixir_d_eveil",
+    "name": "Élixir d'éveil forcé",
+    "subtitle": "Élixir dangereux",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/potions/awakening_elixir.png",
+    "weight": 0.4
+  },
+  {
     "slug": "potion_de_mana_faible",
     "name": "Potion de mana faible",
     "subtitle": "Potion commune",
     "rarity": "Commune",
-    "image": "/resources/media/pictures/potions/potion_de_mana_faible.png"
+    "image": "/resources/media/pictures/potions/potion_de_mana_faible.png",
+    "weight": 0.3
   },
   {
     "slug": "potion_de_mana_intermediaire",
     "name": "Potion de mana Intermédiaire",
     "subtitle": "Potion commune",
     "rarity": "Commune",
-    "image": "/resources/media/pictures/potions/potion_de_mana_intermediaire.png"
+    "image": "/resources/media/pictures/potions/potion_de_mana_intermediaire.png",
+    "weight": 0.3
   },
   {
     "slug": "potion_de_mana_superieure",
     "name": "Potion de mana supérieure",
     "subtitle": "Potion rare",
     "rarity": "Rare",
-    "image": "/resources/media/pictures/potions/potion_de_mana_superieure.png"
+    "image": "/resources/media/pictures/potions/potion_de_mana_superieure.png",
+    "weight": 0.3
+  },
+  {
+    "slug": "potion_peau_de_pierre",
+    "name": "Potion de peau de pierre",
+    "subtitle": "Potion peu commune",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/potions/rocky_skin_potion.png",
+    "weight": 0.4
   }
 ]

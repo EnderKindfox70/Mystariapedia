@@ -1,0 +1,23 @@
+{
+  "name": "Katana",
+  "subtitle": "Sabre courbe d'Orient",
+  "description": [
+    "Forgé par pliages successifs, le katana allie une lame courbe tranchante comme un rasoir à une souplesse qui résiste à la rupture. Une œuvre autant qu'une arme.",
+    "Son maniement privilégie la vitesse et la précision : un seul trait net plutôt qu'une pluie de coups."
+  ],
+  "weaponCategory": "katana",
+  "minDamage": 5,
+  "maxDamage": 11,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "1,2 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Rare" }
+  ],
+  "properties": [
+    "Tranchant exceptionnel",
+    "Rapide et précis",
+    "Fragile si l'on pare de plein fouet"
+  ],
+  "notes": [
+    "On dit qu'une lame bien forgée garde l'âme de celui qui l'a trempée."
+  ]
+}

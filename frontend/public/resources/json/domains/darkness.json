@@ -4,24 +4,97 @@
     "banner": "",
     "first-quote": "Je suis le silence dans lequel tu te caches. Je suis l'ombre que tu fuis. Je suis la peur que tu ressens.",
     "usage-quote": "Dissimule d'abord ta propre présence. Ce que tu ne peux pas cacher en toi, tu ne peux pas cacher ailleurs.",
-    "subdomains": 
-    [
-        {"name": "Ombre", "icon": "", "spells": []},
-        {"name": "Obfuscation & Secret", "icon": "", "spells": []},
-        {"name": "Sommeil & Rêve", "icon": "", "spells": []},
-        {"name": "Peur & terreur", "icon": "", "spells": []},
-        {"name": "Néant", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Ombre",
+            "icon": ""
+        },
+        {
+            "name": "Obfuscation & Secret",
+            "icon": ""
+        },
+        {
+            "name": "Sommeil & Rêve",
+            "icon": ""
+        },
+        {
+            "name": "Peur & terreur",
+            "icon": ""
+        },
+        {
+            "name": "Néant",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "darkness-manteau-d-ombre",
+            "name": "Manteau d'ombre",
+            "description": "Enveloppe le lanceur d'ombres mouvantes qui le dissimulent aux regards et étouffent la lumière.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Ombre"
+            ]
+        },
+        {
+            "key": "darkness-decharge-ombre" ,
+            "name": "Décharge d'ombre",
+            "description": "tire une masse d'ombre concentré sur un ennemi",
+            "level":1,
+            "mana": 4,
+            "subdomains":["Ombre"]
+        },
+        {
+            "key": "darkness-dark-mist",
+            "name": "Brouillard d'ombre",
+            "description": "Déploie une épaisse brume d'ombre de 5 mètre de rayon, ou l'on ne peut rien discerner a l'interieur",
+            "level": 1,
+            "mana" :1,
+            "subdomains": ["Obfuscation & Secret"]
+        },
+        {
+            "key": "darkness-voile-du-secret",
+            "name": "Voile du secret",
+            "description": "Dérobe un objet, un lieu ou une information aux sens et à la mémoire de ceux qui les cherchent.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Obfuscation & Secret"
+            ]
+        },
+        {
+            "key": "darkness-voile-de-sommeil",
+            "name": "Voile de sommeil",
+            "description": "Tisse un voile onirique qui plonge les créatures épuisées dans un sommeil profond.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Sommeil & Rêve"
+            ]
+        },
+        {
+            "key": "darkness-murmure-de-terreur",
+            "name": "Murmure de terreur",
+            "description": "Insinue une peur primale dans l'esprit de la cible, la poussant à fuir ou à se figer d'effroi.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Peur & terreur"
+            ]
+        },
+        {
+            "key": "darkness-morsure-du-neant",
+            "name": "Morsure du néant",
+            "description": "Ouvre une brèche de néant qui ronge et efface la matière et la magie qu'elle effleure.",
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Néant"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

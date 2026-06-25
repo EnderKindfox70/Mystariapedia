@@ -8,6 +8,7 @@
         "Presque immatériel — léger, froid, la surface étrangement humide malgré l'absence d'humidité visible."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal éolien" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Cimes ventées, grottes d'altitude" },

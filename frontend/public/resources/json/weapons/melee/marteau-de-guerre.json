@@ -1,0 +1,23 @@
+{
+  "name": "Marteau de guerre",
+  "subtitle": "Masse à deux mains, briseur d'acier",
+  "description": [
+    "Là où la masse écrase, le marteau de guerre démolit. Sa tête massive, parfois munie d'un bec perforant, transmet une force colossale à travers les plaques les plus épaisses.",
+    "Arme anti-armure par excellence, il ne tranche pas : il défonce, brise et renverse."
+  ],
+  "weaponCategory": "warhammer",
+  "minDamage": 6,
+  "maxDamage": 13,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "4 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+  ],
+  "properties": [
+    "Dévastateur contre les armures de plaques",
+    "Peut renverser l'adversaire",
+    "Lourd et lent à manier"
+  ],
+  "notes": [
+    "Contre un chevalier en plaques, oublie la lame : prends le marteau."
+  ]
+}

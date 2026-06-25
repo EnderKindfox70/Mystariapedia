@@ -1,0 +1,23 @@
+{
+  "name": "Arc long",
+  "subtitle": "Grande portée, forte puissance",
+  "description": [
+    "Plus haut qu'un homme, l'arc long projette ses flèches à une distance et avec une force que nul arc court n'égale. Il faut des années pour en maîtriser la traction.",
+    "Massés en rangs, les archers longs transforment le ciel en pluie de traits, capables de percer mailles et cuirs à longue portée."
+  ],
+  "weaponCategory": "longBow",
+  "minDamage": 5,
+  "maxDamage": 10,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "1,2 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+  ],
+  "properties": [
+    "Grande portée et forte pénétration",
+    "Exige une longue formation",
+    "Munitions : flèches de guerre"
+  ],
+  "notes": [
+    "On reconnaît un archer long à son épaule : des années de traction la déforment à jamais."
+  ]
+}

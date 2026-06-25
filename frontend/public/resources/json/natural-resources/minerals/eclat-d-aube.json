@@ -8,6 +8,7 @@
         "Translucide, il retient une lueur douce, comme une parcelle d'aube prise dans la pierre."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal radieux" },
         { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Cavernes profondes, géodes lumineuses" },

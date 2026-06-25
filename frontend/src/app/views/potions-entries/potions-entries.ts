@@ -33,6 +33,19 @@ export class PotionEntryComponent {
   entry = computed(() => this.routeData()['entry'] as PotionEntry);
 
   /**
+   * Étapes normalisées pour l'affichage : les étapes facultatives ne sont pas
+   * numérotées et la numérotation des étapes standard reste continue.
+   */
+  steps = computed(() => {
+    let n = 0;
+    return this.entry().preparation.map((step) => {
+      const optional = typeof step !== 'string' && !!step.optional;
+      const text = typeof step === 'string' ? step : step.text;
+      return { text, optional, num: optional ? null : ++n };
+    });
+  });
+
+  /**
    * Images des ingrédients résolues depuis les fiches ressources liées.
    * Clé : `${collection}/${slug}` du CrossRef ; valeur : chemin de l'image.
    */

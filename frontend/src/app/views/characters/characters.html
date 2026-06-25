@@ -1,0 +1,58 @@
+<div class="layout">
+  <navbar></navbar>
+  <main class="paper-surface characters-paper">
+    <header class="characters-hero">
+      <div>
+        <span class="characters-kicker">Codex Mystaria</span>
+        <h1>Mes personnages</h1>
+        <p class="characters-sub">
+          Forge et conserve tes fiches de héros — leurs domaines, leurs sorts, leur histoire.
+        </p>
+      </div>
+      <a class="characters-new" routerLink="/characters/new">＋ Nouvelle fiche</a>
+    </header>
+
+    @if (loading()) {
+      <p class="characters-state">Chargement de tes fiches…</p>
+    } @else if (error()) {
+      <p class="characters-state characters-state--error">{{ error() }}</p>
+    } @else if (list().length === 0) {
+      <div class="characters-empty">
+        <p>Aucune fiche pour l'instant.</p>
+        <a class="characters-new" routerLink="/characters/new">Créer mon premier personnage</a>
+      </div>
+    } @else {
+      <ul class="characters-grid">
+        @for (sheet of list(); track sheet.id) {
+          <li class="character-card">
+            <a class="character-card__link" [routerLink]="['/characters', sheet.id]">
+              <div class="character-card__portrait" [class.is-empty]="!sheet.image">
+                @if (sheet.image) {
+                  <img [src]="sheet.image" [alt]="sheet.name" />
+                } @else {
+                  <span aria-hidden="true">✦</span>
+                }
+              </div>
+              <h2 class="character-card__name">{{ sheet.name }}</h2>
+              @if (sheet.race) {
+                <p class="character-card__race">{{ sheet.race }}</p>
+              }
+              <p class="character-card__date">Modifié le {{ sheet.updatedAt | date: 'dd/MM/yyyy' }}</p>
+            </a>
+            <div class="character-card__actions">
+              <a class="character-card__edit" [routerLink]="['/characters', sheet.id]">Modifier</a>
+              <button
+                type="button"
+                class="character-card__delete"
+                [disabled]="deletingId() === sheet.id"
+                (click)="remove(sheet, $event)"
+              >
+                {{ deletingId() === sheet.id ? '…' : 'Supprimer' }}
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </main>
+</div>

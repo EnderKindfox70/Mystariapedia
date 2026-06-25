@@ -8,6 +8,7 @@
         "Brut et anormalement lourd, il garde la lente mémoire de la pierre."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.4 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal tellurique" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Strates profondes, failles rocheuses" },

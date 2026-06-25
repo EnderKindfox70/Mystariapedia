@@ -1,0 +1,23 @@
+{
+  "name": "Bâton",
+  "subtitle": "Hampe de bois ferré",
+  "description": [
+    "Le bâton est l'arme du voyageur, du moine et de l'humble. Une simple hampe de bois, parfois cerclée de fer, qui se manie en frappes et en parades amples.",
+    "Sous-estimé, il désarme, bouscule et brise sans verser le sang — et beaucoup de mages le préfèrent comme focus."
+  ],
+  "weaponCategory": "staff",
+  "minDamage": 3,
+  "maxDamage": 7,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "1,5 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Excellent en parade",
+    "Permet de désarmer et bousculer",
+    "Souvent utilisé comme focus magique"
+  ],
+  "notes": [
+    "Le plus humble des bois, entre de bonnes mains, vaut mieux que la plus fière des lames."
+  ]
+}

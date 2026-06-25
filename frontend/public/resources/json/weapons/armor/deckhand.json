@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de matelot",
+  "subtitle": "Toile imperméable et bonnet du pont",
+  "description": [
+    "Toile huilée contre les embruns et bonnet bien serré : la tenue rude et pratique de celui qui vit sur le pont par tous les temps."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Bonnet de laine",     "physicalArmor": 0, "magicalProtection": 0, "weight": 0.2 },
+    { "slot": "body", "label": "Vareuse de toile",     "physicalArmor": 1, "magicalProtection": 0, "weight": 2.1 },
+    { "slot": "legs", "label": "Pantalon de toile",    "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 },
+    { "slot": "feet", "label": "Pieds nus ou sabots",  "physicalArmor": 0, "magicalProtection": 0, "weight": 0.8 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Imperméable aux embruns", "Ne gêne pas dans les cordages"]
+}

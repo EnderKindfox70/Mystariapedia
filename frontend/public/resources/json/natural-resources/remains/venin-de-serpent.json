@@ -1,0 +1,45 @@
+{
+    "name": "Venin de serpent",
+    "subtitle": "Dépouille de créature",
+    "image": "/resources/media/pictures/natural-resources/remains/snake_poison.png",
+    "icon": "",
+    "description": [
+        "Venin verdâtre prélevé sur les crochets d'un serpent des marais, recueilli en pressant délicatement les glandes à venin de la bête.",
+        "Toxique et amer, il sert autant aux poisons des assassins qu'aux remèdes des apothicaires, qui en tirent à faible dose des antidotes et des anesthésiants."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.05 kg" },
+        { "key": "type",    "label": "Type",        "value": "Venin / fluide" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "source",  "label": "Provenance",  "value": "Serpent des marais" },
+        { "key": "usage",   "label": "Utilisation", "value": "Poisons, antidotes, anesthésiants" },
+        { "key": "value",   "label": "Valeur",      "value": "8 pièces d'or la fiole" }
+    ],
+    "properties": [
+        "Puissant toxique : provoque fièvre et paralysie progressive en cas d'ingestion.",
+        "À dose infime, sert de base aux antidotes contre les morsures de la même espèce.",
+        "Anesthésie localement les chairs, utile en chirurgie de fortune.",
+        "Perd toute virulence s'il est chauffé : à conserver au frais et à l'abri de la lumière."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Récolté sur les serpents des marais et des roselières du sud de Mystaria, là où l'eau stagnante les nourrit.",
+            "Conseil : recueillez le venin avec des gants épais, une seule égratignure suffisant à vous mettre à terre."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "serpent-des-marais", "collection": "bestiary", "label": "Serpent des marais" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "death", "collection": "domains", "label": "Mort" }
+            ]
+        }
+    ]
+}

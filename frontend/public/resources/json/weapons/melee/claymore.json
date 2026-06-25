@@ -1,0 +1,23 @@
+{
+  "name": "Claymore",
+  "subtitle": "Grande épée des highlands",
+  "description": [
+    "La claymore est une épée démesurée, dont la lame dépasse parfois la taille d'un homme. Ses quillons inclinés en font une arme reconnaissable entre toutes.",
+    "Maniée par les guerriers les plus puissants, elle balaie plusieurs adversaires d'un seul mouvement ample."
+  ],
+  "weaponCategory": "claymore",
+  "minDamage": 7,
+  "maxDamage": 14,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "3,2 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Rare" }
+  ],
+  "properties": [
+    "Allonge et balayage exceptionnels",
+    "Quillons utiles pour parer",
+    "Inadaptée aux espaces clos"
+  ],
+  "notes": [
+    "On ne porte pas une claymore : on la suit là où son élan la mène."
+  ]
+}

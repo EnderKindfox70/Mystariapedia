@@ -1,0 +1,24 @@
+{
+    "weapon_categories":
+    [
+        { "id": 1,  "key": "axe",          "name": "Hache",              "damageType": "slashing",    "handling": 1, "range": "Mêlée",            "attributePrecision": "dexterite", "attributeDamage": "force",     "enduranceCost": 2 },
+        { "id": 2,  "key": "battleAxe",    "name": "Hache de bataille",  "damageType": "slashing",    "handling": 2, "range": "Mêlée",            "attributePrecision": "force",     "attributeDamage": "force",     "enduranceCost": 4 },
+        { "id": 3,  "key": "claymore",     "name": "Claymore",           "damageType": "slashing",    "handling": 2, "range": "Mêlée",            "attributePrecision": "force",     "attributeDamage": "force",     "enduranceCost": 5 },
+        { "id": 4,  "key": "dagger",       "name": "Dague",              "damageType": "piercing",    "handling": 1, "range": "Mêlée",            "attributePrecision": "dexterite", "attributeDamage": "dexterite", "enduranceCost": 1 },
+        { "id": 5,  "key": "greatsword",   "name": "Épée à deux mains",  "damageType": "slashing",    "handling": 2, "range": "Mêlée",            "attributePrecision": "force",     "attributeDamage": "force",     "enduranceCost": 5 },
+        { "id": 6,  "key": "handCrossbow", "name": "Arbalète de poing",  "damageType": "piercing",    "handling": 1, "range": "Distance",         "attributePrecision": "dexterite", "attributeDamage": "dexterite", "enduranceCost": 2 },
+        { "id": 7,  "key": "crossbow",     "name": "Arbalète",           "damageType": "piercing",    "handling": 2, "range": "Distance",         "attributePrecision": "dexterite", "attributeDamage": "force",     "enduranceCost": 3 },
+        { "id": 8,  "key": "katana",       "name": "Katana",             "damageType": "slashing",    "handling": 2, "range": "Mêlée",            "attributePrecision": "dexterite", "attributeDamage": "dexterite", "enduranceCost": 3 },
+        { "id": 9,  "key": "shortBow",     "name": "Arc court",          "damageType": "piercing",    "handling": 2, "range": "Distance",         "attributePrecision": "dexterite", "attributeDamage": "dexterite", "enduranceCost": 2 },
+        { "id": 10, "key": "longBow",      "name": "Arc long",           "damageType": "piercing",    "handling": 2, "range": "Distance",         "attributePrecision": "dexterite", "attributeDamage": "force",     "enduranceCost": 3 },
+        { "id": 11, "key": "longsword",    "name": "Épée longue",        "damageType": "slashing",    "handling": 1, "range": "Mêlée",            "attributePrecision": "dexterite", "attributeDamage": "force",     "enduranceCost": 2 },
+        { "id": 12, "key": "mace",         "name": "Masse d'armes",      "damageType": "bludgeoning", "handling": 1, "range": "Mêlée",            "attributePrecision": "dexterite", "attributeDamage": "force",     "enduranceCost": 3 },
+        { "id": 13, "key": "rapier",       "name": "Rapière",            "damageType": "piercing",    "handling": 1, "range": "Mêlée",            "attributePrecision": "dexterite", "attributeDamage": "dexterite", "enduranceCost": 2 },
+        { "id": 14, "key": "saber",        "name": "Sabre",              "damageType": "slashing",    "handling": 1, "range": "Mêlée",            "attributePrecision": "dexterite", "attributeDamage": "charisme",     "enduranceCost": 2 },
+        { "id": 15, "key": "spear",        "name": "Lance",              "damageType": "piercing",    "handling": 2, "range": "Mêlée (allonge)",  "attributePrecision": "dexterite", "attributeDamage": "force",     "enduranceCost": 3 },
+        { "id": 16, "key": "staff",        "name": "Bâton",              "damageType": "bludgeoning", "handling": 2, "range": "Mêlée",            "attributePrecision": "sagesse", "attributeDamage": "force",     "enduranceCost": 2 },
+        { "id": 17, "key": "warhammer",    "name": "Marteau de guerre",  "damageType": "bludgeoning", "handling": 2, "range": "Mêlée",            "attributePrecision": "force",     "attributeDamage": "force",     "enduranceCost": 5 },
+        { "id": 18, "key": "sling",        "name": "Fronde",             "damageType": "bludgeoning", "handling": 1, "range": "Distance",         "attributePrecision": "dexterite", "attributeDamage": "dexterite", "enduranceCost": 1 },
+        { "id": 19, "key": "whip",         "name": "Fouet",              "damageType": "slashing",    "handling": 1, "range": "Mêlée (allonge)",  "attributePrecision": "dexterite", "attributeDamage": "dexterite", "enduranceCost": 2 }
+    ]
+}

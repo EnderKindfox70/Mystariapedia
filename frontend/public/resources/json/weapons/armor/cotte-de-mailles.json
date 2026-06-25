@@ -1,0 +1,27 @@
+{
+  "name": "Cotte de mailles",
+  "subtitle": "Armure souple d'anneaux entrelacés",
+  "description": [
+    "Des milliers d'anneaux d'acier rivés les uns aux autres forment une seconde peau métallique, souple et résistante. La cotte de mailles protège du tranchant sans entraver les mouvements.",
+    "Portée sur un gambison rembourré, elle reste l'armure de référence des soldats de Mystaria : abordable, réparable, et efficace contre la plupart des lames."
+  ],
+  "resistances": ["slashing"],
+  "weaknesses": ["piercing", "bludgeoning"],
+  "pieces": [
+    { "slot": "head", "label": "Coiffe de mailles", "physicalArmor": 4, "magicalProtection": 1, "weight": 2 },
+    { "slot": "body", "label": "Haubert",           "physicalArmor": 9, "magicalProtection": 2, "weight": 10 },
+    { "slot": "legs", "label": "Chausses de mailles", "physicalArmor": 6, "magicalProtection": 1, "weight": 7 },
+    { "slot": "feet", "label": "Solerets de mailles", "physicalArmor": 3, "magicalProtection": 1, "weight": 1 }
+  ],
+  "info": [
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Excellente contre les coups tranchants",
+    "Souple, peu encombrante",
+    "Faible face aux armes contondantes et perforantes"
+  ],
+  "notes": [
+    "Un anneau brisé n'est pas une armure perdue : un bon armurier la recoud en une soirée."
+  ]
+}

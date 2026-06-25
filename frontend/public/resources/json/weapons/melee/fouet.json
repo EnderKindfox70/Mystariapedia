@@ -1,0 +1,23 @@
+{
+  "name": "Fouet",
+  "subtitle": "Lanière cinglante à grande allonge",
+  "description": [
+    "Le fouet n'inflige pas de blessures profondes, mais sa lanière claque à une distance que nulle lame n'atteint. Il cingle, entrave et désarme.",
+    "Arme de finesse et de ruse, il récompense l'adresse : entre des mains habiles, il peut arracher une arme ou crocheter une cheville."
+  ],
+  "weaponCategory": "whip",
+  "minDamage": 2,
+  "maxDamage": 6,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "0,8 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+  ],
+  "properties": [
+    "Grande allonge",
+    "Peut désarmer ou entraver",
+    "Faibles dégâts directs"
+  ],
+  "notes": [
+    "Un coup de fouet bien placé humilie autant qu'il blesse."
+  ]
+}

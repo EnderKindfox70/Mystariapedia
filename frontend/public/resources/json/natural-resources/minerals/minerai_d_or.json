@@ -8,6 +8,7 @@
         "Au-delà de sa valeur marchande, l'or conduit remarquablement bien les énergies magiques, ce qui en fait un support de choix pour les enchantements durables et les conducteurs runiques."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "1.2 kg" },
         { "key": "type",    "label": "Type",        "value": "Métal précieux" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Filons profonds, lits de rivière aurifères" },

@@ -8,6 +8,7 @@
         "Jaune électrique et crépitant, il pique la peau d'un léger fourmillement dès qu'on l'approche."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal fulgurant" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Filons métalliques, cavités chargées" },

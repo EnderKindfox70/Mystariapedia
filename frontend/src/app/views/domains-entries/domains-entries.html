@@ -42,24 +42,36 @@
       <div class="de-twin">
 
         @if (entry().subdomains.length) {
-          <section class="de-twin__panel">
+          <section class="de-twin__panel de-panel--framed">
+            <span class="de-frame-corner de-frame-corner--tl" aria-hidden="true"></span>
+            <span class="de-frame-corner de-frame-corner--tr" aria-hidden="true"></span>
+            <span class="de-frame-corner de-frame-corner--bl" aria-hidden="true"></span>
+            <span class="de-frame-corner de-frame-corner--br" aria-hidden="true"></span>
             <div class="de-section-heading"><h2>Aspects</h2></div>
             <ul class="de-icon-list">
               @for (sub of entry().subdomains; track sub.name) {
-                <li class="de-icon-item">
-                  <div class="de-icon-wrap">
-                    @if (sub.icon) {
-                      <img class="de-icon-img" [src]="sub.icon" [alt]="">
-                    } @else {
-                      <div class="de-icon-placeholder"></div>
-                    }
-                  </div>
-                  <div class="de-icon-body">
-                    <strong class="de-icon-name">{{ sub.name }}</strong>
-                    @if (sub.description) {
-                      <p class="de-icon-desc">{{ sub.description }}</p>
-                    }
-                  </div>
+                <li>
+                  <button
+                    type="button"
+                    class="de-icon-item de-aspect"
+                    [class.is-active]="selectedAspect() === sub.name"
+                    [attr.aria-pressed]="selectedAspect() === sub.name"
+                    [title]="selectedAspect() === sub.name ? 'Afficher tous les sorts' : 'Voir les sorts de ' + sub.name"
+                    (click)="toggleAspect(sub.name)">
+                    <div class="de-icon-wrap">
+                      @if (sub.icon) {
+                        <img class="de-icon-img" [src]="sub.icon" [alt]="">
+                      } @else {
+                        <div class="de-icon-placeholder">{{ currentSigil() }}</div>
+                      }
+                    </div>
+                    <div class="de-icon-body">
+                      <strong class="de-icon-name">{{ sub.name }}</strong>
+                      @if (sub.description) {
+                        <p class="de-icon-desc">{{ sub.description }}</p>
+                      }
+                    </div>
+                  </button>
                 </li>
               }
             </ul>
@@ -92,6 +104,112 @@
         }
 
       </div>
+    }
+
+    <!-- ── Sorts ── -->
+    @if (spells().length || combinations().length) {
+      <section class="de-section de-spells">
+        <div class="de-section-heading"><h2>Sorts</h2></div>
+
+        @if (selectedAspect()) {
+          <div class="de-spell-filter">
+            <span>Aspect : <strong>{{ selectedAspect() }}</strong></span>
+            <button type="button" class="de-spell-filter__reset" (click)="selectedAspect.set(null)">
+              ✕ Tout afficher
+            </button>
+          </div>
+        }
+
+        <div class="de-grimoire">
+          @for (group of spellGroups(); track group.label) {
+            @if (!selectedAspect() || selectedAspect() === group.label) {
+              <div class="de-banner">
+                <span class="de-banner__orn" aria-hidden="true">✦</span>
+                <span class="de-banner__label">{{ group.label || 'Sorts du domaine' }}</span>
+                <span class="de-banner__orn" aria-hidden="true">✦</span>
+              </div>
+              @for (sp of group.spells; track sp.key) {
+                <article class="de-spell-card">
+                  <div class="de-emblem" aria-hidden="true">{{ currentSigil() }}</div>
+                  <div class="de-spell-card__body">
+                    <h3 class="de-spell-card__name">{{ sp.name }}</h3>
+                    <p class="de-spell-card__desc">{{ sp.description }}</p>
+                  </div>
+                  <div class="de-spell-card__meta">
+                    <span class="de-lvl-box">Niv. {{ sp.level }}</span>
+                    <span class="de-mana"><img class="de-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true"> {{ sp.mana }} <small>mana</small></span>
+                  </div>
+                  <div class="de-illus" aria-hidden="true"><span class="de-illus__mark">{{ currentSigil() }}</span></div>
+                </article>
+              }
+            }
+          }
+
+          @if (!selectedAspect() && combinations().length) {
+            <div class="de-banner">
+              <span class="de-banner__orn" aria-hidden="true">✦</span>
+              <span class="de-banner__label">Combinaisons de domaines</span>
+              <span class="de-banner__orn" aria-hidden="true">✦</span>
+            </div>
+
+            <!-- Combinaisons nommées : sous-domaines fusionnés -->
+            @for (combo of namedCombinations(); track combo.name) {
+              <div class="de-combo-group" [style.background]="comboGradient(combo.components)">
+                <div class="de-combo-emblems" aria-hidden="true">
+                  @for (c of combo.components; track c; let last = $last) {
+                    <span class="de-combo-emblem">
+                      <span class="de-emblem" [class]="'de-emblem domain-' + c" [title]="domainLabel(c)">{{ domainSigil(c) }}</span>
+                      <span class="de-combo-emblem__label">{{ domainLabel(c) }}</span>
+                    </span>
+                    @if (!last) { <span class="de-combo-plus">+</span> }
+                  }
+                </div>
+                <span class="de-combo-group__name">{{ combo.name }}</span>
+              </div>
+              @for (sp of combo.spells ?? []; track sp.key) {
+                <article class="de-spell-card de-spell-card--sub">
+                  <div class="de-emblem" aria-hidden="true">{{ currentSigil() }}</div>
+                  <div class="de-spell-card__body">
+                    <h3 class="de-spell-card__name">{{ sp.name }}</h3>
+                    <p class="de-spell-card__desc">{{ sp.description }}</p>
+                  </div>
+                  <div class="de-spell-card__meta">
+                    <span class="de-lvl-box">Niv. {{ sp.level }}</span>
+                    <span class="de-mana"><img class="de-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true"> {{ sp.mana }} <small>mana</small></span>
+                  </div>
+                  <div class="de-illus" aria-hidden="true"><span class="de-illus__mark">{{ domainSigil(combo.components[0]) }}</span></div>
+                </article>
+              }
+            }
+
+            <!-- Combinaisons sans nom : sorts isolés (standalone) -->
+            @for (combo of standaloneCombinations(); track combo.spells?.[0]?.key) {
+              @for (sp of combo.spells ?? []; track sp.key) {
+                <article class="de-spell-card de-spell-card--combo is-orphan">
+                  <div class="de-combo-emblems" aria-hidden="true">
+                    @for (c of combo.components; track c; let last = $last) {
+                      <span class="de-combo-emblem">
+                        <span class="de-emblem" [class]="'de-emblem domain-' + c" [title]="domainLabel(c)">{{ domainSigil(c) }}</span>
+                        <span class="de-combo-emblem__label">{{ domainLabel(c) }}</span>
+                      </span>
+                      @if (!last) { <span class="de-combo-plus">+</span> }
+                    }
+                  </div>
+                  <div class="de-spell-card__body">
+                    <h3 class="de-spell-card__name de-spell-card__name--orphan" title="Sort isolé, sans concept de combinaison nommé">{{ sp.name }}</h3>
+                    <p class="de-spell-card__desc">{{ sp.description }}</p>
+                  </div>
+                  <div class="de-spell-card__meta">
+                    <span class="de-lvl-box">Niv. {{ sp.level }}</span>
+                    <span class="de-mana"><img class="de-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true"> {{ sp.mana }} <small>mana</small></span>
+                  </div>
+                  <div class="de-illus" aria-hidden="true"><span class="de-illus__mark">{{ domainSigil(combo.components[0]) }}</span></div>
+                </article>
+              }
+            }
+          }
+        </div>
+      </section>
     }
 
     <!-- ── Liens & Affinités ── -->
@@ -141,28 +259,6 @@
           }
 
         </div>
-      </section>
-    }
-
-    <!-- ── Combinaisons ── -->
-    @if (combinations().length) {
-      <section class="de-section">
-        <div class="de-section-heading"><h2>Combinaisons de domaines</h2></div>
-        <ul class="de-combo-list">
-          @for (combo of combinations(); track combo.name) {
-            <li class="de-combo-item">
-              <span class="de-combo-name">{{ combo.name }}</span>
-              <span class="de-combo-tags">
-                @for (c of combo.components; track c; let last = $last) {
-                  <span [class]="'de-tag domain-' + c">{{ c }}</span>
-                  @if (!last) {
-                    <span class="de-combo-plus" aria-hidden="true">+</span>
-                  }
-                }
-              </span>
-            </li>
-          }
-        </ul>
       </section>
     }
 

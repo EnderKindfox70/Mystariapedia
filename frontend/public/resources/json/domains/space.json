@@ -4,25 +4,81 @@
     "banner": "",
     "first-quote": "J'existe entre toute chose. Je suis le vide qui les sépare, et le lien qui les unit.",
     "usage-quote": "Oublie la distance. Elle n'existe que parce que tu y crois.",
-    "subdomains": 
-    [
-        {"name": "Frontière & limite", "icon": "", "spells": []},
-        {"name": "Portail & teleportation", "icon": "", "spells": []},
-        {"name": "Gravité", "icon": "", "spells": []},
-        {"name": "Distance & éloignement", "icon": "", "spells": []},
-        {"name": "Dimension", "icon": "", "spells": []}
-
+    "subdomains": [
+        {
+            "name": "Frontière & limite",
+            "icon": ""
+        },
+        {
+            "name": "Portail & teleportation",
+            "icon": ""
+        },
+        {
+            "name": "Gravité",
+            "icon": ""
+        },
+        {
+            "name": "Distance & éloignement",
+            "icon": ""
+        },
+        {
+            "name": "Dimension",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "space-barriere-spatiale",
+            "name": "Barrière spatiale",
+            "description": "Dresse une frontière invisible que rien ne peut franchir sans en payer le prix.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Frontière & limite"
+            ]
+        },
+        {
+            "key": "space-pas-dimensionnel",
+            "name": "Pas dimensionnel",
+            "description": "Plie l'espace pour téléporter instantanément le lanceur sur une courte distance.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Portail & teleportation"
+            ]
+        },
+        {
+            "key": "space-distorsion-gravitationnelle",
+            "name": "Distorsion gravitationnelle",
+            "description": "Altère la gravité d'une zone, clouant les créatures au sol ou les faisant léviter.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Gravité"
+            ]
+        },
+        {
+            "key": "space-repli-lointain",
+            "name": "Repli lointain",
+            "description": "Étire soudainement l'espace pour projeter une cible au loin, hors de portée.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Distance & éloignement"
+            ]
+        },
+        {
+            "key": "space-faille-dimensionnelle",
+            "name": "Faille dimensionnelle",
+            "description": "Ouvre une faille vers une poche dimensionnelle où engloutir ou dissimuler ce qui y entre.",
+            "mana": 7,
+            "level": 6,
+            "subdomains": [
+                "Dimension"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

@@ -1,0 +1,23 @@
+{
+  "name": "Billes de fronde",
+  "subtitle": "Munition de plomb ou de pierre",
+  "description": [
+    "Une simple bille de plomb coulé ou de pierre polie. Sa forme régulière vole plus droit et plus loin qu'un caillou ramassé au hasard.",
+    "Le plomb, plus dense, frappe plus fort ; la pierre, gratuite, se trouve sous chaque pas."
+  ],
+  "damageType": "bludgeoning",
+  "damageBonus": 1,
+  "compatibleWith": ["sling"],
+  "info": [
+    { "key": "weight", "label": "Poids unitaire", "value": "0,04 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Bon marché, voire gratuites (pierres)",
+    "Le plomb frappe plus fort que la pierre",
+    "Faciles à transporter en grand nombre"
+  ],
+  "notes": [
+    "Les frondeurs aguerris coulent leurs billes de plomb et y gravent parfois une insulte pour leur cible."
+  ]
+}

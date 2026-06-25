@@ -4,23 +4,53 @@
     "banner": "",
     "first-quote": "Je ne distingue pas le beau du monstrueux. Je crée. Le reste ne me regarde pas.",
     "usage-quote": "Ne dirige pas la vie. Accompagne-la. Elle sait où elle va mieux que toi.",
-    "subdomains": 
-    [
-        {"name": "Soin & vitalité", "icons":"", "spells": []},
-        {"name": "Manipulation de la chair", "icon": "", "spells": []},
-        {"name": "Création d'âme", "icon": "", "spells": []}
-        
+    "subdomains": [
+        {
+            "name": "Soin & vitalité",
+            "icons": ""
+        },
+        {
+            "name": "Manipulation de la chair",
+            "icon": ""
+        },
+        {
+            "name": "Création d'âme",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "life-soin-vital",
+            "name": "Soin vital",
+            "description": "Insuffle de l'énergie vitale dans les blessures d'une créature pour les refermer.",
+            "mana": 3,
+            "level": 1,
+            "subdomains": [
+                "Soin & vitalité"
+            ]
+        },
+        {
+            "key": "life-regeneration-de-la-chair",
+            "name": "Régénération de la chair",
+            "description": "Force la chair à se reconstruire, restaurant membres meurtris et tissus déchirés.",
+            "mana": 5,
+            "level": 3,
+            "subdomains": [
+                "Manipulation de la chair"
+            ]
+        },
+        {
+            "key": "life-etincelle-vitale",
+            "name": "Étincelle vitale",
+            "description": "Ranime une étincelle de vie chez une créature à l'agonie, la ramenant du seuil de la mort.",
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Soin & vitalité"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

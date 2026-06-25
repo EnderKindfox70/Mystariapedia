@@ -1,0 +1,15 @@
+{
+  "name": "Robe d'érudit",
+  "subtitle": "Toge et coiffe des bibliothèques",
+  "description": [
+    "Une toge sobre et confortable, faite pour les longues heures penché sur les grimoires plus que pour le combat."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Coiffe d'étude",   "physicalArmor": 0, "magicalProtection": 1, "weight": 0.3 },
+    { "slot": "body", "label": "Toge d'érudit",     "physicalArmor": 0, "magicalProtection": 1, "weight": 2 },
+    { "slot": "legs", "label": "Robe longue",       "physicalArmor": 0, "magicalProtection": 1, "weight": 1 },
+    { "slot": "feet", "label": "Sandales de cuir",  "physicalArmor": 0, "magicalProtection": 0, "weight": 0.7 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Confortable pour de longues études", "Légère trame protectrice contre la magie"]
+}

@@ -3,27 +3,38 @@
     "slug": "algue-de-courant",
     "name": "Algue de courant",
     "subtitle": "Ingrédient de base",
-    "rarity": "Commune"
+    "rarity": "Commune",
+    "weight": 0.1
+  },
+  {
+    "slug": "champignon-linceul",
+    "name": "Champignon-Linceul",
+    "subtitle": "Ingrédient de base",
+    "rarity": "Rare",
+    "weight": 0.05
   },
   {
     "slug": "fruit_de_mana",
     "name": "Fruit de mana",
     "subtitle": "Ingrédient de base",
     "rarity": "Peu commune",
-    "image": "/resources/media/pictures/natural-resources/flora/fruit_de_mana.png"
+    "image": "/resources/media/pictures/natural-resources/flora/fruit_de_mana.png",
+    "weight": 0.2
   },
   {
     "slug": "racine_d_arbre_ancien",
     "name": "Racine d'arbre ancien",
     "subtitle": "Ingrédient de base",
     "rarity": "Peu commune",
-    "image": "/resources/media/pictures/natural-resources/flora/racine_d_arbre_ancien.png"
+    "image": "/resources/media/pictures/natural-resources/flora/racine_d_arbre_ancien.png",
+    "weight": 0.5
   },
   {
     "slug": "ginseng",
     "name": "Racine de ginseng",
     "subtitle": "Ingrédient de base",
     "rarity": "Commune",
-    "image": "/resources/media/pictures/natural-resources/flora/ginseng.png"
+    "image": "/resources/media/pictures/natural-resources/flora/ginseng.png",
+    "weight": 0.1
   }
 ]

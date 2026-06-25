@@ -1,0 +1,23 @@
+{
+  "name": "Rapière",
+  "subtitle": "Lame fine pour l'estoc",
+  "description": [
+    "Longue et effilée, la rapière est l'arme du duel et de l'escrime fine. Elle néglige la taille au profit de l'estoc, frappant vite et juste là où l'armure faiblit.",
+    "Élégante et mortelle, elle récompense la maîtrise du tempo et du jeu de jambes plus que la force brute."
+  ],
+  "weaponCategory": "rapier",
+  "minDamage": 3,
+  "maxDamage": 8,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "1 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+  ],
+  "properties": [
+    "Estocs rapides et précis",
+    "Excellente en duel",
+    "Faible puissance de taille"
+  ],
+  "notes": [
+    "Un duelliste expérimenté touche trois fois avant que l'épéiste lourd n'ait levé sa lame."
+  ]
+}

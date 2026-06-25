@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de pêcheur des eaux douces",
+  "subtitle": "Veste de toile et cuissardes",
+  "description": [
+    "Veste de toile légère et hautes cuissardes pour entrer dans la rivière : la tenue paisible du pêcheur de berge et de torrent."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Chapeau de toile",   "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
+    { "slot": "body", "label": "Veste de pêche",      "physicalArmor": 1, "magicalProtection": 0, "weight": 2.1 },
+    { "slot": "legs", "label": "Cuissardes",          "physicalArmor": 1, "magicalProtection": 0, "weight": 1.4 },
+    { "slot": "feet", "label": "Bottes de rivière",   "physicalArmor": 0, "magicalProtection": 0, "weight": 1 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Cuissardes pour entrer dans l'eau", "Nombreuses poches à hameçons et appâts"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de navigateur",
+  "subtitle": "Manteau ciré et tricorne du timonier",
+  "description": [
+    "Le manteau ciré et le tricorne de celui qui tient le cap. Une tenue d'officier, taillée pour les ponts battus par le vent."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Tricorne",            "physicalArmor": 0, "magicalProtection": 0, "weight": 0.4 },
+    { "slot": "body", "label": "Manteau ciré",         "physicalArmor": 1, "magicalProtection": 0, "weight": 2.3 },
+    { "slot": "legs", "label": "Pantalon d'officier",  "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 },
+    { "slot": "feet", "label": "Bottes de mer",        "physicalArmor": 1, "magicalProtection": 0, "weight": 0.8 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Coupe le vent et la pluie", "Poches pour cartes et instruments"]
+}

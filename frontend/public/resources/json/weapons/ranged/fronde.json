@@ -1,0 +1,23 @@
+{
+  "name": "Fronde",
+  "subtitle": "Lanière à projectiles, arme du berger",
+  "description": [
+    "Deux brins de cuir et une poche : la fronde est l'arme la plus simple qui soit, et l'une des plus anciennes. Bien lancée, sa bille fend l'air à une vitesse étonnante.",
+    "Méprisée des chevaliers, elle reste l'arme du berger et du milicien — celle qui, dit-on, abattit jadis un géant."
+  ],
+  "weaponCategory": "sling",
+  "minDamage": 2,
+  "maxDamage": 6,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "0,3 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Très légère et bon marché",
+    "Munitions trouvables partout (pierres)",
+    "Exige beaucoup d'entraînement pour viser juste"
+  ],
+  "notes": [
+    "Une pierre bien lancée ne fait pas de bruit d'acier — mais elle tue aussi bien."
+  ]
+}

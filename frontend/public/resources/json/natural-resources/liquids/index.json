@@ -4,6 +4,7 @@
     "name": "Eau pure",
     "subtitle": "Liquide fondamental",
     "rarity": "Commune",
-    "image": "/resources/media/pictures/natural-resources/liquids/eau_pure.png"
+    "image": "/resources/media/pictures/natural-resources/liquids/eau_pure.png",
+    "weight": 0.5
   }
 ]

@@ -1,0 +1,23 @@
+{
+  "name": "Flèches",
+  "subtitle": "Munition des arcs",
+  "description": [
+    "Hampe de bois, empennage de plume et pointe d'acier : la flèche est l'âme de l'arc. Sa forme détermine sa trajectoire autant que la main qui la décoche.",
+    "On les transporte par carquois de vingt à trente, et la qualité de la pointe fait toute la différence à l'impact."
+  ],
+  "damageType": "piercing",
+  "damageBonus": 1,
+  "compatibleWith": ["shortBow", "longBow"],
+  "info": [
+    { "key": "weight", "label": "Poids unitaire", "value": "0,05 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Légères, transportées par carquois",
+    "Pointes interchangeables (large, perçante, à barbillons)",
+    "Récupérables après le tir si elles ne sont pas brisées"
+  ],
+  "notes": [
+    "Un bon archer compte ses flèches comme un avare ses pièces."
+  ]
+}

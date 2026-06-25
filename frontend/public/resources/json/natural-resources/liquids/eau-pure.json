@@ -8,6 +8,7 @@
         "Sa neutralité parfaite en fait le solvant de référence : elle accueille n'importe quelle essence sans en altérer la nature."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.5 kg" },
         { "key": "type",    "label": "Type",        "value": "Liquide" },
         { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
         { "key": "state",   "label": "État",        "value": "Liquide limpide et inodore" },

@@ -1,0 +1,15 @@
+{
+  "name": "Tenue d'espion",
+  "subtitle": "Habits passe-partout du renseignement",
+  "description": [
+    "Des vêtements ordinaires, choisis pour ne susciter aucun regard. L'espion se fond dans la foule plutôt que dans l'ombre."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Coiffe anonyme",     "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
+    { "slot": "body", "label": "Habit passe-partout", "physicalArmor": 1, "magicalProtection": 0, "weight": 2 },
+    { "slot": "legs", "label": "Braies de toile",     "physicalArmor": 0, "magicalProtection": 0, "weight": 1 },
+    { "slot": "feet", "label": "Chaussures souples",  "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Totalement banale", "Poches dissimulées pour messages et outils"]
+}

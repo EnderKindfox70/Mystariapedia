@@ -8,6 +8,7 @@
         "Il ne rayonne aucune fréquence, mais accueille et retient la mana brute, ce qui en fait à la fois le réservoir des artisans et la matière première de tous les autres éclats."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal neutre" },
         { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
         { "key": "habitat", "label": "Gisement",    "value": "Filons cristallins, cavités profondes" },

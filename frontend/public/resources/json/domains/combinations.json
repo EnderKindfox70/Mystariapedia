@@ -1,16 +1,298 @@
 [
-    {"name": "Lave", "components": ["fire", "earth"]},
-    {"name": "Sécheresse", "components": ["fire", "air"]},
-    {"name": "Boue", "components": ["water", "earth"]},
-    {"name": "Pluie", "components": ["water", "air"]},
-    {"name": "Neige & blizzard", "components": ["water", "air"]},
-    {"name": "Tempête", "components": ["water", "air", "electricity"]},
-    {"name": "Abysse", "components": ["water", "darkness"]},
-    {"name": "Pesanteur", "components": ["earth", "space"]},
-    {"name": "Équilibre", "components": ["light", "darkness"]},
-    {"name": "Siphonnage vital", "components": ["life", "death"]},
-    {"name": "Eclipse", "components": ["light", "darkness"]},
-    {"name": "Doppelganger", "components": ["life", "darkness"]},
-    {"name": "Combustion de force vitale", "components": ["life", "fire"]},
-    {"name": "Hellfire", "components": ["fire", "death"]}
+    {
+        "name": "Lave",
+        "components": [
+            "fire",
+            "earth"
+        ],
+        "spells": [
+            {
+                "key": "combo-coulee-de-lave",
+                "name": "Coulée de lave",
+                "description": "Fait fondre la roche en un torrent de lave incandescente qui engloutit le terrain.",
+                "mana": 6,
+                "level": 4,
+                "subdomains": [
+                    "Lave"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Sécheresse",
+        "components": [
+            "fire",
+            "air"
+        ],
+        "spells": [
+            {
+                "key": "combo-aridite",
+                "name": "Aridité",
+                "description": "Assèche l'air et le sol d'une zone, asséchant les sources et flétrissant toute vie.",
+                "mana": 5,
+                "level": 3,
+                "subdomains": [
+                    "Sécheresse"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Boue",
+        "components": [
+            "water",
+            "earth"
+        ],
+        "spells": [
+            {
+                "key": "combo-enlisement",
+                "name": "Enlisement",
+                "description": "Transforme le sol en boue mouvante qui happe et immobilise les créatures.",
+                "mana": 5,
+                "level": 3,
+                "subdomains": [
+                    "Boue"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Pluie",
+        "components": [
+            "water",
+            "air"
+        ],
+        "spells": [
+            {
+                "key": "combo-averse",
+                "name": "Averse",
+                "description": "Invoque une pluie battante qui réduit la visibilité et éteint les flammes.",
+                "mana": 4,
+                "level": 2,
+                "subdomains": [
+                    "Pluie"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Neige & blizzard",
+        "components": [
+            "water",
+            "air"
+        ],
+        "spells": [
+            {
+                "key": "combo-blizzard",
+                "name": "Blizzard",
+                "description": "Déchaîne une tempête de neige glaciale qui gèle et aveugle tout sur son passage.",
+                "mana": 5,
+                "level": 4,
+                "subdomains": [
+                    "Neige & blizzard"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Tempête",
+        "components": [
+            "water",
+            "air",
+            "electricity"
+        ],
+        "spells": [
+            {
+                "key": "combo-tempete-dechainee",
+                "name": "Tempête déchaînée",
+                "description": "Conjugue pluie, vent et foudre en une tempête dévastatrice frappant une vaste zone.",
+                "mana": 8,
+                "level": 6,
+                "subdomains": [
+                    "Tempête"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Abysse",
+        "components": [
+            "water",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-etreinte-abyssale",
+                "name": "Étreinte abyssale",
+                "description": "Convoque les ténèbres des profondeurs marines pour engloutir et écraser la cible.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Abysse"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Pesanteur",
+        "components": [
+            "earth",
+            "space"
+        ],
+        "spells": [
+            {
+                "key": "combo-ecrasement-gravitationnel",
+                "name": "Écrasement gravitationnel",
+                "description": "Concentre une pesanteur titanesque en un point pour broyer ce qui s'y trouve.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Pesanteur"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Équilibre",
+        "components": [
+            "light",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-equilibre-du-crepuscule",
+                "name": "Équilibre du crépuscule",
+                "description": "Harmonise lumière et ombre pour neutraliser les magies adverses et stabiliser les énergies.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Équilibre"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Siphonnage vital",
+        "components": [
+            "life",
+            "death"
+        ],
+        "spells": [
+            {
+                "key": "combo-siphon-vital",
+                "name": "Siphon vital",
+                "description": "Draine la force vitale d'une cible pour soigner le lanceur d'autant de vigueur.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Siphonnage vital"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Eclipse",
+        "components": [
+            "light",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-eclipse",
+                "name": "Éclipse",
+                "description": "Voile une zone d'une ombre absolue percée d'éclats de lumière, troublant les sens de tous.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Eclipse"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Doppelganger",
+        "components": [
+            "life",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-doppelganger",
+                "name": "Doppelgänger",
+                "description": "Tisse à partir d'ombre et de vie un double éphémère du lanceur ou d'une créature.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Doppelganger"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Combustion de force vitale",
+        "components": [
+            "life",
+            "fire"
+        ],
+        "spells": [
+            {
+                "key": "combo-combustion-vitale",
+                "name": "Combustion vitale",
+                "description": "Consume la force vitale du lanceur pour décupler la puissance d'un brasier dévastateur.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Combustion de force vitale"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Hellfire",
+        "components": [
+            "fire",
+            "death"
+        ],
+        "spells": [
+            {
+                "key": "combo-feu-infernal",
+                "name": "Feu infernal",
+                "description": "Embrase une flamme morbide qui brûle la chair comme l'âme et n'épargne aucun mort-vivant.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Hellfire"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "",
+        "components": ["fire", "space"],
+        "spells": [
+            {
+                "key": "combo-combustion-spontanee",
+                "name": "Combustion spontanée",
+                "description": "Teleporte des flammes directement sur l'adversaire en ne prenant même pas en compte la defense magique",
+                "mana": 5,
+                "level": 4,
+                "subdomains": [
+                    "Combustion",
+                    "Portail & teleportation"
+                ]
+
+            },
+            {
+                "key": "combo-evasion-enflammee",
+                "name": "Evasion enflamée",
+                "description": "Permet de se teleporter tout en s'entourant de flamme pendant le",
+                "mana": 5,
+                "level": 4,
+                "subdomains": [
+                    "Combustion",
+                    "Portail & teleportation"
+                ]
+            }
+        ]
+    }
 ]

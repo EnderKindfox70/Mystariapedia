@@ -4,25 +4,81 @@
     "banner": "",
     "first-quote": "Je peux être douce. Je peux être profonde. Je peux être les deux en même temps.",
     "usage-quote": "Ne force pas le chemin. Trouve la fissure.",
-    "subdomains": 
-    [
-        {"name": "Forme de l'eau", "icon": "", "spells": []},
-        {"name": "Glace", "icon": "", "spells": []},
-        {"name": "Vapeur", "icon": "", "spells": []} ,
-        {"name": "purification", "icon": "", "spells": []},
-        {"name": "Océan", "icon": "", "spells": []}
-
+    "subdomains": [
+        {
+            "name": "Forme de l'eau",
+            "icon": ""
+        },
+        {
+            "name": "Glace",
+            "icon": ""
+        },
+        {
+            "name": "Vapeur",
+            "icon": ""
+        },
+        {
+            "name": "purification",
+            "icon": ""
+        },
+        {
+            "name": "Océan",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "water-manipulation-aquatique",
+            "name": "Manipulation aquatique",
+            "description": "Façonne et déplace une masse d'eau existante, la modelant en fouet, en bouclier ou en courant.",
+            "mana": 2,
+            "level": 1,
+            "subdomains": [
+                "Forme de l'eau"
+            ]
+        },
+        {
+            "key": "water-prison-de-glace",
+            "name": "Prison de glace",
+            "description": "Gèle instantanément l'humidité autour d'une cible pour l'emprisonner dans un bloc de glace.",
+            "mana": 4,
+            "level": 2,
+            "subdomains": [
+                "Glace"
+            ]
+        },
+        {
+            "key": "water-voile-de-vapeur",
+            "name": "Voile de vapeur",
+            "description": "Vaporise l'eau en un nuage brûlant qui masque la vue et ébouillante ceux qui le traversent.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Vapeur"
+            ]
+        },
+        {
+            "key": "water-eau-purificatrice",
+            "name": "Eau purificatrice",
+            "description": "Invoque une eau claire qui nettoie les poisons, souillures et maladies au contact.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "purification"
+            ]
+        },
+        {
+            "key": "water-appel-des-marees",
+            "name": "Appel des marées",
+            "description": "Soulève une vague puissante ou un courant maîtrisé pour balayer et entraîner ses cibles.",
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Océan"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

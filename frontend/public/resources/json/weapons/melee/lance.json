@@ -1,0 +1,23 @@
+{
+  "name": "Lance",
+  "subtitle": "Hampe à pointe, allonge redoutable",
+  "description": [
+    "Simple et ancienne, la lance reste l'une des armes les plus efficaces : elle frappe avant que l'ennemi n'arrive au contact, et tient les bêtes à distance.",
+    "En rangs serrés, un mur de lances brise les charges les plus furieuses."
+  ],
+  "weaponCategory": "spear",
+  "minDamage": 5,
+  "maxDamage": 10,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "2,2 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Allonge supérieure",
+    "Excellente en formation",
+    "Vulnérable une fois la distance franchie"
+  ],
+  "notes": [
+    "Garde la pointe haute et l'ennemi loin : c'est tout le secret de la lance."
+  ]
+}

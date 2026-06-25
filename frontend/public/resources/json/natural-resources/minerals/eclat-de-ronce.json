@@ -8,6 +8,7 @@
         "Vert sombre et hérissé d'arêtes acérées, légèrement humide, il dégage une subtile odeur de terre et de feuilles fraîches."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal végétal" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Galeries envahies de racines, cavités fertiles" },

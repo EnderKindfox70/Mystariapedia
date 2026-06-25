@@ -8,6 +8,7 @@
         "D'un noir si profond qu'il boit la lumière, il ne laisse qu'un reflet violacé à sa surface."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal obscur" },
         { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Abîmes, gouffres privés de lumière" },

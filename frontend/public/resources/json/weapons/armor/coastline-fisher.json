@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de pêcheur des côtes",
+  "subtitle": "Ciré et bottes contre les embruns",
+  "description": [
+    "Ciré jaune et grandes bottes contre les vagues et le sel : la tenue du pêcheur qui affronte la marée et le vent du large."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Suroît",             "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
+    { "slot": "body", "label": "Ciré de pêche",       "physicalArmor": 1, "magicalProtection": 0, "weight": 2.2 },
+    { "slot": "legs", "label": "Pantalon ciré",       "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 },
+    { "slot": "feet", "label": "Bottes de mer",       "physicalArmor": 0, "magicalProtection": 0, "weight": 0.9 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Imperméable aux embruns", "Garde au chaud sous le vent du large"]
+}

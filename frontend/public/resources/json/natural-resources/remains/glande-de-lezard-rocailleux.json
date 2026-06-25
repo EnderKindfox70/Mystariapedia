@@ -1,0 +1,45 @@
+{
+    "name": "Glande de Lézard rocailleux",
+    "subtitle": "Dépouille de créature",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Petite glande coriace prélevée sous la peau du lézard rocailleux, un reptile des éboulis dont l'épiderme se couvre d'une croûte minérale au moindre danger.",
+        "C'est cette glande qui sécrète l'agent durcissant : broyée et diluée, elle transmet à la peau de qui l'ingère la même capacité à se couvrir d'une couche protectrice, le temps que dure la préparation."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.05 kg" },
+        { "key": "type",    "label": "Type",        "value": "Glande / sécrétion" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
+        { "key": "source",  "label": "Provenance",  "value": "Lézard rocailleux" },
+        { "key": "usage",   "label": "Utilisation", "value": "Potions de protection, onguents de durcissement" },
+        { "key": "value",   "label": "Valeur",      "value": "7 pièces d'or la glande" }
+    ],
+    "properties": [
+        "Sa sécrétion provoque la formation d'une couche minérale protectrice sur la peau, à l'image de la défense naturelle du lézard.",
+        "Composant actif de la Potion de peau de pierre, où elle agit de concert avec la corne de bélier réduite en poudre.",
+        "Perd rapidement ses vertus une fois la bête morte : doit être prélevée fraîche et conservée dans la saumure.",
+        "À doser avec prudence : un excès raidit les articulations au lieu de protéger l'épiderme."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Prélevée sur les lézards rocailleux abattus dans les éboulis et les pentes pierreuses arides de Mystaria.",
+            "Conseil : ouvrez la bête sans tarder ; la glande se rétracte et durcit dès que le corps refroidit."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "lezard-rocailleux", "collection": "bestiary", "label": "Lézard rocailleux" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "earth", "collection": "domains", "label": "Terre" }
+            ]
+        }
+    ]
+}

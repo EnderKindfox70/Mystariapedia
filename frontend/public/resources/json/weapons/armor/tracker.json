@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de traqueur",
+  "subtitle": "Cuir et capuche de camouflage",
+  "description": [
+    "Des teintes de forêt, un cuir souple et une capuche qui brise la silhouette : tout est fait pour suivre une piste sans être vu."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Capuche camouflée",  "physicalArmor": 1, "magicalProtection": 0, "weight": 0.4 },
+    { "slot": "body", "label": "Veste de cuir verte", "physicalArmor": 2, "magicalProtection": 0, "weight": 2.5 },
+    { "slot": "legs", "label": "Pantalon souple",     "physicalArmor": 1, "magicalProtection": 0, "weight": 1.2 },
+    { "slot": "feet", "label": "Bottes silencieuses", "physicalArmor": 1, "magicalProtection": 0, "weight": 0.9 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Couleurs de camouflage", "Démarche feutrée pour pister sans bruit"]
+}

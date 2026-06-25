@@ -1,0 +1,23 @@
+{
+  "name": "Arbalète",
+  "subtitle": "Carreaux perçants, longue à recharger",
+  "description": [
+    "L'arbalète concentre une force colossale dans un mécanisme d'acier. Le carreau qu'elle décoche traverse les armures que la flèche ne ferait qu'égratigner.",
+    "Sa lenteur de rechargement est son seul défaut : un servant aguerri ne tire qu'une poignée de fois quand l'archer en a décoché dix."
+  ],
+  "weaponCategory": "crossbow",
+  "minDamage": 6,
+  "maxDamage": 12,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "2,5 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+  ],
+  "properties": [
+    "Perce les armures lourdes",
+    "Prise en main rapide pour un novice",
+    "Rechargement lent ; munitions : carreaux"
+  ],
+  "notes": [
+    "Une arme de roturier qui tue un seigneur en armure : voilà pourquoi tant d'ordres chevaleresques la méprisent."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Épée longue",
+  "subtitle": "Lame d'acier à une ou deux mains",
+  "description": [
+    "L'épée longue est l'arme de prédilection des chevaliers et des hommes d'armes de Mystaria. Sa lame droite à double tranchant permet aussi bien la taille que l'estoc.",
+    "Équilibrée pour un usage à une main, elle se manie aussi à deux mains lorsque la garde l'exige, offrant alors une allonge et une puissance accrues."
+  ],
+  "weaponCategory": "longsword",
+  "minDamage": 4,
+  "maxDamage": 9,
+  "info": [
+    { "key": "weight", "label": "Poids", "value": "1,5 kg" },
+    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+  ],
+  "properties": [
+    "Polyvalente : taille et estoc",
+    "Maniable à une ou deux mains",
+    "Forge accessible à tout maître-armurier"
+  ],
+  "notes": [
+    "Une lame bien trempée chante quand on la frappe du doigt ; une lame sourde cache souvent un défaut."
+  ]
+}

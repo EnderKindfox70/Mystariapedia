@@ -1,0 +1,45 @@
+{
+    "name": "Venin de serpent fantôme",
+    "subtitle": "Dépouille de créature",
+    "image": "/resources/media/pictures/natural-resources/remains/ghost_snake_poison.png",
+    "icon": "",
+    "description": [
+        "Fluide d'un noir d'encre tiré d'un serpent fantôme, créature à demi immatérielle qui hante les lieux chargés de mort. Le venin lui-même semble boire la lumière et fume imperceptiblement dans son flacon.",
+        "Contrairement au venin ordinaire, il n'agit pas seulement sur le corps : il cible les canaux magiques, dormants ou actifs, ce qui en fait l'ingrédient le plus rare et le plus redouté des élixirs d'éveil."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.05 kg" },
+        { "key": "type",    "label": "Type",        "value": "Venin spectral / fluide" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
+        { "key": "source",  "label": "Provenance",  "value": "Serpent fantôme" },
+        { "key": "usage",   "label": "Utilisation", "value": "Élixirs d'éveil, rituels de mort, poisons" },
+        { "key": "value",   "label": "Valeur",      "value": "45 pièces d'or la fiole" }
+    ],
+    "properties": [
+        "Cible spécifiquement les canaux magiques du corps, qu'ils soient dormants ou actifs.",
+        "Toxique pour le corps et pour l'esprit : à forte dose, dissocie le sujet de ses propres sens.",
+        "Ne se fige jamais et conserve une légère fumée sombre, signe de sa charge spectrale.",
+        "S'évapore au contact prolongé de la lumière vive : à garder en flacon opaque et scellé."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Prélevé sur les serpents fantômes qui rôdent dans les nécropoles et les marécages funèbres de Mystaria.",
+            "Conseil : ne le manipulez qu'à jeun et l'esprit reposé, son émanation suffisant à brouiller les sens des imprudents."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "serpent-fantome", "collection": "bestiary", "label": "Serpent fantôme" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "death", "collection": "domains", "label": "Mort" }
+            ]
+        }
+    ]
+}

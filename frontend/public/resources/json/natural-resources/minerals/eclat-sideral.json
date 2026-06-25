@@ -8,6 +8,7 @@
         "Bleu nocturne piqueté de points lumineux, comme un fragment de ciel étoilé pris dans la roche."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal sidéral" },
         { "key": "rarity",  "label": "Rareté",      "value": "Très rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Cavités reculées, poches de vide" },

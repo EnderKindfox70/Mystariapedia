@@ -1,0 +1,519 @@
+/* ── Tous les enfants directs au-dessus de la texture paper-surface ── */
+.resource-entry > * {
+  position: relative;
+  z-index: 1;
+}
+
+.resource-entry {
+  flex: 1;
+  overflow-y: auto;
+  align-self: flex-start;
+  min-height: calc(100vh - 48px);
+  margin-block: 24px;
+  --re-ink: #3a2a1c;
+  --re-ink-soft: rgba(58, 42, 28, .72);
+  --re-line: rgba(58, 42, 28, .34);
+  --re-gold: var(--ancient-gold, #8b6b2f);
+}
+
+/* ═══════════════════════════════════════════
+   EN-TÊTE
+═══════════════════════════════════════════ */
+.re-header {
+  margin-bottom: 1.8rem;
+}
+
+.re-title {
+  margin: 0;
+  color: #16110d;
+  font-family: var(--font-title);
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.re-rule {
+  width: 100%;
+  height: 1px;
+  margin: .9rem 0 .7rem;
+  background: linear-gradient(90deg, var(--re-line), transparent);
+}
+
+.re-subtitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--re-ink-soft);
+}
+
+/* ═══════════════════════════════════════════
+   ILLUSTRATION + DESCRIPTION
+═══════════════════════════════════════════ */
+.re-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: clamp(1rem, 3vw, 2.2rem);
+  align-items: stretch;
+  margin-bottom: 2.4rem;
+}
+
+.re-illustration {
+  display: grid;
+  place-items: center;
+  min-height: 16rem;
+  padding: 1rem;
+}
+
+.re-illustration img {
+  max-width: 100%;
+  max-height: 24rem;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(34, 23, 19, .25));
+}
+
+.re-illustration__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 16rem;
+  border: 1px dashed var(--re-line);
+  color: rgba(58, 42, 28, .35);
+  font-size: 3rem;
+}
+
+/* Encart description, cadre double comme l'image */
+.re-desc-box {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+  padding: 1.6rem 1.7rem;
+  border: 1px solid var(--re-line);
+  outline: 1px solid var(--re-line);
+  outline-offset: 6px;
+  background: rgba(217, 204, 184, .26);
+}
+
+.re-desc-box__star {
+  flex-shrink: 0;
+  color: var(--re-gold);
+  font-size: 1.4rem;
+  line-height: 1.6;
+}
+
+.re-desc-box__body p {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--re-ink);
+}
+
+.re-desc-box__body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ═══════════════════════════════════════════
+   SÉPARATEUR DE SECTION (✦ Titre ✦)
+═══════════════════════════════════════════ */
+.re-section {
+  margin-top: 2.2rem;
+}
+
+.re-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.3rem;
+  color: var(--re-ink);
+}
+
+.re-divider::before,
+.re-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--re-line);
+}
+
+.re-divider span {
+  position: relative;
+  padding: 0 .4rem;
+  font: 600 1rem var(--font-title);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.re-divider span::before,
+.re-divider span::after {
+  content: '✦';
+  color: var(--re-gold);
+  font-size: .8em;
+  vertical-align: .1em;
+}
+
+.re-divider span::before { margin-right: .7em; }
+.re-divider span::after  { margin-left: .7em; }
+
+/* Cadre fin pour les blocs Propriétés / Localisation */
+.re-panel {
+  padding: 1.4rem 1.6rem;
+  border: 1px solid var(--re-line);
+}
+
+.re-panel .re-divider {
+  margin-top: -.2rem;
+}
+
+/* ═══════════════════════════════════════════
+   INFORMATIONS (colonnes Type / Rareté / …)
+═══════════════════════════════════════════ */
+.re-info-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 1rem;
+}
+
+.re-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: .7rem;
+  align-items: start;
+  align-content: start;
+  padding: 0 1rem;
+  border-left: 1px solid var(--re-line);
+}
+
+.re-info:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+
+.re-info__icon {
+  grid-row: 1 / 3;
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--re-gold);
+}
+
+.re-info__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.re-info__label {
+  font: 700 .82rem var(--font-title);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--re-ink);
+}
+
+.re-info__value {
+  grid-column: 2;
+  font-size: .92rem;
+  line-height: 1.4;
+  color: var(--re-ink-soft);
+}
+
+/* ═══════════════════════════════════════════
+   PROPRIÉTÉS
+═══════════════════════════════════════════ */
+.re-properties {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+}
+
+.re-properties li {
+  display: flex;
+  gap: .9rem;
+  align-items: baseline;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--re-ink);
+}
+
+.re-properties__mark {
+  flex-shrink: 0;
+  color: var(--re-gold);
+  font-size: .85rem;
+}
+
+/* ═══════════════════════════════════════════
+   OÙ EN TROUVER
+═══════════════════════════════════════════ */
+.re-location {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr;
+  gap: 1.4rem;
+  align-items: start;
+}
+
+.re-location__img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--re-line);
+  filter: sepia(.25);
+}
+
+.re-location__img--placeholder {
+  background:
+    repeating-linear-gradient(45deg, rgba(58,42,28,.06) 0 8px, transparent 8px 16px),
+    rgba(217, 204, 184, .3);
+}
+
+.re-location__text p {
+  margin: 0 0 1rem;
+  font-size: .98rem;
+  line-height: 1.65;
+  color: var(--re-ink);
+}
+
+.re-location__text p:last-child {
+  margin-bottom: 0;
+}
+
+/* ═══════════════════════════════════════════
+   DOMAINES LIÉS
+═══════════════════════════════════════════ */
+.re-ref-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+}
+
+.re-ref-link {
+  display: inline-block;
+  padding: .3rem .9rem;
+  border: 1px solid var(--re-line);
+  border-radius: 2px;
+  background: rgba(217, 204, 184, .3);
+  font-size: .9rem;
+  color: var(--re-gold);
+  text-transform: capitalize;
+  transition: background .2s, border-color .2s;
+}
+
+.re-ref-link:hover {
+  background: rgba(217, 204, 184, .55);
+  border-color: var(--re-gold);
+}
+
+/* ═══════════════════════════════════════════
+   UTILISÉ DANS (cards illustrées)
+═══════════════════════════════════════════ */
+.re-card-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1.1rem;
+}
+
+.re-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--re-line);
+  background: rgba(217, 204, 184, .22);
+  color: var(--re-ink);
+  text-decoration: none;
+  transition: background .22s, border-color .22s, box-shadow .22s, transform .22s;
+}
+
+.re-card:hover {
+  background: rgba(217, 204, 184, .42);
+  border-color: var(--re-gold);
+  box-shadow: 0 4px 14px rgba(34, 23, 19, .18);
+  transform: translateY(-2px);
+}
+
+.re-card__media {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  padding: .6rem;
+  border-bottom: 1px solid var(--re-line);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(139, 107, 47, .14), transparent 70%),
+    rgba(217, 204, 184, .3);
+  overflow: hidden;
+}
+
+.re-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.re-card__glyph {
+  color: rgba(58, 42, 28, .35);
+  font-size: 2.4rem;
+}
+
+.re-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: .9rem 1rem 1.1rem;
+}
+
+.re-card__name {
+  margin: 0;
+  font: 600 1.05rem var(--font-title);
+  letter-spacing: .03em;
+  color: #16110d;
+}
+
+.re-card__subtitle {
+  margin: 0;
+  font-size: .85rem;
+  font-style: italic;
+  color: var(--re-ink-soft);
+}
+
+.re-card__rarity {
+  margin-top: .35rem;
+  align-self: flex-start;
+  padding: .12rem .6rem;
+  border: 1px solid var(--re-line);
+  border-radius: 2px;
+  font: 600 .7rem var(--font-title);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--re-gold);
+}
+
+/* ═══════════════════════════════════════════
+   NOTES DES ALCHIMISTES
+═══════════════════════════════════════════ */
+.re-notes {
+  margin-top: 2.6rem;
+  padding: 1.5rem 1.8rem;
+  border: 1px solid var(--re-line);
+  border-block: 3px double rgba(139, 107, 47, .48);
+  background:
+    radial-gradient(circle at 50% 0, rgba(139, 107, 47, .12), transparent 70%),
+    rgba(217, 204, 184, .22);
+  text-align: center;
+}
+
+.re-notes__heading {
+  margin-bottom: .8rem;
+  color: #16110d;
+  font: 600 1rem var(--font-title);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.re-notes__heading span {
+  color: var(--re-gold);
+}
+
+.re-notes__text {
+  margin: .3rem 0 0;
+  font-size: .95rem;
+  line-height: 1.7;
+  font-style: italic;
+  color: var(--re-ink-soft);
+}
+
+/* ═══════════════════════════════════════════
+   RETOUR
+═══════════════════════════════════════════ */
+.re-nav {
+  margin-top: 2.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--re-line);
+}
+
+.re-nav__back {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .6rem 1.1rem;
+  border: 1px solid var(--re-line);
+  border-radius: 4px;
+  background: rgba(217, 204, 184, .18);
+  color: var(--re-ink);
+  font: 600 .95rem var(--font-title);
+  text-decoration: none;
+  transition: background .22s, border-color .22s;
+}
+
+.re-nav__back:hover {
+  background: rgba(217, 204, 184, .42);
+  border-color: var(--re-gold);
+}
+
+.re-nav__arrow {
+  color: var(--re-gold);
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .re-intro      { grid-template-columns: 1fr; }
+  .re-info-grid  { grid-template-columns: 1fr 1fr; }
+  .re-info       { border-left: none; padding-left: 0; }
+}
+
+@media (max-width: 600px) {
+  .re-info-grid  { grid-template-columns: 1fr; }
+  .re-location   { grid-template-columns: 1fr; }
+  .re-card-grid  { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
+  .resource-entry { margin-block: 12px; }
+}
+
+/* ═══════════════════════════════════════════
+   TABLE DES PIÈCES D'ARMURE
+═══════════════════════════════════════════ */
+.re-armor-table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+  font-size: .95rem;
+  color: var(--re-ink);
+}
+
+.re-armor-table th,
+.re-armor-table td {
+  padding: .55rem .8rem;
+  border: 1px solid var(--re-line);
+  text-align: left;
+}
+
+.re-armor-table thead th {
+  background: rgba(58, 42, 28, .07);
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+
+.re-armor-table tbody td:not(:first-child),
+.re-armor-table thead th:not(:first-child) {
+  text-align: center;
+}
+
+.re-armor-table tbody tr:nth-child(odd) td {
+  background: rgba(58, 42, 28, .03);
+}
+
+.re-armor-table__total td {
+  font-weight: 700;
+  background: rgba(58, 42, 28, .1) !important;
+  border-top: 2px solid var(--re-gold);
+}

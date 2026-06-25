@@ -27,6 +27,7 @@ export class Navbar {
 
   readonly navItems: NavItem[] = [
     { key: 'accueil', label: 'Accueil', path: '/' },
+    { key: 'personnages', label: 'Personnages', path: '/characters' },
     {
       key: 'lore',
       label: 'Lore',
@@ -72,6 +73,7 @@ export class Navbar {
       children: [
         { key: 'ressources-naturelles', label: 'Ressources naturelles', path: '/resources' },
         { key: 'artefacts', label: 'Artefacts & objets magiques', path: '/artifacts' },
+        { key: 'armes-armures', label: 'Armes & armures', path: '/weapons' },
         { key: 'potions', label: 'Potions', path: '/alchemy' },
       ],
     },
@@ -158,7 +160,7 @@ export class Navbar {
   get expandedGroup(): string | null {
     const path = this.router.url.split('?')[0];
     if (path.startsWith('/magics')) return 'magie';
-    if (path.startsWith('/objects') || path.startsWith('/artifacts') || path.startsWith('/resources') || path.startsWith('/alchemy')) return 'objets';
+    if (path.startsWith('/objects') || path.startsWith('/artifacts') || path.startsWith('/resources') || path.startsWith('/alchemy') || path.startsWith('/weapons')) return 'objets';
     if (path.startsWith('/locations')) return 'lieux';
     if (path.startsWith('/bestiary')) return 'bestiaire';
     if (path.startsWith('/lore')) return 'lore';

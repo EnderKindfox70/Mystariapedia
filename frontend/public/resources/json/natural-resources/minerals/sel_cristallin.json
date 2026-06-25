@@ -8,6 +8,7 @@
         "Indispensable pour assaisonner et conserver les aliments, il fut longtemps une monnaie d'échange. Les alchimistes le prisent aussi pour ses vertus purifiantes et son affinité avec l'eau."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.1 kg" },
         { "key": "type",    "label": "Type",        "value": "Sel gemme (cristal cubique)" },
         { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
         { "key": "habitat", "label": "Gisement",    "value": "Veines salines, marais salants, grottes" },

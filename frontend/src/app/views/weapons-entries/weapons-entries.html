@@ -1,0 +1,306 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface resource-entry weapon-entry">
+
+    <!-- ── Titre + sous-titre ── -->
+    <header class="re-header">
+      <h1 class="re-title">{{ entry().name }}</h1>
+      <div class="re-rule" aria-hidden="true"></div>
+      @if (entry().subtitle) {
+        <p class="re-subtitle">{{ entry().subtitle }}</p>
+      }
+    </header>
+
+    <!-- ── Illustration + description ── -->
+    <section class="re-intro">
+      <div class="re-illustration">
+        @if (entry().image) {
+          <img [src]="entry().image" [alt]="entry().name">
+        } @else {
+          <div class="re-illustration__placeholder" aria-hidden="true">⚔</div>
+        }
+      </div>
+
+      <div class="re-desc-box">
+        <span class="re-desc-box__star" aria-hidden="true">✦</span>
+        <div class="re-desc-box__body">
+          @for (p of entry().description; track $index) {
+            <p>{{ p }}</p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Combat (dégâts de l'arme + champs hérités de la catégorie) ── -->
+    @if (categoryDef(); as cat) {
+      <section class="re-section">
+        <div class="re-divider"><span>Combat</span></div>
+        <ul class="re-info-grid">
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M4 20l9-9M11 13l3 3M14 4l6 6-3 1-4-4Z" stroke-linejoin="round" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Dégâts</span>
+            <span class="re-info__value">{{ entry().minDamage }} – {{ entry().maxDamage }}</span>
+          </li>
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M12 4l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Catégorie</span>
+            <span class="re-info__value">{{ cat.name }}</span>
+          </li>
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M12 3c4 5 6 8.2 6 11a6 6 0 0 1-12 0c0-2.8 2-6 6-11Z" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Type de dégâts</span>
+            <span class="re-info__value">{{ damageTypeLabel(cat.damageType) }}</span>
+          </li>
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M8 11V5a1.5 1.5 0 0 1 3 0v5M11 10V4a1.5 1.5 0 0 1 3 0v6M14 10V6a1.5 1.5 0 0 1 3 0v7a6 6 0 0 1-6 6c-2 0-3-.7-4-2l-3-4a1.5 1.5 0 0 1 2.4-1.8L8 12" stroke-linejoin="round" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Maniement</span>
+            <span class="re-info__value">{{ cat.handling }} main{{ cat.handling > 1 ? 's' : '' }}</span>
+          </li>
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M3 12h18M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Portée</span>
+            <span class="re-info__value">{{ cat.range }}</span>
+          </li>
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <circle cx="12" cy="12" r="8"/>
+                <circle cx="12" cy="12" r="3.2"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Précision</span>
+            <span class="re-info__value">{{ attributeLabel(cat.attributePrecision) }}</span>
+          </li>
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M12 3a2 2 0 0 1 2 2h3l3 13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2L7 5h3a2 2 0 0 1 2-2Z" stroke-linejoin="round"/>
+                <path d="M9 5h6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Attribut de dégâts</span>
+            <span class="re-info__value">{{ attributeLabel(cat.attributeDamage) }}</span>
+          </li>
+          <li class="re-info">
+            <span class="re-info__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M13 3L5 13h6l-1 8 8-10h-6l1-8Z" stroke-linejoin="round" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="re-info__label">Coût d'endurance</span>
+            <span class="re-info__value">{{ cat.enduranceCost }}</span>
+          </li>
+        </ul>
+      </section>
+    }
+
+    <!-- ── Protection (armures, vêtements, boucliers : pièces + résistances) ── -->
+    @if (armorPieces().length) {
+      <section class="re-section">
+        <div class="re-divider"><span>Protection</span></div>
+
+        @if (resistances().length || weaknesses().length) {
+          <ul class="re-info-grid">
+            @if (resistances().length) {
+              <li class="re-info">
+                <span class="re-info__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M12 3l7 2.5V11c0 4.4-2.9 7.7-7 9-4.1-1.3-7-4.6-7-9V5.5L12 3Z" stroke-linejoin="round"/>
+                    <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="re-info__label">Résistances</span>
+                <span class="re-info__value">{{ resistances().join(', ') }}</span>
+              </li>
+            }
+            @if (weaknesses().length) {
+              <li class="re-info">
+                <span class="re-info__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M12 3l7 2.5V11c0 4.4-2.9 7.7-7 9-4.1-1.3-7-4.6-7-9V5.5L12 3Z" stroke-linejoin="round"/>
+                    <path d="M9.5 9.5l5 5M14.5 9.5l-5 5" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="re-info__label">Faiblesses</span>
+                <span class="re-info__value">{{ weaknesses().join(', ') }}</span>
+              </li>
+            }
+          </ul>
+        }
+
+        <table class="re-armor-table">
+          <thead>
+            <tr>
+              <th scope="col">Pièce</th>
+              <th scope="col">Armure physique</th>
+              <th scope="col">Protection magique</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (piece of armorPieces(); track piece.slot) {
+              <tr>
+                <td>{{ piece.label || slotLabel(piece.slot) }}</td>
+                <td>{{ piece.physicalArmor }}</td>
+                <td>{{ piece.magicalProtection }}</td>
+              </tr>
+            }
+            <tr class="re-armor-table__total">
+              <td>Total</td>
+              <td>{{ armorTotals().physical }}</td>
+              <td>{{ armorTotals().magical }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    }
+
+    <!-- ── Munition (projectiles & munitions) ── -->
+    @if (isAmmunition()) {
+      <section class="re-section">
+        <div class="re-divider"><span>Munition</span></div>
+        <ul class="re-info-grid">
+          @if (entry().damageType) {
+            <li class="re-info">
+              <span class="re-info__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <path d="M12 3c4 5 6 8.2 6 11a6 6 0 0 1-12 0c0-2.8 2-6 6-11Z" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="re-info__label">Type de dégâts</span>
+              <span class="re-info__value">{{ damageTypeLabel(entry().damageType!) }}</span>
+            </li>
+          }
+          @if (entry().damageBonus != null) {
+            <li class="re-info">
+              <span class="re-info__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <path d="M4 20l9-9M11 13l3 3M14 4l6 6-3 1-4-4Z" stroke-linejoin="round" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="re-info__label">Bonus de dégâts</span>
+              <span class="re-info__value">+{{ entry().damageBonus }}</span>
+            </li>
+          }
+          @if (compatibleNames().length) {
+            <li class="re-info">
+              <span class="re-info__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <path d="M3 12h18M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="re-info__label">Armes compatibles</span>
+              <span class="re-info__value">{{ compatibleNames().join(', ') }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── Caractéristiques ── -->
+    @if (entry().info?.length) {
+      <section class="re-section">
+        <div class="re-divider"><span>Caractéristiques</span></div>
+        <ul class="re-info-grid">
+          @for (field of entry().info!; track field.label) {
+            <li class="re-info">
+              <span class="re-info__icon" aria-hidden="true">
+                @switch (field.key) {
+                  @case ('type') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M5 19c0-7 5-13 14-14 0 9-6 14-14 14Z" stroke-linejoin="round"/>
+                      <path d="M5 19C8 14 12 11 16 9" stroke-linecap="round"/>
+                    </svg>
+                  }
+                  @case ('rarity') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <circle cx="12" cy="12" r="8"/>
+                      <circle cx="12" cy="12" r="3.2"/>
+                    </svg>
+                  }
+                  @case ('damage') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M4 20l9-9M11 13l3 3M14 4l6 6-3 1-4-4Z" stroke-linejoin="round" stroke-linecap="round"/>
+                    </svg>
+                  }
+                  @case ('range') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M3 12h18M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                  @case ('weight') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M12 3a2 2 0 0 1 2 2h3l3 13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2L7 5h3a2 2 0 0 1 2-2Z" stroke-linejoin="round"/>
+                      <path d="M9 5h6" stroke-linecap="round"/>
+                    </svg>
+                  }
+                  @default {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M12 4l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                }
+              </span>
+              <span class="re-info__label">{{ field.label }}</span>
+              <span class="re-info__value">{{ field.value }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── Propriétés ── -->
+    @if (entry().properties?.length) {
+      <section class="re-section re-panel">
+        <div class="re-divider"><span>Propriétés</span></div>
+        <ul class="re-properties">
+          @for (prop of entry().properties!; track $index) {
+            <li>
+              <span class="re-properties__mark" aria-hidden="true">✦</span>
+              <span>{{ prop }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── Notes du forgeron ── -->
+    @if (entry().notes?.length) {
+      <div class="re-notes">
+        <div class="re-notes__heading">Notes du forgeron <span aria-hidden="true">✦</span></div>
+        @for (note of entry().notes!; track $index) {
+          <p class="re-notes__text">{{ note }}</p>
+        }
+      </div>
+    }
+
+    <!-- ── Retour ── -->
+    <nav class="re-nav" aria-label="Navigation armes">
+      <a routerLink="/weapons" [fragment]="category()" class="re-nav__back">
+        <span class="re-nav__arrow" aria-hidden="true">←</span>
+        <span>Retour aux {{ categoryLabel() }}</span>
+      </a>
+    </nav>
+
+  </main>
+</div>

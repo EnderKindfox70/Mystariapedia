@@ -8,6 +8,7 @@
         "Légèrement froid — le froid de l'eau profonde, non celui de la glace — il garde toujours une humidité à sa surface."
     ],
     "info": [
+        { "key": "weight", "label": "Poids", "value": "0.3 kg" },
         { "key": "type",    "label": "Type",        "value": "Cristal aqueux" },
         { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
         { "key": "habitat", "label": "Gisement",    "value": "Grottes immergées, sources profondes" },

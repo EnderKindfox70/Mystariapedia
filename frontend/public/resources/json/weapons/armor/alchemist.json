@@ -1,0 +1,15 @@
+{
+  "name": "Tenue d'alchimiste",
+  "subtitle": "Tablier de cuir et gants tachés de réactifs",
+  "description": [
+    "Le cuir résiste aux éclaboussures acides et aux brûlures de la paillasse. Une tenue de travail autant qu'une armure contre ses propres expériences."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Lunettes et coiffe", "physicalArmor": 0, "magicalProtection": 1, "weight": 0.4 },
+    { "slot": "body", "label": "Tablier de cuir",     "physicalArmor": 2, "magicalProtection": 1, "weight": 2.5 },
+    { "slot": "legs", "label": "Pantalon de travail",  "physicalArmor": 1, "magicalProtection": 0, "weight": 1 },
+    { "slot": "feet", "label": "Bottes de cuir",       "physicalArmor": 1, "magicalProtection": 0, "weight": 0.9 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Résiste aux éclaboussures acides", "Gants épais pour manipuler les réactifs"]
+}

@@ -4,21 +4,39 @@
     "banner": "",
     "first-quote": "Je suis rapide, imprevisible, je suis dans le ciel et dans ton corps.",
     "usage-quote": "Laisse l'impulsion venir. Si tu la construis, tu arrives trop tard.",
-    "subdomains": 
-    [
-        {"name": "Décharge", "icon": "", "spells": []},
-        {"name": "Électromagnétisme", "icon": "", "spells": []}
+    "subdomains": [
+        {
+            "name": "Décharge",
+            "icon": ""
+        },
+        {
+            "name": "Électromagnétisme",
+            "icon": ""
+        }
     ],
-    "magic-items-and-artifacts":
-    [
-
+    "spells": [
+        {
+            "key": "electricity-eclair",
+            "name": "Éclair",
+            "description": "Projette un arc de foudre fulgurant qui frappe une cible avec une précision instantanée.",
+            "mana": 3,
+            "level": 1,
+            "subdomains": [
+                "Décharge"
+            ]
+        },
+        {
+            "key": "electricity-champ-magnetique",
+            "name": "Champ magnétique",
+            "description": "Génère un champ qui attire ou repousse le métal, déviant lames et projectiles ferreux.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Électromagnétisme"
+            ]
+        }
     ],
-    "fauna":
-    [
-
-    ],
-    "flora":
-    [
-
-    ]
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
 }

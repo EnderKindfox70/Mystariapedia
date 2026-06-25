@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de berger",
+  "subtitle": "Cape de laine contre le vent des pâtures",
+  "description": [
+    "Une épaisse cape de laine et de bons souliers de marche : le berger passe ses journées dehors, par tous les vents des hauteurs."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Bonnet de laine",    "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
+    { "slot": "body", "label": "Cape de laine",       "physicalArmor": 1, "magicalProtection": 0, "weight": 2.2 },
+    { "slot": "legs", "label": "Pantalon de laine",   "physicalArmor": 1, "magicalProtection": 0, "weight": 1 },
+    { "slot": "feet", "label": "Souliers de marche",  "physicalArmor": 0, "magicalProtection": 0, "weight": 0.8 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["Chaude contre le vent des pâtures", "Cape qui sert aussi de couverture"]
+}

@@ -11,6 +11,9 @@ import { Entities } from './entities/entities';
 import { Alchemy } from './views/alchemy/alchemy';
 import { DomainEntryComponent } from './views/domains-entries/domains-entries';
 import { Objects } from './views/objects/objects';
+import { Weapons } from './views/weapons/weapons';
+import { WeaponEntryComponent } from './views/weapons-entries/weapons-entries';
+import { weaponResolver } from './resolvers/weapon.resolver';
 import { NaturalResources } from './views/natural-resources/natural-resources';
 import { ResourceEntryComponent } from './views/resources-entries/resources-entries';
 import { PotionEntryComponent } from './views/potions-entries/potions-entries';
@@ -19,6 +22,9 @@ import { resourceResolver } from './resolvers/resource.resolver';
 import { potionResolver } from './resolvers/potion.resolver';
 import { Login } from './views/auth/login/login';
 import { Register } from './views/auth/register/register';
+import { Characters } from './views/characters/characters';
+import { CharacterSheetEditor } from './views/character-sheet/character-sheet';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes =
 [
@@ -34,10 +40,15 @@ export const routes: Routes =
     { path: 'entities', component: Entities },
     { path: 'bestiary', component: Bestiary },
     { path: 'artifacts', component: Artifacts },
+    { path: 'weapons', component: Weapons },
+    { path: 'weapons/:category/:slug', component: WeaponEntryComponent, resolve: { entry: weaponResolver } },
     { path: 'alchemy', component: Alchemy },
     { path: 'alchemy/:slug', component: PotionEntryComponent, resolve: { entry: potionResolver } },
     { path: 'factions', component: Factions },
     { path: 'login', component: Login },
     { path: 'register', component: Register },
+    { path: 'characters', component: Characters, canActivate: [authGuard] },
+    { path: 'characters/new', component: CharacterSheetEditor, canActivate: [authGuard] },
+    { path: 'characters/:id', component: CharacterSheetEditor, canActivate: [authGuard] },
     { path: 'tests', component: Tests },
 ];

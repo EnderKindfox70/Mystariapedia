@@ -1,0 +1,15 @@
+{
+  "name": "Tenue de tireur",
+  "subtitle": "Cuir léger pour ne pas gêner la visée",
+  "description": [
+    "Une tenue ajustée qui ne gêne ni l'épaule ni la corde. Le tireur sacrifie la protection à la liberté de mouvement et à la stabilité."
+  ],
+  "pieces": [
+    { "slot": "head", "label": "Capuchon ajusté",     "physicalArmor": 1, "magicalProtection": 0, "weight": 0.4 },
+    { "slot": "body", "label": "Brigandine légère",    "physicalArmor": 2, "magicalProtection": 0, "weight": 2.5 },
+    { "slot": "legs", "label": "Pantalon souple",      "physicalArmor": 1, "magicalProtection": 0, "weight": 1 },
+    { "slot": "feet", "label": "Bottes stables",       "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 }
+  ],
+  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
+  "properties": ["N'entrave pas le tir", "Brassard de protection à l'avant-bras"]
+}
