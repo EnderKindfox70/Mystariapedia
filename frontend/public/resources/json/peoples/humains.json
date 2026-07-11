@@ -1,0 +1,31 @@
+{
+    "name": "Humains",
+    "subtitle": "Le peuple de l'équilibre",
+    "quote": "On nous croit sans destin. C'est notre destin.",
+    "description": [
+        "Les humains sont le peuple le plus répandu de Mystaria et le plus difficile à définir. Là où d'autres races portent une empreinte marquée — la pierre des nains, la sève des elfes —, les humains n'en portent aucune en particulier. Cette absence est leur signature.",
+        "Aucune terre ne leur appartient en propre et toutes les accueillent. On trouve des humains dans le Royaume de la Lumière comme dans les États Souterrains, sur les côtes de l'Archipel comme aux marges du Royaume Abandonné. Ils s'adaptent, se mêlent, se réinventent — plus vite qu'aucun autre peuple."
+    ],
+    "info": [
+        { "key": "type", "label": "Espérance de vie", "value": "70 à 90 ans" },
+        { "label": "Taille moyenne", "value": "1,60 – 1,90 m" },
+        { "key": "habitat", "label": "Territoire", "value": "Toutes les régions" },
+        { "label": "Société", "value": "Extrêmement variable" }
+    ],
+    "traits": [
+        { "name": "Polyvalence", "description": "Aucune affinité dominante : les humains présentent la répartition magique la plus équilibrée de toutes les races. Ils excellent rarement d'emblée, mais peuvent tout apprendre." },
+        { "name": "Adaptabilité", "description": "S'acclimatent vite à un nouvel environnement, une nouvelle culture, une nouvelle discipline. La mémoire courte d'un peuple qui recommence sans cesse." },
+        { "name": "Ambition", "description": "Durée de vie brève et conscience aiguë du temps qui manque : les humains agissent, construisent et prennent des risques que les races longévives jugent inconsidérés." }
+    ],
+    "affinities": [
+        { "domain": "fire", "note": "11 % — répartition uniforme, aucune dominance." },
+        { "domain": "water", "note": "11 % — répartition uniforme, aucune dominance." },
+        { "domain": "earth", "note": "11 % — répartition uniforme, aucune dominance." },
+        { "domain": "air", "note": "11 % — répartition uniforme, aucune dominance." },
+        { "domain": "electricity", "note": "11 % — répartition uniforme, aucune dominance." },
+        { "domain": "plant", "note": "11 % — répartition uniforme, aucune dominance." }
+    ],
+    "notes": [
+        "L'aspect jeu (attributs, sous-races, stats de départ) provient de characters/races.json — les humains y reçoivent +1 à chaque attribut, reflet de leur polyvalence."
+    ]
+}

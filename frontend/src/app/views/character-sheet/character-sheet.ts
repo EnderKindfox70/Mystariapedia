@@ -13,9 +13,9 @@ import {
   BackgroundDef,
   CharacterSheet,
   ClassDef,
+  CharacterSpells,
   ClassSpell,
   RaceDef,
-  Spell,
   StatKey,
   StatMode,
   SubraceDef,
@@ -50,7 +50,10 @@ import {
   domainSigil,
   availableSpellsFor,
   findDomainSpell,
+  spellMaxTier,
+  spellTree,
   type DomainSpell,
+  type SpellTreeNode,
   emptySheet,
   formatBonus,
   grantedTraits,
@@ -747,11 +750,83 @@ export class CharacterSheetEditor {
       statSeed: typeof data.statSeed === 'number' ? data.statSeed : 1,
       proficiencyBonus: data.proficiencyBonus ?? base.proficiencyBonus,
       skills: Array.isArray(data.skills) ? data.skills : [],
-      spells: { known: data.spells?.known ?? [] },
+      spells: this.normalizeSpells(data.spells),
       inventory: data.inventory ?? [],
       equipment: { ...base.equipment, ...data.equipment },
       notes: data.notes ?? '',
     };
+  }
+
+  /**
+   * Normalise le bloc de sorts. Accepte le nouveau format
+   * `{ unlocked, equipped }` et migre l'ancien `{ known: Spell[] }` en gardant
+   * uniquement les clés en `unlocked` (migration « débloqués seulement »).
+   */
+  private normalizeSpells(s: unknown): CharacterSpells {
+    const rec = (s ?? {}) as {
+      unlocked?: unknown; equipped?: unknown; nodes?: unknown; ranks?: unknown; known?: unknown;
+    };
+    const uniqStrings = (arr: unknown): string[] =>
+      Array.isArray(arr) ? [...new Set(arr.filter((k): k is string => typeof k === 'string' && !!k))] : [];
+
+    // Clés débloquées (nouveau format `unlocked`, sinon migration de l'ancien `known`).
+    const unlockedRaw = Array.isArray(rec.unlocked)
+      ? uniqStrings(rec.unlocked)
+      : uniqStrings((Array.isArray(rec.known) ? rec.known : []).map((x) => (x as { key?: unknown })?.key));
+    const unlocked = unlockedRaw.filter((k) => !!findDomainSpell(k));
+
+    const nodesSrc = (rec.nodes && typeof rec.nodes === 'object' ? rec.nodes : {}) as Record<string, unknown>;
+    const ranksSrc = (rec.ranks && typeof rec.ranks === 'object' ? rec.ranks : {}) as Record<string, unknown>;
+
+    const nodes: Record<string, string[]> = {};
+    for (const k of unlocked) {
+      if (Array.isArray(nodesSrc[k])) {
+        nodes[k] = this.sanitizeNodeSet(k, (nodesSrc[k] as unknown[]).filter((x): x is string => typeof x === 'string'));
+      } else if (typeof ranksSrc[k] === 'number') {
+        nodes[k] = this.trunkPath(k, Math.max(1, Math.round(Number(ranksSrc[k])))); // migration rang → chemin de tronc
+      } else {
+        nodes[k] = this.sanitizeNodeSet(k, []); // racine seule
+      }
+    }
+
+    const equipped = uniqStrings(rec.equipped).filter((k) => unlocked.includes(k));
+    return { unlocked, equipped, nodes };
+  }
+
+  /** Nettoie un ensemble de nœuds : garde ceux de l'arbre, force la racine, élague les orphelins. */
+  private sanitizeNodeSet(key: string, ids: string[]): string[] {
+    const tree = spellTree(key);
+    if (!tree) return ['__root__'];
+    const valid = new Set(tree.nodes.map((n) => n.id));
+    const set = new Set(ids.filter((id) => valid.has(id)));
+    set.add(tree.root);
+    const parentOf = new Map<string, string>();
+    for (const n of tree.nodes) for (const c of n.next ?? []) parentOf.set(c, n.id);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const id of [...set]) {
+        if (id === tree.root) continue;
+        const p = parentOf.get(id);
+        if (!p || !set.has(p)) { set.delete(id); changed = true; }
+      }
+    }
+    return [...set];
+  }
+
+  /** Chemin du tronc (racine puis premier enfant à répétition) sur `count` nœuds — pour la migration des rangs. */
+  private trunkPath(key: string, count: number): string[] {
+    const tree = spellTree(key);
+    if (!tree) return ['__root__'];
+    const path = [tree.root];
+    let cur = tree.root;
+    while (path.length < count) {
+      const nxt = tree.nodes.find((n) => n.id === cur)?.next?.[0];
+      if (!nxt) break;
+      path.push(nxt);
+      cur = nxt;
+    }
+    return path;
   }
 
   // ── Valeurs calculées (appelées dans le template) ──────────────────────────
@@ -1019,28 +1094,223 @@ export class CharacterSheetEditor {
     const idx = selected.indexOf(key);
     if (idx >= 0) {
       selected.splice(idx, 1);
+      this.pruneSpells(); // retirer les sorts d'un domaine désélectionné
     } else if (selected.length < 3) {
       selected.push(key);
     }
   }
 
-  // ── Sorts & inventaire (lignes dynamiques) ─────────────────────────────────
+  // ── Sorts : débloqués (appris) & équipés (loadout de combat) ────────────────
 
-  /** Sorts de base débloqués au niveau du personnage, selon les domaines sélectionnés (+ combinaisons), triés par niveau. */
-  get availableSpells(): DomainSpell[] {
+  /** Tout le pool de sorts de base des domaines choisis (+ combinaisons), trié par niveau puis nom. */
+  get domainSpellPool(): DomainSpell[] {
     return availableSpellsFor(this.model.domains)
-      .filter((s) => s.level <= this.model.level)
-      .sort((a, b) => a.level - b.level);
+      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
   }
 
-  /** Description d'un sort de base choisi dans la liste (pour l'affichage sous la ligne). */
-  spellDescription(spell: Spell): string {
-    return spell.key ? (findDomainSpell(spell.key)?.description ?? '') : '';
+  /** Plafond de sorts équipés = 3 + modificateur d'Intelligence (jamais sous 3). */
+  get equippedCap(): number {
+    return 3 + Math.max(0, abilityModifier(this.finalAttributes.intelligence));
   }
 
-  /** Coût en mana d'un sort de base choisi (null si aucun). */
-  spellMana(spell: Spell): number | null {
-    return spell.key ? (findDomainSpell(spell.key)?.mana ?? null) : null;
+  /* ── Points d'inspiration (débloquer & améliorer) ── */
+
+  /** Points d'inspiration accordés par niveau selon la classe (0 si aucune). */
+  get inspirationPerLevel(): number {
+    return this.selectedClass?.inspirationPerLevel ?? 0;
+  }
+  /** Budget total = points/niveau × niveau. */
+  get inspirationTotal(): number {
+    return this.inspirationPerLevel * this.model.level;
+  }
+  /** Points dépensés = nombre total de nœuds débloqués (1 nœud = 1 point). */
+  get inspirationSpent(): number {
+    return this.model.spells.unlocked.reduce((sum, k) => sum + this.unlockedNodes(k).length, 0);
+  }
+  /** Points disponibles. */
+  get inspirationLeft(): number {
+    return this.inspirationTotal - this.inspirationSpent;
+  }
+
+  /* ── Amélioration par nœuds / choix de branche ── */
+
+  /** Ids des nœuds débloqués d'un sort (inclut la racine si le sort est débloqué). */
+  unlockedNodes(key: string): string[] {
+    return this.model.spells.nodes[key] ?? [];
+  }
+  isNodeUnlocked(key: string, id: string): boolean {
+    return this.unlockedNodes(key).includes(id);
+  }
+
+  /** Nœuds de l'arbre d'un sort, triés par palier puis par nom (pour l'affichage). */
+  spellNodes(key: string): SpellTreeNode[] {
+    return [...(spellTree(key)?.nodes ?? [])].sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
+  }
+  /** Libellé de la branche d'un nœud (`trunk` → « Tronc commun »). */
+  branchLabel(key: string, node: SpellTreeNode): string {
+    if (!node.branch || node.branch === 'trunk') return 'Tronc commun';
+    const b = spellTree(key)?.branches?.find((x) => x.id === node.branch);
+    return b?.label ?? node.branch;
+  }
+
+  /** Parent d'un nœud dans l'arbre (le nœud dont `next` le contient), ou undefined si racine. */
+  private nodeParent(key: string, id: string): string | undefined {
+    return (spellTree(key)?.nodes ?? []).find((n) => (n.next ?? []).includes(id))?.id;
+  }
+  /** La racine est-elle ce nœud ? */
+  isRootNode(key: string, id: string): boolean {
+    return spellTree(key)?.root === id;
+  }
+
+  /** Branches sœurs : les autres enfants du même parent (choix alternatifs à une scission). */
+  private nodeSiblings(key: string, id: string): string[] {
+    const parent = this.nodeParent(key, id);
+    if (!parent) return [];
+    const p = (spellTree(key)?.nodes ?? []).find((n) => n.id === parent);
+    return (p?.next ?? []).filter((c) => c !== id);
+  }
+  /** Une branche sœur a-t-elle déjà été choisie (verrouille ce palier) ? */
+  isBranchExcluded(key: string, id: string): boolean {
+    return !this.isNodeUnlocked(key, id) && this.nodeSiblings(key, id).some((sib) => this.isNodeUnlocked(key, sib));
+  }
+
+  /**
+   * Peut-on débloquer ce palier ? Non déjà pris, parent débloqué (ou racine d'un
+   * sort déjà débloqué), aucune branche sœur déjà choisie, et au moins 1 point
+   * d'inspiration disponible.
+   */
+  canUnlockNode(key: string, id: string): boolean {
+    if (!this.isSpellUnlocked(key) || this.isNodeUnlocked(key, id) || this.inspirationLeft < 1) return false;
+    if (this.isRootNode(key, id)) return true; // la racine vient avec le déblocage
+    const parent = this.nodeParent(key, id);
+    return !!parent && this.isNodeUnlocked(key, parent) && !this.isBranchExcluded(key, id);
+  }
+  unlockNode(key: string, id: string): void {
+    if (this.canUnlockNode(key, id)) this.model.spells.nodes[key] = [...this.unlockedNodes(key), id];
+  }
+
+  /** Un palier débloqué a-t-il un enfant débloqué (empêche son retrait) ? */
+  private nodeHasUnlockedChild(key: string, id: string): boolean {
+    const node = (spellTree(key)?.nodes ?? []).find((n) => n.id === id);
+    return (node?.next ?? []).some((c) => this.isNodeUnlocked(key, c));
+  }
+  /** Peut-on retirer ce palier ? Débloqué, non racine, sans enfant débloqué. */
+  canRemoveNode(key: string, id: string): boolean {
+    return this.isNodeUnlocked(key, id) && !this.isRootNode(key, id) && !this.nodeHasUnlockedChild(key, id);
+  }
+  removeNode(key: string, id: string): void {
+    if (this.canRemoveNode(key, id)) {
+      this.model.spells.nodes[key] = this.unlockedNodes(key).filter((n) => n !== id);
+    }
+  }
+
+  /** Rang affiché = plus haut palier débloqué (indicateur de puissance). */
+  spellRank(key: string): number {
+    const tiers = this.unlockedNodes(key)
+      .map((id) => (spellTree(key)?.nodes ?? []).find((n) => n.id === id)?.tier ?? 1);
+    return tiers.length ? Math.max(...tiers) : 1;
+  }
+
+  /**
+   * Nom du palier courant d'un sort (le nom du nœud débloqué le plus avancé) —
+   * plus reconnaissable que le nom de base. Repli sur le nom du sort si aucun arbre.
+   */
+  spellCurrentName(key: string): string {
+    const tree = spellTree(key);
+    const fallback = findDomainSpell(key)?.name ?? key;
+    if (!tree) return fallback;
+    const unlocked = this.unlockedNodes(key);
+    let best: SpellTreeNode | undefined;
+    for (const n of tree.nodes) {
+      if (unlocked.includes(n.id) && (!best || n.tier > best.tier)) best = n;
+    }
+    return best?.name ?? fallback;
+  }
+  /** Rang maximal = nombre de paliers du sort. */
+  spellMaxRank(key: string): number {
+    return spellMaxTier(key);
+  }
+  /** Le sort a-t-il un arbre d'amélioration (plusieurs paliers) ? */
+  hasSpellTree(key: string): boolean {
+    return this.spellMaxRank(key) > 1;
+  }
+
+  isSpellUnlocked(key: string): boolean {
+    return this.model.spells.unlocked.includes(key);
+  }
+  isSpellEquipped(key: string): boolean {
+    return this.model.spells.equipped.includes(key);
+  }
+
+  /** Prérequis d'un sort encore non débloqués (résolus). */
+  missingPrereqs(spell: DomainSpell): DomainSpell[] {
+    return (spell.requires ?? [])
+      .filter((k) => !this.isSpellUnlocked(k))
+      .map((k) => findDomainSpell(k))
+      .filter((s): s is DomainSpell => !!s);
+  }
+
+  /**
+   * Peut-on débloquer ce sort ? Niveau atteint + prérequis débloqués + pas déjà
+   * appris + au moins 1 point d'inspiration disponible.
+   */
+  canUnlock(spell: DomainSpell): boolean {
+    return (
+      !this.isSpellUnlocked(spell.key) &&
+      spell.level <= this.model.level &&
+      this.missingPrereqs(spell).length === 0 &&
+      this.inspirationLeft >= 1
+    );
+  }
+
+  /** Libellé de la raison de verrouillage (niveau, prérequis ou inspiration). */
+  lockReason(spell: DomainSpell): string {
+    if (spell.level > this.model.level) return `Niveau ${spell.level} requis`;
+    const miss = this.missingPrereqs(spell);
+    if (miss.length) return 'Requiert : ' + miss.map((m) => m.name).join(', ');
+    if (this.inspirationLeft < 1) return "Plus de points d'inspiration";
+    return '';
+  }
+
+  /** Noms des prérequis d'un sort (pour l'affichage). */
+  requiresLabel(spell: DomainSpell): string {
+    return (spell.requires ?? []).map((k) => findDomainSpell(k)?.name ?? k).join(', ');
+  }
+
+  unlockSpell(spell: DomainSpell): void {
+    if (!this.canUnlock(spell)) return;
+    this.model.spells.unlocked.push(spell.key);
+    // Ouvre le nœud racine (= 1 point d'inspiration) ; sans arbre, une racine « fictive ».
+    const root = spellTree(spell.key)?.root ?? '__root__';
+    this.model.spells.nodes[spell.key] = [root];
+  }
+
+  /** Un sort débloqué a-t-il des dépendants débloqués (qui le requièrent) ? */
+  hasUnlockedDependents(key: string): boolean {
+    return this.model.spells.unlocked.some((k) => {
+      const s = findDomainSpell(k);
+      return !!s && (s.requires ?? []).includes(key);
+    });
+  }
+
+  /** Oublie un sort débloqué (rend toute l'inspiration, retire l'équipement) — refusé s'il a des dépendants. */
+  forgetSpell(key: string): void {
+    if (this.hasUnlockedDependents(key)) return;
+    this.model.spells.unlocked = this.model.spells.unlocked.filter((k) => k !== key);
+    this.model.spells.equipped = this.model.spells.equipped.filter((k) => k !== key);
+    delete this.model.spells.nodes[key];
+  }
+
+  /** Équipe / déséquipe un sort débloqué (dans la limite du plafond). */
+  toggleEquip(key: string): void {
+    if (!this.isSpellUnlocked(key)) return;
+    const eq = this.model.spells.equipped;
+    const i = eq.indexOf(key);
+    if (i >= 0) {
+      eq.splice(i, 1);
+    } else if (eq.length < this.equippedCap) {
+      eq.push(key);
+    }
   }
 
   /** Sigils d'un sort de base : un seul pour un domaine, tous les composants pour une combinaison. */
@@ -1049,28 +1319,35 @@ export class CharacterSheetEditor {
     return keys.filter(Boolean).map((k) => this.domainSigil(k)).join(' ');
   }
 
-  /** Sigils à afficher pour un sort de la fiche (combinaison = plusieurs sigils). */
-  spellSigils(spell: Spell): string {
-    const def = spell.key ? findDomainSpell(spell.key) : undefined;
-    if (def) return this.domainSpellSigils(def);
-    return spell.school ? this.domainSigil(spell.school) : '';
+  /** Sorts débloqués résolus, triés par niveau (pour la fiche). */
+  get unlockedSpells(): DomainSpell[] {
+    return this.resolveSpellKeys(this.model.spells.unlocked);
+  }
+  /** Sorts équipés résolus, triés par niveau. */
+  get equippedSpells(): DomainSpell[] {
+    return this.resolveSpellKeys(this.model.spells.equipped);
+  }
+  /** Sorts débloqués mais non équipés (liste secondaire de la fiche). */
+  get unlockedNotEquipped(): DomainSpell[] {
+    return this.unlockedSpells.filter((s) => !this.isSpellEquipped(s.key));
   }
 
-  addSpell(list: Spell[]): void {
-    list.push({ level: 1, name: '', school: this.model.domains[0] ?? '', key: '' });
+  private resolveSpellKeys(keys: string[]): DomainSpell[] {
+    return keys
+      .map((k) => findDomainSpell(k))
+      .filter((s): s is DomainSpell => !!s)
+      .sort((a, b) => a.level - b.level);
   }
 
-  /** Quand un sort de base est choisi, on remplit nom, domaine (école) et niveau automatiquement. */
-  onSpellKeyChange(spell: Spell): void {
-    const def = spell.key ? findDomainSpell(spell.key) : undefined;
-    if (!def) return;
-    spell.name = def.name;
-    spell.school = def.domain ?? def.components?.[0] ?? spell.school;
-    spell.level = def.level;
-  }
-
-  removeSpell(list: Spell[], index: number): void {
-    list.splice(index, 1);
+  /** Retire des sorts débloqués/équipés/rangs ceux qui ne sont plus proposés (domaine retiré). */
+  private pruneSpells(): void {
+    const valid = new Set(availableSpellsFor(this.model.domains).map((s) => s.key));
+    this.model.spells.unlocked = this.model.spells.unlocked.filter((k) => valid.has(k));
+    const stillUnlocked = new Set(this.model.spells.unlocked);
+    this.model.spells.equipped = this.model.spells.equipped.filter((k) => stillUnlocked.has(k));
+    for (const k of Object.keys(this.model.spells.nodes)) {
+      if (!stillUnlocked.has(k)) delete this.model.spells.nodes[k];
+    }
   }
 
   addItem(): void {

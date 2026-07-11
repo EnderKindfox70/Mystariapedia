@@ -33,6 +33,7 @@ export class Navbar {
       label: 'Lore',
       path: '/lore',
       children: [
+        { key: 'peuples', label: 'Peuples', path: '/lore/peuples' },
         { key: 'archives-occultes', label: 'Archives occultes', path: '/lore/archives' },
         { key: 'mythes-fondateurs', label: 'Mythes fondateurs', path: '/lore/mythes' },
         { key: 'personnages', label: 'Personnages', path: '/lore/personnages' },
@@ -56,14 +57,14 @@ export class Navbar {
       label: 'Magie',
       path: '/magics',
       children: [
-        { key: 'règles fondamentales', label: 'Règles fondamentales', path: '/magics', fragment: 'rules' },
         { key: 'eveil', label: 'Don & Eveil', path: '/magics', fragment: 'awakening' },
+        { key: 'mana', label: 'Mana', path: '/magics', fragment: 'mana' },
         { key: 'domaines', label: 'Domaines', path: '/magics', fragment: 'domains', children: [
           {key: 'fire', label: 'Feu', path: '/magics/fire'}
          ]},
-        { key: 'mana', label: 'Mana', path: '/magics', fragment: 'mana' },
-        { key: 'Autre disciplines', label: 'Autre disciplines', path: '/magics', fragment: 'other-disciplines' },
         { key: 'Magie non polarisée', label: 'Magie non polarisée', path: '/magics', fragment: 'non-polarized-magic' },
+        { key: 'règles fondamentales', label: 'Règles fondamentales', path: '/magics', fragment: 'rules' },
+        { key: 'Autre disciplines', label: 'Autre disciplines', path: '/magics', fragment: 'other-disciplines' },
       ],
     },
     {

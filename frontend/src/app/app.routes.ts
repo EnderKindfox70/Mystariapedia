@@ -6,10 +6,15 @@ import { Locations } from './views/locations/locations';
 import { Bestiary } from './views/bestiary/bestiary';
 import { Artifacts } from './views/artifacts/artifacts';
 import { Lore } from './views/lore/lore';
+import { Peoples } from './views/peoples/peoples';
+import { PeopleEntryComponent } from './views/peoples-entries/peoples-entries';
+import { peopleResolver } from './resolvers/people.resolver';
 import { Factions } from './views/factions/factions';
 import { Entities } from './entities/entities';
 import { Alchemy } from './views/alchemy/alchemy';
 import { DomainEntryComponent } from './views/domains-entries/domains-entries';
+import { SpellEntryComponent } from './views/spells-entries/spells-entries';
+import { MagicConstellation } from './views/magic-constellation/magic-constellation';
 import { Objects } from './views/objects/objects';
 import { Weapons } from './views/weapons/weapons';
 import { WeaponEntryComponent } from './views/weapons-entries/weapons-entries';
@@ -31,7 +36,11 @@ export const routes: Routes =
     { path: '', component: Home },
     { path: 'home', component: Home },
     { path: 'lore', component: Lore },
+    { path: 'lore/peuples', component: Peoples },
+    { path: 'lore/peuples/:slug', component: PeopleEntryComponent, resolve: { entry: peopleResolver } },
     { path: 'magics', component: Magics },
+    { path: 'magics/constellation', component: MagicConstellation },
+    { path: 'magics/spell/:spell', component: SpellEntryComponent },
     { path: 'magics/:domain', component: DomainEntryComponent, resolve: { entry: domainResolver } },
     { path: 'objects', component: Objects },
     { path: 'resources', component: NaturalResources },

@@ -1,10 +1,7 @@
 [
     {
         "name": "Lave",
-        "components": [
-            "fire",
-            "earth"
-        ],
+        "components": ["fire", "earth"],
         "spells": [
             {
                 "key": "combo-coulee-de-lave",
@@ -12,18 +9,22 @@
                 "description": "Fait fondre la roche en un torrent de lave incandescente qui engloutit le terrain.",
                 "mana": 6,
                 "level": 4,
-                "subdomains": [
-                    "Lave"
-                ]
+                "subdomains": ["Lave"],
+                "requires": ["fire-fireball", "earth-tremblement"],
+                "progression": {
+                    "root": "la1",
+                    "nodes": [
+                        { "id": "la1", "tier": 1, "branch": "trunk", "name": "Coulée de lave I", "description": "La roche fond en un torrent de lave qui embrase une zone.", "next": ["la2"], "stats": { "damageMin": 10, "damageMax": 16, "mana": 6, "range": "14 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] } },
+                        { "id": "la2", "tier": 2, "branch": "trunk", "name": "Coulée de lave II", "description": "La coulée s'épaissit et engloutit un plus large terrain.", "next": ["la3"], "stats": { "damageMin": 16, "damageMax": 24, "mana": 8, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] } },
+                        { "id": "la3", "tier": 3, "branch": "trunk", "name": "Coulée de lave III", "description": "Un fleuve de lave qui brûle et fige les créatures dans la roche en fusion.", "stats": { "damageMin": 24, "damageMax": 34, "mana": 11, "range": "16 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 80 }, { "status": "enracinement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 1.0 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Sécheresse",
-        "components": [
-            "fire",
-            "air"
-        ],
+        "components": ["fire", "air"],
         "spells": [
             {
                 "key": "combo-aridite",
@@ -31,18 +32,23 @@
                 "description": "Assèche l'air et le sol d'une zone, asséchant les sources et flétrissant toute vie.",
                 "mana": 5,
                 "level": 3,
-                "subdomains": [
-                    "Sécheresse"
-                ]
+                "subdomains": ["Sécheresse"],
+                "weather": "drought",
+                "requires": ["fire-vague-de-chaleur", "air-caprice-du-ciel"],
+                "progression": {
+                    "root": "ar1",
+                    "nodes": [
+                        { "id": "ar1", "tier": 1, "branch": "trunk", "name": "Aridité I", "description": "L'air et le sol s'assèchent, épuisant les créatures de la zone.", "next": ["ar2"], "stats": { "mana": 8, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"] } },
+                        { "id": "ar2", "tier": 2, "branch": "trunk", "name": "Aridité II", "description": "La sécheresse s'étend et flétrit davantage la vie alentour.", "next": ["ar3"], "stats": { "mana": 6, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
+                        { "id": "ar3", "tier": 3, "branch": "trunk", "name": "Aridité III", "description": "Une aridité mortelle qui tarit les sources et épuise tout un secteur.", "stats": { "mana": 5, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Boue",
-        "components": [
-            "water",
-            "earth"
-        ],
+        "components": ["water", "earth"],
         "spells": [
             {
                 "key": "combo-enlisement",
@@ -50,18 +56,23 @@
                 "description": "Transforme le sol en boue mouvante qui happe et immobilise les créatures.",
                 "mana": 5,
                 "level": 3,
-                "subdomains": [
-                    "Boue"
-                ]
+                "subdomains": ["Boue"],
+                "damageType": "earth",
+                "requires": ["water-manipulation-aquatique", "earth-mur-de-pierre"],
+                "progression": {
+                    "root": "en1",
+                    "nodes": [
+                        { "id": "en1", "tier": 1, "branch": "trunk", "name": "Enlisement I", "description": "Le sol se change en boue mouvante qui happe les créatures.", "next": ["en2"], "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "14 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] } },
+                        { "id": "en2", "tier": 2, "branch": "trunk", "name": "Enlisement II", "description": "La fange s'épaissit et retient plus fermement ses proies.", "next": ["en3"], "stats": { "damageMin": 6, "damageMax": 10, "mana": 6, "range": "14 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] } },
+                        { "id": "en3", "tier": 3, "branch": "trunk", "name": "Enlisement III", "description": "Un marécage traître qui engloutit et cloue tout un groupe au sol.", "stats": { "damageMin": 9, "damageMax": 14, "mana": 7, "range": "16 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 85 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Pluie",
-        "components": [
-            "water",
-            "air"
-        ],
+        "components": ["water", "air"],
         "spells": [
             {
                 "key": "combo-averse",
@@ -69,18 +80,23 @@
                 "description": "Invoque une pluie battante qui réduit la visibilité et éteint les flammes.",
                 "mana": 4,
                 "level": 2,
-                "subdomains": [
-                    "Pluie"
-                ]
+                "subdomains": ["Pluie"],
+                "weather": "rain",
+                "requires": ["water-manipulation-aquatique", "air-caprice-du-ciel"],
+                "progression": {
+                    "root": "pl1",
+                    "nodes": [
+                        { "id": "pl1", "tier": 1, "branch": "trunk", "name": "Averse I", "description": "Une pluie battante qui réduit la visibilité et éteint les flammes.", "next": ["pl2"], "stats": { "mana": 6, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
+                        { "id": "pl2", "tier": 2, "branch": "trunk", "name": "Averse II", "description": "L'ondée redouble et noie le champ de vision.", "next": ["pl3"], "stats": { "mana": 5, "range": "20 m", "area": "Rayon 7 m", "targets": ["enemy"] } },
+                        { "id": "pl3", "tier": 3, "branch": "trunk", "name": "Averse III", "description": "Un déluge aveuglant qui noie tout un secteur sous des trombes d'eau.", "stats": { "mana": 4, "range": "22 m", "area": "Rayon 9 m", "targets": ["enemy"] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Neige & blizzard",
-        "components": [
-            "water",
-            "air"
-        ],
+        "components": ["water", "air"],
         "spells": [
             {
                 "key": "combo-blizzard",
@@ -88,19 +104,24 @@
                 "description": "Déchaîne une tempête de neige glaciale qui gèle et aveugle tout sur son passage.",
                 "mana": 5,
                 "level": 4,
-                "subdomains": [
-                    "Neige & blizzard"
-                ]
+                "subdomains": ["Neige & blizzard"],
+                "weather": "blizzard",
+                "damageType": "ice",
+                "requires": ["water-prison-de-glace", "air-caprice-du-ciel"],
+                "progression": {
+                    "root": "bz1",
+                    "nodes": [
+                        { "id": "bz1", "tier": 1, "branch": "trunk", "name": "Blizzard I", "description": "Une tempête de neige glaciale qui gèle et aveugle une zone.", "next": ["bz2"], "stats": { "mana": 10, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"] } },
+                        { "id": "bz2", "tier": 2, "branch": "trunk", "name": "Blizzard II", "description": "Les rafales glacées s'intensifient et mordent plus fort.", "next": ["bz3"], "stats": { "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
+                        { "id": "bz3", "tier": 3, "branch": "trunk", "name": "Blizzard III", "description": "Un blizzard total qui fige et aveugle tout un champ de bataille.", "stats": { "mana": 6, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Tempête",
-        "components": [
-            "water",
-            "air",
-            "electricity"
-        ],
+        "components": ["water", "air", "electricity"],
         "spells": [
             {
                 "key": "combo-tempete-dechainee",
@@ -108,18 +129,24 @@
                 "description": "Conjugue pluie, vent et foudre en une tempête dévastatrice frappant une vaste zone.",
                 "mana": 8,
                 "level": 6,
-                "subdomains": [
-                    "Tempête"
-                ]
+                "subdomains": ["Tempête"],
+                "weather": "storm",
+                "damageType": "lightning",
+                "requires": ["water-appel-des-marees", "air-caprice-du-ciel", "electricity-eclair"],
+                "progression": {
+                    "root": "te1",
+                    "nodes": [
+                        { "id": "te1", "tier": 1, "branch": "trunk", "name": "Tempête déchaînée I", "description": "Pluie, vent et foudre s'unissent en une tempête qui ravage une zone.", "next": ["te2"], "stats": { "mana": 15, "range": "20 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
+                        { "id": "te2", "tier": 2, "branch": "trunk", "name": "Tempête déchaînée II", "description": "La tempête enfle : éclairs plus nombreux, vents plus furieux.", "next": ["te3"], "stats": { "mana": 11, "range": "22 m", "area": "Rayon 7 m", "targets": ["enemy"] } },
+                        { "id": "te3", "tier": 3, "branch": "trunk", "name": "Tempête déchaînée III", "description": "Un ouragan foudroyant qui pulvérise et paralyse tout un champ de bataille.", "stats": { "mana": 9, "range": "24 m", "area": "Rayon 9 m", "targets": ["enemy"] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Abysse",
-        "components": [
-            "water",
-            "darkness"
-        ],
+        "components": ["water", "darkness"],
         "spells": [
             {
                 "key": "combo-etreinte-abyssale",
@@ -127,18 +154,22 @@
                 "description": "Convoque les ténèbres des profondeurs marines pour engloutir et écraser la cible.",
                 "mana": 6,
                 "level": 5,
-                "subdomains": [
-                    "Abysse"
-                ]
+                "subdomains": ["Abysse"],
+                "requires": ["water-appel-des-marees", "darkness-decharge-ombre"],
+                "progression": {
+                    "root": "ay1",
+                    "nodes": [
+                        { "id": "ay1", "tier": 1, "branch": "trunk", "name": "Étreinte abyssale I", "description": "Les ténèbres des profondeurs enserrent et écrasent la cible.", "next": ["ay2"], "stats": { "damageMin": 12, "damageMax": 18, "mana": 6, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "peur", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.7 }] } },
+                        { "id": "ay2", "tier": 2, "branch": "trunk", "name": "Étreinte abyssale II", "description": "L'abîme resserre son emprise et distille une terreur glacée.", "next": ["ay3"], "stats": { "damageMin": 18, "damageMax": 26, "mana": 8, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "peur", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] } },
+                        { "id": "ay3", "tier": 3, "branch": "trunk", "name": "Étreinte abyssale III", "description": "Un gouffre d'ombre liquide qui engloutit et terrifie plusieurs proies.", "stats": { "damageMin": 26, "damageMax": 36, "mana": 11, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "peur", "chance": 70 }, { "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 1.1 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Pesanteur",
-        "components": [
-            "earth",
-            "space"
-        ],
+        "components": ["earth", "space"],
         "spells": [
             {
                 "key": "combo-ecrasement-gravitationnel",
@@ -146,18 +177,22 @@
                 "description": "Concentre une pesanteur titanesque en un point pour broyer ce qui s'y trouve.",
                 "mana": 7,
                 "level": 6,
-                "subdomains": [
-                    "Pesanteur"
-                ]
+                "subdomains": ["Pesanteur"],
+                "requires": ["earth-tremblement", "space-distorsion-gravitationnelle"],
+                "progression": {
+                    "root": "pe1",
+                    "nodes": [
+                        { "id": "pe1", "tier": 1, "branch": "trunk", "name": "Écrasement gravitationnel I", "description": "Une pesanteur titanesque broie et cloue au sol ce qui s'y trouve.", "next": ["pe2"], "stats": { "damageMin": 16, "damageMax": 24, "mana": 7, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] } },
+                        { "id": "pe2", "tier": 2, "branch": "trunk", "name": "Écrasement gravitationnel II", "description": "La gravité s'intensifie et écrase une plus large zone.", "next": ["pe3"], "stats": { "damageMin": 26, "damageMax": 38, "mana": 10, "range": "18 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 1.1 }] } },
+                        { "id": "pe3", "tier": 3, "branch": "trunk", "name": "Écrasement gravitationnel III", "description": "Un puits de gravité qui broie et plaque tout un secteur au sol.", "stats": { "damageMin": 40, "damageMax": 56, "mana": 14, "range": "20 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 85 }], "scaling": [{ "source": "atk_mag", "ratio": 1.5 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Équilibre",
-        "components": [
-            "light",
-            "darkness"
-        ],
+        "components": ["light", "darkness"],
         "spells": [
             {
                 "key": "combo-equilibre-du-crepuscule",
@@ -165,18 +200,22 @@
                 "description": "Harmonise lumière et ombre pour neutraliser les magies adverses et stabiliser les énergies.",
                 "mana": 6,
                 "level": 5,
-                "subdomains": [
-                    "Équilibre"
-                ]
+                "subdomains": ["Équilibre"],
+                "requires": ["light-trait-de-lumiere", "darkness-decharge-ombre"],
+                "progression": {
+                    "root": "eq1",
+                    "nodes": [
+                        { "id": "eq1", "tier": 1, "branch": "trunk", "name": "Équilibre du crépuscule I", "description": "Lumière et ombre s'annulent, étouffant les magies d'une zone.", "next": ["eq2"], "stats": { "mana": 6, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 50 }] } },
+                        { "id": "eq2", "tier": 2, "branch": "trunk", "name": "Équilibre du crépuscule II", "description": "L'harmonie crépusculaire s'étend et neutralise plus sûrement les sorts.", "next": ["eq3"], "stats": { "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 65 }] } },
+                        { "id": "eq3", "tier": 3, "branch": "trunk", "name": "Équilibre du crépuscule III", "description": "Un équilibre parfait qui éteint toute magie sur un vaste secteur.", "stats": { "mana": 11, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 80 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Siphonnage vital",
-        "components": [
-            "life",
-            "death"
-        ],
+        "components": ["life", "death"],
         "spells": [
             {
                 "key": "combo-siphon-vital",
@@ -184,18 +223,22 @@
                 "description": "Draine la force vitale d'une cible pour soigner le lanceur d'autant de vigueur.",
                 "mana": 6,
                 "level": 5,
-                "subdomains": [
-                    "Siphonnage vital"
-                ]
+                "subdomains": ["Siphonnage vital"],
+                "requires": ["life-soin-vital", "death-toucher-necrotique"],
+                "progression": {
+                    "root": "sv1",
+                    "nodes": [
+                        { "id": "sv1", "tier": 1, "branch": "trunk", "name": "Siphon vital I", "description": "Draine la force vitale de la cible au profit du lanceur.", "next": ["sv2"], "stats": { "damageMin": 8, "damageMax": 13, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 40 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] } },
+                        { "id": "sv2", "tier": 2, "branch": "trunk", "name": "Siphon vital II", "description": "Le drain s'intensifie et vide plus vite la vigueur de la proie.", "next": ["sv3"], "stats": { "damageMin": 13, "damageMax": 19, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 50 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.7 }] } },
+                        { "id": "sv3", "tier": 3, "branch": "trunk", "name": "Siphon vital III", "description": "Une saignée vitale qui laisse la cible exsangue et ravigore le lanceur.", "stats": { "damageMin": 19, "damageMax": 28, "mana": 10, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 60 }], "effects": [{ "stat": "force", "value": 4, "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Eclipse",
-        "components": [
-            "light",
-            "darkness"
-        ],
+        "components": ["light", "darkness"],
         "spells": [
             {
                 "key": "combo-eclipse",
@@ -203,18 +246,22 @@
                 "description": "Voile une zone d'une ombre absolue percée d'éclats de lumière, troublant les sens de tous.",
                 "mana": 6,
                 "level": 5,
-                "subdomains": [
-                    "Eclipse"
-                ]
+                "subdomains": ["Eclipse"],
+                "requires": ["light-lumiere-revelatrice", "darkness-dark-mist"],
+                "progression": {
+                    "root": "ec1",
+                    "nodes": [
+                        { "id": "ec1", "tier": 1, "branch": "trunk", "name": "Éclipse I", "description": "Une ombre percée d'éclats aveuglants qui trouble les sens d'une zone.", "next": ["ec2"], "stats": { "damages": [{ "min": 4, "max": 6, "type": "light", "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }, { "min": 4, "max": 7, "type": "dark", "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }], "mana": 6, "range": "18 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 50 }, { "status": "confusion", "chance": 25 }] } },
+                        { "id": "ec2", "tier": 2, "branch": "trunk", "name": "Éclipse II", "description": "L'éclipse s'étend et désoriente plus profondément les esprits.", "next": ["ec3"], "stats": { "damages": [{ "min": 6, "max": 9, "type": "light", "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }, { "min": 7, "max": 10, "type": "dark", "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }], "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 65 }, { "status": "confusion", "chance": 35 }] } },
+                        { "id": "ec3", "tier": 3, "branch": "trunk", "name": "Éclipse III", "description": "Une nuit percée de lumière qui aveugle et égare tout un secteur.", "stats": { "damages": [{ "min": 9, "max": 14, "type": "light", "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }, { "min": 10, "max": 14, "type": "dark", "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }], "mana": 10, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 80 }, { "status": "confusion", "chance": 45 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Doppelganger",
-        "components": [
-            "life",
-            "darkness"
-        ],
+        "components": ["life", "darkness"],
         "spells": [
             {
                 "key": "combo-doppelganger",
@@ -222,18 +269,22 @@
                 "description": "Tisse à partir d'ombre et de vie un double éphémère du lanceur ou d'une créature.",
                 "mana": 7,
                 "level": 6,
-                "subdomains": [
-                    "Doppelganger"
-                ]
+                "subdomains": ["Doppelganger"],
+                "requires": ["life-regeneration-de-la-chair", "darkness-manteau-d-ombre"],
+                "progression": {
+                    "root": "dg1",
+                    "nodes": [
+                        { "id": "dg1", "tier": 1, "branch": "trunk", "name": "Doppelgänger I", "description": "Un double d'ombre et de vie qui attire sur lui les coups destinés au lanceur.", "next": ["dg2"], "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_phy", "value": 2, "scaling": [{ "source": "charisme", "ratio": 0.3 }] }] } },
+                        { "id": "dg2", "tier": 2, "branch": "trunk", "name": "Doppelgänger II", "description": "Le double gagne en consistance et détourne plus sûrement les attaques.", "next": ["dg3"], "stats": { "mana": 9, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_phy", "value": 3, "scaling": [{ "source": "charisme", "ratio": 0.4 }] }] } },
+                        { "id": "dg3", "tier": 3, "branch": "trunk", "name": "Doppelgänger III", "description": "Un double presque parfait qui trompe l'ennemi et couvre la fuite du lanceur.", "stats": { "mana": 12, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_phy", "value": 4, "scaling": [{ "source": "charisme", "ratio": 0.5 }] }, { "stat": "speed", "value": 1, "scaling": [{ "source": "charisme", "ratio": 0.2 }] }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Combustion de force vitale",
-        "components": [
-            "life",
-            "fire"
-        ],
+        "components": ["life", "fire"],
         "spells": [
             {
                 "key": "combo-combustion-vitale",
@@ -241,18 +292,22 @@
                 "description": "Consume la force vitale du lanceur pour décupler la puissance d'un brasier dévastateur.",
                 "mana": 7,
                 "level": 6,
-                "subdomains": [
-                    "Combustion de force vitale"
-                ]
+                "subdomains": ["Combustion de force vitale"],
+                "requires": ["life-etincelle-vitale", "fire-inferno"],
+                "progression": {
+                    "root": "cv1",
+                    "nodes": [
+                        { "id": "cv1", "tier": 1, "branch": "trunk", "name": "Combustion vitale I", "description": "Le lanceur consume sa propre vitalité pour attiser un brasier dévastateur.", "next": ["cv2"], "stats": { "damageMin": 20, "damageMax": 30, "mana": 7, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 60 }], "recoil": { "damageMin": 6, "damageMax": 10, "note": "vitalité consumée" }, "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] } },
+                        { "id": "cv2", "tier": 2, "branch": "trunk", "name": "Combustion vitale II", "description": "Plus de vie brûlée, plus de flammes — au prix du sang du lanceur.", "next": ["cv3"], "stats": { "damageMin": 32, "damageMax": 46, "mana": 10, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 75 }], "recoil": { "damageMin": 10, "damageMax": 16, "note": "vitalité consumée" }, "scaling": [{ "source": "atk_mag", "ratio": 1.2 }] } },
+                        { "id": "cv3", "tier": 3, "branch": "trunk", "name": "Combustion vitale III", "description": "Un holocauste qui immole la force vitale du lanceur en un brasier titanesque.", "stats": { "damageMin": 48, "damageMax": 68, "mana": 14, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 90 }], "recoil": { "damageMin": 16, "damageMax": 24, "note": "vitalité consumée" }, "scaling": [{ "source": "atk_mag", "ratio": 1.6 }] } }
+                    ]
+                }
             }
         ]
     },
     {
         "name": "Hellfire",
-        "components": [
-            "fire",
-            "death"
-        ],
+        "components": ["fire", "death"],
         "spells": [
             {
                 "key": "combo-feu-infernal",
@@ -260,9 +315,16 @@
                 "description": "Embrase une flamme morbide qui brûle la chair comme l'âme et n'épargne aucun mort-vivant.",
                 "mana": 7,
                 "level": 6,
-                "subdomains": [
-                    "Hellfire"
-                ]
+                "subdomains": ["Hellfire"],
+                "requires": ["fire-fireball", "death-toucher-necrotique"],
+                "progression": {
+                    "root": "hf1",
+                    "nodes": [
+                        { "id": "hf1", "tier": 1, "branch": "trunk", "name": "Feu infernal I", "description": "Une flamme morbide qui brûle la chair comme l'âme et sème l'effroi.", "next": ["hf2"], "stats": { "damageMin": 18, "damageMax": 26, "mana": 7, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 60 }, { "status": "peur", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] } },
+                        { "id": "hf2", "tier": 2, "branch": "trunk", "name": "Feu infernal II", "description": "Le feu infernal enfle et consume plus avidement chair et esprit.", "next": ["hf3"], "stats": { "damageMin": 28, "damageMax": 40, "mana": 10, "range": "18 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 75 }, { "status": "peur", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 1.2 }] } },
+                        { "id": "hf3", "tier": 3, "branch": "trunk", "name": "Feu infernal III", "description": "Un brasier damné qui calcine les corps et terrifie jusqu'aux âmes.", "stats": { "damageMin": 42, "damageMax": 60, "mana": 14, "range": "20 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 90 }, { "status": "peur", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 1.6 }] } }
+                    ]
+                }
             }
         ]
     },
@@ -273,25 +335,36 @@
             {
                 "key": "combo-combustion-spontanee",
                 "name": "Combustion spontanée",
-                "description": "Teleporte des flammes directement sur l'adversaire en ne prenant même pas en compte la defense magique",
+                "description": "Téléporte des flammes directement sur l'adversaire sans même tenir compte de la défense magique.",
                 "mana": 5,
                 "level": 4,
-                "subdomains": [
-                    "Combustion",
-                    "Portail & teleportation"
-                ]
-
+                "subdomains": ["Combustion", "Portail & teleportation"],
+                "requires": ["fire-embers", "space-pas-dimensionnel"],
+                "progression": {
+                    "root": "cs1",
+                    "nodes": [
+                        { "id": "cs1", "tier": 1, "branch": "trunk", "name": "Combustion spontanée I", "description": "Des flammes surgissent au cœur de la cible, ignorant toute défense.", "next": ["cs2"], "stats": { "damagePercentMaxHp": { "min": 6, "max": 9 }, "mana": 15, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] } },
+                        { "id": "cs2", "tier": 2, "branch": "trunk", "name": "Combustion spontanée II", "description": "L'embrasement interne s'intensifie et consume une plus grande part.", "next": ["cs3"], "stats": { "damagePercentMaxHp": { "min": 8, "max": 16 }, "mana": 21, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.15 }] } },
+                        { "id": "cs3", "tier": 3, "branch": "trunk", "name": "Combustion spontanée III", "description": "Une combustion interne foudroyante qui ronge la cible de l'intérieur.", "stats": { "damagePercentMaxHp": { "min": 18, "max": 25 }, "mana": 28, "range": "20 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] } }
+                    ]
+                }
             },
             {
                 "key": "combo-evasion-enflammee",
-                "name": "Evasion enflamée",
-                "description": "Permet de se teleporter tout en s'entourant de flamme pendant le",
+                "name": "Évasion enflammée",
+                "description": "Permet de se téléporter tout en s'entourant d'un brasier qui brûle les poursuivants.",
                 "mana": 5,
                 "level": 4,
-                "subdomains": [
-                    "Combustion",
-                    "Portail & teleportation"
-                ]
+                "subdomains": ["Combustion", "Portail & teleportation"],
+                "requires": ["fire-embers", "space-pas-dimensionnel"],
+                "progression": {
+                    "root": "ef1",
+                    "nodes": [
+                        { "id": "ef1", "tier": 1, "branch": "trunk", "name": "Évasion enflammée I", "description": "Le lanceur se téléporte en laissant un brasier qui brûle ses poursuivants.", "next": ["ef2"], "stats": { "damageMin": 8, "damageMax": 13, "mana": 5, "range": "Autour de soi", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] } },
+                        { "id": "ef2", "tier": 2, "branch": "trunk", "name": "Évasion enflammée II", "description": "Le brasier de départ s'élargit et mord plus fort ceux qui s'approchent.", "next": ["ef3"], "stats": { "damageMin": 13, "damageMax": 19, "mana": 6, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] } },
+                        { "id": "ef3", "tier": 3, "branch": "trunk", "name": "Évasion enflammée III", "description": "Une fuite fulgurante laissant derrière soi une déflagration ardente.", "stats": { "damageMin": 19, "damageMax": 28, "mana": 8, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.7 }] } }
+                    ]
+                }
             }
         ]
     }

@@ -1,0 +1,29 @@
+{
+    "name": "Hommes-bêtes",
+    "subtitle": "Les peuples des terres sauvages",
+    "quote": "La cité vous apprend des lois. La terre nous apprend à vivre.",
+    "description": [
+        "Les hommes-bêtes ne forment pas un peuple unique mais un ensemble de tribus, présentant des variations importantes selon les lignées et les environnements. Leurs affinités magiques semblent plus directement liées à leur milieu immédiat que celles des autres races.",
+        "Les tribus du Royaume Abandonné montrent des affinités pour la Terre et le Feu ; les tribus marines de l'Archipel penchent vers l'Eau et l'Air. Peuples pragmatiques, ils s'éveillent le plus souvent dans le feu de la situation limite, et transmettent leur magie par tradition orale plutôt que par théorie."
+    ],
+    "info": [
+        { "key": "type", "label": "Espérance de vie", "value": "50 à 80 ans" },
+        { "label": "Taille moyenne", "value": "1,60 – 2,10 m (selon lignée)" },
+        { "key": "habitat", "label": "Territoire", "value": "Royaume Abandonné, Archipel" },
+        { "label": "Société", "value": "Tribus" }
+    ],
+    "traits": [
+        { "name": "Héritage bestial", "description": "Traits animaux variables selon la lignée (crocs, griffes, pelage, ouïe fine…). Chaque tribu porte l'empreinte d'une bête différente." },
+        { "name": "Instinct de survie", "description": "Sens aiguisés, endurance et réflexes forgés par les terres sauvages. Perçoivent le danger avant qu'il ne se montre." },
+        { "name": "Magie de l'environnement", "description": "Leur affinité épouse leur territoire : la Terre et le Feu pour les tribus continentales, l'Eau et l'Air pour les tribus marines." }
+    ],
+    "affinities": [
+        { "domain": "earth", "note": "22 % — tribus continentales du Royaume Abandonné." },
+        { "domain": "fire", "note": "18 % — tribus continentales du Royaume Abandonné." },
+        { "domain": "water", "note": "17 % — tribus marines de l'Archipel." },
+        { "domain": "air", "note": "15 % — tribus marines de l'Archipel." }
+    ],
+    "notes": [
+        "L'aspect jeu (attributs, sous-races par lignée : aviaire, canin, félin, reptilien, stats de départ) provient de characters/races.json."
+    ]
+}

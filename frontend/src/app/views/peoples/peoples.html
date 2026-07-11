@@ -1,0 +1,49 @@
+<div class="layout">
+    <navbar></navbar>
+    <main id="index" class="paper-surface peoples-paper">
+        <section class="peoples-hero" aria-labelledby="peoples-title">
+            <div class="peoples-hero__content">
+                <span class="peoples-hero__kicker">Codex Mystaria — Lore</span>
+                <h1 id="peoples-title">Peuples</h1>
+                <div class="peoples-hero__rule" aria-hidden="true"></div>
+                <p>Le monde ne s'est pas peuplé d'une seule voix. Là où les dieux ont laissé leurs empreintes, la vie
+                    a répondu de mille manières — et chaque peuple de Mystaria porte la marque du lieu, du temps et de
+                    l'histoire qui l'ont façonné. Comprendre un peuple, c'est comprendre ce que le monde a imprimé en lui.</p>
+            </div>
+        </section>
+
+        <blockquote>« On ne choisit pas d'où l'on vient. On choisit ce qu'on en fait. »</blockquote>
+
+        <section id="apercu">
+            <div class="section-heading">
+                <h2><span>I</span> - Origines & diversité</h2>
+            </div>
+            <p>L'affinité magique, la longévité, la constitution même d'un individu ne sont jamais distribuées au
+                hasard : elles dépendent du peuple autant que du lieu de naissance. Les théoriciens du Royaume de la
+                Lumière ont tenté d'établir des tables par race — travaux incomplets et contestés, car les peuples sont
+                rarement « purs » dans leurs origines, mais qui restent la référence la plus rigoureuse à ce jour.</p>
+            <p>Ce qui suit n'est pas une hiérarchie. Aucun peuple n'est supérieur à un autre — chacun est une réponse
+                différente à la même question : comment vivre dans un monde que les dieux ont quitté.</p>
+        </section>
+
+        <section id="peuples" class="peoples-section">
+            <div class="section-heading">
+                <h2><span>II</span> - Les peuples de Mystaria</h2>
+            </div>
+            <p>Chaque peuple possède sa page dédiée : son histoire, ses traits et le détail de son fonctionnement en
+                jeu (affinités magiques, aptitudes, modificateurs). Choisissez un peuple pour en explorer la fiche
+                complète.</p>
+
+            <div class="peoples-grid" aria-label="Les peuples de Mystaria">
+                @for (p of peoples; track p.slug) {
+                    <a class="people-card" [style.--people-color]="p.color" [routerLink]="'/lore/peuples/' + p.slug">
+                        <div class="people-sigil" aria-hidden="true">{{ p.sigil }}</div>
+                        <h3>{{ p.label }}</h3>
+                        <p>{{ p.tagline }}</p>
+                        <span class="people-card__cta">Consulter la fiche →</span>
+                    </a>
+                }
+            </div>
+        </section>
+    </main>
+</div>

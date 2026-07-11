@@ -1,0 +1,28 @@
+{
+    "name": "Nains",
+    "subtitle": "Les bâtisseurs des profondeurs",
+    "quote": "La surface change à chaque saison. La roche, elle, se souvient.",
+    "description": [
+        "Les nains ont passé des millénaires dans les profondeurs, au contact des fréquences géologiques et des accumulations minérales des États Souterrains. Cette histoire a façonné leur corps, leur culture et leur magie.",
+        "Peuple d'artisans et d'ingénieurs, ils ont résolu le problème de la magie en l'externalisant : les éclats primordiaux qui abondent sous terre alimentent leurs outils, leurs armes et leurs infrastructures. La magie personnelle s'est en partie perdue chez eux, remplacée par une maîtrise technique sans égale."
+    ],
+    "info": [
+        { "key": "type", "label": "Espérance de vie", "value": "200 à 350 ans" },
+        { "label": "Taille moyenne", "value": "1,30 – 1,55 m" },
+        { "key": "habitat", "label": "Territoire", "value": "États Souterrains" },
+        { "label": "Société", "value": "Guildes artisanales" }
+    ],
+    "traits": [
+        { "name": "Vision des ténèbres", "description": "Générations passées sous terre : les nains voient dans l'obscurité presque totale et s'orientent au toucher des vibrations de la roche." },
+        { "name": "Constitution minérale", "description": "Corps dense et endurant, résistance naturelle à la fatigue physique, au poison et aux environnements hostiles." },
+        { "name": "Maîtrise des éclats", "description": "Savoir-faire ancestral du montage et de la gravure d'éclats primordiaux : un nain tire d'un objet magique un rendement qu'aucun néophyte n'égale." }
+    ],
+    "affinities": [
+        { "domain": "earth", "note": "26 % — affinité dominante, millénaires au contact des fréquences géologiques." },
+        { "domain": "electricity", "note": "20 % — liée aux accumulations minérales des profondeurs." },
+        { "domain": "fire", "note": "11 % — forges et veines volcaniques souterraines." }
+    ],
+    "notes": [
+        "L'aspect jeu (attributs, sous-races, traits chiffrés, stats de départ) provient de characters/races.json."
+    ]
+}

@@ -1,0 +1,136 @@
+{
+    "weathers": [
+        {
+            "id": 1,
+            "key": "storm",
+            "name": "Tempête",
+            "icon": "",
+            "description": "Un déluge électrique et venteux qui trempe le champ de bataille.",
+            "appliesStatus": ["wet"],
+            "randomDamage": { "type": "lightning", "min": 3, "max": 6, "chance": 25 },
+            "costModifiers": [ { "domain": "water", "factor": 0.5 } ],
+            "damageModifiers": [],
+            "defaultDuration": 3
+        },
+        {
+            "id": 2,
+            "key": "blizzard",
+            "name": "Blizzard",
+            "icon": "",
+            "description": "Une tempête de neige glaciale qui aveugle et gèle la zone.",
+            "appliesStatus": ["aveuglement"],
+            "randomDamage": { "type": "ice", "min": 3, "max": 6, "chance": 25 },
+            "costModifiers": [ { "domain": "water", "factor": 0.5 } ],
+            "damageModifiers": [],
+            "defaultDuration": 3
+        },
+        {
+            "id": 3,
+            "key": "rain",
+            "name": "Pluie",
+            "icon": "",
+            "description": "Une pluie battante qui trempe tout et étouffe les flammes.",
+            "appliesStatus": ["wet"],
+            "randomDamage": null,
+            "costModifiers": [ { "domain": "water", "factor": 0.75 }, { "domain": "fire", "factor": 1.5 } ],
+            "damageModifiers": [],
+            "defaultDuration": 4
+        },
+        {
+            "id": 4,
+            "key": "drought",
+            "name": "Sécheresse",
+            "icon": "",
+            "description": "Un air brûlant et aride qui dessèche les créatures et attise les flammes.",
+            "appliesStatus": ["affaiblissement"],
+            "randomDamage": null,
+            "costModifiers": [],
+            "damageModifiers": [ { "domain": "fire", "factor": 1.5 }, { "domain": "water", "factor": 0.5 } ],
+            "defaultDuration": 4
+        },
+        {
+            "id": 5,
+            "key": "heatwave",
+            "name": "Canicule",
+            "icon": "",
+            "description": "Une chaleur accablante qui épuise les créatures et exacerbe le feu.",
+            "appliesStatus": ["affaiblissement"],
+            "randomDamage": { "type": "fire", "min": 2, "max": 4, "chance": 20 },
+            "costModifiers": [],
+            "damageModifiers": [ { "domain": "fire", "factor": 1.3 } ],
+            "defaultDuration": 4
+        },
+        {
+            "id": 6,
+            "key": "fog",
+            "name": "Brouillard",
+            "icon": "",
+            "description": "Une brume épaisse qui masque la vue et brouille les repères.",
+            "appliesStatus": ["aveuglement"],
+            "randomDamage": null,
+            "costModifiers": [],
+            "damageModifiers": [],
+            "defaultDuration": 4
+        },
+        {
+            "id": 7,
+            "key": "gale",
+            "name": "Vents violents",
+            "icon": "",
+            "description": "Des bourrasques déchaînées qui portent les sorts d'air et déstabilisent tout.",
+            "appliesStatus": [],
+            "randomDamage": null,
+            "costModifiers": [],
+            "damageModifiers": [ { "domain": "air", "factor": 1.4 } ],
+            "defaultDuration": 3
+        },
+        {
+            "id": 8,
+            "key": "magical-night",
+            "name": "Nuit magique",
+            "icon": "",
+            "description": "Une obscurité surnaturelle qui nourrit les ténèbres et étouffe la lumière.",
+            "appliesStatus": [],
+            "randomDamage": null,
+            "costModifiers": [],
+            "damageModifiers": [ { "domain": "darkness", "factor": 1.3 }, { "domain": "light", "factor": 0.7 } ],
+            "defaultDuration": 5
+        },
+        {
+            "id": 9,
+            "key": "radiant-sky",
+            "name": "Ciel radieux",
+            "icon": "",
+            "description": "Une lumière éclatante qui magnifie la lumière et repousse les ombres.",
+            "appliesStatus": [],
+            "randomDamage": null,
+            "costModifiers": [],
+            "damageModifiers": [ { "domain": "light", "factor": 1.3 }, { "domain": "darkness", "factor": 0.7 } ],
+            "defaultDuration": 5
+        },
+        {
+            "id": 10,
+            "key": "hail",
+            "name": "Grêle",
+            "icon": "",
+            "description": "Une averse de grêlons tranchants qui martèlent sans répit.",
+            "appliesStatus": [],
+            "randomDamage": { "type": "ice", "min": 3, "max": 6, "chance": 30 },
+            "costModifiers": [],
+            "damageModifiers": [],
+            "defaultDuration": 3
+        },
+        {
+            "id": 11,
+            "key": "sandstorm",
+            "name": "Tempête de sable",
+            "icon": "",
+            "description": "Un mur de sable abrasif qui aveugle et renforce la terre.",
+            "appliesStatus": ["aveuglement"],
+            "randomDamage": { "type": "earth", "min": 2, "max": 4, "chance": 20 },
+            "costModifiers": [],
+            "damageModifiers": [ { "domain": "earth", "factor": 1.2 } ],
+            "defaultDuration": 3
+        }
+    ]
+}

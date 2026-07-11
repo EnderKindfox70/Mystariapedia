@@ -213,80 +213,26 @@
             </div>
             <p>Les douze domaines ne sont pas des catégories inventées par les mortels pour classifier la magie. Ils sont des réalités physiques — des fréquences imprimées dans la mana de Mystaria par la présence historique de douze entités divines. Chaque domaine porte la signature de son dieu d'origine, et chaque mage éveillé à l'un d'eux résonne avec cette signature sans nécessairement le savoir.</p>
             <div class="domains-grid" aria-label="Les douze domaines de magie">
-                <a class="domain-card domain-fire" routerLink="/magics/fire">
-                    <div class="domain-sigil" aria-hidden="true">♨</div>
-                    <h3>Feu</h3>
-                    <p>"Ne contrôle pas la flamme. Deviens la raison pour laquelle elle brûle."</p>
-                </a>
-
-                <a class="domain-card domain-water" routerLink="/magics/water">
-                    <div class="domain-sigil" aria-hidden="true">≋</div>
-                    <h3>Eau</h3>
-                    <p>"L'eau n'a pas de forme propre. Si tu en as une, tu n'es pas encore l'eau."</p>
-                </a>
-
-                <a class="domain-card domain-earth" routerLink="/magics/earth">
-                    <div class="domain-sigil" aria-hidden="true">△</div>
-                    <h3>Terre</h3>
-                    <p>"La précipitation est étrangère à ce domaine. Si tu es pressé, tu n'es pas prêt."</p>
-                </a>
-
-                <a class="domain-card domain-air" routerLink="/magics/air">
-                    <div class="domain-sigil" aria-hidden="true">☲</div>
-                    <h3>Air</h3>
-                    <p>"Sois léger dans ton intention. Tout ce qui pèse trop retombe."</p>
-                </a>
-
-                <a class="domain-card domain-lightning" routerLink="/magics/electricity">
-                    <div class="domain-sigil" aria-hidden="true">ϟ</div>
-                    <h3>Foudre</h3>
-                    <p>"Laisse l'impulsion venir. Si tu la construis, tu arrives trop tard."</p>
-                </a>
-
-                <a class="domain-card domain-plants" routerLink="/magics/plant">
-                    <div class="domain-sigil" aria-hidden="true">✥</div>
-                    <h3>Plantes</h3>
-                    <p>"La plante ne pousse pas vers la lumière par volonté. Elle pousse parce que c'est sa nature. Trouve la tienne."</p>
-                </a>
-
-                <a class="domain-card domain-light" routerLink="/magics/light">
-                    <div class="domain-sigil" aria-hidden="true">☼</div>
-                    <h3>Lumière</h3>
-                    <p>"Ne projette pas la lumière. Sois la source, et laisse-la rayonner."</p>
-                </a>
-
-                <a class="domain-card domain-darkness" routerLink="/magics/darkness">
-                    <div class="domain-sigil" aria-hidden="true">◉</div>
-                    <h3>Ténèbres</h3>
-                    <p>"Dissimule d'abord ta propre présence. Ce que tu ne peux pas cacher en toi, tu ne peux pas cacher ailleurs."</p>
-                </a>
-
-                <a class="domain-card domain-life" routerLink="/magics/life">
-                    <div class="domain-sigil" aria-hidden="true">♧</div>
-                    <h3>Vie</h3>
-                    <p>"Ne dirige pas la vie. Accompagne-la. Elle sait où elle va mieux que toi."</p>
-                </a>
-
-                <a class="domain-card domain-death" routerLink="/magics/death">
-                    <div class="domain-sigil" aria-hidden="true">☠</div>
-                    <h3>Mort</h3>
-                    <p>"Ce domaine exige que tu acceptes d'abord ta propre finitude. Sans ça, tu ne touches qu'à la surface."</p>
-                </a>
-
-                <a class="domain-card domain-time" routerLink="/magics/time">
-                    <div class="domain-sigil" aria-hidden="true">⌛</div>
-                    <h3>Temps</h3>
-                    <p>"Cesse de penser au maintenant. Le temps ne vit pas dans l'instant — il vit dans l'écart."</p>
-                </a>
-
-                <a class="domain-card domain-space" routerLink="/magics/space">
-                    <div class="domain-sigil" aria-hidden="true">✧</div>
-                    <h3>Espace</h3>
-                    <p>"Oublie la distance. Elle n'existe que parce que tu y crois."</p>
-                </a>
-
+                @for (d of domains; track d.slug) {
+                    <a [class]="'domain-card ' + d.cssClass" [routerLink]="'/magics/' + d.slug">
+                        <div class="domain-sigil" [class.domain-sigil--has-icon]="d.icon" aria-hidden="true">
+                            @if (d.icon) {
+                                <img class="domain-sigil__img" [src]="d.icon" [alt]="d.label">
+                            } @else {
+                                {{ d.sigil }}
+                            }
+                        </div>
+                        <h3>{{ d.label }}</h3>
+                        <p>"{{ d.quote }}"</p>
+                    </a>
+                }
             </div>
             <p class="domains-note">Douze empreintes divines. Douze manières de plier la mana sans jamais la posséder tout à fait.</p>
+            <div class="domains-constellation-cta">
+                <a routerLink="/magics/constellation" class="constellation-btn">
+                    <span aria-hidden="true">✦</span> Voir la constellation des combinaisons
+                </a>
+            </div>
         </section>
 
         <section id="non-polarized-magic">
@@ -338,9 +284,9 @@
                 <p>La facture se paie en rendement perdu. La quasi-totalité de la matière source retombe en cendre grise et morte ; on dissout une montagne pour libérer une étincelle. Et la fenêtre est étroite : brûler un souffle de trop, et la fréquence elle-même se consume, ne laissant qu'une poussière inerte.</p>
                 <p>Surtout, l'essence captée n'est pas neutre. C'est le domaine lui-même sous forme volatile, et il en garde toutes les propriétés. La fumée de Feu calcine, l'essence d'Eau noie ou dissout, celle de Mort touche les âmes comme une présence divine en miniature. Manier la Combustion, c'est tenir un fragment de domaine à mains nues. On la laisse aux pragmatiques qui ont la matière en abondance et le temps qui presse.</p>
             <h4>La greffe</h4>
-                <p>L'art de la multiplication, non de la création. Une semence n'est pas un fragment d'alliage achevé : c'est de la matière figée en pleine coagulation, gelée à l'instant du basculement, donc perpétuellement avide de finir de prendre. Plongée dans un hôte compatible, elle reprend sa coagulation interrompue et recrute la matière autour d'elle dans son propre patron. Le levain plutôt que le pain.</p>
-                <p>La facture se paie en dépendance. Il faut déjà posséder le résultat parfait pour le propager, et le produit obtenu ne dépasse jamais la qualité de sa semence. Une matière hôte incompatible rejette la greffe, qui meurt alors dans le bain, perdue. Et nulle lignée n'est éternelle : après une dizaine de cycles, une semence se brouille et s'épuise, imposant de la refonder sur une mère neuve.</p>
-                <p>C'est donc l'art des ateliers et des guildes, celui qui produit vite et en série, mais qui ne se suffit jamais à lui-même. Celui qui détient les mères fraîches et les semences vives tient toute la chaîne en aval.</p>
+                <p>Le plus haut des arts, et le seul qui ne transforme rien. La Greffe ne sacrifie pas, n'accélère pas : elle soude. Une nature ajoutée, le greffon, est nouée à une matière qui la reçoit, le porte-greffe, jusqu'à ce que les deux se fixent en un seul être. Là où la Substitution exige la compatibilité, la Greffe unit ce que rien d'autre ne saurait joindre, et même ce qu'aucun lieu ne réunirait.</p>
+                <p>La facture ne se paie ni en masse ni en temps, mais en contrainte permanente imposée aux deux liés, dont aucun n'est plus jamais libre. Il en naît les alliages les plus durables et les combinaisons impossibles ailleurs. Et lorsque le greffon n'est pas une matière mais une âme, c'est ce même rite qui donne le jour aux artefacts à âme, qu'on y soude un fragment de soi, une âme vierge ou une âme arrachée à la mort.</p>
+                <p>Sa faiblesse n'est pas la fragilité, car un objet achevé est stable : c'est la couture. L'endroit où deux natures ont été jointes en garde la trace, et qui sait la viser peut la rouvrir pour défaire l'alliage et rendre chaque nature à elle-même. Un objet greffé peut donc être dé-fait, là où une matière mûrie, née sans couture, demeure. Le briser ne libère rien, sauf s'il abritait une âme : alors ce n'est pas une décharge mais une délivrance, et l'âme s'en va.</p>
             <h3>L'alchimie</h3>
             <p>L'Alchimie est l'art d'extraire, de concentrer et de stabiliser les propriétés magiques naturelles de la matière dans un breuvage consommable. Un alchimiste ne crée pas de magie, il la recueille là où elle existe déjà et la rend accessible sous une forme que n'importe quel corps peut absorber directement.</p>
             <p>C'est pourquoi l'Alchimie est la discipline magique la plus démocratique de Mystaria. Ses productions de base — potions de soin, de mana, d'endurance — sont accessibles à tous, produites par tous, et ne nécessitent aucune affinité magique de la part du praticien. Broyer des herbes, faire bouillir un mélange, respecter des proportions : c'est de l'artisanat autant que de la magie.</p>

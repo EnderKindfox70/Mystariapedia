@@ -22,9 +22,10 @@
       </div>
 
       <div class="de-hero__emblem" aria-hidden="true">
-        <div class="de-hero__circle"></div>
-        @if (entry().icon) {
-          <img class="de-hero__icon" [src]="entry().icon" [alt]="entry().name">
+        @if (currentIcon()) {
+          <img class="de-hero__icon" [src]="currentIcon()" [alt]="entry().name">
+        } @else {
+          <div class="de-hero__circle"></div>
         }
       </div>
     </section>
@@ -109,7 +110,14 @@
     <!-- ── Sorts ── -->
     @if (spells().length || combinations().length) {
       <section class="de-section de-spells">
-        <div class="de-section-heading"><h2>Sorts</h2></div>
+        <div class="de-section-heading de-spells-heading">
+          <h2>Sorts</h2>
+          @if (spellTree()?.edges?.length) {
+            <button type="button" class="de-tree-btn" (click)="openSpellTree()">
+              <span aria-hidden="true">⤳</span> Voir l'arbre de sorts
+            </button>
+          }
+        </div>
 
         @if (selectedAspect()) {
           <div class="de-spell-filter">
@@ -129,8 +137,16 @@
                 <span class="de-banner__orn" aria-hidden="true">✦</span>
               </div>
               @for (sp of group.spells; track sp.key) {
-                <article class="de-spell-card">
-                  <div class="de-emblem" aria-hidden="true">{{ currentSigil() }}</div>
+                <article class="de-spell-card de-spell-card--link"
+                         [routerLink]="'/magics/spell/' + sp.key"
+                         [attr.title]="'Consulter ' + sp.name">
+                  <div class="de-emblem" aria-hidden="true">
+                    @if (spellIcon(sp)) {
+                      <img class="de-emblem-img" [src]="spellIcon(sp)" alt="">
+                    } @else {
+                      {{ currentSigil() }}
+                    }
+                  </div>
                   <div class="de-spell-card__body">
                     <h3 class="de-spell-card__name">{{ sp.name }}</h3>
                     <p class="de-spell-card__desc">{{ sp.description }}</p>
@@ -139,7 +155,13 @@
                     <span class="de-lvl-box">Niv. {{ sp.level }}</span>
                     <span class="de-mana"><img class="de-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true"> {{ sp.mana }} <small>mana</small></span>
                   </div>
-                  <div class="de-illus" aria-hidden="true"><span class="de-illus__mark">{{ currentSigil() }}</span></div>
+                  <div class="de-illus" aria-hidden="true">
+                    @if (spellIcon(sp)) {
+                      <img class="de-illus__img" [src]="spellIcon(sp)" alt="">
+                    } @else {
+                      <span class="de-illus__mark">{{ currentSigil() }}</span>
+                    }
+                  </div>
                 </article>
               }
             }
@@ -158,7 +180,13 @@
                 <div class="de-combo-emblems" aria-hidden="true">
                   @for (c of combo.components; track c; let last = $last) {
                     <span class="de-combo-emblem">
-                      <span class="de-emblem" [class]="'de-emblem domain-' + c" [title]="domainLabel(c)">{{ domainSigil(c) }}</span>
+                      <span class="de-emblem" [class]="'de-emblem domain-' + c" [title]="domainLabel(c)">
+                        @if (domainIcon(c)) {
+                          <img class="de-emblem-img" [src]="domainIcon(c)" alt="">
+                        } @else {
+                          {{ domainSigil(c) }}
+                        }
+                      </span>
                       <span class="de-combo-emblem__label">{{ domainLabel(c) }}</span>
                     </span>
                     @if (!last) { <span class="de-combo-plus">+</span> }
@@ -167,8 +195,16 @@
                 <span class="de-combo-group__name">{{ combo.name }}</span>
               </div>
               @for (sp of combo.spells ?? []; track sp.key) {
-                <article class="de-spell-card de-spell-card--sub">
-                  <div class="de-emblem" aria-hidden="true">{{ currentSigil() }}</div>
+                <article class="de-spell-card de-spell-card--sub de-spell-card--link"
+                         [routerLink]="'/magics/spell/' + sp.key"
+                         [attr.title]="'Consulter ' + sp.name">
+                  <div class="de-emblem" aria-hidden="true">
+                    @if (currentIcon()) {
+                      <img class="de-emblem-img" [src]="currentIcon()" alt="">
+                    } @else {
+                      {{ currentSigil() }}
+                    }
+                  </div>
                   <div class="de-spell-card__body">
                     <h3 class="de-spell-card__name">{{ sp.name }}</h3>
                     <p class="de-spell-card__desc">{{ sp.description }}</p>
@@ -177,7 +213,13 @@
                     <span class="de-lvl-box">Niv. {{ sp.level }}</span>
                     <span class="de-mana"><img class="de-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true"> {{ sp.mana }} <small>mana</small></span>
                   </div>
-                  <div class="de-illus" aria-hidden="true"><span class="de-illus__mark">{{ domainSigil(combo.components[0]) }}</span></div>
+                  <div class="de-illus" aria-hidden="true">
+                    @if (domainIcon(combo.components[0])) {
+                      <img class="de-illus__img" [src]="domainIcon(combo.components[0])" alt="">
+                    } @else {
+                      <span class="de-illus__mark">{{ domainSigil(combo.components[0]) }}</span>
+                    }
+                  </div>
                 </article>
               }
             }
@@ -185,11 +227,19 @@
             <!-- Combinaisons sans nom : sorts isolés (standalone) -->
             @for (combo of standaloneCombinations(); track combo.spells?.[0]?.key) {
               @for (sp of combo.spells ?? []; track sp.key) {
-                <article class="de-spell-card de-spell-card--combo is-orphan">
+                <article class="de-spell-card de-spell-card--combo is-orphan de-spell-card--link"
+                         [routerLink]="'/magics/spell/' + sp.key"
+                         [attr.title]="'Consulter ' + sp.name">
                   <div class="de-combo-emblems" aria-hidden="true">
                     @for (c of combo.components; track c; let last = $last) {
                       <span class="de-combo-emblem">
-                        <span class="de-emblem" [class]="'de-emblem domain-' + c" [title]="domainLabel(c)">{{ domainSigil(c) }}</span>
+                        <span class="de-emblem" [class]="'de-emblem domain-' + c" [title]="domainLabel(c)">
+                          @if (domainIcon(c)) {
+                            <img class="de-emblem-img" [src]="domainIcon(c)" alt="">
+                          } @else {
+                            {{ domainSigil(c) }}
+                          }
+                        </span>
                         <span class="de-combo-emblem__label">{{ domainLabel(c) }}</span>
                       </span>
                       @if (!last) { <span class="de-combo-plus">+</span> }
@@ -203,7 +253,13 @@
                     <span class="de-lvl-box">Niv. {{ sp.level }}</span>
                     <span class="de-mana"><img class="de-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true"> {{ sp.mana }} <small>mana</small></span>
                   </div>
-                  <div class="de-illus" aria-hidden="true"><span class="de-illus__mark">{{ domainSigil(combo.components[0]) }}</span></div>
+                  <div class="de-illus" aria-hidden="true">
+                    @if (domainIcon(combo.components[0])) {
+                      <img class="de-illus__img" [src]="domainIcon(combo.components[0])" alt="">
+                    } @else {
+                      <span class="de-illus__mark">{{ domainSigil(combo.components[0]) }}</span>
+                    }
+                  </div>
                 </article>
               }
             }
@@ -313,6 +369,67 @@
       </a>
 
     </nav>
+
+    <!-- ── Overlay : arbre de sorts complet (téléporté sous <body> par le composant) ── -->
+    <div #treeOverlay
+         [class]="'de-tree-overlay domain-' + domainSlug() + (showSpellTree() ? ' is-open' : '')"
+         (click)="closeSpellTree()">
+      @if (showSpellTree() && spellTree(); as tree) {
+        <div class="de-tree-modal" (click)="$event.stopPropagation()">
+          <header class="de-tree-modal__head">
+            <h3>Arbre de sorts — {{ domainLabel(domainSlug()) }}</h3>
+            <button type="button" class="de-tree-close" (click)="closeSpellTree()" aria-label="Fermer">✕</button>
+          </header>
+          <p class="de-tree-modal__hint">Plus un sort est central, plus son niveau de déblocage est bas. Molette pour zoomer, glisser pour se déplacer, clic sur un sort pour ouvrir sa fiche.</p>
+          <div #treeViewport
+               class="de-tree-viewport" [class.is-dragging]="isDragging()"
+               (wheel)="onWheel($event)"
+               (pointerdown)="onPointerDown($event)"
+               (pointermove)="onPointerMove($event)"
+               (pointerup)="onPointerUp()"
+               (pointerleave)="onPointerUp()">
+            <div class="de-tree-canvas"
+                 [style.width.px]="tree.width" [style.height.px]="tree.height"
+                 [style.transform]="'translate(' + panX() + 'px, ' + panY() + 'px) scale(' + zoom() + ')'">
+              <svg class="de-tree-edges" [attr.viewBox]="'0 0 ' + tree.width + ' ' + tree.height"
+                   [attr.width]="tree.width" [attr.height]="tree.height" aria-hidden="true">
+                @for (r of tree.rings; track r) {
+                  <circle class="de-tree-ring" [attr.cx]="tree.cx" [attr.cy]="tree.cy" [attr.r]="r"></circle>
+                }
+                @for (e of tree.edges; track $index) {
+                  <path class="de-tree-edge" [attr.d]="e.d"></path>
+                }
+              </svg>
+
+              <div class="de-tree-center" [style.left.px]="tree.cx" [style.top.px]="tree.cy" aria-hidden="true">
+                @if (domainIcon(domainSlug())) {
+                  <img [src]="domainIcon(domainSlug())" [alt]="domainLabel(domainSlug())">
+                } @else {
+                  <span>{{ domainSigil(domainSlug()) }}</span>
+                }
+              </div>
+
+              @for (n of tree.nodes; track n.spell.key) {
+                <a class="de-tree-node" draggable="false"
+                   [routerLink]="'/magics/spell/' + n.spell.key"
+                   (click)="onNodeClick($event)"
+                   [style.left.px]="n.x" [style.top.px]="n.y"
+                   [style.width.px]="stNodeW" [style.height.px]="stNodeH">
+                  <span class="de-tree-node__name">{{ n.spell.name }}</span>
+                  <span class="de-tree-node__lvl">Niv. {{ n.spell.level }}</span>
+                </a>
+              }
+            </div>
+
+            <div class="de-tree-zoom" (pointerdown)="$event.stopPropagation()">
+              <button type="button" (click)="zoomBy(1.25)" aria-label="Zoomer">+</button>
+              <button type="button" (click)="zoomBy(0.8)" aria-label="Dézoomer">−</button>
+              <button type="button" class="de-tree-zoom__fit" (click)="fitTree()" aria-label="Recentrer">⤢</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
 
   </main>
 </div>

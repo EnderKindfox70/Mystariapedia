@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Navbar } from '../../../components/navbar/navbar';
 import { AuthService } from '../../../services/auth.service';
@@ -14,6 +14,7 @@ import { AuthService } from '../../../services/auth.service';
 export class Login {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   email = '';
   password = '';
@@ -26,7 +27,10 @@ export class Login {
     this.submitting.set(true);
 
     this.auth.login(this.email, this.password).subscribe({
-      next: () => this.router.navigateByUrl('/'),
+      next: () => {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        this.router.navigateByUrl(returnUrl ?? '/');
+      },
       error: (err: HttpErrorResponse) => {
         this.error.set(err.error?.error ?? 'Connexion impossible. Réessayez.');
         this.submitting.set(false);

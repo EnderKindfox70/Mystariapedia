@@ -1,0 +1,346 @@
+.people-paper
+{
+    --people-color: #8b6b2f;
+}
+
+.people-back
+{
+    display: inline-block;
+    margin-bottom: 1.2rem;
+    color: rgba(34, 23, 19, .74);
+    font-size: .88rem;
+    text-decoration: none;
+    letter-spacing: .03em;
+}
+
+.people-back:hover { color: var(--ritual-red); }
+
+/* ── Héros ── */
+.people-hero
+{
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: center;
+    margin-bottom: 1.8rem;
+    padding: clamp(1.1rem, 3vw, 2rem);
+    overflow: hidden;
+    border: 1px solid rgba(43, 26, 18, .34);
+    border-block: 3px double color-mix(in srgb, var(--people-color) 48%, rgba(139, 107, 47, .4));
+    background:
+        radial-gradient(circle at 14% 50%, color-mix(in srgb, var(--people-color) 22%, transparent), transparent 16rem),
+        linear-gradient(90deg, rgba(217, 204, 184, .36), rgba(188, 169, 139, .08));
+    box-shadow: inset 0 0 2.4rem rgba(61, 38, 23, .2);
+}
+
+.people-hero__sigil
+{
+    display: grid;
+    place-items: center;
+    width: clamp(4rem, 10vw, 6rem);
+    height: clamp(4rem, 10vw, 6rem);
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    color: color-mix(in srgb, var(--people-color) 64%, #16110d);
+    border: 1px solid color-mix(in srgb, var(--people-color) 50%, transparent);
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--people-color) 26%, transparent), transparent 70%);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--people-color) 44%, transparent);
+}
+
+.people-hero__img
+{
+    width: clamp(5rem, 14vw, 9rem);
+    height: clamp(5rem, 14vw, 9rem);
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--people-color) 50%, transparent);
+}
+
+.people-hero__kicker
+{
+    display: inline-flex;
+    margin-bottom: .4rem;
+    color: color-mix(in srgb, var(--people-color) 60%, #2b1a12);
+    font: 700 .78rem var(--font-title);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.people-hero h1
+{
+    margin: 0;
+    color: #16110d;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+}
+
+.people-hero__quote
+{
+    margin: .9rem 0 0;
+    color: rgba(34, 23, 19, .8);
+    font-style: italic;
+}
+
+.people-hero__quote cite
+{
+    display: block;
+    margin-top: .2rem;
+    font-size: .85rem;
+    font-style: normal;
+    opacity: .8;
+}
+
+/* ── Blocs ── */
+.people-block p { margin: 0 0 .8rem; }
+
+.people-section { margin: 2rem 0; }
+
+.people-section h2
+{
+    margin: 0 0 .8rem;
+    padding: .5rem .75rem;
+    color: #2b1a12;
+    font-size: 1.3rem;
+    border-left: 4px solid var(--people-color);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--people-color) 12%, transparent), transparent 70%);
+}
+
+.people-section__intro
+{
+    margin: 0 0 1rem;
+    color: rgba(34, 23, 19, .74);
+    font-size: .92rem;
+    font-style: italic;
+}
+
+/* ── Bande d'identité ── */
+.people-info
+{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: .6rem;
+    margin: 1.4rem 0;
+    padding: .9rem 1rem;
+    border: 1px solid rgba(34, 23, 19, .22);
+    border-radius: 3px;
+    background: rgba(217, 204, 184, .35);
+}
+
+.people-info__field { display: flex; flex-direction: column; gap: .15rem; }
+
+.people-info__label
+{
+    color: color-mix(in srgb, var(--people-color) 55%, #2b1a12);
+    font: 700 .72rem var(--font-title);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.people-info__value { color: #2b1a12; font-size: .98rem; }
+
+/* ── Traits ── */
+.people-traits
+{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: .8rem;
+}
+
+.people-trait
+{
+    padding: .9rem 1rem;
+    border: 1px solid rgba(34, 23, 19, .2);
+    border-top: 3px solid color-mix(in srgb, var(--people-color) 60%, transparent);
+    background: rgba(237, 230, 214, .5);
+}
+
+.people-trait h3 { margin: 0 0 .35rem; color: #2b1a12; font-size: 1.02rem; }
+.people-trait p { margin: 0; color: rgba(34, 23, 19, .82); font-size: .92rem; }
+
+/* ── Affinités ── */
+.people-affinities
+{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: .7rem;
+}
+
+.people-affinity
+{
+    --domain-color: #8b6b2f;
+    display: flex;
+    gap: .8rem;
+    align-items: center;
+    padding: .7rem .85rem;
+    color: var(--faded-ivory);
+    text-decoration: none;
+    border: 1px solid color-mix(in srgb, var(--domain-color) 52%, #1c1712);
+    background: linear-gradient(180deg, rgba(28, 23, 19, .95), rgba(8, 7, 6, .97));
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.people-affinity:hover
+{
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--domain-color) 78%, #d9ccb8);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--domain-color) 30%, transparent);
+}
+
+.people-affinity__sigil
+{
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 1.3rem;
+    color: color-mix(in srgb, var(--domain-color) 70%, #ede6d6);
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--domain-color) 26%, transparent), transparent 70%);
+}
+
+.people-affinity__sigil img { width: 1.7rem; height: 1.7rem; object-fit: contain; }
+
+.people-affinity__body { display: flex; flex-direction: column; gap: .15rem; }
+.people-affinity__body strong { color: var(--faded-ivory); }
+.people-affinity__body span { color: rgba(237, 230, 214, .7); font-size: .82rem; }
+
+/* ── Modificateurs d'attributs ── */
+.people-mods { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.people-mod
+{
+    padding: .35rem .8rem;
+    color: #1e3a1e;
+    font: 700 .9rem var(--font-title);
+    border: 1px solid rgba(53, 85, 43, .5);
+    border-radius: 999px;
+    background: rgba(119, 163, 86, .22);
+}
+
+.people-mod--neg
+{
+    color: #5a1a1a;
+    border-color: rgba(107, 31, 31, .5);
+    background: rgba(107, 31, 31, .16);
+}
+
+/* ── Fiche de jeu (JDR) ── */
+.people-jdr h3
+{
+    margin: 1.6rem 0 .7rem;
+    color: color-mix(in srgb, var(--people-color) 45%, #2b1a12);
+    font-size: 1.05rem;
+    letter-spacing: .02em;
+}
+
+.people-mod--stat
+{
+    color: #4a3410;
+    border-color: rgba(139, 107, 47, .5);
+    background: rgba(139, 107, 47, .16);
+}
+
+.people-mod--sm { padding: .2rem .6rem; font-size: .82rem; }
+
+.people-subraces
+{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: .8rem;
+}
+
+.people-subrace
+{
+    padding: .85rem 1rem;
+    border: 1px solid rgba(34, 23, 19, .2);
+    border-left: 3px solid color-mix(in srgb, var(--people-color) 55%, transparent);
+    background: rgba(237, 230, 214, .42);
+}
+
+.people-subrace h4 { margin: 0 0 .5rem; color: #2b1a12; font-size: 1rem; }
+.people-subrace .people-mods { margin-bottom: .5rem; }
+
+.people-trait h4 { margin: 0 0 .35rem; color: #2b1a12; font-size: 1.02rem; }
+
+.people-effects
+{
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: .6rem;
+}
+
+.people-effect
+{
+    padding: .18rem .55rem;
+    color: #1e3a1e;
+    font: 700 .78rem var(--font-title);
+    border: 1px solid rgba(53, 85, 43, .45);
+    border-radius: 999px;
+    background: rgba(119, 163, 86, .18);
+}
+
+.people-effect--neg
+{
+    color: #5a1a1a;
+    border-color: rgba(107, 31, 31, .45);
+    background: rgba(107, 31, 31, .14);
+}
+
+/* ── Listes ── */
+.people-list { margin: 0; padding-left: 1.2rem; }
+.people-list li { margin-bottom: .5rem; color: rgba(34, 23, 19, .85); }
+.people-list--sm { padding-left: 1rem; }
+.people-list--sm li { margin-bottom: .3rem; font-size: .9rem; }
+
+/* ── Références ── */
+.people-refs { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.people-ref
+{
+    padding: .35rem .8rem;
+    color: #2b1a12;
+    font-size: .9rem;
+    text-decoration: none;
+    border: 1px solid rgba(139, 107, 47, .5);
+    background: rgba(139, 107, 47, .12);
+}
+
+.people-ref:hover { background: rgba(139, 107, 47, .24); }
+
+/* ── Notes ── */
+.people-notes
+{
+    margin: 2rem 0;
+    padding: 1rem 1.2rem;
+    border: 1px dashed rgba(34, 23, 19, .32);
+    background: rgba(217, 204, 184, .28);
+}
+
+.people-notes h3 { margin: 0 0 .5rem; color: #2b1a12; font-size: 1rem; }
+.people-notes p { margin: 0 0 .5rem; color: rgba(34, 23, 19, .78); font-size: .9rem; font-style: italic; }
+
+/* ── Navigation ── */
+.people-nav
+{
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(34, 23, 19, .25);
+}
+
+.people-nav a
+{
+    color: rgba(34, 23, 19, .8);
+    font-family: var(--font-title);
+    text-decoration: none;
+}
+
+.people-nav a:hover { color: var(--ritual-red); }
+
+@media (max-width: 620px)
+{
+    .people-hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+}

@@ -5,43 +5,99 @@
     "first-quote": "Chaque graine contient une forêt. Chaque forêt contient un monde.",
     "usage-quote": "La plante ne pousse pas vers la lumière par volonté. Elle pousse parce que c'est sa nature. Trouve la tienne",
     "subdomains": [
-        {
-            "name": "Croissance végétale",
-            "icon": ""
-        },
-        {
-            "name": "Poison & Médecine naturelle",
-            "icon": ""
-        },
-        {
-            "name": "Spores & Mycologie",
-            "icon": ""
-        },
-        {
-            "name": "Symbiose & Parasitisme",
-            "icon": ""
-        }
+        { "name": "Croissance végétale", "icon": "" },
+        { "name": "Poison & Médecine naturelle", "icon": "" },
+        { "name": "Spores & Mycologie", "icon": "" },
+        { "name": "Symbiose & Parasitisme", "icon": "" }
     ],
     "spells": [
-        {
-            "key": "plant-ronces-etreignantes",
-            "name": "Ronces étreignantes",
-            "description": "Fait surgir des ronces du sol qui enserrent et immobilisent les créatures dans la zone.",
-            "mana": 3,
-            "level": 2,
-            "subdomains": [
-                "Croissance végétale"
-            ]
-        },
         {
             "key": "plant-toxine-vegetale",
             "name": "Toxine végétale",
             "description": "Distille une sève toxique appliquée à une arme ou projetée, empoisonnant la cible.",
             "mana": 2,
             "level": 1,
-            "subdomains": [
-                "Poison & Médecine naturelle"
-            ]
+            "subdomains": ["Poison & Médecine naturelle"],
+            "progression": {
+                "root": "pt1",
+                "branches": [
+                    { "id": "venin", "label": "Voie du Venin", "description": "Un poison de plus en plus virulent qui ronge et se propage." },
+                    { "id": "paralysant", "label": "Voie du Neurotoxique", "description": "Une toxine qui engourdit et paralyse plutôt que de ronger." }
+                ],
+                "nodes": [
+                    {
+                        "id": "pt1", "tier": 1, "branch": "trunk", "name": "Toxine végétale I",
+                        "description": "Une sève toxique projetée sur la cible, qui l'empoisonne.",
+                        "next": ["pt2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 2, "range": "8 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }
+                    },
+                    {
+                        "id": "pt2", "tier": 2, "branch": "trunk", "name": "Toxine végétale II",
+                        "description": "Le venin gagne en virulence et s'accroche mieux aux chairs.",
+                        "next": ["pt3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 3, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                    },
+                    {
+                        "id": "pt3", "tier": 3, "branch": "trunk", "name": "Toxine végétale III",
+                        "description": "Point de scission : la sève peut devenir venin corrosif ou neurotoxine.",
+                        "next": ["ptv4", "ptp4"],
+                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "ptv4", "tier": 4, "branch": "venin", "name": "Venin corrosif",
+                        "description": "Un poison qui dévore la chair et ne laisse aucun répit.",
+                        "next": ["ptv5"],
+                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 85 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    },
+                    {
+                        "id": "ptv5", "tier": 5, "branch": "venin", "name": "Fléau toxique",
+                        "description": "Une contagion toxique qui se répand sur tous les proches de la cible.",
+                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 7, "range": "12 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 95 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    },
+                    {
+                        "id": "ptp4", "tier": 4, "branch": "paralysant", "name": "Neurotoxine",
+                        "description": "Une toxine qui engourdit les nerfs et fige les muscles.",
+                        "next": ["ptp5"],
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "ptp5", "tier": 5, "branch": "paralysant", "name": "Torpeur mortelle",
+                        "description": "Un poison paralysant si puissant qu'il cloue la cible sur place.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "plant-ronces-etreignantes",
+            "name": "Ronces étreignantes",
+            "description": "Fait surgir des ronces du sol qui enserrent et immobilisent les créatures dans la zone.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": ["Croissance végétale"],
+            "requires": ["plant-toxine-vegetale"],
+            "progression": {
+                "root": "pr1",
+                "nodes": [
+                    {
+                        "id": "pr1", "tier": 1, "branch": "trunk", "name": "Ronces étreignantes I",
+                        "description": "Des ronces jaillissent et enserrent les créatures d'une zone.",
+                        "next": ["pr2"],
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 3, "range": "12 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                    },
+                    {
+                        "id": "pr2", "tier": 2, "branch": "trunk", "name": "Ronces étreignantes II",
+                        "description": "Les ronces s'épaississent et se hérissent d'épines.",
+                        "next": ["pr3"],
+                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 4, "range": "12 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 75 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "pr3", "tier": 3, "branch": "trunk", "name": "Ronces étreignantes III",
+                        "description": "Un fourré d'épines inextricable qui cloue tout un groupe au sol.",
+                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 5, "range": "14 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 90 }], "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }
+                    }
+                ]
+            }
         },
         {
             "key": "plant-nuage-de-spores",
@@ -49,9 +105,30 @@
             "description": "Libère un nuage de spores fongiques qui désoriente et affaiblit ceux qui le respirent.",
             "mana": 3,
             "level": 2,
-            "subdomains": [
-                "Spores & Mycologie"
-            ]
+            "subdomains": ["Spores & Mycologie"],
+            "requires": ["plant-toxine-vegetale"],
+            "progression": {
+                "root": "ps1",
+                "nodes": [
+                    {
+                        "id": "ps1", "tier": 1, "branch": "trunk", "name": "Nuage de spores I",
+                        "description": "Un nuage de spores qui affaiblit ceux qui le respirent.",
+                        "next": ["ps2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }
+                    },
+                    {
+                        "id": "ps2", "tier": 2, "branch": "trunk", "name": "Nuage de spores II",
+                        "description": "Le nuage s'épaissit : toux, vertiges et membres alourdis.",
+                        "next": ["ps3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                    },
+                    {
+                        "id": "ps3", "tier": 3, "branch": "trunk", "name": "Nuage de spores III",
+                        "description": "Une brume fongique qui affaiblit et embrouille tout un secteur.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 70 }, { "status": "confusion", "chance": 25 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    }
+                ]
+            }
         },
         {
             "key": "plant-greffe-parasitaire",
@@ -59,9 +136,246 @@
             "description": "Implante dans une cible une pousse parasite qui draine sa vigueur au profit du lanceur.",
             "mana": 5,
             "level": 4,
-            "subdomains": [
-                "Symbiose & Parasitisme"
-            ]
+            "subdomains": ["Symbiose & Parasitisme"],
+            "requires": ["plant-ronces-etreignantes"],
+            "progression": {
+                "root": "pg1",
+                "nodes": [
+                    {
+                        "id": "pg1", "tier": 1, "branch": "trunk", "name": "Greffe parasitaire I",
+                        "description": "Une pousse parasite s'implante et commence à drainer la vigueur de la cible.",
+                        "next": ["pg2"],
+                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 5, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 50 }], "effects": [{ "stat": "force", "value": 1, "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "pg2", "tier": 2, "branch": "trunk", "name": "Greffe parasitaire II",
+                        "description": "Le parasite prend racine et pompe plus avidement la force de sa proie.",
+                        "next": ["pg3"],
+                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 6, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 60 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    },
+                    {
+                        "id": "pg3", "tier": 3, "branch": "trunk", "name": "Greffe parasitaire III",
+                        "description": "Une symbiose forcée qui vide la cible de sa vigueur au profit du lanceur.",
+                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 70 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "plant-symbiose-vegetale",
+            "name": "Symbiose végétale",
+            "description": "Fusionne le corps du lanceur avec une plante symbiotique de son choix. Toutes les symbioses sont disponibles d'emblée ; ce sont leurs effets qui s'amplifient palier après palier.",
+            "usage": {
+                "combat": "Choisissez une plante symbiote pour vous doter d'un avantage (dégâts, soin, protection, vélocité…). Le coût en mana dépend de la symbiose choisie.",
+                "outOfCombat": "La symbiose peut servir hors combat : le lierre régénérant referme les plaies au repos, l'écorce protège du froid et des ronces."
+            },
+            "mana": 4,
+            "level": 3,
+            "subdomains": ["Symbiose & Parasitisme"],
+            "requires": ["plant-toxine-vegetale"],
+            "progression": {
+                "root": "sv1",
+                "branches": [
+                    { "id": "ronces", "label": "Voie des Ronces", "description": "Engagement décisif sur les ronces : dégâts fortement accrus ET coût de mana réduit — mais le contrecoup demeure." },
+                    { "id": "lierre", "label": "Voie du Lierre", "description": "Spécialisation dans la régénération : un soin par tour bien supérieur." },
+                    { "id": "ecorce", "label": "Voie de l'Écorce", "description": "Spécialisation défensive : une protection physique décuplée." },
+                    { "id": "vrille", "label": "Voie de la Vrille", "description": "Spécialisation dans la vélocité : une vitesse largement accrue." }
+                ],
+                "nodes": [
+                    {
+                        "id": "sv1", "tier": 1, "branch": "trunk", "name": "Symbiose végétale I",
+                        "description": "Les quatre plantes symbiotes sont accessibles dès ce palier. Choisissez-en une à l'incantation ; son coût de mana lui est propre.",
+                        "next": ["sv2"],
+                        "stats": {
+                            "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"],
+                            "choices": [
+                                { "name": "Ronces", "mana": 4, "description": "Des ronces couvrent vos membres : vos attaques infligent davantage de dégâts, mais leurs épines vous blessent à chaque tour.", "effects": [{ "stat": "atk_phy", "value": 2 }], "recoil": { "damageMin": 2, "damageMax": 3, "note": "par tour" }, "duration": 3 },
+                                { "name": "Lierre régénérant", "mana": 5, "description": "Un lierre nourricier vous enlace et referme vos blessures à chaque tour.", "heal": 4, "duration": 3 },
+                                { "name": "Écorce protectrice", "mana": 4, "description": "Votre peau se couvre d'écorce, absorbant une partie des coups.", "effects": [{ "stat": "def_phy", "value": 2 }], "duration": 3 },
+                                { "name": "Vrille véloce", "mana": 4, "description": "Des vrilles nerveuses propulsent vos mouvements : vous gagnez en vitesse.", "effects": [{ "stat": "speed", "value": 2 }], "duration": 3 }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sv2", "tier": 2, "branch": "trunk", "name": "Symbiose végétale II",
+                        "description": "La symbiose s'approfondit : chaque plante gagne en puissance.",
+                        "next": ["sv3"],
+                        "stats": {
+                            "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"],
+                            "choices": [
+                                { "name": "Ronces", "mana": 5, "description": "Les ronces s'épaississent : bonus de dégâts accru, épines plus mordantes.", "effects": [{ "stat": "atk_phy", "value": 3 }], "recoil": { "damageMin": 3, "damageMax": 5, "note": "par tour" }, "duration": 4 },
+                                { "name": "Lierre régénérant", "mana": 6, "description": "Le lierre régénère plus généreusement à chaque tour.", "heal": 6, "duration": 4 },
+                                { "name": "Écorce protectrice", "mana": 5, "description": "L'écorce s'endurcit et encaisse davantage.", "effects": [{ "stat": "def_phy", "value": 3 }], "duration": 4 },
+                                { "name": "Vrille véloce", "mana": 5, "description": "Les vrilles s'affûtent : vous gagnez encore en vitesse.", "effects": [{ "stat": "speed", "value": 2 }], "duration": 4 }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sv3", "tier": 3, "branch": "trunk", "name": "Symbiose végétale III",
+                        "description": "Point de scission : poursuivre le tronc commun en gardant les quatre symbioses (progression mesurée), ou vous SPÉCIALISER dans une seule plante, nettement plus puissante.",
+                        "next": ["svr4", "svl4", "sv4", "sve4", "svv4"],
+                        "stats": {
+                            "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"],
+                            "choices": [
+                                { "name": "Ronces", "mana": 6, "description": "Des ronces acérées renforcent nettement vos coups ; elles entaillent le lanceur à chaque tour.", "effects": [{ "stat": "atk_phy", "value": 4 }], "recoil": { "damageMin": 4, "damageMax": 6, "note": "par tour" }, "duration": 4 },
+                                { "name": "Lierre régénérant", "mana": 7, "description": "Un lierre luxuriant qui restaure vos forces à chaque tour.", "heal": 8, "duration": 4 },
+                                { "name": "Écorce protectrice", "mana": 6, "description": "Une carapace d'écorce qui encaisse les assauts rudes.", "effects": [{ "stat": "def_phy", "value": 4 }], "duration": 4 },
+                                { "name": "Vrille véloce", "mana": 6, "description": "Des vrilles véloces qui décuplent votre mobilité.", "effects": [{ "stat": "speed", "value": 3 }], "duration": 4 }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sv4", "tier": 4, "branch": "trunk", "name": "Symbiose végétale IV",
+                        "description": "Continuation du tronc commun : les quatre symbioses restent disponibles, avec une amélioration mesurée et un coût de mana raisonnable.",
+                        "next": ["sv5"],
+                        "stats": {
+                            "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"],
+                            "choices": [
+                                { "name": "Ronces", "mana": 7, "description": "Des ronces solides : bon bonus de dégâts, contrecoup contenu.", "effects": [{ "stat": "atk_phy", "value": 5 }], "recoil": { "damageMin": 5, "damageMax": 7, "note": "par tour" }, "duration": 5 },
+                                { "name": "Lierre régénérant", "mana": 8, "description": "Un lierre fiable qui régénère régulièrement.", "heal": 10, "duration": 5 },
+                                { "name": "Écorce protectrice", "mana": 7, "description": "Une écorce résistante et polyvalente.", "effects": [{ "stat": "def_phy", "value": 5 }], "duration": 5 },
+                                { "name": "Vrille véloce", "mana": 7, "description": "Des vrilles agiles pour rester mobile.", "effects": [{ "stat": "speed", "value": 3 }], "duration": 5 }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "sv5", "tier": 5, "branch": "trunk", "name": "Symbiose végétale V",
+                        "description": "Palier ultime du tronc commun : les quatre plantes à leur meilleur équilibre, sans jamais renoncer à la polyvalence.",
+                        "stats": {
+                            "mana": 8, "range": "Personnel", "area": "Soi-même", "targets": ["self"],
+                            "choices": [
+                                { "name": "Ronces", "mana": 8, "description": "Des ronces éprouvées : dégâts soutenus, contrecoup maîtrisé.", "effects": [{ "stat": "atk_phy", "value": 6 }], "recoil": { "damageMin": 6, "damageMax": 8, "note": "par tour" }, "duration": 6 },
+                                { "name": "Lierre régénérant", "mana": 9, "description": "Une régénération constante et endurante.", "heal": 12, "duration": 6 },
+                                { "name": "Écorce protectrice", "mana": 8, "description": "Une écorce robuste qui tient dans la durée.", "effects": [{ "stat": "def_phy", "value": 6 }], "duration": 6 },
+                                { "name": "Vrille véloce", "mana": 8, "description": "Des vrilles véloces et régulières.", "effects": [{ "stat": "speed", "value": 4 }], "duration": 6 }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "svr4", "tier": 4, "branch": "ronces", "name": "Symbiose végétale Ronces I",
+                        "description": "Vous vous liez irrévocablement aux ronces : les dégâts grimpent fort et le coût de mana chute — les épines, elles, continuent de vous entailler.",
+                        "usage": { "outOfCombat": "L'armure de ronces sert de défense naturelle : elle décourage les prédateurs, tranche liens et broussailles, et fait office de grappin épineux." },
+                        "next": ["svr5"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "effects": [{ "stat": "atk_phy", "value": 6 }], "recoil": { "damageMin": 4, "damageMax": 6, "note": "par tour" } }
+                    },
+                    {
+                        "id": "svr5", "tier": 5, "branch": "ronces", "name": "Symbiose végétale Ronces II",
+                        "description": "La symbiose roncière atteint sa forme ultime : une puissance de frappe redoutable pour un coût dérisoire, au prix d'un contrecoup persistant.",
+                        "usage": { "outOfCombat": "L'armure de ronces sert de défense naturelle : elle décourage les prédateurs, tranche liens et broussailles, et fait office de grappin épineux." },
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "effects": [{ "stat": "atk_phy", "value": 9 }], "recoil": { "damageMin": 5, "damageMax": 8, "note": "par tour" } }
+                    },
+                    {
+                        "id": "svl4", "tier": 4, "branch": "lierre", "name": "Symbiose végétale Lierre I",
+                        "description": "Vous vous fondez dans le lierre : une régénération par tour bien supérieure.",
+                        "usage": { "outOfCombat": "Le lierre régénérant referme lentement les plaies au repos et soutient l'endurance lors des longues marches." },
+                        "next": ["svl5"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "heal": 14 }
+                    },
+                    {
+                        "id": "svl5", "tier": 5, "branch": "lierre", "name": "Symbiose végétale Lierre II",
+                        "description": "Un lierre foisonnant qui referme presque toute blessure à chaque tour.",
+                        "usage": { "outOfCombat": "Le lierre régénérant referme lentement les plaies au repos et soutient l'endurance lors des longues marches." },
+                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "heal": 20 }
+                    },
+                    {
+                        "id": "sve4", "tier": 4, "branch": "ecorce", "name": "Symbiose végétale Écorce I",
+                        "description": "Vous vous cuirassez d'écorce : une protection physique nettement accrue.",
+                        "usage": { "outOfCombat": "La cuirasse d'écorce isole du froid et des intempéries et amortit chutes et chocs." },
+                        "next": ["sve5"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "effects": [{ "stat": "def_phy", "value": 7 }] }
+                    },
+                    {
+                        "id": "sve5", "tier": 5, "branch": "ecorce", "name": "Symbiose végétale Écorce II",
+                        "description": "Une cuirasse de bois vivant presque inébranlable.",
+                        "usage": { "outOfCombat": "La cuirasse d'écorce isole du froid et des intempéries et amortit chutes et chocs." },
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "effects": [{ "stat": "def_phy", "value": 10 }] }
+                    },
+                    {
+                        "id": "svv4", "tier": 4, "branch": "vrille", "name": "Symbiose végétale Vrille I",
+                        "description": "Vous épousez la vrille : des mouvements largement plus vifs.",
+                        "usage": { "outOfCombat": "Les vrilles véloces facilitent l'escalade, le franchissement d'obstacles et les déplacements rapides." },
+                        "next": ["svv5"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "effects": [{ "stat": "speed", "value": 5 }] }
+                    },
+                    {
+                        "id": "svv5", "tier": 5, "branch": "vrille", "name": "Symbiose végétale Vrille II",
+                        "description": "Une célérité végétale qui défie le regard.",
+                        "usage": { "outOfCombat": "Les vrilles véloces facilitent l'escalade, le franchissement d'obstacles et les déplacements rapides." },
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "effects": [{ "stat": "speed", "value": 7 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "plant-revetement-arme",
+            "requires": ["plant-revetement-poings"],
+            "name": "Lame épineuse",
+            "description": "Nimbe une arme de ronces : tant que l'enchantement dure, chaque coup inflige des dégâts végétaux supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts végétaux à chacune de vos attaques au corps à corps, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement peut servir à trancher la végétation, tendre des lianes ou marquer un chemin."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Croissance végétale"],
+            "damageType": "plant",
+            "progression": {
+                "root": "ra1",
+                "nodes": [
+                    {
+                        "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame épineuse I",
+                        "description": "Votre arme se nimbe de ronces : chaque attaque au corps à corps inflige ces dégâts végétaux en plus, le temps de l'enchantement.",
+                        "next": ["ra2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame épineuse II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["ra3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame épineuse III",
+                        "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts végétaux durables.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "plant-revetement-poings",
+            "name": "Poings épineux",
+            "description": "Nimbe vos poings de ronces : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts végétaux supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts végétaux à vos attaques à mains nues, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement des poings peut servir à trancher la végétation, tendre des lianes ou marquer un chemin."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": ["Croissance végétale"],
+            "damageType": "plant",
+            "progression": {
+                "root": "rp1",
+                "nodes": [
+                    {
+                        "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings épineux I",
+                        "description": "Vos poings se nimbent de ronces : chaque coup à mains nues inflige ces dégâts végétaux en plus.",
+                        "next": ["rp2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings épineux II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["rp3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings épineux III",
+                        "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts végétaux.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
         }
     ],
     "magic-items-and-artifacts": [],

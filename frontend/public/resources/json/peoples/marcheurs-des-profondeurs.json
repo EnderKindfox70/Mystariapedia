@@ -1,0 +1,29 @@
+{
+    "name": "Marcheurs des Profondeurs",
+    "subtitle": "Les détachés de l'arbre-mère",
+    "quote": "On nous a coupés de la mère. Depuis, chacun de nous cherche une racine.",
+    "description": [
+        "Les Marcheurs des Profondeurs sont un peuple né d'un lien à une arbre-mère dont beaucoup se retrouvent désormais séparés. Déconnectés de cette origine, ils présentent des affinités variables et difficiles à catégoriser — l'Eau est fréquente, mais leurs conditions d'éveil particulières produisent parfois des domaines inattendus.",
+        "Peuple de marge et de survie, ils se déplacent le long des cours d'eau et des réseaux souterrains, portant en eux une nostalgie d'un ancrage perdu. Leur culture s'est construite autour de ce manque autant que de la ressource qu'ils maîtrisent le mieux : l'eau."
+    ],
+    "info": [
+        { "key": "type", "label": "Espérance de vie", "value": "Indéterminée (variable)" },
+        { "label": "Taille moyenne", "value": "1,50 – 1,80 m" },
+        { "key": "habitat", "label": "Territoire", "value": "Cours d'eau, réseaux profonds" },
+        { "label": "Société", "value": "Clans nomades" }
+    ],
+    "traits": [
+        { "name": "Affinité aquatique", "description": "L'Eau écrase toutes les autres affinités du peuple (près d'un tiers des éveillés). Beaucoup nagent instinctivement, retiennent leur souffle longuement et sentent les courants." },
+        { "name": "Attrait des Ténèbres", "description": "Fait inexpliqué : les Marcheurs s'éveillent aux Ténèbres bien plus souvent que les autres races. Les théoriciens y voient un écho de leur détachement de l'arbre-mère." },
+        { "name": "Nostalgie racinaire", "description": "Le lien rompu à l'arbre-mère laisse une empreinte : certains Marcheurs perçoivent la direction d'anciennes racines, ou ressentent la présence d'un des leurs à distance." }
+    ],
+    "affinities": [
+        { "domain": "water", "note": "32 % — affinité dominante, de loin la plus marquée." },
+        { "domain": "darkness", "note": "18 % — anormalement élevé, écho probable de leur détachement de l'arbre-mère." },
+        { "domain": "life", "note": "10 % — vestige du lien racinaire perdu." }
+    ],
+    "notes": [
+        "Peuple partiellement esquissé dans le lore de la Magie — à étoffer selon ta vision de l'arbre-mère.",
+        "L'aspect jeu (attributs, sous-races de spécialisation, stats de départ) provient de characters/races.json."
+    ]
+}

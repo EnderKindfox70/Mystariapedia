@@ -1,0 +1,186 @@
+<div class="layout">
+    <navbar></navbar>
+    <main class="paper-surface people-paper" [style.--people-color]="color()">
+        <a class="people-back" routerLink="/lore/peuples">← Tous les peuples</a>
+
+        <!-- Héros -->
+        <header class="people-hero">
+            @if (entry().image) {
+                <img class="people-hero__img" [src]="entry().image" [alt]="entry().name">
+            } @else {
+                <div class="people-hero__sigil" aria-hidden="true">{{ sigil() }}</div>
+            }
+            <div class="people-hero__content">
+                @if (entry().subtitle) {
+                    <span class="people-hero__kicker">{{ entry().subtitle }}</span>
+                }
+                <h1>{{ entry().name }}</h1>
+                @if (entry().quote) {
+                    <blockquote class="people-hero__quote">
+                        « {{ entry().quote }} »
+                        @if (entry()['quote-author']) { <cite>— {{ entry()['quote-author'] }}</cite> }
+                    </blockquote>
+                }
+            </div>
+        </header>
+
+        <!-- Description lore -->
+        <section class="people-block">
+            @for (para of entry().description; track $index) {
+                <p>{{ para }}</p>
+            }
+        </section>
+
+        <!-- Bande d'identité -->
+        @if (entry().info.length) {
+            <section class="people-info" aria-label="Informations">
+                @for (field of entry().info; track field.label) {
+                    <div class="people-info__field">
+                        <span class="people-info__label">{{ field.label }}</span>
+                        <span class="people-info__value">{{ field.value }}</span>
+                    </div>
+                }
+            </section>
+        }
+
+        <!-- Traits raciaux -->
+        @if (entry().traits.length) {
+            <section class="people-section">
+                <h2>Traits</h2>
+                <div class="people-traits">
+                    @for (trait of entry().traits; track trait.name) {
+                        <article class="people-trait">
+                            <h3>{{ trait.name }}</h3>
+                            <p>{{ trait.description }}</p>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+
+        <!-- Affinités magiques -->
+        @if (entry().affinities?.length) {
+            <section class="people-section">
+                <h2>Affinités magiques</h2>
+                <p class="people-section__intro">Domaines vers lesquels ce peuple tend statistiquement. Cliquez pour ouvrir la page du domaine.</p>
+                <div class="people-affinities">
+                    @for (aff of entry().affinities; track aff.domain) {
+                        <a class="people-affinity" [style.--domain-color]="domainColor(aff.domain)" [routerLink]="'/magics/' + aff.domain">
+                            <span class="people-affinity__sigil" aria-hidden="true">
+                                @if (domainIcon(aff.domain)) {
+                                    <img [src]="domainIcon(aff.domain)" [alt]="domainLabel(aff.domain)">
+                                } @else {
+                                    {{ domainSigil(aff.domain) }}
+                                }
+                            </span>
+                            <div class="people-affinity__body">
+                                <strong>{{ domainLabel(aff.domain) }}</strong>
+                                @if (aff.note) { <span>{{ aff.note }}</span> }
+                            </div>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+
+        <!-- Fiche de jeu (données extraites de characters/races.json) -->
+        @if (race(); as r) {
+            <section class="people-section people-jdr">
+                <h2>Fiche de jeu</h2>
+                <p class="people-section__intro">Données de création de personnage — issues de la fiche de race officielle.</p>
+
+                @if (attrMods(r.attributes).length) {
+                    <h3>Modificateurs d'attributs</h3>
+                    <div class="people-mods">
+                        @for (m of attrMods(r.attributes); track m.key) {
+                            <span class="people-mod" [class.people-mod--neg]="m.value < 0">{{ signed(m.value) }} {{ m.label }}</span>
+                        }
+                    </div>
+                }
+
+                @if (genetics(r['genetics-stats']).length) {
+                    <h3>Bonus de départ</h3>
+                    <div class="people-mods">
+                        @for (g of genetics(r['genetics-stats']); track g.key) {
+                            <span class="people-mod people-mod--stat" [class.people-mod--neg]="g.value < 0">{{ signed(g.value) }} {{ g.label }}</span>
+                        }
+                    </div>
+                }
+
+                @if (r.traits?.length) {
+                    <h3>Aptitudes raciales</h3>
+                    <div class="people-traits">
+                        @for (t of r.traits; track t.key) {
+                            <article class="people-trait">
+                                <h4>{{ t.name }}</h4>
+                                @if (t.description) { <p>{{ t.description }}</p> }
+                                @if (t.effects?.length) {
+                                    <div class="people-effects">
+                                        @for (e of t.effects; track e.key) {
+                                            <span class="people-effect" [class.people-effect--neg]="e.value < 0">{{ signed(e.value) }} {{ statLabel(e.key) }}</span>
+                                        }
+                                    </div>
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+
+                @if (r.subraces.length) {
+                    <h3>Sous-races</h3>
+                    <div class="people-subraces">
+                        @for (s of r.subraces; track s.key) {
+                            <article class="people-subrace">
+                                <h4>{{ s.name }}</h4>
+                                @if (attrMods(s.attributes).length) {
+                                    <div class="people-mods">
+                                        @for (m of attrMods(s.attributes); track m.key) {
+                                            <span class="people-mod people-mod--sm" [class.people-mod--neg]="m.value < 0">{{ signed(m.value) }} {{ m.label }}</span>
+                                        }
+                                    </div>
+                                }
+                                @if (s.traits?.length) {
+                                    <ul class="people-list people-list--sm">
+                                        @for (t of s.traits; track t.key) {
+                                            <li><strong>{{ t.name }}</strong>@if (t.description) { — {{ t.description }} }</li>
+                                        }
+                                    </ul>
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        <!-- Références croisées -->
+        @if (entry().references?.length) {
+            <section class="people-section">
+                @for (group of entry().references; track group.label) {
+                    <h2>{{ group.label }}</h2>
+                    <div class="people-refs">
+                        @for (item of group.items; track item.ref) {
+                            <a class="people-ref" [routerLink]="item | wikiLink">{{ item.label }}</a>
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        <!-- Notes -->
+        @if (entry().notes?.length) {
+            <aside class="people-notes">
+                <h3>Notes</h3>
+                @for (note of entry().notes; track $index) {
+                    <p>{{ note }}</p>
+                }
+            </aside>
+        }
+
+        <!-- Navigation entre peuples -->
+        <nav class="people-nav" aria-label="Naviguer entre les peuples">
+            <a [routerLink]="'/lore/peuples/' + prevPeople().slug">← {{ prevPeople().label }}</a>
+            <a [routerLink]="'/lore/peuples/' + nextPeople().slug">{{ nextPeople().label }} →</a>
+        </nav>
+    </main>
+</div>

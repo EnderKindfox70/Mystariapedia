@@ -555,6 +555,29 @@ h1
     text-shadow: 0 0 18px color-mix(in srgb, var(--domain-color) 70%, transparent);
 }
 
+.domain-sigil--has-icon
+{
+    /* L'icône déborde un peu du gabarit du sigil pour rester bien visible. */
+    overflow: visible;
+}
+
+.domain-sigil__img
+{
+    position: relative;
+    z-index: 1;
+    width: 135%;
+    height: 135%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--domain-color) 60%, transparent));
+}
+
+/* Domaine avec icône : on masque le cercle/croix décoratifs (placeholder). */
+.domain-sigil--has-icon::before,
+.domain-sigil--has-icon::after
+{
+    display: none;
+}
+
 .domain-sigil::before,
 .domain-sigil::after
 {
@@ -794,4 +817,30 @@ h1
     {
         grid-template-columns: 1fr;
     }
+}
+
+/* ── Accès à la constellation des combinaisons ── */
+.domains-constellation-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.4rem;
+}
+.constellation-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1.4rem;
+    border: 1px solid var(--ancient-gold, #8b6b2f);
+    border-radius: 6px;
+    background: linear-gradient(180deg, rgba(139, 107, 47, .28), rgba(75, 46, 89, .22));
+    color: var(--faded-ivory, #ede6d6);
+    font: 600 .92rem var(--font-title);
+    letter-spacing: .05em;
+    text-decoration: none;
+    transition: background .2s, box-shadow .2s, transform .14s;
+}
+.constellation-btn:hover {
+    background: linear-gradient(180deg, rgba(139, 107, 47, .45), rgba(75, 46, 89, .35));
+    box-shadow: 0 0 1rem rgba(139, 107, 47, .4);
+    transform: translateY(-1px);
 }

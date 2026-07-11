@@ -1,0 +1,205 @@
+.peoples-paper > *
+{
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Héros ── */
+.peoples-hero
+{
+    display: grid;
+    gap: clamp(1rem, 4vw, 2.6rem);
+    align-items: center;
+    margin: 0 0 2rem;
+    padding: clamp(1.25rem, 3vw, 2.2rem);
+    overflow: hidden;
+    border: 1px solid rgba(43, 26, 18, .34);
+    border-block: 3px double rgba(139, 107, 47, .48);
+    background:
+        radial-gradient(circle at 84% 45%, rgba(139, 107, 47, .3), transparent 12rem),
+        linear-gradient(90deg, rgba(217, 204, 184, .36), rgba(188, 169, 139, .08));
+    box-shadow: inset 0 0 2.4rem rgba(61, 38, 23, .2);
+}
+
+.peoples-hero__kicker
+{
+    display: inline-flex;
+    margin-bottom: .7rem;
+    color: rgba(43, 26, 18, .72);
+    font: 700 .78rem var(--font-title);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.peoples-hero h1
+{
+    color: #16110d;
+    font-size: clamp(3.4rem, 9vw, 6rem);
+}
+
+.peoples-hero__rule
+{
+    max-width: 28rem;
+    margin: 1.2rem 0 1.3rem;
+    border-top: 1px solid rgba(43, 26, 18, .45);
+}
+
+.peoples-hero p
+{
+    max-width: 46rem;
+    color: rgba(34, 23, 19, .82);
+    font-style: italic;
+}
+
+/* ── Titres de section ── */
+section
+{
+    margin-bottom: 1.5em;
+}
+
+.section-heading
+{
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin: 2rem 0 1rem;
+    padding: .65rem .85rem .55rem;
+    border: 1px solid rgba(34, 23, 19, .32);
+    border-left: 4px solid var(--ritual-red);
+    background:
+        linear-gradient(90deg, rgba(34, 23, 19, .09), transparent 72%),
+        radial-gradient(circle at 0% 50%, rgba(139, 107, 47, .18), transparent 22rem);
+    box-shadow: inset 0 0 22px rgba(61, 38, 23, .12);
+}
+
+.section-heading h2
+{
+    color: #2b1a12;
+    font-size: 1.5em;
+    margin-bottom: 0;
+}
+
+.section-heading span
+{
+    color: var(--ritual-red);
+    font-family: var(--font-occult);
+    text-shadow: 0 0 10px rgba(139, 107, 47, .28);
+}
+
+/* ── Grille des peuples ── */
+.peoples-grid
+{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: .9rem;
+    margin-top: 1.2rem;
+}
+
+.people-card
+{
+    --people-color: #8b6b2f;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 13rem;
+    padding: 1.4rem .9rem 1.1rem;
+    overflow: hidden;
+    color: var(--faded-ivory);
+    text-align: center;
+    text-decoration: none;
+    background:
+        radial-gradient(circle at 50% 16%, color-mix(in srgb, var(--people-color) 32%, transparent), transparent 38%),
+        linear-gradient(180deg, rgba(28, 23, 19, .96), rgba(8, 7, 6, .98));
+    border: 1px solid color-mix(in srgb, var(--people-color) 54%, #1c1712);
+    box-shadow:
+        inset 0 0 34px rgba(0, 0, 0, .78),
+        0 12px 24px rgba(34, 23, 19, .18);
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.people-card::before
+{
+    position: absolute;
+    inset: .45rem;
+    pointer-events: none;
+    content: '';
+    border: 1px solid rgba(237, 230, 214, .08);
+    background:
+        linear-gradient(135deg, var(--people-color) 0 .45rem, transparent .48rem) top left,
+        linear-gradient(225deg, var(--people-color) 0 .45rem, transparent .48rem) top right,
+        linear-gradient(45deg, var(--people-color) 0 .45rem, transparent .48rem) bottom left,
+        linear-gradient(315deg, var(--people-color) 0 .45rem, transparent .48rem) bottom right;
+    background-repeat: no-repeat;
+    background-size: 1.25rem 1.25rem;
+    opacity: .5;
+}
+
+.people-card:hover
+{
+    border-color: color-mix(in srgb, var(--people-color) 78%, #d9ccb8);
+    box-shadow:
+        inset 0 0 38px rgba(0, 0, 0, .72),
+        0 0 20px color-mix(in srgb, var(--people-color) 34%, transparent),
+        0 14px 28px rgba(34, 23, 19, .24);
+    transform: translateY(-3px);
+}
+
+.people-card:focus-visible
+{
+    outline: 2px solid color-mix(in srgb, var(--people-color) 68%, #ede6d6);
+    outline-offset: 3px;
+}
+
+.people-sigil
+{
+    display: grid;
+    place-items: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    margin-bottom: .7rem;
+    font-size: 1.9rem;
+    color: color-mix(in srgb, var(--people-color) 70%, #ede6d6);
+    border: 1px solid color-mix(in srgb, var(--people-color) 50%, transparent);
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--people-color) 24%, transparent), transparent 70%);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--people-color) 60%, transparent);
+}
+
+.people-card h3
+{
+    margin: 0 0 .3rem;
+    color: var(--faded-ivory);
+    font-family: var(--font-title);
+    font-size: 1.12rem;
+}
+
+.people-card p
+{
+    margin: 0;
+    color: rgba(237, 230, 214, .74);
+    font-size: .88rem;
+    font-style: italic;
+}
+
+.people-card__cta
+{
+    margin-top: auto;
+    padding-top: .8rem;
+    color: color-mix(in srgb, var(--people-color) 62%, #ede6d6);
+    font-size: .78rem;
+    letter-spacing: .04em;
+    opacity: 0;
+    transition: opacity .22s ease;
+}
+
+.people-card:hover .people-card__cta
+{
+    opacity: 1;
+}
+
+@media (max-width: 640px)
+{
+    .peoples-grid { grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); }
+}

@@ -2,6 +2,7 @@
   {
     "key": "warrior",
     "name": "Guerrier",
+    "inspirationPerLevel": 2,
     "stats": [{"key": "hp", "value": 15}, {"key": "endurance", "value": 10}, {"key": "atk_phy", "value": 8}, {"key": "atk_mag", "value": 4}, {"key": "mana", "value":3}, {"key": "speed", "value": 6}],
     "skillChoices": 2,
     "skillOptions": ["athletism", "intimidation", "perception", "survival", "animal-handling", "acrobatics"],
@@ -19,6 +20,7 @@
   {
     "key": "mage",
     "name": "Mage",
+    "inspirationPerLevel": 4,
     "stats": [{"key": "hp", "value": 4}, {"key": "endurance", "value": 4}, {"key": "atk_phy", "value": 2}, {"key": "atk_mag", "value": 10}, {"key": "mana", "value":10}, {"key": "speed", "value": 6}],
     "skillChoices": 2,
     "skillOptions": ["arcana", "history", "religion", "investigation", "insight", "nature"],
@@ -34,6 +36,7 @@
   {
     "key": "ranger",
     "name": "Ranger",
+    "inspirationPerLevel": 2,
     "stats": [{"key": "hp", "value": 6}, {"key": "endurance", "value": 6}, {"key": "atk_phy", "value": 6}, {"key": "atk_mag", "value": 4}, {"key": "mana", "value":4}, {"key": "speed", "value": 8}],
     "skillChoices": 3,
     "skillOptions": ["survival", "nature", "perception", "stealth", "animal-handling", "athletism", "acrobatics"],
@@ -51,6 +54,7 @@
   {
     "key": "rogue",
     "name": "Vagabond",
+    "inspirationPerLevel": 3,
     "stats": [{"key": "hp", "value": 6}, {"key": "endurance", "value": 4}, {"key": "atk_phy", "value": 6}, {"key": "atk_mag", "value": 4}, {"key": "mana", "value":6}, {"key": "speed", "value": 10}],
     "skillChoices": 4,
     "skillOptions": ["stealth", "deception", "acrobatics", "sleight-of-hand", "perception", "persuasion", "investigation", "intimidation"],
@@ -68,6 +72,7 @@
   {
     "key": "pugilist",
     "name": "Pugiliste",
+    "inspirationPerLevel": 1,
     "stats": [{"key": "hp", "value": 8}, {"key": "endurance", "value": 6}, {"key": "atk_phy", "value": 10}, {"key": "atk_mag", "value": 2}, {"key": "mana", "value": 2}, {"key": "speed", "value": 8}],
     "skillChoices": 2,
     "skillOptions": ["athletism", "acrobatics", "intimidation", "insight", "perception"],

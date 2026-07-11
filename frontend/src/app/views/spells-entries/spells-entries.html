@@ -1,0 +1,719 @@
+<div class="layout">
+  <navbar></navbar>
+
+  @if (page(); as p) {
+    <main [class]="'paper-surface spell-entry domain-' + primaryDomain()">
+
+      <!-- ── Hero : identité du sort ── -->
+      <section class="se-hero">
+        <div class="se-hero__text">
+          <span class="se-hero__kicker">
+            {{ p.kind === 'combination' ? 'Sort de combinaison' : 'Sort élémentaire' }}
+          </span>
+          <h1 class="se-hero__name">{{ p.spell.name }}</h1>
+          <div class="se-hero__rule" aria-hidden="true"></div>
+
+          <div class="se-meta">
+            <span class="se-lvl-box">Niv. {{ p.spell.level }}</span>
+            <span class="se-mana">
+              <img class="se-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true">
+              {{ p.spell.mana }} <small>mana</small>
+            </span>
+          </div>
+
+          <p class="se-description">{{ p.spell.description }}</p>
+        </div>
+
+        <div class="se-hero__emblem" aria-hidden="true">
+          @if (emblem()) {
+            <img class="se-hero__icon" [src]="emblem()" [alt]="p.spell.name">
+          } @else {
+            <div class="se-hero__circle">{{ domainSigil(primaryDomain()) }}</div>
+          }
+        </div>
+      </section>
+
+      <!-- ── Origine : domaine(s) dont provient le sort ── -->
+      <section class="se-section">
+        <div class="se-section-heading">
+          <h2>{{ p.kind === 'combination' ? 'Combinaison de domaines' : 'Domaine' }}</h2>
+        </div>
+
+        @if (p.kind === 'combination') {
+          <div class="se-origin" [style.background]="originGradient()">
+            <div class="se-origin__emblems">
+              @for (c of p.domains; track c; let last = $last) {
+                <a [routerLink]="'/magics/' + c" class="se-origin__emblem" [title]="domainLabel(c)">
+                  <span [class]="'se-emblem domain-' + c">
+                    @if (domainIcon(c)) {
+                      <img class="se-emblem-img" [src]="domainIcon(c)" alt="">
+                    } @else {
+                      {{ domainSigil(c) }}
+                    }
+                  </span>
+                  <span class="se-origin__label">{{ domainLabel(c) }}</span>
+                </a>
+                @if (!last) { <span class="se-origin__plus">+</span> }
+              }
+            </div>
+            @if (p.comboName) {
+              <span class="se-origin__name">{{ p.comboName }}</span>
+            }
+          </div>
+        } @else {
+          <a [routerLink]="'/magics/' + primaryDomain()" class="se-origin se-origin--single">
+            <span [class]="'se-emblem domain-' + primaryDomain()">
+              @if (domainIcon(primaryDomain())) {
+                <img class="se-emblem-img" [src]="domainIcon(primaryDomain())" alt="">
+              } @else {
+                {{ domainSigil(primaryDomain()) }}
+              }
+            </span>
+            <span class="se-origin__label">{{ domainLabel(primaryDomain()) }}</span>
+          </a>
+        }
+      </section>
+
+      <!-- ── Aspects (sous-domaines) ── -->
+      @if (p.spell.subdomains.length) {
+        <section class="se-section">
+          <div class="se-section-heading"><h2>Aspects</h2></div>
+          <ul class="se-tags">
+            @for (sub of p.spell.subdomains; track sub) {
+              <li class="se-tag">{{ sub }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      <!-- ── Arbre de sorts : prérequis & déblocages ── -->
+      @if (prerequisites().length || unlocks().length) {
+        <section class="se-section se-tree-links">
+          <div class="se-section-heading"><h2>Arbre de sorts</h2></div>
+          <div class="se-req-grid">
+            <div class="se-req-col">
+              <span class="se-req-col__label">Requis pour débloquer</span>
+              @if (prerequisites().length) {
+                <ul class="se-req-list">
+                  @for (r of prerequisites(); track r.spell.key) {
+                    <li>
+                      <a [routerLink]="'/magics/spell/' + r.spell.key"
+                         [class]="'se-req-link se-req-link--prereq domain-' + r.domains[0]">
+                        <span class="se-req-emblem">
+                          @if (r.icon || domainIcon(r.domains[0]); as ic) {
+                            <img class="se-req-emblem-img" [src]="ic" alt="">
+                          } @else { {{ domainSigil(r.domains[0]) }} }
+                        </span>
+                        <span class="se-req-name">{{ r.spell.name }}</span>
+                        <span class="se-req-lvl">Niv. {{ r.spell.level }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="se-req-empty">Aucun — sort de base.</p>
+              }
+            </div>
+
+            <div class="se-req-arrow" aria-hidden="true">→</div>
+
+            <div class="se-req-current">
+              <span class="se-req-col__label">Ce sort</span>
+              <div [class]="'se-req-link se-req-link--current domain-' + primaryDomain()">
+                <span class="se-req-emblem">
+                  @if (emblem()) {
+                    <img class="se-req-emblem-img" [src]="emblem()" alt="">
+                  } @else { {{ domainSigil(primaryDomain()) }} }
+                </span>
+                <span class="se-req-name">{{ p.spell.name }}</span>
+                <span class="se-req-lvl">Niv. {{ p.spell.level }}</span>
+              </div>
+            </div>
+
+            <div class="se-req-arrow" aria-hidden="true">→</div>
+
+            <div class="se-req-col">
+              <span class="se-req-col__label">Débloque</span>
+              @if (unlocks().length) {
+                <ul class="se-req-list">
+                  @for (u of unlocks(); track u.spell.key) {
+                    <li>
+                      <a [routerLink]="'/magics/spell/' + u.spell.key"
+                         [class]="'se-req-link se-req-link--unlock domain-' + u.domains[0]">
+                        <span class="se-req-emblem">
+                          @if (u.icon || domainIcon(u.domains[0]); as ic) {
+                            <img class="se-req-emblem-img" [src]="ic" alt="">
+                          } @else { {{ domainSigil(u.domains[0]) }} }
+                        </span>
+                        <span class="se-req-name">{{ u.spell.name }}</span>
+                        <span class="se-req-lvl">Niv. {{ u.spell.level }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="se-req-empty">Aboutissement de sa branche.</p>
+              }
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ══════════════════════════════════════════
+           CADRAN D'UTILISATION (combat / hors combat)
+           Bascule affichée uniquement si le sort sert dans les deux contextes.
+      ══════════════════════════════════════════ -->
+      <ng-template #usageDial>
+        @if (usage(); as u) {
+          <div class="se-usage" [attr.data-mode]="usageMode()">
+            @if (hasBothUsages()) {
+              <div class="se-usage__switch" role="tablist" aria-label="Contexte d'utilisation">
+                <button type="button" class="se-usage__tab" role="tab"
+                        [class.is-active]="usageMode() === 'combat'"
+                        [attr.aria-selected]="usageMode() === 'combat'"
+                        (click)="setUsageMode('combat')">
+                  <span class="se-usage__icon" aria-hidden="true">⚔</span> En combat
+                </button>
+                <button type="button" class="se-usage__tab" role="tab"
+                        [class.is-active]="usageMode() === 'outOfCombat'"
+                        [attr.aria-selected]="usageMode() === 'outOfCombat'"
+                        (click)="setUsageMode('outOfCombat')">
+                  <span class="se-usage__icon" aria-hidden="true">✦</span> Hors combat
+                </button>
+              </div>
+            }
+            <div class="se-usage__cadran">
+              @if (usageMode() === 'combat') {
+                @if (!hasBothUsages()) {
+                  <span class="se-usage__label"><span class="se-usage__icon" aria-hidden="true">⚔</span> En combat</span>
+                }
+                <p class="se-usage__text">{{ u.combat }}</p>
+              } @else {
+                @if (!hasBothUsages()) {
+                  <span class="se-usage__label"><span class="se-usage__icon" aria-hidden="true">✦</span> Hors combat</span>
+                }
+                <p class="se-usage__text">{{ u.outOfCombat }}</p>
+              }
+            </div>
+          </div>
+        }
+      </ng-template>
+
+      <!-- ══════════════════════════════════════════
+           ARBRE D'AMÉLIORATION (si le sort en a un)
+      ══════════════════════════════════════════ -->
+      @if (hasProgression() && layout(); as lay) {
+        <section class="se-section se-upgrade">
+          <div class="se-section-heading"><h2>Arbre d'amélioration</h2></div>
+
+          <!-- Légende des branches -->
+          @if (branches().length) {
+            <ul class="se-legend">
+              <li class="se-legend__item">
+                <span class="se-legend__dot" [style.background]="branchColor('trunk')"></span>
+                Tronc commun
+              </li>
+              @for (b of branches(); track b.id) {
+                <li class="se-legend__item" [title]="b.description ?? ''">
+                  <span class="se-legend__dot" [style.background]="branchColor(b.id)"></span>
+                  {{ b.label }}
+                </li>
+              }
+            </ul>
+          }
+
+          <!-- Canevas de l'arbre -->
+          <div class="se-tree-scroll">
+            <div class="se-tree" [style.width.px]="lay.width" [style.height.px]="lay.height">
+              <svg class="se-tree__edges" [attr.viewBox]="'0 0 ' + lay.width + ' ' + lay.height"
+                   [attr.width]="lay.width" [attr.height]="lay.height" aria-hidden="true">
+                @for (e of lay.edges; track e.from + '>' + e.to) {
+                  <path class="se-edge" [class.is-active]="isEdgeOnPath(e)" [attr.d]="e.d"
+                        [style.stroke]="isEdgeOnPath(e) ? domainColor(primaryDomain()) : null"></path>
+                }
+              </svg>
+
+              @for (l of lay.nodes; track l.node.id) {
+                <button type="button"
+                        class="se-node"
+                        [class.is-active]="isOnPath(l.node.id)"
+                        [class.is-selected]="isSelected(l.node.id)"
+                        [style.left.px]="l.x" [style.top.px]="l.y"
+                        [style.width.px]="nodeW" [style.height.px]="nodeH"
+                        [style.--branch-color]="branchColor(l.node.branch)"
+                        (click)="select(l.node.id)">
+                  <span class="se-node__tier">{{ l.node.tier }}</span>
+                  <span class="se-node__name">{{ l.node.name }}</span>
+                  <span class="se-node__stats">
+                    @if (l.node.stats.damageMin !== undefined) {
+                      <span class="se-node__stat se-node__stat--dmg">
+                        {{ l.node.stats.damageMin }}–{{ l.node.stats.damageMax }}
+                      </span>
+                    }
+                    @if (l.node.stats.heal !== undefined) {
+                      <span class="se-node__stat se-node__stat--heal">+{{ l.node.stats.heal }}</span>
+                    }
+                    <span class="se-node__stat se-node__stat--mana">{{ l.node.stats.mana }} mana</span>
+                  </span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Détail du nœud sélectionné + simulateur -->
+          @if (selectedNode(); as node) {
+            <div class="se-detail">
+              <div class="se-detail__main" [style.--branch-color]="branchColor(node.branch)"
+                   [attr.data-usage]="usageMode()">
+                <header class="se-detail__head">
+                  <div class="se-detail__titles">
+                    <span class="se-detail__tier">Palier {{ node.tier }}</span>
+                    <h3 class="se-detail__name">{{ node.name }}</h3>
+                  </div>
+                  @if (hasBothUsages()) {
+                    <div class="se-usage__switch" role="tablist" aria-label="Contexte d'utilisation">
+                      <button type="button" class="se-usage__tab" role="tab"
+                              [class.is-active]="usageMode() === 'combat'"
+                              [attr.aria-selected]="usageMode() === 'combat'"
+                              (click)="setUsageMode('combat')">
+                        <span class="se-usage__icon" aria-hidden="true">⚔</span> En combat
+                      </button>
+                      <button type="button" class="se-usage__tab" role="tab"
+                              [class.is-active]="usageMode() === 'outOfCombat'"
+                              [attr.aria-selected]="usageMode() === 'outOfCombat'"
+                              (click)="setUsageMode('outOfCombat')">
+                        <span class="se-usage__icon" aria-hidden="true">✦</span> Hors combat
+                      </button>
+                    </div>
+                  }
+                </header>
+
+                @if (usageMode() === 'outOfCombat') {
+                  <!-- Vue hors combat : effet utilitaire du palier -->
+                  <div class="se-detail__effect se-spell-box se-usage__cadran">
+                    @if (nodeOutOfCombat(); as txt) {
+                      <span class="se-box__mech">{{ txt }}</span>
+                    } @else {
+                      <span class="se-usage__none">Aucune utilité hors combat à ce palier.</span>
+                    }
+                  </div>
+
+                  <dl class="se-stats">
+                    <div class="se-stat">
+                      <dt>Mana</dt>
+                      <dd><span class="se-stat__base">{{ node.stats.mana }}</span></dd>
+                    </div>
+                    @if (node.stats.range) {
+                      <div class="se-stat"><dt>Portée</dt><dd>{{ node.stats.range }}</dd></div>
+                    }
+                    @if (node.stats.area) {
+                      <div class="se-stat"><dt>Zone</dt><dd>{{ node.stats.area }}</dd></div>
+                    }
+                    @if (node.stats.duration) {
+                      <div class="se-stat">
+                        <dt>Durée</dt>
+                        <dd><span class="se-stat__base">{{ node.stats.duration }}</span> tour{{ node.stats.duration > 1 ? 's' : '' }}</dd>
+                      </div>
+                    }
+                  </dl>
+                } @else {
+                <!-- Vue combat : mécaniques chiffrées du palier -->
+                <div class="se-detail__effect se-spell-box">
+                  <span class="se-box__mech" [class.is-malus]="isPureMalus(node)">
+                    @if (node.description) {
+                      <span class="se-box__lead">{{ node.description }}</span>
+                    }
+
+                    @for (dp of damagePercentBreakdowns(); track dp.of) {
+                      Inflige
+                      <span class="se-inline-val"
+                            [attr.data-type]="damageTypeInfo()?.key"
+                            [class.has-tip]="dp.parts.length > 0"
+                            [attr.tabindex]="dp.parts.length > 0 ? 0 : null">
+                        {{ dp.baseMin }}@if (dp.baseMax !== dp.baseMin) {–{{ dp.baseMax }}} %
+                        @if (dp.parts.length > 0) {
+                          <span class="se-effect-tip" role="tooltip">
+                            <span class="se-effect-tip__row">Base <b>{{ dp.baseMin }}@if (dp.baseMax !== dp.baseMin) {–{{ dp.baseMax }}} %</b></span>
+                            @for (p of dp.parts; track p.label) {
+                              <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
+                            }
+                          </span>
+                        }
+                      </span>
+                      des {{ percentOfLabel(dp.of) }} de la cible (ignore les défenses)@if (damageTypeInfo(); as dt) { <span class="se-dmg-type" [attr.data-type]="dt.key" [attr.data-general]="dt.general" [attr.title]="'Dégâts ' + dt.generalLabel">{{ dt.label }}</span>}.
+                    }
+
+                    @if (damageComponents().length) {
+                      Inflige
+                      @for (dc of damageComponents(); track $index; let last = $last) {
+                        <span class="se-inline-val"
+                              [attr.data-type]="dc.type?.key"
+                              [class.has-tip]="dc.parts.length > 0"
+                              [attr.tabindex]="dc.parts.length > 0 ? 0 : null">
+                          {{ dc.baseMin }}@if (dc.baseMax !== dc.baseMin) {–{{ dc.baseMax }}}
+                          @if (dc.parts.length > 0) {
+                            <span class="se-effect-tip" role="tooltip">
+                              <span class="se-effect-tip__row">Base <b>{{ dc.baseMin }}@if (dc.baseMax !== dc.baseMin) {–{{ dc.baseMax }}}</b></span>
+                              @for (pp of dc.parts; track pp.label) {
+                                <span class="se-effect-tip__row">+ {{ num(pp.ratio) }} × {{ pp.label }}</span>
+                              }
+                            </span>
+                          }
+                        </span>
+                        @if (dc.type) { <span class="se-dmg-type" [attr.data-type]="dc.type.key" [attr.data-general]="dc.type.general" [attr.title]="'Dégâts ' + dc.type.generalLabel">{{ dc.type.label }}</span>}
+                        @if (!last) {<span class="se-box__sep"> + </span>}
+                      }
+                      dégâts{{ targetsPhrase(node) }}.
+                    }
+
+                    @if (healBreakdown(); as hb) {
+                      Restaure
+                      <span class="se-inline-val"
+                            [class.has-tip]="hb.parts.length > 0"
+                            [attr.tabindex]="hb.parts.length > 0 ? 0 : null">
+                        {{ hb.base }}
+                        @if (hb.parts.length > 0) {
+                          <span class="se-effect-tip" role="tooltip">
+                            <span class="se-effect-tip__row">Base <b>{{ hb.base }}</b></span>
+                            @for (p of hb.parts; track p.label) {
+                              <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
+                            }
+                          </span>
+                        }
+                      </span>
+                      points de vie{{ targetsPhrase(node) }}.
+                    }
+
+                    @if (node.stats.effects?.length) {
+                      {{ effectActionVerb(node) }}
+                      @for (e of node.stats.effects ?? []; track e.stat; let i = $index; let first = $first; let count = $count) {
+                        @if (!first) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
+                        {{ statNoun(e.stat) }} de
+                        <span class="se-inline-val"
+                              [class.has-tip]="(e.scaling?.length ?? 0) > 0"
+                              [attr.tabindex]="(e.scaling?.length ?? 0) > 0 ? 0 : null">
+                          {{ effectSign(node) }}{{ e.value ?? 0 }}
+                          @if ((e.scaling?.length ?? 0) > 0) {
+                            <span class="se-effect-tip" role="tooltip">
+                              <span class="se-effect-tip__row">Base <b>{{ e.value ?? 0 }}</b></span>
+                              @for (p of effectBreakdown(e).parts; track p.label) {
+                                <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
+                              }
+                            </span>
+                          }
+                        </span>
+                      }
+                      @if (node.stats.duration) {
+                        <span class="se-box__sep"> pendant </span>
+                        <span class="se-inline-val"
+                              [class.has-tip]="durationScaled(node)"
+                              [attr.tabindex]="durationScaled(node) ? 0 : null">
+                          {{ node.stats.duration }}
+                          @if (durationScaled(node)) {
+                            <span class="se-effect-tip" role="tooltip">
+                              <span class="se-effect-tip__row">Base <b>{{ node.stats.duration }}</b></span>
+                              @for (p of durationBreakdown(node).parts; track p.label) {
+                                <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
+                              }
+                            </span>
+                          }
+                        </span>
+                        tour{{ node.stats.duration > 1 ? 's' : '' }}.
+                      } @else { . }
+                    }
+
+                    @if (inflictedStatuses().length) {
+                      <span class="se-box__inflict">
+                        Applique
+                        @for (s of inflictedStatuses(); track s.def?.key ?? $index; let i = $index; let count = $count) {
+                          @if (i > 0) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
+                          <span class="se-status-kw has-tip" [attr.data-cat]="s.def?.category" tabindex="0">
+                            {{ s.def?.name ?? s.def?.key }}
+                            @if (s.def; as def) {
+                              <span class="se-effect-tip se-status-tip" role="tooltip">
+                                <span class="se-status-tip__head">{{ def.name }} · {{ statusCategoryLabel(def.category) }}</span>
+                                <span class="se-effect-tip__row">{{ def.effect }}</span>
+                                @if (def.tick?.damage) { <span class="se-effect-tip__row">≈ {{ def.tick!.damage }} dégâts / tour</span> }
+                                @if (def.tick?.heal) { <span class="se-effect-tip__row">≈ +{{ def.tick!.heal }} PV / tour</span> }
+                                <span class="se-effect-tip__row">durée {{ s.duration }} tour{{ s.duration > 1 ? 's' : '' }}</span>
+                                <span class="se-effect-tip__row se-status-tip__ends">{{ def.ends }}</span>
+                              </span>
+                            }
+                          </span>
+                          (<span class="se-inline-val">{{ s.chance }} %</span>)@if (i === count - 1) {.}
+                        }
+                      </span>
+                    }
+
+                    @if (recoilBreakdown(); as rb) {
+                      <span class="se-box__recoil">
+                        Contre-coup : le lanceur subit
+                        <span class="se-inline-val is-recoil"
+                              [class.has-tip]="rb.parts.length > 0"
+                              [attr.tabindex]="rb.parts.length > 0 ? 0 : null">
+                          {{ rb.baseMin }}@if (rb.baseMax !== rb.baseMin) {–{{ rb.baseMax }}}
+                          @if (rb.parts.length > 0) {
+                            <span class="se-effect-tip" role="tooltip">
+                              <span class="se-effect-tip__row">Base <b>{{ rb.baseMin }}@if (rb.baseMax !== rb.baseMin) {–{{ rb.baseMax }}}</b></span>
+                              @for (p of rb.parts; track p.label) {
+                                <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
+                              }
+                            </span>
+                          }
+                        </span>
+                        dégâts@if (rb.note) { {{ rb.note }}}.
+                      </span>
+                    }
+                  </span>
+                </div>
+
+                @if (choices().length) {
+                  <div class="se-choices">
+                    <span class="se-choices__label">Choix possibles ({{ choices().length }})</span>
+                    <ul class="se-choices__list">
+                      @for (ch of choices(); track ch.name) {
+                        <li class="se-choice">
+                          <span class="se-choice__head">
+                            <span class="se-choice__name">« {{ ch.name }} »</span>
+                            @if (ch.mana !== undefined) {
+                              <span class="se-choice__mana">{{ ch.mana }} mana</span>
+                            }
+                            <span class="se-choice__fx">
+                              @if (ch.damageMin !== undefined) {
+                                <span class="se-inline-val" [attr.data-type]="choiceDamageType(ch)?.key">{{ ch.damageMin }}@if (ch.damageMax !== undefined && ch.damageMax !== ch.damageMin) {–{{ ch.damageMax }}}</span>
+                                @if (choiceDamageType(ch); as dt) { <span class="se-dmg-type" [attr.data-type]="dt.key" [attr.data-general]="dt.general">{{ dt.label }}</span>}
+                                <span class="se-choice__unit">dégâts</span>
+                              }
+                              @if (ch.heal !== undefined) {
+                                <span class="se-inline-val se-inline-val--heal">+{{ ch.heal }}</span> <span class="se-choice__unit">PV</span>
+                              }
+                              @for (e of ch.effects ?? []; track e.stat) {
+                                <span class="se-choice__chip">{{ effectSign(node) }}{{ e.value ?? 0 }} {{ sourceLabel(e.stat) }}</span>
+                              }
+                              @if (ch.recoil; as rc) {
+                                <span class="se-choice__recoil">contrecoup
+                                  <span class="se-inline-val is-recoil">{{ rc.damageMin }}@if (rc.damageMax !== undefined && rc.damageMax !== rc.damageMin) {–{{ rc.damageMax }}}</span>@if (rc.note) { {{ rc.note }}}
+                                </span>
+                              }
+                              @for (s of choiceStatuses(ch); track s.def?.key ?? $index) {
+                                <span class="se-status-kw has-tip" [attr.data-cat]="s.def?.category" tabindex="0">
+                                  {{ s.def?.name ?? '?' }}
+                                  @if (s.def; as def) {
+                                    <span class="se-effect-tip se-status-tip" role="tooltip">
+                                      <span class="se-status-tip__head">{{ def.name }} · {{ statusCategoryLabel(def.category) }}</span>
+                                      <span class="se-effect-tip__row">{{ def.effect }}</span>
+                                      <span class="se-effect-tip__row">durée {{ s.duration }} tour{{ s.duration > 1 ? 's' : '' }}</span>
+                                      <span class="se-effect-tip__row se-status-tip__ends">{{ def.ends }}</span>
+                                    </span>
+                                  }
+                                </span>
+                                <span class="se-choice__chance">{{ s.chance }} %</span>
+                              }
+                              @if (ch.duration) {
+                                <span class="se-choice__dur">{{ ch.duration }} tour{{ ch.duration > 1 ? 's' : '' }}</span>
+                              }
+                            </span>
+                          </span>
+                          @if (ch.description) { <span class="se-choice__desc">{{ ch.description }}</span> }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+                @if (weatherInfo(); as w) {
+                  <div class="se-weather">
+                    <span class="se-weather__label">Météo invoquée</span>
+                    <div class="se-weather__head">
+                      <span class="se-weather__name">{{ w.weather.name }}</span>
+                      <span class="se-weather__dur">{{ w.weather.defaultDuration }} tour{{ w.weather.defaultDuration > 1 ? 's' : '' }}</span>
+                    </div>
+                    <p class="se-weather__desc">{{ w.weather.description }}</p>
+                    <ul class="se-weather__fx">
+                      @if (w.statuses.length) {
+                        <li class="se-weather__row">
+                          <span class="se-weather__fx-label">Applique</span>
+                          @for (s of w.statuses; track s.key) {
+                            <span class="se-status-kw has-tip" [attr.data-cat]="s.category" tabindex="0">
+                              {{ s.name }}
+                              <span class="se-effect-tip se-status-tip" role="tooltip">
+                                <span class="se-status-tip__head">{{ s.name }} · {{ statusCategoryLabel(s.category) }}</span>
+                                <span class="se-effect-tip__row">{{ s.effect }}</span>
+                                @if (s.weaknesses?.length) {
+                                  <span class="se-effect-tip__row">Faiblesse : @for (t of s.weaknesses; track t; let l = $last) { {{ dmgTypeLabel(t) }}@if (!l) {, }}</span>
+                                }
+                                @if (s.resistances?.length) {
+                                  <span class="se-effect-tip__row">Résistance : @for (t of s.resistances; track t; let l = $last) { {{ dmgTypeLabel(t) }}@if (!l) {, }}</span>
+                                }
+                                <span class="se-effect-tip__row se-status-tip__ends">{{ s.ends }}</span>
+                              </span>
+                            </span>
+                          }
+                        </li>
+                      }
+                      @if (w.weather.randomDamage; as rd) {
+                        <li class="se-weather__row">
+                          <span class="se-weather__fx-label">Dégâts aléatoires</span>
+                          <span class="se-inline-val" [attr.data-type]="w.randomType?.key">{{ rd.min }}–{{ rd.max }}</span>
+                          @if (w.randomType; as dt) { <span class="se-dmg-type" [attr.data-type]="dt.key" [attr.data-general]="dt.general">{{ dt.label }}</span>}
+                          <span class="se-weather__note">{{ rd.chance }} % / tour</span>
+                        </li>
+                      }
+                      @for (m of w.damageMods; track m.label) {
+                        <li class="se-weather__row">
+                          <span class="se-weather__fx-label">Sorts {{ m.label }}</span>
+                          <span class="se-weather__mod" [class.is-cheaper]="m.factor > 1" [class.is-costlier]="m.factor < 1">dégâts {{ m.pct > 0 ? '+' : '' }}{{ m.pct }} %</span>
+                        </li>
+                      }
+                      @for (m of w.costMods; track m.label) {
+                        <li class="se-weather__row">
+                          <span class="se-weather__fx-label">Sorts {{ m.label }}</span>
+                          <span class="se-weather__mod" [class.is-cheaper]="m.factor < 1" [class.is-costlier]="m.factor > 1">coût {{ m.pct > 0 ? '+' : '' }}{{ m.pct }} %</span>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+                <dl class="se-stats">
+                  @if (node.stats.damageMin !== undefined) {
+                    <div class="se-stat">
+                      <dt>Dégâts de base</dt>
+                      <dd><span class="se-stat__base">{{ node.stats.damageMin }}–{{ node.stats.damageMax }}</span></dd>
+                    </div>
+                  }
+                  @if (node.stats.damagePercentMaxHp; as d) {
+                    <div class="se-stat">
+                      <dt>Dégâts (% PV max)</dt>
+                      <dd><span class="se-stat__base">{{ d.min }}@if (d.max !== undefined && d.max !== d.min) {–{{ d.max }}} %</span></dd>
+                    </div>
+                  }
+                  @if (node.stats.damagePercentCurrentHp; as d) {
+                    <div class="se-stat">
+                      <dt>Dégâts (% PV actuels)</dt>
+                      <dd><span class="se-stat__base">{{ d.min }}@if (d.max !== undefined && d.max !== d.min) {–{{ d.max }}} %</span></dd>
+                    </div>
+                  }
+                  @if (node.stats.heal !== undefined) {
+                    <div class="se-stat">
+                      <dt>Soin de base</dt>
+                      <dd><span class="se-stat__base">+{{ node.stats.heal }}</span></dd>
+                    </div>
+                  }
+                  <div class="se-stat">
+                    <dt>Mana</dt>
+                    <dd><span class="se-stat__base">{{ node.stats.mana }}</span></dd>
+                  </div>
+                  @if (node.stats.range) {
+                    <div class="se-stat"><dt>Portée</dt><dd>{{ node.stats.range }}</dd></div>
+                  }
+                  @if (node.stats.area) {
+                    <div class="se-stat"><dt>Zone</dt><dd>{{ node.stats.area }}</dd></div>
+                  }
+                  @if (node.stats.duration) {
+                    <div class="se-stat">
+                      <dt>Durée</dt>
+                      <dd><span class="se-stat__base">{{ node.stats.duration }}</span> tour{{ node.stats.duration > 1 ? 's' : '' }}</dd>
+                    </div>
+                  }
+                </dl>
+
+                @if (node.stats.targets?.length) {
+                  <div class="se-targets">
+                    <span class="se-targets__label">Cibles :</span>
+                    @for (t of node.stats.targets; track t) {
+                      <span [class]="'se-target se-target--' + t">{{ targetLabel(t) }}</span>
+                    }
+                  </div>
+                }
+
+                @if (classBonuses().length) {
+                  <div class="se-class-bonuses">
+                    <span class="se-class-bonuses__label">Bonus de classe</span>
+                    <ul class="se-class-list">
+                      @for (cb of classBonuses(); track cb.class) {
+                        <li class="se-class-item">
+                          <span class="se-class-badge" [attr.data-class]="cb.class">{{ classLabel(cb.class) }}</span>
+                          <span class="se-class-desc">
+                            {{ cb.description }}
+                            @for (e of cb.effects ?? []; track e.stat) {
+                              <span class="se-class-effect">{{ classEffectChip(e) }}</span>
+                            }
+                            @for (sc of cb.scaling ?? []; track sc.source) {
+                              <span class="se-class-effect">{{ classScalingChip(sc) }}</span>
+                            }
+                            @if (cb.manaFactor !== undefined) {
+                              <span class="se-class-effect se-class-effect--mana">{{ manaFactorChip(cb.manaFactor) }}</span>
+                            }
+                          </span>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+                }
+
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- Repli : sort sans arbre mais avec une utilisation renseignée -->
+      @if (!hasProgression() && usage()) {
+        <section class="se-section se-upgrade">
+          <div class="se-section-heading"><h2>Utilisation</h2></div>
+          <ng-container [ngTemplateOutlet]="usageDial"></ng-container>
+        </section>
+      }
+
+      <!-- ── Navigation entre sorts ── -->
+      <nav class="se-spell-nav" aria-label="Navigation entre sorts">
+        @if (prevSpell(); as prev) {
+          <a [routerLink]="'/magics/spell/' + prev.spell.key"
+             [class]="'se-spell-nav__link se-spell-nav__link--prev domain-' + prev.domains[0]">
+            <span class="se-spell-nav__arrow">←</span>
+            <span class="se-spell-nav__info">
+              <span class="se-spell-nav__hint">Sort précédent</span>
+              <span class="se-spell-nav__name">{{ prev.spell.name }}</span>
+            </span>
+          </a>
+        } @else { <span></span> }
+
+        <a [routerLink]="'/magics/' + primaryDomain()" class="se-spell-nav__index">
+          <span class="se-spell-nav__index-sigil" aria-hidden="true">✦</span>
+          <span class="se-spell-nav__index-label">Retour au domaine</span>
+        </a>
+
+        @if (nextSpell(); as next) {
+          <a [routerLink]="'/magics/spell/' + next.spell.key"
+             [class]="'se-spell-nav__link se-spell-nav__link--next domain-' + next.domains[0]">
+            <span class="se-spell-nav__info">
+              <span class="se-spell-nav__hint">Sort suivant</span>
+              <span class="se-spell-nav__name">{{ next.spell.name }}</span>
+            </span>
+            <span class="se-spell-nav__arrow">→</span>
+          </a>
+        } @else { <span></span> }
+      </nav>
+
+    </main>
+  } @else {
+    <main class="paper-surface spell-entry">
+      <section class="se-hero se-hero--missing">
+        <div class="se-hero__text">
+          <span class="se-hero__kicker">Sort introuvable</span>
+          <h1 class="se-hero__name">Grimoire muet</h1>
+          <div class="se-hero__rule" aria-hidden="true"></div>
+          <p class="se-description">
+            Aucun sort ne répond au sceau « {{ slug() }} ». Il n'a peut-être jamais été consigné.
+          </p>
+          <a routerLink="/magics" class="se-spell-nav__index">
+            <span class="se-spell-nav__index-sigil" aria-hidden="true">✦</span>
+            <span class="se-spell-nav__index-label">Retour aux domaines</span>
+          </a>
+        </div>
+      </section>
+    </main>
+  }
+</div>

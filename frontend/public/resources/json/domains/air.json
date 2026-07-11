@@ -5,26 +5,11 @@
     "first-quote": "On ne me voit jamais. On ne voit que ce que je déplace.",
     "usage-quote": "Ne t'attaches pas. Laisse-toi porter. Le vent est libre.",
     "subdomains": [
-        {
-            "name": "Vent",
-            "icon": ""
-        },
-        {
-            "name": "Météo",
-            "icon": ""
-        },
-        {
-            "name": "Son",
-            "icon": ""
-        },
-        {
-            "name": "Vide",
-            "icon": ""
-        },
-        {
-            "name": "Liberté",
-            "icon": ""
-        }
+        { "name": "Vent", "icon": "" },
+        { "name": "Météo", "icon": "" },
+        { "name": "Son", "icon": "" },
+        { "name": "Vide", "icon": "" },
+        { "name": "Liberté", "icon": "" }
     ],
     "spells": [
         {
@@ -33,19 +18,56 @@
             "description": "Libère une rafale de vent qui repousse les créatures et disperse projectiles, gaz et brumes.",
             "mana": 2,
             "level": 1,
-            "subdomains": [
-                "Vent"
-            ]
-        },
-        {
-            "key": "air-caprice-du-ciel",
-            "name": "Caprice du ciel",
-            "description": "Infléchit le temps local — brume, rafales ou éclaircie — sur une zone pendant un moment.",
-            "mana": 5,
-            "level": 4,
-            "subdomains": [
-                "Météo"
-            ]
+            "subdomains": ["Vent"],
+            "progression": {
+                "root": "ab1",
+                "branches": [
+                    { "id": "tornade", "label": "Voie de la Tornade", "description": "Un vortex qui soulève et malmène : dégâts et déséquilibre." },
+                    { "id": "rafale", "label": "Voie de la Rafale", "description": "Un souffle large et économe qui repousse et ralentit tout un front." }
+                ],
+                "nodes": [
+                    {
+                        "id": "ab1", "tier": 1, "branch": "trunk", "name": "Bourrasque I",
+                        "description": "Une rafale qui bouscule les créatures et disperse projectiles et brumes.",
+                        "next": ["ab2"],
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 2, "range": "10 m", "area": "Cône 4 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "ab2", "tier": 2, "branch": "trunk", "name": "Bourrasque II",
+                        "description": "Le souffle enfle : cône plus large et poussée plus vive.",
+                        "next": ["ab3"],
+                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 3, "range": "12 m", "area": "Cône 5 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    },
+                    {
+                        "id": "ab3", "tier": 3, "branch": "trunk", "name": "Bourrasque III",
+                        "description": "Point de scission : le vent peut tournoyer en tornade ou s'étaler en rafale.",
+                        "next": ["abt4", "abr4"],
+                        "stats": { "damageMin": 7, "damageMax": 12, "mana": 4, "range": "12 m", "area": "Cône 6 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    },
+                    {
+                        "id": "abt4", "tier": 4, "branch": "tornade", "name": "Tornade",
+                        "description": "Un vortex qui soulève et fait tournoyer ses proies.",
+                        "next": ["abt5"],
+                        "stats": { "damageMin": 14, "damageMax": 20, "mana": 6, "range": "14 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.7 }] }
+                    },
+                    {
+                        "id": "abt5", "tier": 5, "branch": "tornade", "name": "Cyclone",
+                        "description": "Une colonne de vent déchaînée qui broie et projette tout un rayon.",
+                        "stats": { "damageMin": 22, "damageMax": 32, "mana": 9, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 1.0 }] }
+                    },
+                    {
+                        "id": "abr4", "tier": 4, "branch": "rafale", "name": "Rafale continue",
+                        "description": "Un vent soutenu et bon marché qui repousse et ralentit une large ligne.",
+                        "next": ["abr5"],
+                        "stats": { "damageMin": 7, "damageMax": 11, "mana": 3, "range": "16 m", "area": "Cône 8 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    },
+                    {
+                        "id": "abr5", "tier": 5, "branch": "rafale", "name": "Bourrasque déferlante",
+                        "description": "Un mur de vent qui balaie et englue tout un front pour presque rien.",
+                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 4, "range": "18 m", "area": "Cône 10 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    }
+                ]
+            }
         },
         {
             "key": "air-cri-sonique",
@@ -53,19 +75,30 @@
             "description": "Concentre l'air en une onde sonore tranchante qui assourdit et meurtrit ce qu'elle frappe.",
             "mana": 3,
             "level": 2,
-            "subdomains": [
-                "Son"
-            ]
-        },
-        {
-            "key": "air-poche-de-vide",
-            "name": "Poche de vide",
-            "description": "Aspire l'air d'une zone pour y créer un vide qui étouffe flammes, sons et souffle des créatures.",
-            "mana": 5,
-            "level": 4,
-            "subdomains": [
-                "Vide"
-            ]
+            "subdomains": ["Son"],
+            "requires": ["air-bourrasque"],
+            "progression": {
+                "root": "as1",
+                "nodes": [
+                    {
+                        "id": "as1", "tier": 1, "branch": "trunk", "name": "Cri sonique I",
+                        "description": "Une onde sonore tranchante qui meurtrit et assourdit sur son passage.",
+                        "next": ["as2"],
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 3, "range": "12 m", "area": "Ligne 6 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "as2", "tier": 2, "branch": "trunk", "name": "Cri sonique II",
+                        "description": "Le hurlement porte plus loin et sature davantage l'ouïe.",
+                        "next": ["as3"],
+                        "stats": { "damageMin": 6, "damageMax": 10, "mana": 4, "range": "14 m", "area": "Ligne 8 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    },
+                    {
+                        "id": "as3", "tier": 3, "branch": "trunk", "name": "Cri sonique III",
+                        "description": "Un cri assourdissant qui broie l'air et coupe l'ennemi de ses incantations.",
+                        "stats": { "damageMin": 9, "damageMax": 14, "mana": 5, "range": "16 m", "area": "Ligne 10 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    }
+                ]
+            }
         },
         {
             "key": "air-pas-du-vent",
@@ -73,9 +106,163 @@
             "description": "Allège le corps du lanceur, lui offrant une rapidité et une agilité libérées de toute entrave.",
             "mana": 3,
             "level": 2,
-            "subdomains": [
-                "Liberté"
-            ]
+            "subdomains": ["Liberté"],
+            "requires": ["air-bourrasque"],
+            "progression": {
+                "root": "af1",
+                "nodes": [
+                    {
+                        "id": "af1", "tier": 1, "branch": "trunk", "name": "Pas du vent I",
+                        "description": "Le corps s'allège : déplacements plus vifs et plus souples.",
+                        "next": ["af2"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "speed", "value": 2, "scaling": [{ "source": "dexterite", "ratio": 0.4 }] }] }
+                    },
+                    {
+                        "id": "af2", "tier": 2, "branch": "trunk", "name": "Pas du vent II",
+                        "description": "La légèreté s'accroît : foulée quasi aérienne.",
+                        "next": ["af3"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "speed", "value": 3, "scaling": [{ "source": "dexterite", "ratio": 0.5 }] }] }
+                    },
+                    {
+                        "id": "af3", "tier": 3, "branch": "trunk", "name": "Pas du vent III",
+                        "description": "Un pas de vent presque insaisissable, rapide et fuyant.",
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "speed", "value": 4, "scaling": [{ "source": "dexterite", "ratio": 0.6 }] }, { "stat": "def_phy", "value": 1, "scaling": [{ "source": "dexterite", "ratio": 0.3 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "air-caprice-du-ciel",
+            "name": "Caprice du ciel",
+            "description": "Infléchit le temps local — brume, rafales ou éclaircie — sur une zone pendant un moment.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": ["Météo"],
+            "requires": ["air-cri-sonique"],
+            "progression": {
+                "root": "ac1",
+                "nodes": [
+                    {
+                        "id": "ac1", "tier": 1, "branch": "trunk", "name": "Caprice du ciel I",
+                        "description": "Convoque une brume rampante qui trouble la vue sur une zone.",
+                        "next": ["ac2"],
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 5, "range": "20 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                    },
+                    {
+                        "id": "ac2", "tier": 2, "branch": "trunk", "name": "Caprice du ciel II",
+                        "description": "Le ciel se couvre : la brume s'épaissit et s'étend.",
+                        "next": ["ac3"],
+                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 6, "range": "22 m", "area": "Rayon 7 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "ac3", "tier": 3, "branch": "trunk", "name": "Caprice du ciel III",
+                        "description": "Une intempérie capricieuse qui aveugle et déroute tout un secteur.",
+                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 8, "range": "24 m", "area": "Rayon 9 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 70 }, { "status": "ralentissement", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "air-poche-de-vide",
+            "name": "Poche de vide",
+            "description": "Aspire l'air d'une zone pour y créer un vide qui étouffe flammes, sons et souffle des créatures.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": ["Vide"],
+            "requires": ["air-cri-sonique"],
+            "progression": {
+                "root": "av1",
+                "nodes": [
+                    {
+                        "id": "av1", "tier": 1, "branch": "trunk", "name": "Poche de vide I",
+                        "description": "Aspire l'air d'une zone : les créatures suffoquent et perdent leur voix.",
+                        "next": ["av2"],
+                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 5, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "av2", "tier": 2, "branch": "trunk", "name": "Poche de vide II",
+                        "description": "Le vide s'élargit et l'asphyxie se fait plus rude.",
+                        "next": ["av3"],
+                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 7, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    },
+                    {
+                        "id": "av3", "tier": 3, "branch": "trunk", "name": "Poche de vide III",
+                        "description": "Un néant d'air total qui étouffe flammes, sons et souffle de tous.",
+                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 9, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 80 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "air-revetement-arme",
+            "requires": ["air-revetement-poings"],
+            "name": "Lame des bourrasques",
+            "description": "Nimbe une arme de lames de vent : tant que l'enchantement dure, chaque coup inflige des dégâts de vent supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts de vent à chacune de vos attaques au corps à corps, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement peut servir à trancher des liens, disperser fumées ou rafraîchir."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Vent"],
+            "damageType": "wind",
+            "progression": {
+                "root": "ra1",
+                "nodes": [
+                    {
+                        "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame des bourrasques I",
+                        "description": "Votre arme se nimbe de lames de vent : chaque attaque au corps à corps inflige ces dégâts de vent en plus, le temps de l'enchantement.",
+                        "next": ["ra2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vent accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame des bourrasques II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["ra3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vent accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame des bourrasques III",
+                        "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts de vent durables.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vent accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "air-revetement-poings",
+            "name": "Poings des bourrasques",
+            "description": "Nimbe vos poings de lames de vent : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de vent supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts de vent à vos attaques à mains nues, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement des poings peut servir à trancher des liens, disperser fumées ou rafraîchir."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": ["Vent"],
+            "damageType": "wind",
+            "progression": {
+                "root": "rp1",
+                "nodes": [
+                    {
+                        "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings des bourrasques I",
+                        "description": "Vos poings se nimbent de lames de vent : chaque coup à mains nues inflige ces dégâts de vent en plus.",
+                        "next": ["rp2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                    },
+                    {
+                        "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings des bourrasques II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["rp3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                    },
+                    {
+                        "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings des bourrasques III",
+                        "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts de vent.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                    }
+                ]
+            }
         }
     ],
     "magic-items-and-artifacts": [],

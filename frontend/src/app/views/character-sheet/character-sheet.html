@@ -321,30 +321,102 @@
         </fieldset>
 
         <fieldset class="cs-fieldset">
-          <legend>Sorts — Connus</legend>
+          <legend>Sorts — Déblocage & équipement</legend>
           @if (model.domains.length === 0) {
             <p class="cs-stats-note">Sélectionne au moins un domaine de magie pour proposer des sorts.</p>
-          }
-          @for (spell of model.spells.known; track trackByIndex($index)) {
-            <div class="cs-spell">
-              <input type="number" class="cs-spell__lvl" [name]="'kl-' + $index" [(ngModel)]="spell.level" [readonly]="!!spell.key" title="Niveau de déblocage" />
-              <select class="cs-spell__name" [name]="'kn-' + $index" [(ngModel)]="spell.key" (ngModelChange)="onSpellKeyChange(spell)" title="Sort">
-                <option value="">— Choisir un sort —</option>
-                @for (s of availableSpells; track s.key) {
-                  <option [value]="s.key">{{ domainSpellSigils(s) }} {{ s.name }} — Niv. {{ s.level }} · {{ s.mana }} mana</option>
+          } @else {
+            <p class="cs-spell-cap cs-inspiration" [class.is-empty]="inspirationLeft <= 0">
+              <span class="cs-inspiration__spark" aria-hidden="true">✦</span>
+              Inspiration : <b>{{ inspirationLeft }}</b> / {{ inspirationTotal }}
+              <span class="cs-spell-cap__hint">
+                @if (inspirationPerLevel > 0) {
+                  {{ inspirationPerLevel }}/niv. (classe) · sert à débloquer (1 pt) et améliorer (1 pt/rang) les sorts
+                } @else {
+                  Choisis une classe pour gagner des points d'inspiration.
                 }
-              </select>
-              <select class="cs-spell__school" [name]="'ks-' + $index" [(ngModel)]="spell.school" title="Domaine">
-                <option value="">—</option>
-                @for (d of domains; track d.key) { <option [value]="d.key">{{ d.name }}</option> }
-              </select>
-              <button type="button" class="cs-mini-del" (click)="removeSpell(model.spells.known, $index)">✕</button>
-            </div>
-            @if (spellDescription(spell)) {
-              <p class="cs-spell__desc"><span class="cs-spell__mana">Niv. {{ spell.level }} · {{ spellMana(spell) }} mana</span> — {{ spellDescription(spell) }}</p>
-            }
+              </span>
+            </p>
+            <p class="cs-spell-cap">
+              Équipés :
+              <b [class.is-full]="equippedSpells.length >= equippedCap">{{ equippedSpells.length }} / {{ equippedCap }}</b>
+              <span class="cs-spell-cap__hint">plafond = 3 + mod. Intelligence · seuls les sorts équipés sont utilisables en combat</span>
+            </p>
+            <ul class="cs-spellpool">
+              @for (s of domainSpellPool; track s.key) {
+                <li class="cs-poolspell"
+                    [class.is-unlocked]="isSpellUnlocked(s.key)"
+                    [class.is-equipped]="isSpellEquipped(s.key)"
+                    [class.is-locked]="!isSpellUnlocked(s.key) && !canUnlock(s)">
+                  <div class="cs-poolspell__row">
+                    <span class="cs-poolspell__sigil" aria-hidden="true">{{ domainSpellSigils(s) }}</span>
+                    <span class="cs-poolspell__body">
+                      <span class="cs-poolspell__name">{{ s.name }}</span>
+                      <span class="cs-poolspell__meta">
+                        Niv. {{ s.level }} · {{ s.mana }} mana
+                        @if (s.requires?.length) { · <span class="cs-poolspell__req">requiert {{ requiresLabel(s) }}</span> }
+                      </span>
+                    </span>
+                    <span class="cs-poolspell__actions">
+                      @if (isSpellUnlocked(s.key)) {
+                        @if (hasSpellTree(s.key)) {
+                          <span class="cs-rank__badge" title="Palier le plus élevé débloqué">R{{ spellRank(s.key) }}/{{ spellMaxRank(s.key) }}</span>
+                        }
+                        <button type="button" class="cs-chip" [class.is-on]="isSpellEquipped(s.key)"
+                                [disabled]="!isSpellEquipped(s.key) && equippedSpells.length >= equippedCap"
+                                [title]="isSpellEquipped(s.key) ? 'Déséquiper' : (equippedSpells.length >= equippedCap ? 'Plafond d\'équipés atteint' : 'Équiper (combat)')"
+                                (click)="toggleEquip(s.key)">
+                          {{ isSpellEquipped(s.key) ? '★ Équipé' : '☆ Équiper' }}
+                        </button>
+                        <button type="button" class="cs-mini-del" [disabled]="hasUnlockedDependents(s.key)"
+                                [title]="hasUnlockedDependents(s.key) ? 'Des sorts débloqués en dépendent' : 'Oublier ce sort'"
+                                (click)="forgetSpell(s.key)">✕</button>
+                      } @else if (canUnlock(s)) {
+                        <button type="button" class="cs-chip cs-chip--unlock" (click)="unlockSpell(s)">＋ Débloquer</button>
+                      } @else {
+                        <span class="cs-poolspell__lock" [title]="lockReason(s)">🔒</span>
+                      }
+                    </span>
+                  </div>
+
+                  @if (isSpellUnlocked(s.key) && hasSpellTree(s.key)) {
+                    <details class="cs-tree">
+                      <summary class="cs-tree__summary">
+                        Améliorer — paliers {{ unlockedNodes(s.key).length }}/{{ spellNodes(s.key).length }}
+                        <span class="cs-tree__hint">chaque palier coûte 1 inspiration · choisis tes branches</span>
+                      </summary>
+                      <ul class="cs-tree__nodes">
+                        @for (n of spellNodes(s.key); track n.id) {
+                          <li class="cs-tnode"
+                              [class.is-on]="isNodeUnlocked(s.key, n.id)"
+                              [class.is-excluded]="isBranchExcluded(s.key, n.id)"
+                              [class.is-branch]="n.branch && n.branch !== 'trunk'">
+                            <span class="cs-tnode__tier">P{{ n.tier }}</span>
+                            <span class="cs-tnode__body">
+                              <span class="cs-tnode__name">{{ n.name }}</span>
+                              <span class="cs-tnode__branch">{{ branchLabel(s.key, n) }}</span>
+                            </span>
+                            @if (isNodeUnlocked(s.key, n.id)) {
+                              @if (canRemoveNode(s.key, n.id)) {
+                                <button type="button" class="cs-rank__btn" title="Retirer ce palier (rend 1 inspiration)" (click)="removeNode(s.key, n.id)">−</button>
+                              } @else {
+                                <span class="cs-tnode__on" title="Palier acquis">✓</span>
+                              }
+                            } @else if (canUnlockNode(s.key, n.id)) {
+                              <button type="button" class="cs-rank__btn is-add" title="Débloquer ce palier (1 inspiration)" (click)="unlockNode(s.key, n.id)">＋</button>
+                            } @else if (isBranchExcluded(s.key, n.id)) {
+                              <span class="cs-tnode__dim" title="Une autre branche a été choisie — retire-la d'abord pour changer de voie">⊘</span>
+                            } @else {
+                              <span class="cs-tnode__dim" title="Débloque d'abord le palier précédent">·</span>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    </details>
+                  }
+                </li>
+              }
+            </ul>
           }
-          <button type="button" class="cs-add" (click)="addSpell(model.spells.known)">＋ Ajouter un sort connu</button>
         </fieldset>
 
         <fieldset class="cs-fieldset">
@@ -551,23 +623,36 @@
 
           <!-- SORTS -->
           <section class="sheet-block sheet-spells">
-            <h2 class="sheet-banner">Sorts</h2>
+            <h2 class="sheet-banner">Sorts équipés <span class="sheet-spells__cap">{{ equippedSpells.length }}/{{ equippedCap }}</span></h2>
+            @if (inspirationTotal > 0) {
+              <p class="sheet-spells__insp">✦ Inspiration {{ inspirationLeft }}/{{ inspirationTotal }}</p>
+            }
             <ul class="sheet-spell-list">
-              @for (spell of model.spells.known; track trackByIndex($index)) {
-                <li>
-                  <span class="sheet-spell__lvl">{{ spell.level }}</span>
-                  <span class="sheet-spell__name">{{ spell.name }}</span>
-                  @if (spellMana(spell) !== null) {
-                    <span class="sheet-spell__mana" title="Coût en mana">{{ spellMana(spell) }} mana</span>
-                  } @else {
-                    <span class="sheet-spell__mana"></span>
-                  }
-                  <span class="sheet-spell__school" [title]="domainName(spell.school)">{{ spellSigils(spell) }}</span>
+              @for (s of equippedSpells; track s.key) {
+                <li class="is-equipped">
+                  <span class="sheet-spell__lvl">{{ s.level }}</span>
+                  <span class="sheet-spell__name" [title]="s.name">{{ spellCurrentName(s.key) }}@if (spellMaxRank(s.key) > 1) { <span class="sheet-spell__rank">R{{ spellRank(s.key) }}</span>}</span>
+                  <span class="sheet-spell__mana" title="Coût en mana">{{ s.mana }} mana</span>
+                  <span class="sheet-spell__school" [title]="domainSpellSigils(s)">{{ domainSpellSigils(s) }}</span>
                 </li>
               } @empty {
-                <li class="sheet-empty">Aucun sort connu</li>
+                <li class="sheet-empty">Aucun sort équipé</li>
               }
             </ul>
+
+            @if (unlockedNotEquipped.length) {
+              <h3 class="sheet-spells__sub">Débloqués ({{ unlockedNotEquipped.length }})</h3>
+              <ul class="sheet-spell-list sheet-spell-list--muted">
+                @for (s of unlockedNotEquipped; track s.key) {
+                  <li>
+                    <span class="sheet-spell__lvl">{{ s.level }}</span>
+                    <span class="sheet-spell__name" [title]="s.name">{{ spellCurrentName(s.key) }}@if (spellMaxRank(s.key) > 1) { <span class="sheet-spell__rank">R{{ spellRank(s.key) }}</span>}</span>
+                    <span class="sheet-spell__mana" title="Coût en mana">{{ s.mana }} mana</span>
+                    <span class="sheet-spell__school" [title]="domainSpellSigils(s)">{{ domainSpellSigils(s) }}</span>
+                  </li>
+                }
+              </ul>
+            }
           </section>
 
           <!-- COMPÉTENCES DE CLASSE -->

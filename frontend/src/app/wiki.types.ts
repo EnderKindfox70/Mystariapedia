@@ -12,6 +12,7 @@ export type WikiCollection =
   | 'rituals'
   | 'locations'
   | 'factions'
+  | 'peoples'
   | 'resources/fauna'
   | 'resources/flora'
   | 'resources/minerals'
@@ -24,16 +25,387 @@ export interface SubdomainEntry {
   description: string;
 }
 
+/** Cibles qu'un sort peut affecter. */
+export type SpellTarget = 'enemy' | 'ally' | 'self' | 'everyone';
+
+/**
+ * Source de scaling d'une valeur : une stat de combat (atk_mag, atk_phy…) ou un
+ * attribut (force, dexterite…). Alignée sur `StatKey | AttributeKey` de la fiche
+ * de personnage — dupliquée ici pour ne pas coupler le wiki au module perso.
+ */
+export type SpellScalingSource =
+  | 'atk_mag' | 'atk_phy' | 'def_mag' | 'def_phy'
+  | 'hp' | 'mana' | 'endurance' | 'speed'
+  | 'force' | 'dexterite' | 'constitution'
+  | 'intelligence' | 'sagesse' | 'charisme';
+
+/** Valeur cible d'une contribution de scaling. */
+export type SpellScalingAffects = 'damage' | 'heal' | 'mana';
+
+/** Ampleur qualitative d'un effet de buff/malus non chiffré. */
+export type SpellEffectMagnitude = 'léger' | 'modéré' | 'fort';
+
+/**
+ * Modification d'une stat/attribut par un sort (buff sur soi/allié, malus sur
+ * ennemi). Le sens (bonus ou pénalité) se déduit des `targets` du nœud.
+ */
+export interface SpellStatEffect {
+  /** Stat de combat ou attribut affecté (speed, atk_phy, force…). */
+  stat: SpellScalingSource;
+  /** Valeur de base du bonus/malus (magnitude, toujours positive). */
+  value?: number;
+  /**
+   * Scaling chiffré du bonus/malus : chaque entrée ajoute `ratio × valeur(source)`
+   * à la valeur de base. Le champ `affects` de `SpellScaling` est ignoré ici
+   * (le scaling porte sur cet effet précis).
+   */
+  scaling?: SpellScaling[];
+  /** Ampleur qualitative, en repli quand la valeur n'est pas chiffrée. */
+  magnitude?: SpellEffectMagnitude;
+}
+
+/** Contribution de scaling : ajoute `ratio × valeur(source)` à la valeur cible. */
+export interface SpellScaling {
+  source: SpellScalingSource;
+  /** Multiplicateur appliqué à la valeur de la source. */
+  ratio: number;
+  /** Valeur affectée (par défaut : les dégâts). */
+  affects?: SpellScalingAffects;
+}
+
+/** Application d'un statut par un nœud de sort, avec sa chance à l'impact. */
+export interface SpellStatusApplication {
+  /** Clé du statut infligé (cf. status_effects.json). */
+  status: string;
+  /** Chance d'infliger le statut si l'attaque touche (0–100 %). */
+  chance: number;
+  /** Durée en tours si elle diffère de la durée par défaut du statut. */
+  duration?: number;
+}
+
+/**
+ * Bonus accordé à un sort selon la classe du personnage. Le bonus peut être
+ * purement statistique (`effects` / `scaling`) et/ou un changement de
+ * fonctionnement décrit en toutes lettres (`description`).
+ */
+export interface SpellClassBonus {
+  /** Clé de la classe concernée (cf. classes.json : warrior, mage, pugilist…). */
+  class: string;
+  /** Description du bonus (indispensable pour les changements de fonctionnement). */
+  description: string;
+  /** Modificateurs de stats chiffrés éventuels. */
+  effects?: SpellStatEffect[];
+  /** Scaling additionnel éventuel (ex. ratio de dégâts accru pour la classe). */
+  scaling?: SpellScaling[];
+  /**
+   * Facteur multiplicatif sur le coût en mana du sort pour cette classe
+   * (ex. 0.5 = coût divisé par deux).
+   */
+  manaFactor?: number;
+}
+
+/** Contre-coup : dégâts que le lanceur s'inflige à lui-même en lançant le sort. */
+export interface SpellRecoil {
+  /** Dégâts subis par le lanceur (min). */
+  damageMin: number;
+  /** Dégâts subis par le lanceur (max, si différent du min). */
+  damageMax?: number;
+  /** Scaling éventuel du contre-coup. */
+  scaling?: SpellScaling[];
+  /** Précision affichée (ex. « à la main »). */
+  note?: string;
+}
+
+/**
+ * Une composante de dégâts d'un nœud : un montant min/max, son type spécifique
+ * et un scaling propre. Permet de scinder un sort en plusieurs types (ex. Éclipse
+ * = lumière + ténèbres), chaque composante étant calculée et affichée séparément.
+ */
+export interface SpellDamage {
+  min: number;
+  max: number;
+  /** Type de dégâts de la composante (cf. damage_type.json). À défaut : type du sort/domaine. */
+  type?: string;
+  /** Scaling propre à cette composante (ajouté à ses dégâts). */
+  scaling?: SpellScaling[];
+}
+
+/**
+ * Dégâts en pourcentage des PV de la cible (ignore les défenses). Une même stat
+ * peut porter les deux formes (% PV max et % PV actuels) : elles sont déclarées
+ * dans deux champs séparés de `SpellNodeStats`. Le scaling `affects:'damage'` du
+ * nœud ajoute des points de pourcentage.
+ */
+export interface SpellPercentDamage {
+  min: number;
+  /** Borne haute si différente du min. */
+  max?: number;
+}
+
+/**
+ * Un choix sélectionnable d'un sort à options. Le lanceur en choisit UN à
+ * l'incantation ; la liste s'étoffe souvent au fil des paliers. Chaque choix
+ * porte son propre jeu d'effets, ce qui rend le mécanisme réutilisable au-delà
+ * des « ordres » : Verbe d'autorité (« Halte ! », « Fuis ! » → statuts), mais
+ * aussi p. ex. Symbiose végétale (une plante par choix, chacune à l'effet
+ * distinct : dégâts, soin, buff…).
+ */
+export interface SpellChoice {
+  /** Libellé du choix (ordre, nom de plante, mode…). */
+  name: string;
+  /** Effet du choix, en clair. */
+  description?: string;
+  /**
+   * Coût en mana propre au choix : le prix du sort peut dépendre de l'option
+   * choisie. À défaut, le `mana` du nœud s'applique.
+   */
+  mana?: number;
+  /** Dégâts de base propres au choix (forme simple, un seul type). */
+  damageMin?: number;
+  damageMax?: number;
+  /** Type de dégâts du choix (cf. damage_type.json). À défaut : type du nœud/sort. */
+  damageType?: string;
+  /** Soin propre au choix. */
+  heal?: number;
+  /** Modifications de stats/attributs propres au choix (buff/malus). */
+  effects?: SpellStatEffect[];
+  /** Statut(s) infligé(s) par le choix (avec % de chance). */
+  inflicts?: SpellStatusApplication[];
+  /** Contre-coup : dégâts que le lanceur s'inflige en optant pour ce choix. */
+  recoil?: SpellRecoil;
+  /** Durée propre au choix, en tours (le cas échéant). */
+  duration?: number;
+}
+
+/** Bloc de statistiques explicites d'un nœud de progression. */
+export interface SpellNodeStats {
+  /** Dégâts de base (min/max) — forme simple, un seul type. Absent pour un sort non offensif. */
+  damageMin?: number;
+  damageMax?: number;
+  /**
+   * Dégâts multi-composantes : plusieurs montants, chacun de son type. Prioritaire
+   * sur `damageMin/damageMax` quand présent (ex. 7–9 lumière + 7–9 ténèbres).
+   */
+  damages?: SpellDamage[];
+  /** Soin de base (sorts de soutien). */
+  heal?: number;
+  /**
+   * Dégâts en % des PV **max** de la cible (ignore les défenses), au lieu de
+   * dégâts fixes. Le scaling `affects: 'damage'` ajoute des points de pourcentage.
+   */
+  damagePercentMaxHp?: SpellPercentDamage;
+  /**
+   * Dégâts en % des PV **actuels** de la cible (ignore les défenses). Peut coexister
+   * avec `damagePercentMaxHp` (les deux composantes s'affichent séparément).
+   */
+  damagePercentCurrentHp?: SpellPercentDamage;
+  /**
+   * Type de dégâts spécifique du nœud (cf. damage_type.json : fire, ice, dark…).
+   * Surcharge le type du sort ; à défaut, dérivé du domaine.
+   */
+  damageType?: string;
+  /** Contre-coup : dégâts que le lanceur s'inflige en lançant le sort. */
+  recoil?: SpellRecoil;
+  /** Coût en mana pour lancer le sort à ce palier. */
+  mana: number;
+  /** Portée d'atteinte, ex. « 8 m », « Contact ». */
+  range?: string;
+  /** Zone d'effet, ex. « Cible unique », « Rayon 3 m ». */
+  area?: string;
+  /** Cibles que le sort peut affecter. */
+  targets?: SpellTarget[];
+  /** Météo invoquée par le sort (cf. weathers.json : storm, blizzard, rain…). */
+  weather?: string;
+  /** Durée de base de l'effet, en tours (buffs, altérations, dégâts sur la durée). */
+  duration?: number;
+  /** Scaling chiffré de la durée : chaque entrée ajoute `ratio × valeur(source)` aux tours. */
+  durationScaling?: SpellScaling[];
+  /** Modifications de stats/attributs (buff sur soi/allié, malus sur ennemi). */
+  effects?: SpellStatEffect[];
+  /** Statuts que le sort peut infliger à l'impact (avec % de chance). */
+  inflicts?: SpellStatusApplication[];
+  /**
+   * Choix sélectionnables (sorts à options). Le lanceur en choisit UN ; la liste
+   * s'étoffe souvent au fil des paliers. Chaque choix a ses propres effets
+   * (ex. Verbe d'autorité, Symbiose végétale).
+   */
+  choices?: SpellChoice[];
+  /** Bonus selon la classe du lanceur (stats et/ou changement de fonctionnement). */
+  classBonuses?: SpellClassBonus[];
+  /** Contributions de scaling (stats de combat / attributs). */
+  scaling?: SpellScaling[];
+}
+
+/* ──────────────────────────────────────────
+   CATALOGUE DES EFFETS DE STATUT
+   Source : public/resources/json/status_effects.json
+─────────────────────────────────────────── */
+
+export type StatusCategory = 'dot' | 'control' | 'debuff' | 'mental' | 'buff';
+
+/** Effet par tour d'un statut (dégâts ou soin, avec scaling éventuel). */
+export interface StatusTick {
+  damage?: number;
+  heal?: number;
+  scaling?: SpellScaling[];
+}
+
+/** Un effet de statut du catalogue (brûlure, poison, paralysie…). */
+export interface StatusEffect {
+  id: number;
+  key: string;
+  name: string;
+  icon: string;
+  category: StatusCategory;
+  /** Type de dégâts par tour (DoT uniquement). */
+  damageType?: string;
+  description: string;
+  /** Effet mécanique résumé. */
+  effect: string;
+  /** Effet par tour (DoT / régénération), ou absent. */
+  tick?: StatusTick | null;
+  /** Modificateurs de stats appliqués tant que le statut est actif. */
+  statEffects: SpellStatEffect[];
+  preventsAction: boolean;
+  preventsMovement: boolean;
+  preventsCasting: boolean;
+  /** Durée par défaut, en tours. */
+  defaultDuration: number;
+  stackable: boolean;
+  /** Types de dégâts auxquels la créature devient vulnérable (cf. damage_type.json). */
+  weaknesses?: string[];
+  /** Types de dégâts auxquels la créature devient résistante. */
+  resistances?: string[];
+  /** Comment le statut prend fin. */
+  ends: string;
+}
+
+/* ──────────────────────────────────────────
+   MÉTÉOS
+   Source : public/resources/json/weathers.json
+─────────────────────────────────────────── */
+
+/** Dégâts aléatoires infligés par une météo à chaque tour. */
+export interface WeatherRandomDamage {
+  type: string;
+  min: number;
+  max: number;
+  /** Chance (%) d'infliger les dégâts à un tour donné. */
+  chance: number;
+}
+
+/** Modificateur de coût en mana d'un domaine sous une météo (facteur multiplicatif). */
+export interface WeatherCostModifier {
+  domain: string;
+  /** Facteur appliqué au coût (0.5 = coût réduit de moitié, 1.5 = +50 %). */
+  factor: number;
+}
+
+/** Une météo invocable, avec ses effets de zone. */
+export interface Weather {
+  id: number;
+  key: string;
+  name: string;
+  icon: string;
+  description: string;
+  /** Statuts appliqués aux créatures présentes (cf. status_effects.json). */
+  appliesStatus: string[];
+  /** Dégâts aléatoires par tour, ou absent. */
+  randomDamage?: WeatherRandomDamage | null;
+  /** Modificateurs de coût en mana des sorts, par domaine. */
+  costModifiers?: WeatherCostModifier[];
+  /** Modificateurs de dégâts des sorts, par domaine (facteur multiplicatif). */
+  damageModifiers?: WeatherCostModifier[];
+  /** Durée par défaut, en tours. */
+  defaultDuration: number;
+}
+
+/** Un nœud de l'arbre d'amélioration d'un sort (valeurs explicites). */
+export interface SpellNode {
+  /** Identifiant unique dans l'arbre. */
+  id: string;
+  /** Palier de progression (1 = sort de base). */
+  tier: number;
+  /** Nom du palier d'amélioration. */
+  name: string;
+  /** Ce que ce palier apporte (texte court). */
+  description?: string;
+  /**
+   * Utilité de ce palier selon le contexte (combat / hors combat). Surcharge
+   * l'`usage` du sort : si un champ est absent, le texte du sort sert de repli.
+   * Permet de montrer comment l'évolution du sort change l'effet dans chaque
+   * contexte (l'un peut évoluer sans l'autre).
+   */
+  usage?: SpellUsage;
+  /** Clé de branche à laquelle le nœud appartient (coloration / regroupement). */
+  branch?: string;
+  /** Statistiques absolues du sort à ce nœud. */
+  stats: SpellNodeStats;
+  /** Nœuds enfants (plusieurs = point d'embranchement). */
+  next?: string[];
+}
+
+/** Une branche nommée de l'arbre (après un point de scission). */
+export interface SpellBranch {
+  id: string;
+  label: string;
+  description?: string;
+}
+
+/** Arbre d'amélioration d'un sort : progression paliers + embranchements. */
+export interface SpellProgression {
+  /** id du nœud racine (palier 1). */
+  root: string;
+  /** Tous les nœuds de l'arbre. */
+  nodes: SpellNode[];
+  /** Libellés des branches, pour l'affichage. */
+  branches?: SpellBranch[];
+}
+
+/**
+ * Utilité d'un sort selon le contexte. Tout sort n'a pas foncièrement un effet
+ * en combat ET hors combat : certains ne servent qu'à l'un des deux (ex. Luciole
+ * n'a aucun effet en combat ; Braises fait des dégâts en combat et permet
+ * d'allumer un feu hors combat). Un champ absent = aucune utilité dans ce contexte.
+ */
+export interface SpellUsage {
+  /** Ce que fait le sort en combat. Absent = aucun effet notable en combat. */
+  combat?: string;
+  /** Utilité hors combat (exploration, quotidien, RP). Absent = aucune. */
+  outOfCombat?: string;
+}
+
 /** Un sort de base d'un domaine (cf. tableau `spells` des fichiers domains/*.json). */
 export interface DomainSpellEntry {
   key: string;
   name: string;
   description: string;
+  /**
+   * Utilité du sort selon le contexte (combat / hors combat). Optionnel : à
+   * défaut, seule la `description` générale renseigne sur l'usage.
+   */
+  usage?: SpellUsage;
   mana: number;
   /** Niveau requis pour débloquer le sort. */
   level: number;
+  /** Icône du sort (généralement celle de son sous-domaine). */
+  icon?: string;
   /** Sous-domaines auxquels le sort appartient. */
   subdomains: string[];
+  /**
+   * Type de dégâts par défaut du sort (cf. damage_type.json : fire, ice, dark…).
+   * À défaut, dérivé du domaine ; surchargeable par nœud.
+   */
+  damageType?: string;
+  /** Météo invoquée par le sort (cf. weathers.json) ; surchargeable par nœud. */
+  weather?: string;
+  /**
+   * Clés des sorts requis pour débloquer celui-ci (prérequis d'arbre de sorts).
+   * La relation inverse (« débloque ») est dérivée automatiquement.
+   */
+  requires?: string[];
+  /** Arbre d'amélioration interactif (optionnel : absent = fiche simple). */
+  progression?: SpellProgression;
 }
 
 export interface DomainManifestation {
@@ -53,6 +425,27 @@ export interface DomainAffinities {
   harmonic?: DomainAffinityEntry;
   resistance?: DomainAffinityEntry;
   opposition?: DomainAffinityEntry;
+}
+
+/**
+ * Données d'une page de sort auto-générée (`/magics/spell/:key`).
+ * Dérivée de la source unique : le sort provient soit d'un domaine (sort
+ * élémentaire), soit de la liste des combinaisons (sort de combinaison).
+ */
+export interface SpellPageData {
+  /** Le sort lui-même (clé = slug de la page). */
+  spell: DomainSpellEntry;
+  /** Origine du sort : élémentaire (un domaine) ou combinaison (2+ domaines). */
+  kind: 'domain' | 'combination';
+  /** Slugs des domaines dont provient le sort (1 = élémentaire, 2+ = combinaison). */
+  domains: string[];
+  /** Nom de la combinaison nommée, si le sort en provient (ex. « Lave »). */
+  comboName?: string;
+  /**
+   * Icône effective du sort : son `icon` propre, sinon celle de son sous-domaine
+   * (repli résolu via la liste `subdomains` du domaine). `''` si aucune.
+   */
+  icon: string;
 }
 
 export interface DomainCombination {
@@ -403,4 +796,56 @@ export interface AmmunitionEntry {
   info?: ResourceInfoField[];
   properties?: string[];
   notes?: string[];
+}
+
+/* ──────────────────────────────────────────
+   PEUPLES (races jouables)
+   Page lore /lore/peuples + fiche JDR /lore/peuples/:slug
+─────────────────────────────────────────── */
+
+/** Un trait racial (aspect « jeu/JDR » d'un peuple). */
+export interface PeopleTrait {
+  name: string;
+  description: string;
+  icon?: string;
+}
+
+/** Affinité magique privilégiée d'un peuple : lien vers le domaine concerné. */
+export interface PeopleAffinity {
+  /** Slug du domaine (cf. domains.catalog : fire, water, earth…). Pilote couleur et lien. */
+  domain: string;
+  /** Note expliquant l'affinité (origine, fréquence…). */
+  note?: string;
+}
+
+/**
+ * Fiche LORE d'un peuple : introduction narrative, identité, traits de saveur et
+ * affinités magiques (dérivées des répartitions de domaines de la page Magie).
+ *
+ * Les données de JEU (modificateurs d'attributs, sous-races, traits mécaniques,
+ * stats de départ) ne sont PAS dupliquées ici : elles proviennent de la source
+ * unique `characters/races.json`, reliée via `raceKey` du catalogue des peuples.
+ */
+export interface PeopleEntry {
+  name: string;
+  /** Sous-titre, ex. « Peuple des profondeurs ». */
+  subtitle?: string;
+  icon?: string;
+  banner?: string;
+  /** Illustration principale du peuple (optionnelle). */
+  image?: string;
+  quote?: string;
+  'quote-author'?: string;
+  /** Paragraphes d'introduction lore. */
+  description: string[];
+  /** Bande d'identité : espérance de vie, taille, habitat, société… */
+  info: ResourceInfoField[];
+  /** Traits de saveur (narratif) — le mécanique vient de races.json. */
+  traits: PeopleTrait[];
+  /** Domaines magiques privilégiés (liens vers /magics/<domain>). */
+  affinities?: PeopleAffinity[];
+  /** Notes / encart final. */
+  notes?: string[];
+  /** Références croisées (lieux d'origine, factions liées…). */
+  references?: ResourceRefGroup[];
 }

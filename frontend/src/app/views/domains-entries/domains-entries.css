@@ -90,7 +90,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 14rem;
+  min-height: 18rem;
 }
 
 .de-hero__circle {
@@ -108,8 +108,8 @@
 .de-hero__icon {
   position: relative;
   z-index: 1;
-  width: clamp(5rem, 10vw, 9rem);
-  height: clamp(5rem, 10vw, 9rem);
+  width: min(100%, 18rem);
+  height: min(100%, 18rem);
   object-fit: contain;
   filter: drop-shadow(0 0 1.4rem var(--domain-glow, rgba(139,107,47,.38)));
 }
@@ -119,6 +119,208 @@
 ═══════════════════════════════════════════ */
 .de-section {
   margin-top: 2.2rem;
+}
+
+/* En-tête « Sorts » avec bouton d'arbre complet */
+.de-spells-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.de-tree-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .45rem .9rem;
+  border: 1px solid color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 55%, #000);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 20%, rgba(237, 230, 214, .5));
+  color: #16110d;
+  font: 600 .8rem var(--font-title);
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .2s, box-shadow .2s, transform .16s;
+}
+.de-tree-btn:hover {
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 34%, rgba(237, 230, 214, .5));
+  box-shadow: 0 0 .8rem var(--domain-glow, rgba(139, 107, 47, .3));
+  transform: translateY(-1px);
+}
+
+/* Overlay + modale de l'arbre de sorts complet */
+.de-tree-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  padding: 2vh 2vw;
+  background: rgba(10, 8, 7, .72);
+  backdrop-filter: blur(3px);
+}
+.de-tree-overlay.is-open {
+  display: grid;
+  place-items: center;
+}
+.de-tree-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(96vw, 1100px);
+  height: 88vh;
+  padding: 1.2rem 1.4rem 1.4rem;
+  border: 1px solid rgba(139, 107, 47, .5);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 15% 0%, var(--domain-glow, rgba(139,107,47,.22)), transparent 60%),
+    linear-gradient(180deg, #ece2cf, #dccbb0);
+  box-shadow: 0 20px 60px rgba(10, 8, 7, .6);
+}
+.de-tree-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.de-tree-modal__head h3 {
+  margin: 0;
+  font: 700 1.3rem var(--font-title);
+  color: #16110d;
+}
+.de-tree-close {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(43, 26, 18, .3);
+  border-radius: 5px;
+  background: rgba(255, 253, 246, .5);
+  font-size: 1rem;
+  color: #2b1a12;
+  cursor: pointer;
+}
+.de-tree-close:hover { background: rgba(255, 253, 246, .9); }
+.de-tree-modal__hint {
+  margin: .3rem 0 .9rem;
+  font-size: .86rem;
+  color: rgba(34, 23, 19, .66);
+}
+.de-tree-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(43, 26, 18, .18);
+  border-radius: 8px;
+  background: rgba(237, 230, 214, .3);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.de-tree-viewport.is-dragging { cursor: grabbing; }
+.de-tree-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* Barre de zoom (coin bas-droit du viewport) */
+.de-tree-zoom {
+  position: absolute;
+  right: .7rem;
+  bottom: .7rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  z-index: 2;
+}
+.de-tree-zoom button {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 55%, #000);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 22%, #ece2cf);
+  color: #16110d;
+  font: 700 1.1rem var(--font-title);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(10, 8, 7, .3);
+  transition: background .2s, transform .12s;
+}
+.de-tree-zoom button:hover {
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 38%, #ece2cf);
+  transform: translateY(-1px);
+}
+.de-tree-zoom__fit { font-size: .95rem; }
+.de-tree-edges {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.de-tree-edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 55%, transparent);
+  stroke-width: 2;
+}
+.de-tree-ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 28%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 7;
+}
+.de-tree-center {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 3.4rem;
+  height: 3.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 45%, #1c2414), #1c2414);
+  border: 2px solid color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 60%, #000);
+  box-shadow: 0 0 1.4rem var(--domain-glow, rgba(139, 107, 47, .5));
+  color: var(--faded-ivory, #ede6d6);
+  font-size: 1.4rem;
+  z-index: 1;
+}
+.de-tree-center img { width: 78%; height: 78%; object-fit: contain; }
+.de-tree-node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: .15rem;
+  padding: .4rem .6rem;
+  border: 1px solid rgba(43, 26, 18, .28);
+  border-left: 4px solid var(--domain-color, var(--ancient-gold));
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(237, 230, 214, .95), rgba(217, 204, 184, .82));
+  box-shadow: 0 1px 3px rgba(43, 26, 18, .2);
+  text-decoration: none;
+  color: #16110d;
+  transition: transform .16s, box-shadow .2s, border-color .2s;
+}
+.de-tree-node:hover {
+  transform: translateY(-2px);
+  border-color: var(--domain-color, var(--ancient-gold));
+  box-shadow: 0 5px 14px var(--domain-glow, rgba(139, 107, 47, .35));
+}
+.de-tree-node__name {
+  font: 600 .9rem var(--font-title);
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.de-tree-node__lvl {
+  font: 600 .68rem var(--font-title);
+  color: var(--dust-brown, #6b533a);
 }
 
 .de-section-heading {
@@ -245,7 +447,14 @@
 .de-icon-img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+}
+
+/* Avec une icône, le cercle vert n'est plus qu'un cadre : on retire bordure et anneau. */
+.de-icon-wrap:has(.de-icon-img) {
+  border: none;
+  box-shadow: none;
+  background: none;
 }
 
 .de-icon-placeholder {
@@ -429,6 +638,25 @@
   background: rgba(43, 26, 18, .04);
 }
 
+/* Carte cliquable menant à la page du sort */
+.de-spell-card--link {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+.de-spell-card--link:hover {
+  border-color: var(--domain-color, var(--ancient-gold));
+  box-shadow:
+    inset 0 0 0 1px rgba(237, 230, 214, .35),
+    0 0 .8rem var(--domain-glow, rgba(139, 107, 47, .28));
+  transform: translateX(2px);
+}
+.de-spell-card--link:focus-visible {
+  outline: 2px solid var(--domain-color, var(--ancient-gold));
+  outline-offset: 2px;
+}
+
 /* Médaillon circulaire (emblème du sort) */
 .de-emblem {
   width: 3rem;
@@ -436,6 +664,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
+  overflow: hidden;
   font-size: 1.4rem;
   color: color-mix(in srgb, var(--domain-secondary, var(--ancient-gold)) 70%, var(--faded-ivory));
   background:
@@ -445,6 +674,19 @@
     inset 0 0 6px rgba(0, 0, 0, .5),
     0 0 0 1px rgba(237, 230, 214, .25),
     0 0 .7rem var(--domain-glow, rgba(139, 107, 47, .3));
+}
+.de-emblem-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: drop-shadow(0 1px 2px rgba(10, 8, 7, .5));
+}
+
+/* Avec une icône, on retire la bordure et l'anneau du cercle vert. */
+.de-emblem:has(.de-emblem-img) {
+  border: none;
+  box-shadow: none;
+  background: none;
 }
 
 .de-spell-card__name {
@@ -518,6 +760,14 @@
   font-size: 1.5rem;
   color: color-mix(in srgb, var(--domain-secondary, var(--ancient-gold)) 55%, transparent);
   opacity: .55;
+}
+.de-illus__img {
+  height: 78%;
+  width: auto;
+  max-width: 86%;
+  object-fit: contain;
+  opacity: .9;
+  filter: drop-shadow(0 1px 2px rgba(10, 8, 7, .5));
 }
 
 /* ── Combinaison nommée : ruban de sous-domaine fusionné ── */

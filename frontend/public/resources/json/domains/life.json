@@ -1,21 +1,21 @@
 {
     "name": "Vie",
-    "icon": "",
+    "icon": "/resources/media/icons/domains/life/life_icon.png",
     "banner": "",
     "first-quote": "Je ne distingue pas le beau du monstrueux. Je crée. Le reste ne me regarde pas.",
     "usage-quote": "Ne dirige pas la vie. Accompagne-la. Elle sait où elle va mieux que toi.",
     "subdomains": [
         {
             "name": "Soin & vitalité",
-            "icons": ""
+            "icon": "/resources/media/icons/domains/life/vitality_icon.png"
         },
         {
             "name": "Manipulation de la chair",
-            "icon": ""
+            "icon": "/resources/media/icons/domains/life/flesh_manipulation_icon.png"
         },
         {
             "name": "Création d'âme",
-            "icon": ""
+            "icon": "/resources/media/icons/domains/life/soul_creation_icon.png"
         }
     ],
     "spells": [
@@ -25,29 +25,219 @@
             "description": "Insuffle de l'énergie vitale dans les blessures d'une créature pour les refermer.",
             "mana": 3,
             "level": 1,
-            "subdomains": [
-                "Soin & vitalité"
-            ]
+            "icon": "/resources/media/icons/domains/life/vitality_icon.png",
+            "subdomains": ["Soin & vitalité"],
+            "progression": {
+                "root": "s1",
+                "branches": [
+                    { "id": "majeure", "label": "Voie de la Guérison majeure", "description": "Soins massifs qui s'étendent à un groupe, au prix d'un coût de mana élevé." },
+                    { "id": "efficiente", "label": "Voie du Soin efficient", "description": "Un soin léger mais quasi gratuit, à relancer sans vider sa réserve." }
+                ],
+                "nodes": [
+                    {
+                        "id": "s1", "tier": 1, "branch": "trunk", "name": "Soin vital I",
+                        "description": "Referme les plaies d'une créature au contact.",
+                        "next": ["s2"],
+                        "stats": { "heal": 4, "mana": 3, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.4, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "s2", "tier": 2, "branch": "trunk", "name": "Soin vital II",
+                        "description": "Un flot d'énergie plus généreux, à courte distance.",
+                        "next": ["s3"],
+                        "stats": { "heal": 7, "mana": 4, "range": "4 m", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.5, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "s3", "tier": 3, "branch": "trunk", "name": "Soin vital III",
+                        "description": "Point de scission : l'énergie vitale peut être amplifiée ou raffinée.",
+                        "next": ["m4", "eff4"],
+                        "stats": { "heal": 11, "mana": 5, "range": "6 m", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.6, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "m4", "tier": 4, "branch": "majeure", "name": "Aura régénérante",
+                        "description": "Le soin rayonne sur tous les alliés proches.",
+                        "next": ["m5"],
+                        "stats": { "heal": 18, "mana": 8, "range": "6 m", "area": "Rayon 3 m", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.8, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "m5", "tier": 5, "branch": "majeure", "name": "Renaissance",
+                        "description": "Une vague de vie éclatante qui arrache un groupe entier au seuil de la mort.",
+                        "stats": { "heal": 28, "mana": 12, "range": "8 m", "area": "Rayon 4 m", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 1.0, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "eff4", "tier": 4, "branch": "efficiente", "name": "Soin mesuré",
+                        "description": "Un soin économe, à peine plus coûteux qu'un souffle.",
+                        "next": ["eff5"],
+                        "stats": { "heal": 11, "mana": 3, "range": "6 m", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.6, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "eff5", "tier": 5, "branch": "efficiente", "name": "Souffle vital",
+                        "description": "Un filet de vie quasi gratuit, à relancer indéfiniment.",
+                        "stats": { "heal": 12, "mana": 1, "range": "6 m", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.6, "affects": "heal" }] }
+                    }
+                ]
+            }
         },
         {
             "key": "life-regeneration-de-la-chair",
+            "requires": ["life-soin-vital"],
             "name": "Régénération de la chair",
             "description": "Force la chair à se reconstruire, restaurant membres meurtris et tissus déchirés.",
             "mana": 5,
             "level": 3,
-            "subdomains": [
-                "Manipulation de la chair"
-            ]
+            "icon": "/resources/media/icons/domains/life/flesh_manipulation_icon.png",
+            "subdomains": ["Manipulation de la chair"],
+            "progression": {
+                "root": "rg1",
+                "branches": [
+                    { "id": "restauration", "label": "Voie de la Restauration", "description": "Reconstruction totale des tissus et membres — puissante mais coûteuse." },
+                    { "id": "vitalite", "label": "Voie de la Vitalité rapide", "description": "Une régénération légère et bon marché, à enchaîner sans effort." }
+                ],
+                "nodes": [
+                    {
+                        "id": "rg1", "tier": 1, "branch": "trunk", "name": "Régénération de la chair I",
+                        "description": "Recoud les tissus déchirés au contact.",
+                        "next": ["rg2"],
+                        "stats": { "heal": 8, "mana": 5, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.5, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "rg2", "tier": 2, "branch": "trunk", "name": "Régénération de la chair II",
+                        "description": "La chair se reconstruit plus vite et plus complètement.",
+                        "next": ["rg3"],
+                        "stats": { "heal": 13, "mana": 6, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.6, "affects": "heal" }, { "source": "constitution", "ratio": 0.3, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "rg3", "tier": 3, "branch": "trunk", "name": "Régénération de la chair III",
+                        "description": "Point de scission : restaurer intégralement, ou régénérer à moindre coût.",
+                        "next": ["re4", "vi4"],
+                        "stats": { "heal": 19, "mana": 8, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.7, "affects": "heal" }, { "source": "constitution", "ratio": 0.4, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "re4", "tier": 4, "branch": "restauration", "name": "Reconstruction intégrale",
+                        "description": "Repousse membres perdus et organes meurtris en quelques instants.",
+                        "next": ["re5"],
+                        "stats": { "heal": 30, "mana": 12, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 1.0, "affects": "heal" }, { "source": "constitution", "ratio": 0.6, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "re5", "tier": 5, "branch": "restauration", "name": "Genèse charnelle",
+                        "description": "Refaçonne un corps entier, effaçant les blessures les plus atroces.",
+                        "stats": { "heal": 46, "mana": 18, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 1.4, "affects": "heal" }, { "source": "constitution", "ratio": 0.8, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "vi4", "tier": 4, "branch": "vitalite", "name": "Cicatrisation vive",
+                        "description": "Une régénération rapide et peu coûteuse des plaies courantes.",
+                        "next": ["vi5"],
+                        "stats": { "heal": 19, "mana": 5, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.7, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "vi5", "tier": 5, "branch": "vitalite", "name": "Régénération fluide",
+                        "description": "La chair se répare presque d'elle-même, pour une bouchée de mana.",
+                        "stats": { "heal": 22, "mana": 3, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.7, "affects": "heal" }] }
+                    }
+                ]
+            }
         },
         {
             "key": "life-etincelle-vitale",
+            "requires": ["life-soin-vital"],
             "name": "Étincelle vitale",
             "description": "Ranime une étincelle de vie chez une créature à l'agonie, la ramenant du seuil de la mort.",
             "mana": 6,
             "level": 5,
-            "subdomains": [
-                "Soin & vitalité"
-            ]
+            "icon": "/resources/media/icons/domains/life/vitality_icon.png",
+            "subdomains": ["Soin & vitalité"],
+            "progression": {
+                "root": "ev1",
+                "nodes": [
+                    {
+                        "id": "ev1", "tier": 1, "branch": "trunk", "name": "Étincelle vitale I",
+                        "description": "Rallume la flamme de vie d'une créature au seuil de la mort.",
+                        "next": ["ev2"],
+                        "stats": { "heal": 15, "mana": 6, "range": "Contact", "area": "Cible unique", "targets": ["ally"], "scaling": [{ "source": "sagesse", "ratio": 0.6, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "ev2", "tier": 2, "branch": "trunk", "name": "Étincelle vitale II",
+                        "description": "L'étincelle porte plus loin et ranime plus sûrement.",
+                        "next": ["ev3"],
+                        "stats": { "heal": 26, "mana": 9, "range": "3 m", "area": "Cible unique", "targets": ["ally"], "scaling": [{ "source": "sagesse", "ratio": 0.8, "affects": "heal" }, { "source": "charisme", "ratio": 0.4, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "ev3", "tier": 3, "branch": "trunk", "name": "Étincelle vitale III",
+                        "description": "Un souffle de vie éclatant qui arrache une créature à la mort et raffermit le lanceur.",
+                        "stats": { "heal": 42, "mana": 13, "range": "5 m", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 1.1, "affects": "heal" }, { "source": "charisme", "ratio": 0.6, "affects": "heal" }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "life-revetement-arme",
+            "requires": ["life-revetement-poings"],
+            "name": "Lame vitale",
+            "description": "Nimbe une arme d'énergie vitale : tant que l'enchantement dure, chaque coup inflige des dégâts de vitalité supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts de vitalité à chacune de vos attaques au corps à corps, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement peut servir à cautériser une plaie, revigorer ou raffermir."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Soin & vitalité"],
+            "damageType": "life",
+            "progression": {
+                "root": "ra1",
+                "nodes": [
+                    {
+                        "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame vitale I",
+                        "description": "Votre arme se nimbe d'énergie vitale : chaque attaque au corps à corps inflige ces dégâts de vitalité en plus, le temps de l'enchantement.",
+                        "next": ["ra2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vitalité accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame vitale II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["ra3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vitalité accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame vitale III",
+                        "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts de vitalité durables.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vitalité accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "life-revetement-poings",
+            "name": "Poings vitaux",
+            "description": "Nimbe vos poings d'énergie vitale : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de vitalité supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts de vitalité à vos attaques à mains nues, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement des poings peut servir à cautériser une plaie, revigorer ou raffermir."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": ["Soin & vitalité"],
+            "damageType": "life",
+            "progression": {
+                "root": "rp1",
+                "nodes": [
+                    {
+                        "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings vitaux I",
+                        "description": "Vos poings se nimbent d'énergie vitale : chaque coup à mains nues inflige ces dégâts de vitalité en plus.",
+                        "next": ["rp2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de vitalité de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings vitaux II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["rp3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de vitalité de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings vitaux III",
+                        "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts de vitalité.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de vitalité de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
         }
     ],
     "magic-items-and-artifacts": [],

@@ -1,30 +1,15 @@
 {
     "name": "Eau",
-    "icon": "",
+    "icon": "/resources/media/icons/domains/water/water_icon.png",
     "banner": "",
     "first-quote": "Je peux être douce. Je peux être profonde. Je peux être les deux en même temps.",
     "usage-quote": "Ne force pas le chemin. Trouve la fissure.",
     "subdomains": [
-        {
-            "name": "Forme de l'eau",
-            "icon": ""
-        },
-        {
-            "name": "Glace",
-            "icon": ""
-        },
-        {
-            "name": "Vapeur",
-            "icon": ""
-        },
-        {
-            "name": "purification",
-            "icon": ""
-        },
-        {
-            "name": "Océan",
-            "icon": ""
-        }
+        { "name": "Forme de l'eau", "icon": "/resources/media/icons/domains/water/liquid_water_icon.png" },
+        { "name": "Glace", "icon": "/resources/media/icons/domains/water/ice_icon.png" },
+        { "name": "Vapeur", "icon": "/resources/media/icons/domains/water/mist_icon.png" },
+        { "name": "purification", "icon": "/resources/media/icons/domains/water/purification_icon.png" },
+        { "name": "Océan", "icon": "/resources/media/icons/domains/water/ocean_icon.png" }
     ],
     "spells": [
         {
@@ -33,9 +18,115 @@
             "description": "Façonne et déplace une masse d'eau existante, la modelant en fouet, en bouclier ou en courant.",
             "mana": 2,
             "level": 1,
-            "subdomains": [
-                "Forme de l'eau"
-            ]
+            "subdomains": ["Forme de l'eau"],
+            "progression": {
+                "root": "wa1",
+                "branches": [
+                    { "id": "fouet", "label": "Voie du Fouet liquide", "description": "Frappes tranchantes qui lacèrent et font saigner une cible unique." },
+                    { "id": "courant", "label": "Voie du Courant", "description": "Balaie et ralentit les ennemis en ligne, à moindre coût." }
+                ],
+                "nodes": [
+                    {
+                        "id": "wa1", "tier": 1, "branch": "trunk", "name": "Manipulation aquatique I",
+                        "description": "Modèle l'eau en un fouet liquide qui cingle une cible proche.",
+                        "next": ["wa2"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 2, "range": "8 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "wa2", "tier": 2, "branch": "trunk", "name": "Manipulation aquatique II",
+                        "description": "La masse d'eau gagne en densité : frappe plus loin et plus fort.",
+                        "next": ["wa3"],
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 3, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    },
+                    {
+                        "id": "wa3", "tier": 3, "branch": "trunk", "name": "Manipulation aquatique III",
+                        "description": "Point de scission : l'eau peut se durcir en lame ou s'étaler en courant.",
+                        "next": ["waf4", "wac4"],
+                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    },
+                    {
+                        "id": "waf4", "tier": 4, "branch": "fouet", "name": "Fouet lacérant",
+                        "description": "Le fouet s'affûte comme une lame liquide qui ouvre les chairs.",
+                        "next": ["waf5"],
+                        "stats": { "damageMin": 15, "damageMax": 22, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "saignement", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] }
+                    },
+                    {
+                        "id": "waf5", "tier": 5, "branch": "fouet", "name": "Cravache des abysses",
+                        "description": "Une lanière d'eau noire et tranchante qui déchire tout sur son passage.",
+                        "stats": { "damageMin": 24, "damageMax": 34, "mana": 9, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "saignement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 1.1 }] }
+                    },
+                    {
+                        "id": "wac4", "tier": 4, "branch": "courant", "name": "Courant maîtrisé",
+                        "description": "L'eau s'étale en un courant qui balaie et freine une ligne d'ennemis.",
+                        "next": ["wac5"],
+                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 4, "range": "12 m", "area": "Ligne 8 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    },
+                    {
+                        "id": "wac5", "tier": 5, "branch": "courant", "name": "Torrent balayeur",
+                        "description": "Un torrent maîtrisé qui emporte et englue tout un front à peu de frais.",
+                        "stats": { "damageMin": 10, "damageMax": 15, "mana": 5, "range": "14 m", "area": "Ligne 10 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water_ice_shard",
+            "name": "Éclat de glace",
+            "description": "Projette un éclat de glace tranchant qui transperce une cible.",
+            "mana": 2,
+            "level": 1,
+            "subdomains": ["Glace"],
+            "damageType": "ice",
+            "requires": [],
+            "progression": {
+                "root": "wi1",
+                "branches": [
+                    {"id": "ice_knife", "label": "Voie du Couteau de glace", "description": "Un éclat tranchant qui transperce une cible unique"},
+                    {"id": "ice_raffale", "label": "Voie de la rafale", "description": "Une pluie d'éclats qui frappe un groupe d'ennemis à moindre coût."}
+                ],
+                "nodes": [
+                    {
+                        "id": "wi1", "tier": 1, "branch": "trunk", "name": "Éclat de glace I",
+                        "description": "Un éclat de glace tranchant qui transperce une cible.",
+                        "next": ["wi2"],
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 2, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "wi2", "tier": 2, "branch": "trunk", "name": "Éclat de glace II",
+                        "description": "L'éclat gagne en densité : frappe plus loin et plus fort.",
+                        "next": ["wi3"],
+                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 3, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                    },
+                    {
+                        "id": "wi3", "tier": 3, "branch": "trunk", "name": "Éclat de glace III",
+                        "description": "Un éclat de glace redoutable, capable de transpercer les défenses les plus solides.",
+                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 4, "range": "15 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] },
+                        "next": ["wi4", "wi4r"]
+                    },
+                    {
+                        "id": "wi4", "tier": 4, "branch": "ice_knife", "name": "Couteau de glace",
+                        "description": "Un éclat de glace affûté comme un couteau, capable de transpercer une cible avec précision.",
+                        "next": ["wi5"],
+                        "stats": {"damages": [{"min": 12, "max": 18, "type": "slashing", "scaling": [{ "source": "atk_mag", "ratio": 0.6 }]}], "mana": 5, "range": "15 m", "area": "Cible unique", "targets": ["enemy"]}
+                    },
+                    {
+                        "id": "wi4r", "tier": 4, "branch": "ice_raffale", "name": "Rafale de glace",
+                        "description": "Une rafale d'éclats de glace qui frappe un groupe d'ennemis à moindre coût.",
+                        "next": ["wi5r"],
+                        "stats": {"damages": [{"min": 8, "max": 12, "type": "ice", "scaling": [{ "source": "atk_mag", "ratio": 0.5 }]}], "mana": 6, "area": "2 à 3 personnes", "range": "15 m", "targets": ["enemy"]}
+                    },
+                    {
+                        "id": "wi5", "tier": 5, "branch": "ice_knife", "name": "Lame de glace",
+                        "description": "Une lame de glace tranchante et précise, capable de transpercer les défenses les plus solides.",
+                        "stats": {"damages": [{"min": 18, "max": 26, "type": "slashing", "scaling": [{ "source": "atk_mag", "ratio": 0.7 }]}], "mana": 8, "range": "15 m", "area": "Cible unique", "targets": ["enemy"]}
+                    },
+                    {
+                        "id": "wi5r", "tier": 5, "branch": "ice_raffale", "name": "Tempête de glace",
+                        "description": "Une tempête d'éclats de glace qui frappe un groupe d'ennemis avec force.",
+                        "stats": {"damages": [{"min": 10, "max": 14, "type": "ice", "scaling": [{ "source": "atk_mag", "ratio": 0.7 }]}], "mana": 7, "range": "18 m", "area": {"shape": "cone", "size": 4}, "targets": ["enemy"]}
+                    }
+                ]
+            }
         },
         {
             "key": "water-prison-de-glace",
@@ -43,9 +134,31 @@
             "description": "Gèle instantanément l'humidité autour d'une cible pour l'emprisonner dans un bloc de glace.",
             "mana": 4,
             "level": 2,
-            "subdomains": [
-                "Glace"
-            ]
+            "subdomains": ["Glace"],
+            "damageType": "ice",
+            "requires": ["water-manipulation-aquatique"],
+            "progression": {
+                "root": "wi1",
+                "nodes": [
+                    {
+                        "id": "wi1", "tier": 1, "branch": "trunk", "name": "Prison de glace I",
+                        "description": "Fige l'humidité autour d'une cible, la prenant dans la glace.",
+                        "next": ["wi2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }
+                    },
+                    {
+                        "id": "wi2", "tier": 2, "branch": "trunk", "name": "Prison de glace II",
+                        "description": "La gangue s'épaissit et se referme plus sûrement.",
+                        "next": ["wi3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 5, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 75 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                    },
+                    {
+                        "id": "wi3", "tier": 3, "branch": "trunk", "name": "Prison de glace III",
+                        "description": "Un cercueil de givre quasi inéluctable, glacial jusqu'à l'os.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 90 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    }
+                ]
+            }
         },
         {
             "key": "water-voile-de-vapeur",
@@ -53,9 +166,30 @@
             "description": "Vaporise l'eau en un nuage brûlant qui masque la vue et ébouillante ceux qui le traversent.",
             "mana": 3,
             "level": 2,
-            "subdomains": [
-                "Vapeur"
-            ]
+            "subdomains": ["Vapeur"],
+            "requires": ["water-manipulation-aquatique"],
+            "progression": {
+                "root": "wv1",
+                "nodes": [
+                    {
+                        "id": "wv1", "tier": 1, "branch": "trunk", "name": "Voile de vapeur I",
+                        "description": "Un nuage de vapeur brûlante qui brouille la vue autour du lanceur.",
+                        "next": ["wv2"],
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 3, "range": "Autour de soi", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                    },
+                    {
+                        "id": "wv2", "tier": 2, "branch": "trunk", "name": "Voile de vapeur II",
+                        "description": "La vapeur s'étend et brûle davantage ceux qui la traversent.",
+                        "next": ["wv3"],
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 4, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                    },
+                    {
+                        "id": "wv3", "tier": 3, "branch": "trunk", "name": "Voile de vapeur III",
+                        "description": "Une nappe bouillonnante et aveuglante qui noie tout un champ de vision.",
+                        "stats": { "damageMin": 6, "damageMax": 10, "mana": 5, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }
+                    }
+                ]
+            }
         },
         {
             "key": "water-eau-purificatrice",
@@ -63,9 +197,30 @@
             "description": "Invoque une eau claire qui nettoie les poisons, souillures et maladies au contact.",
             "mana": 3,
             "level": 2,
-            "subdomains": [
-                "purification"
-            ]
+            "subdomains": ["purification"],
+            "requires": ["water-manipulation-aquatique"],
+            "progression": {
+                "root": "wp1",
+                "nodes": [
+                    {
+                        "id": "wp1", "tier": 1, "branch": "trunk", "name": "Eau purificatrice I",
+                        "description": "Une eau claire qui lave les plaies et emporte poisons et souillures.",
+                        "next": ["wp2"],
+                        "stats": { "heal": 5, "mana": 3, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.4, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "wp2", "tier": 2, "branch": "trunk", "name": "Eau purificatrice II",
+                        "description": "Le flux purificateur porte plus loin et referme mieux les blessures.",
+                        "next": ["wp3"],
+                        "stats": { "heal": 9, "mana": 4, "range": "4 m", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.5, "affects": "heal" }] }
+                    },
+                    {
+                        "id": "wp3", "tier": 3, "branch": "trunk", "name": "Eau purificatrice III",
+                        "description": "Une onde limpide qui régénère et dissout jusqu'aux maladies les plus tenaces.",
+                        "stats": { "heal": 14, "mana": 5, "range": "6 m", "area": "Cible unique", "targets": ["self", "ally"], "scaling": [{ "source": "sagesse", "ratio": 0.6, "affects": "heal" }] }
+                    }
+                ]
+            }
         },
         {
             "key": "water-appel-des-marees",
@@ -73,9 +228,315 @@
             "description": "Soulève une vague puissante ou un courant maîtrisé pour balayer et entraîner ses cibles.",
             "mana": 6,
             "level": 5,
-            "subdomains": [
-                "Océan"
-            ]
+            "subdomains": ["Océan"],
+            "requires": ["water-prison-de-glace"],
+            "progression": {
+                "root": "wm1",
+                "branches": [
+                    { "id": "tsunami", "label": "Voie du Raz-de-marée", "description": "Une vague dévastatrice qui écrase un large front d'un seul mur d'eau." },
+                    { "id": "maelstrom", "label": "Voie du Maelström", "description": "Un tourbillon qui aspire, noie et immobilise — le contrôle avant tout." }
+                ],
+                "nodes": [
+                    {
+                        "id": "wm1", "tier": 1, "branch": "trunk", "name": "Appel des marées I",
+                        "description": "Soulève une vague qui déferle sur une zone et emporte les créatures.",
+                        "next": ["wm2"],
+                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 6, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                    },
+                    {
+                        "id": "wm2", "tier": 2, "branch": "trunk", "name": "Appel des marées II",
+                        "description": "La marée enfle : vague plus haute, poussée plus irrésistible.",
+                        "next": ["wm3"],
+                        "stats": { "damageMin": 18, "damageMax": 26, "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] }
+                    },
+                    {
+                        "id": "wm3", "tier": 3, "branch": "trunk", "name": "Appel des marées III",
+                        "description": "Point de scission : la marée peut se muer en raz-de-marée ou en maelström.",
+                        "next": ["wmt4", "wmx4"],
+                        "stats": { "damageMin": 26, "damageMax": 36, "mana": 11, "range": "18 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 1.0 }] }
+                    },
+                    {
+                        "id": "wmt4", "tier": 4, "branch": "tsunami", "name": "Raz-de-marée",
+                        "description": "Un mur d'eau titanesque qui broie tout un front.",
+                        "next": ["wmt5"],
+                        "stats": { "damageMin": 40, "damageMax": 56, "mana": 15, "range": "20 m", "area": "Rayon 8 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 1.3 }] }
+                    },
+                    {
+                        "id": "wmt5", "tier": 5, "branch": "tsunami", "name": "Déluge",
+                        "description": "Un océan déchaîné qui engloutit et efface tout un champ de bataille.",
+                        "stats": { "damageMin": 60, "damageMax": 82, "mana": 20, "range": "24 m", "area": "Rayon 10 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 1.7 }] }
+                    },
+                    {
+                        "id": "wmx4", "tier": 4, "branch": "maelstrom", "name": "Maelström",
+                        "description": "Un tourbillon qui aspire les cibles et les noie sous la surface.",
+                        "next": ["wmx5"],
+                        "stats": { "damageMin": 22, "damageMax": 32, "mana": 12, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] }
+                    },
+                    {
+                        "id": "wmx5", "tier": 5, "branch": "maelstrom", "name": "Œil de l'abîme",
+                        "description": "Un gouffre liquide qui retient ses proies et les fige dans l'eau noire.",
+                        "stats": { "damageMin": 28, "damageMax": 40, "mana": 15, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 1.0 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-arme",
+            "requires": ["water-revetement-poings"],
+            "name": "Lame déferlante",
+            "description": "Nimbe une arme d'un voile d'eau : tant que l'enchantement dure, chaque coup inflige des dégâts d'eau supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts d'eau à chacune de vos attaques au corps à corps, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement peut servir à humidifier, éteindre un feu ou fournir de l'eau."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Forme de l'eau"],
+            "damageType": "water",
+            "progression": {
+                "root": "ra1",
+                "nodes": [
+                    {
+                        "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame déferlante I",
+                        "description": "Votre arme se nimbe d'un voile d'eau : chaque attaque au corps à corps inflige ces dégâts d'eau en plus, le temps de l'enchantement.",
+                        "next": ["ra2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame déferlante II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["ra3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame déferlante III",
+                        "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts d'eau durables.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-poings",
+            "name": "Poings déferlants",
+            "description": "Nimbe vos poings d'un voile d'eau : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts d'eau supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts d'eau à vos attaques à mains nues, le temps de l'enchantement.",
+                "outOfCombat": "Hors combat, l'enchantement des poings peut servir à humidifier, éteindre un feu ou fournir de l'eau."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": ["Forme de l'eau"],
+            "damageType": "water",
+            "progression": {
+                "root": "rp1",
+                "nodes": [
+                    {
+                        "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings déferlants I",
+                        "description": "Vos poings se nimbent d'un voile d'eau : chaque coup à mains nues inflige ces dégâts d'eau en plus.",
+                        "next": ["rp2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                    },
+                    {
+                        "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings déferlants II",
+                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
+                        "next": ["rp3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                    },
+                    {
+                        "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings déferlants III",
+                        "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts d'eau.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-glace-poings",
+            "name": "Poings de glace",
+            "description": "Nimbe vos poings d'une gangue de givre : chaque coup à mains nues inflige des dégâts de glace supplémentaires et peut engourdir la cible.",
+            "usage": {
+                "combat": "Givrez vos poings pour ajouter des dégâts de glace à vos attaques à mains nues et ralentir vos cibles.",
+                "outOfCombat": "Hors combat, le givre conserve les aliments, refroidit ou fige une petite surface d'eau."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": ["Glace"],
+            "damageType": "ice",
+            "progression": {
+                "root": "gp1",
+                "nodes": [
+                    {
+                        "id": "gp1", "tier": 1, "branch": "trunk", "name": "Poings de glace I",
+                        "description": "Vos poings se couvrent de givre : chaque coup à mains nues inflige ces dégâts de glace en plus et engourdit la cible.",
+                        "next": ["gp2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "ralentissement", "chance": 20 }], "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "gp2", "tier": 2, "branch": "trunk", "name": "Poings de glace II",
+                        "description": "Le givre s'épaissit et mord plus longtemps.",
+                        "next": ["gp3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "ralentissement", "chance": 30 }], "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "gp3", "tier": 3, "branch": "trunk", "name": "Poings de glace III",
+                        "description": "Des poings de givre dont chaque impact gèle et ralentit.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-glace-arme",
+            "requires": ["water-revetement-glace-poings"],
+            "name": "Lame de glace",
+            "description": "Nimbe une arme d'une gangue de givre : chaque coup inflige des dégâts de glace supplémentaires et peut engourdir la cible.",
+            "usage": {
+                "combat": "Givrez votre arme pour ajouter des dégâts de glace à vos attaques au corps à corps et ralentir vos cibles.",
+                "outOfCombat": "Hors combat, le givre conserve les aliments, refroidit ou fige une petite surface d'eau."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Glace"],
+            "damageType": "ice",
+            "progression": {
+                "root": "ga1",
+                "nodes": [
+                    {
+                        "id": "ga1", "tier": 1, "branch": "trunk", "name": "Lame de glace I",
+                        "description": "Votre arme se couvre de givre : chaque attaque au corps à corps inflige ces dégâts de glace en plus et engourdit la cible.",
+                        "next": ["ga2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "ralentissement", "chance": 20 }], "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "ga2", "tier": 2, "branch": "trunk", "name": "Lame de glace II",
+                        "description": "Le givre s'épaissit et mord plus longtemps.",
+                        "next": ["ga3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "ralentissement", "chance": 30 }], "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "ga3", "tier": 3, "branch": "trunk", "name": "Lame de glace III",
+                        "description": "Une lame de givre dont chaque coup gèle et ralentit.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-brume-poings",
+            "name": "Poings de brume",
+            "description": "Nimbe vos poings d'une brume dense : chaque coup à mains nues inflige des dégâts d'eau supplémentaires et peut aveugler la cible.",
+            "usage": {
+                "combat": "Enveloppez vos poings de brume pour ajouter des dégâts d'eau à vos attaques à mains nues et gêner la vue de l'adversaire.",
+                "outOfCombat": "Hors combat, la brume masque vos déplacements et condense un peu d'eau à boire."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": ["Vapeur"],
+            "damageType": "water",
+            "progression": {
+                "root": "bp1",
+                "nodes": [
+                    {
+                        "id": "bp1", "tier": 1, "branch": "trunk", "name": "Poings de brume I",
+                        "description": "Vos poings s'entourent de brume : chaque coup à mains nues inflige ces dégâts d'eau en plus et brouille la vue de la cible.",
+                        "next": ["bp2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "aveuglement", "chance": 15 }], "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                    },
+                    {
+                        "id": "bp2", "tier": 2, "branch": "trunk", "name": "Poings de brume II",
+                        "description": "La brume s'épaissit et persiste plus longtemps.",
+                        "next": ["bp3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "aveuglement", "chance": 25 }], "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                    },
+                    {
+                        "id": "bp3", "tier": 3, "branch": "trunk", "name": "Poings de brume III",
+                        "description": "Des poings de brume dont chaque impact aveugle et cingle.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "aveuglement", "chance": 35 }], "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-brume-arme",
+            "requires": ["water-revetement-brume-poings"],
+            "name": "Lame de brume",
+            "description": "Nimbe une arme d'une brume dense : chaque coup inflige des dégâts d'eau supplémentaires et peut aveugler la cible.",
+            "usage": {
+                "combat": "Enveloppez votre arme de brume pour ajouter des dégâts d'eau à vos attaques au corps à corps et gêner la vue de l'adversaire.",
+                "outOfCombat": "Hors combat, la brume masque vos déplacements et condense un peu d'eau à boire."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Vapeur"],
+            "damageType": "water",
+            "progression": {
+                "root": "ba1",
+                "nodes": [
+                    {
+                        "id": "ba1", "tier": 1, "branch": "trunk", "name": "Lame de brume I",
+                        "description": "Votre arme s'entoure de brume : chaque attaque au corps à corps inflige ces dégâts d'eau en plus et brouille la vue de la cible.",
+                        "next": ["ba2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "aveuglement", "chance": 15 }], "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "ba2", "tier": 2, "branch": "trunk", "name": "Lame de brume II",
+                        "description": "La brume s'épaissit et persiste plus longtemps.",
+                        "next": ["ba3"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "aveuglement", "chance": 25 }], "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "ba3", "tier": 3, "branch": "trunk", "name": "Lame de brume III",
+                        "description": "Une lame de brume dont chaque coup aveugle et cingle.",
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "aveuglement", "chance": 35 }], "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-purification-eau",
+            "name": "Purification de l'eau",
+            "description": "Permet d'enlever les impuretés de l'eau, la rendant claire et potable.",
+            "usage": {
+                "outOfCombat": "Retire boue, sédiments, toxines et agents pathogènes d'une eau souillée pour la rendre potable."
+            },
+            "mana": 1,
+            "level": 1,
+            "subdomains": ["purification"],
+            "progression": {
+                "root": "pu1",
+                "nodes": [
+                    {
+                        "id": "pu1", "tier": 1, "branch": "trunk", "name": "Purification de l'eau I",
+                        "usage": { "outOfCombat": "Retire les sédiments et la boue en suspension d'une petite quantité d'eau (une gourde)." },
+                        "next": ["pu2"],
+                        "stats": { "mana": 1, "range": "Contact", "area": "≈ 1 L" }
+                    },
+                    {
+                        "id": "pu2", "tier": 2, "branch": "trunk", "name": "Purification de l'eau II",
+                        "usage": { "outOfCombat": "Clarifie une eau trouble : élimine turbidité et particules fines d'un plus grand volume (un seau)." },
+                        "next": ["pu3"],
+                        "stats": { "mana": 2, "range": "3 m", "area": "≈ 10 L" }
+                    },
+                    {
+                        "id": "pu3", "tier": 3, "branch": "trunk", "name": "Purification de l'eau III",
+                        "usage": { "outOfCombat": "Neutralise les toxines et substances chimiques dissoutes d'un tonneau d'eau." },
+                        "next": ["pu4"],
+                        "stats": { "mana": 3, "range": "5 m", "area": "≈ 50 L" }
+                    },
+                    {
+                        "id": "pu4", "tier": 4, "branch": "trunk", "name": "Purification de l'eau IV",
+                        "usage": { "outOfCombat": "Élimine les agents pathogènes — bactéries, parasites, spores — d'une source ou d'un bassin entier." },
+                        "next": ["pu5"],
+                        "stats": { "mana": 4, "range": "8 m", "area": "Bassin / source" }
+                    },
+                    {
+                        "id": "pu5", "tier": 5, "branch": "trunk", "name": "Purification de l'eau V",
+                        "usage": { "outOfCombat": "Assainissement absolu : dessale et purifie de vastes volumes, jusqu'à rendre potable l'eau de mer." },
+                        "stats": { "mana": 6, "range": "12 m", "area": "Vaste volume / eau de mer" }
+                    }
+                ]
+            }
         }
     ],
     "magic-items-and-artifacts": [],

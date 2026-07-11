@@ -1,0 +1,71 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface constellation-page">
+    <header class="cst-head">
+      <div>
+        <span class="cst-kicker">Magie</span>
+        <h1 class="cst-title">Constellation des combinaisons</h1>
+      </div>
+      <a routerLink="/magics" class="cst-back">← Domaines</a>
+    </header>
+    <p class="cst-hint">Chaque lien unit deux domaines (ou plus) en une combinaison. Molette pour zoomer, glisser pour se déplacer, clic pour ouvrir une fiche.</p>
+
+    <div #viewport
+         class="cst-viewport" [class.is-dragging]="isDragging()"
+         (wheel)="onWheel($event)"
+         (pointerdown)="onPointerDown($event)"
+         (pointermove)="onPointerMove($event)"
+         (pointerup)="onPointerUp()"
+         (pointerleave)="onPointerUp()">
+      <div class="cst-canvas"
+           [style.width.px]="layout.width" [style.height.px]="layout.height"
+           [style.transform]="'translate(' + panX() + 'px, ' + panY() + 'px) scale(' + zoom() + ')'">
+
+        <svg class="cst-edges" [attr.viewBox]="'0 0 ' + layout.width + ' ' + layout.height"
+             [attr.width]="layout.width" [attr.height]="layout.height" aria-hidden="true">
+          <circle class="cst-ring" [attr.cx]="layout.cx" [attr.cy]="layout.cy" [attr.r]="layout.ringR"></circle>
+          @for (e of layout.edges; track $index) {
+            <line class="cst-edge" [attr.x1]="e.x1" [attr.y1]="e.y1" [attr.x2]="e.x2" [attr.y2]="e.y2"></line>
+          }
+        </svg>
+
+        <!-- Domaines (12 ancres du cercle) -->
+        @for (d of layout.domains; track d.slug) {
+          <a draggable="false"
+             [class]="'cst-domain domain-' + d.slug"
+             [routerLink]="'/magics/' + d.slug" (click)="onNodeClick($event)"
+             [style.left.px]="d.x" [style.top.px]="d.y">
+            <span class="cst-domain__emblem">
+              @if (domainIcon(d.slug)) {
+                <img [src]="domainIcon(d.slug)" [alt]="d.label">
+              } @else { {{ domainSigil(d.slug) }} }
+            </span>
+            <span class="cst-domain__label">{{ d.label }}</span>
+          </a>
+        }
+
+        <!-- Combinaisons (posées sur les liens) -->
+        @for (n of layout.comboNodes; track n.page.spell.key) {
+          <a class="cst-combo" draggable="false"
+             [routerLink]="'/magics/spell/' + n.page.spell.key" (click)="onNodeClick($event)"
+             [style.left.px]="n.x" [style.top.px]="n.y"
+             [style.--combo-gradient]="comboGradient(n.comps)">
+            <span class="cst-combo__emblems" aria-hidden="true">
+              @for (c of n.comps; track c) {
+                <span class="cst-combo__dot" [style.background]="domainColor(c)"></span>
+              }
+            </span>
+            <span class="cst-combo__name">{{ n.label }}</span>
+          </a>
+        }
+      </div>
+
+      <div class="cst-zoom" (pointerdown)="$event.stopPropagation()">
+        <button type="button" (click)="zoomBy(1.25)" aria-label="Zoomer">+</button>
+        <button type="button" (click)="zoomBy(0.8)" aria-label="Dézoomer">−</button>
+        <button type="button" class="cst-zoom__fit" (click)="fitView()" aria-label="Recentrer">⤢</button>
+      </div>
+    </div>
+  </main>
+</div>

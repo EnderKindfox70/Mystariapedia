@@ -17,6 +17,29 @@ export interface Spell {
   key?: string;
 }
 
+/**
+ * Sorts de la fiche. Deux niveaux distincts :
+ * - `unlocked` : sorts **débloqués** (appris), respectant leurs prérequis
+ *   (`requires`) et le niveau requis. Illimités.
+ * - `equipped` : sorts **équipés** (loadout de combat), sous-ensemble des
+ *   débloqués, plafonné (cf. plafond basé sur l'Intelligence). Seuls ceux-ci
+ *   sont utilisables en combat.
+ * On ne stocke que les clés des sorts (cf. domains/*.json) ; le reste est résolu.
+ */
+export interface CharacterSpells {
+  unlocked: string[];
+  equipped: string[];
+  /**
+   * Nœuds (paliers) débloqués par sort : clé du sort → ids des nœuds de son arbre
+   * d'amélioration. Débloquer un sort ouvre son nœud racine ; améliorer ouvre un
+   * nœud enfant en suivant l'arbre (les branches se choisissent aux points de
+   * scission). Chaque nœud coûte un point d'inspiration (cf.
+   * `ClassDef.inspirationPerLevel`). Invariant : `nodes[key]` contient la racine
+   * si et seulement si `key ∈ unlocked`.
+   */
+  nodes: Record<string, string[]>;
+}
+
 /** Une ligne d'inventaire. */
 export interface InventoryItem {
   name: string;
@@ -90,8 +113,8 @@ export interface CharacterSheet {
   /** Compétences choisies via la classe (clés). Le background en accorde d'autres
    *  automatiquement, en plus de celles-ci. */
   skills: string[];
-  /** Sorts « connus » saisis par le joueur (les « préparés » viennent de la classe). */
-  spells: { known: Spell[] };
+  /** Sorts débloqués (appris) et équipés (loadout de combat) — cf. CharacterSpells. */
+  spells: CharacterSpells;
   /** Le « sac » : objets transportés. */
   inventory: InventoryItem[];
   /** Équipement porté, indexé par emplacement (cf. EQUIPMENT_SLOTS). */
@@ -182,6 +205,12 @@ export interface ClassDef {
   key: string;
   name: string;
   stats?: StatKV[];
+  /**
+   * Points d'inspiration accordés **par niveau** (dépensés pour débloquer et
+   * améliorer les sorts). Total = `inspirationPerLevel × niveau`. Ex. Pugiliste 1
+   * (le plus bas), Mage 4 (le plus haut).
+   */
+  inspirationPerLevel?: number;
   /** Nombre de compétences à choisir pour cette classe. */
   skillChoices?: number;
   /** Clés des compétences sélectionnables pour cette classe. */

@@ -17,8 +17,27 @@ export class AuthDoor {
   readonly isAuthenticated = this.auth.isAuthenticated;
   readonly user = this.auth.user;
 
+  private cachedUrl = '';
+  private cachedParams: { returnUrl?: string } = {};
+
+  // On mémorise la page courante pour y revenir après connexion,
+  // sauf si on est déjà sur un écran d'authentification.
+  get loginQueryParams(): { returnUrl?: string } {
+    if (this.router.url !== this.cachedUrl) {
+      this.cachedUrl = this.router.url;
+      const path = this.router.url.split('?')[0];
+      this.cachedParams =
+        path === '/login' || path === '/register' ? {} : { returnUrl: this.router.url };
+    }
+    return this.cachedParams;
+  }
+
   logout(): void {
     this.auth.logout();
-    this.router.navigateByUrl('/');
+    // Wiki : on reste sur la page courante après déconnexion. On ne redirige
+    // que si la page consultée nécessite une authentification.
+    if (this.router.url.startsWith('/characters')) {
+      this.router.navigateByUrl('/');
+    }
   }
 }
