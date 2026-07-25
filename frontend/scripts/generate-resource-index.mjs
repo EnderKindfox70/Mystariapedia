@@ -21,7 +21,18 @@ const JSON_ROOT = join(process.cwd(), 'public', 'resources', 'json');
 const COLLECTIONS = [
   { path: 'potions' },
   { path: 'natural-resources', nested: true },
+  // Indexés pour que le butin d'une créature puisse les référencer par id.
+  { path: 'artifacts', nested: true },
+  { path: 'weapons', nested: true },
+  { path: 'bestiary', entry: toBestiaryEntry, sort: byChapterThenName },
 ];
+
+/**
+ * Ordre de lecture des chapitres du bestiaire, pour que l'index sorte dans
+ * l'ordre du livre. Doit rester aligné sur `CHAPTERS` du composant Bestiary ;
+ * un chapitre inconnu ici est simplement rejeté en fin de fichier.
+ */
+const BESTIARY_CHAPTERS = ['communes', 'rares', 'legendaires', 'entites', 'mutations', 'archives'];
 
 /** Extrait un poids numérique d'une fiche (champ `weight` racine, ou champ
  *  `info` de clé 'weight' du type « 0.3 kg »). Renvoie 0 si absent/illisible. */
@@ -49,11 +60,35 @@ function toIndexEntry(slug, data) {
   return entry;
 }
 
+/** Champs de vignette d'une créature, dérivés de sa fiche. */
+function toBestiaryEntry(slug, data) {
+  const entry = {
+    slug,
+    name: data.name ?? slug,
+    chapter: data.chapter ?? 'communes',
+    cr: data.cr ?? 0,
+    entityTypeId: data.entityTypeId ?? 0,
+    size: data.size ?? '?',
+  };
+  if (data.icon) entry.icon = data.icon;
+  if (data.domains?.length) entry.domains = data.domains;
+  if (data.teaser) entry.teaser = data.teaser;
+  return entry;
+}
+
+function byChapterThenName(a, b) {
+  const rank = (e) => {
+    const i = BESTIARY_CHAPTERS.indexOf(e.chapter);
+    return i < 0 ? BESTIARY_CHAPTERS.length : i;
+  };
+  return rank(a) - rank(b) || a.name.localeCompare(b.name, 'fr');
+}
+
 /** Fichiers générés à ne jamais traiter comme des fiches. */
 const GENERATED = new Set(['index.json', 'used-in.json']);
 
 /** (Re)génère l'index.json d'un dossier de fiches. */
-async function buildIndex(absDir, relLabel) {
+async function buildIndex(absDir, relLabel, shape = toIndexEntry, sort) {
   const files = (await readdir(absDir)).filter(
     (f) => f.endsWith('.json') && !GENERATED.has(f),
   );
@@ -63,13 +98,13 @@ async function buildIndex(absDir, relLabel) {
     const raw = await readFile(join(absDir, file), 'utf8');
     try {
       const data = JSON.parse(raw);
-      entries.push(toIndexEntry(basename(file, '.json'), data));
+      entries.push(shape(basename(file, '.json'), data));
     } catch (err) {
       console.warn(`⚠ JSON invalide ignoré : ${relLabel}/${file} — ${err.message}`);
     }
   }
 
-  entries.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  entries.sort(sort ?? ((a, b) => a.name.localeCompare(b.name, 'fr')));
 
   await writeFile(
     join(absDir, 'index.json'),
@@ -126,11 +161,11 @@ async function run() {
       const subdirs = await readdir(absRoot, { withFileTypes: true });
       for (const d of subdirs) {
         if (d.isDirectory()) {
-          await buildIndex(join(absRoot, d.name), `${col.path}/${d.name}`);
+          await buildIndex(join(absRoot, d.name), `${col.path}/${d.name}`, col.entry, col.sort);
         }
       }
     } else {
-      await buildIndex(absRoot, col.path);
+      await buildIndex(absRoot, col.path, col.entry, col.sort);
     }
   }
 

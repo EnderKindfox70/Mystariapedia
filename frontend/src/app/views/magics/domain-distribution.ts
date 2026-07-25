@@ -55,6 +55,73 @@ function domainSlices(
   );
 }
 
+/* ─────────────────────────────────────────────
+   TABLEAU COMPARATIF — % de magie par peuple
+   Réutilise les données des camemberts (une seule source) et les met à plat
+   sous forme de tableau : une ligne par peuple, une colonne par domaine.
+───────────────────────────────────────────── */
+
+export interface ComparisonColumn {
+  key: string;
+  label: string;
+  color: string;
+}
+
+export interface ComparisonCell {
+  key: string;
+  value: number;
+  /** Domaine dominant de ce peuple (valeur maximale de la ligne). */
+  isMax: boolean;
+}
+
+export interface ComparisonRow {
+  people: string;
+  cells: ComparisonCell[];
+}
+
+export interface ComparisonTable {
+  columns: ComparisonColumn[];
+  rows: ComparisonRow[];
+}
+
+/** Ordre canonique des colonnes (12 domaines) pour le tableau comparatif. */
+const COLUMN_ORDER = [
+  'fire', 'water', 'earth', 'air', 'lightning', 'plants',
+  'light', 'darkness', 'life', 'death', 'time', 'space',
+] as const;
+
+/**
+ * Construit le tableau comparatif à partir des camemberts de distribution :
+ * les libellés et couleurs de colonnes proviennent des tranches elles-mêmes,
+ * garantissant que tableau et graphiques restent alimentés par la même source.
+ */
+export function buildComparisonTable(charts: PieChart[]): ComparisonTable {
+  const labelByKey = new Map<string, string>();
+  for (const chart of charts) {
+    for (const slice of chart.slices) {
+      if (!labelByKey.has(slice.key)) labelByKey.set(slice.key, slice.label);
+    }
+  }
+
+  const columns: ComparisonColumn[] = COLUMN_ORDER.map((key) => ({
+    key,
+    label: labelByKey.get(key) ?? key,
+    color: DOMAIN_COLORS[key] ?? 'var(--ancient-gold)',
+  }));
+
+  const rows: ComparisonRow[] = charts.map((chart) => {
+    const valueByKey = new Map(chart.slices.map((s) => [s.key, s.value]));
+    const max = Math.max(...chart.slices.map((s) => s.value));
+    const cells: ComparisonCell[] = columns.map((col) => {
+      const value = valueByKey.get(col.key) ?? 0;
+      return { key: col.key, value, isMax: value > 0 && value === max };
+    });
+    return { people: chart.title, cells };
+  });
+
+  return { columns, rows };
+}
+
 export const DOMAIN_DISTRIBUTION_CHARTS: PieChart[] = [
   {
     key: 'humans',
@@ -152,3 +219,37 @@ export const DOMAIN_DISTRIBUTION_CHARTS: PieChart[] = [
     ]),
   },
 ];
+
+/** Tableau comparatif prêt à l'emploi, dérivé des camemberts ci-dessus. */
+export const DOMAIN_COMPARISON: ComparisonTable = buildComparisonTable(
+  DOMAIN_DISTRIBUTION_CHARTS
+);
+
+/**
+ * Correspondance entre le `slug` de route d'un domaine (domains.catalog) et la
+ * clé de tranche utilisée dans les camemberts, quand les deux diffèrent.
+ */
+const DOMAIN_SLUG_TO_KEY: Record<string, string> = {
+  electricity: 'lightning',
+  plant: 'plants',
+};
+
+export interface RaceShare {
+  people: string;
+  value: number;
+}
+
+/**
+ * Pour un domaine donné (via son slug de route), renvoie la part d'affinité de
+ * chaque peuple, triée de la plus forte à la plus faible. Réutilise la même
+ * source unique que les camemberts et le tableau comparatif.
+ */
+export function racesForDomain(slug: string): RaceShare[] {
+  const key = DOMAIN_SLUG_TO_KEY[slug] ?? slug;
+  return DOMAIN_COMPARISON.rows
+    .map((row) => ({
+      people: row.people,
+      value: row.cells.find((c) => c.key === key)?.value ?? 0,
+    }))
+    .sort((a, b) => b.value - a.value);
+}

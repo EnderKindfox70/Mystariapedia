@@ -424,7 +424,7 @@
 
                     @if (inflictedStatuses().length) {
                       <span class="se-box__inflict">
-                        Applique
+                        {{ allInflictsCertain() ? 'Applique' : 'Peut appliquer' }}
                         @for (s of inflictedStatuses(); track s.def?.key ?? $index; let i = $index; let count = $count) {
                           @if (i > 0) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
                           <span class="se-status-kw has-tip" [attr.data-cat]="s.def?.category" tabindex="0">
@@ -434,34 +434,93 @@
                                 <span class="se-status-tip__head">{{ def.name }} · {{ statusCategoryLabel(def.category) }}</span>
                                 <span class="se-effect-tip__row">{{ def.effect }}</span>
                                 @if (def.tick?.damage) { <span class="se-effect-tip__row">≈ {{ def.tick!.damage }} dégâts / tour</span> }
+                                @if (def.tick && tickPercentLabel(def.tick); as pct) { <span class="se-effect-tip__row">{{ pct }}</span> }
                                 @if (def.tick?.heal) { <span class="se-effect-tip__row">≈ +{{ def.tick!.heal }} PV / tour</span> }
-                                <span class="se-effect-tip__row">durée {{ s.duration }} tour{{ s.duration > 1 ? 's' : '' }}</span>
+                                @if (def.healReduction) { <span class="se-effect-tip__row se-status-tip__antiheal">{{ healReductionLabel(def.healReduction) }}</span> }
+                                @if (def.save; as sv) { <span class="se-effect-tip__row se-status-tip__save">{{ saveLabel(sv) }}</span> }
+                                <span class="se-effect-tip__row">durée {{ durationLabel(s.duration) }}</span>
                                 <span class="se-effect-tip__row se-status-tip__ends">{{ def.ends }}</span>
                               </span>
                             }
                           </span>
-                          (<span class="se-inline-val">{{ s.chance }} %</span>)@if (i === count - 1) {.}
+                          @if (s.chance < 100) { (<span class="se-inline-val">{{ s.chance }} %</span>)}@if (i === count - 1) {.}
                         }
+                      </span>
+                    }
+
+                    @if (retaliateInfo(); as rt) {
+                      <span class="se-box__retaliate">
+                        Riposte : un attaquant {{ rt.trigger === 'melee' ? 'au corps-à-corps' : 'qui le touche' }} subit
+                        @if (rt.damageMin !== undefined) {
+                          <span class="se-inline-val">{{ rt.damageMin }}@if (rt.damageMax !== undefined && rt.damageMax !== rt.damageMin) {–{{ rt.damageMax }}}</span>
+                          dégâts@if (rt.damageType; as dt) { <span class="se-dmg-type" [attr.data-type]="dt.key" [attr.data-general]="dt.general" [attr.title]="'Dégâts ' + dt.generalLabel">{{ dt.label }}</span>}@if (rt.statuses.length) { <span class="se-box__sep"> et </span>}
+                        }
+                        @for (s of rt.statuses; track s.def?.key ?? $index; let i = $index; let count = $count) {
+                          @if (i > 0) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
+                          <span class="se-status-kw has-tip" [attr.data-cat]="s.def?.category" tabindex="0">
+                            {{ s.def?.name ?? s.def?.key }}
+                            @if (s.def; as def) {
+                              <span class="se-effect-tip se-status-tip" role="tooltip">
+                                <span class="se-status-tip__head">{{ def.name }} · {{ statusCategoryLabel(def.category) }}</span>
+                                <span class="se-effect-tip__row">{{ def.effect }}</span>
+                                <span class="se-effect-tip__row">durée {{ durationLabel(s.duration) }}</span>
+                                <span class="se-effect-tip__row se-status-tip__ends">{{ def.ends }}</span>
+                              </span>
+                            }
+                          </span>
+                          @if (s.chance < 100) { (<span class="se-inline-val">{{ s.chance }} %</span>)}
+                        }.
+                      </span>
+                    }
+
+                    @if (cleansedStatuses().length) {
+                      <span class="se-box__cleanse">
+                        Purifie tant que le manteau tient :
+                        @for (def of cleansedStatuses(); track def.key; let i = $index; let count = $count) {
+                          @if (i > 0) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
+                          <span class="se-status-kw has-tip" [attr.data-cat]="def.category" tabindex="0">
+                            {{ def.name ?? def.key }}
+                            @if (def.name) {
+                              <span class="se-effect-tip se-status-tip" role="tooltip">
+                                <span class="se-status-tip__head">{{ def.name }} · {{ statusCategoryLabel(def.category) }}</span>
+                                <span class="se-effect-tip__row">{{ def.effect }}</span>
+                                <span class="se-effect-tip__row se-status-tip__ends">{{ def.ends }}</span>
+                              </span>
+                            }
+                          </span>
+                        }.
+                      </span>
+                    }
+
+                    @if (evadeChance()) {
+                      <span class="se-box__evade">
+                        Esquive : <span class="se-inline-val">{{ evadeChance() }} %</span> de chance d'annuler une attaque subie.
                       </span>
                     }
 
                     @if (recoilBreakdown(); as rb) {
                       <span class="se-box__recoil">
                         Contre-coup : le lanceur subit
-                        <span class="se-inline-val is-recoil"
-                              [class.has-tip]="rb.parts.length > 0"
-                              [attr.tabindex]="rb.parts.length > 0 ? 0 : null">
-                          {{ rb.baseMin }}@if (rb.baseMax !== rb.baseMin) {–{{ rb.baseMax }}}
-                          @if (rb.parts.length > 0) {
-                            <span class="se-effect-tip" role="tooltip">
-                              <span class="se-effect-tip__row">Base <b>{{ rb.baseMin }}@if (rb.baseMax !== rb.baseMin) {–{{ rb.baseMax }}}</b></span>
-                              @for (p of rb.parts; track p.label) {
-                                <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
-                              }
-                            </span>
-                          }
-                        </span>
-                        dégâts@if (rb.note) { {{ rb.note }}}.
+                        @if (rb.hasDamage) {
+                          <span class="se-inline-val is-recoil"
+                                [class.has-tip]="rb.parts.length > 0"
+                                [attr.tabindex]="rb.parts.length > 0 ? 0 : null">
+                            {{ rb.baseMin }}@if (rb.baseMax !== rb.baseMin) {–{{ rb.baseMax }}}
+                            @if (rb.parts.length > 0) {
+                              <span class="se-effect-tip" role="tooltip">
+                                <span class="se-effect-tip__row">Base <b>{{ rb.baseMin }}@if (rb.baseMax !== rb.baseMin) {–{{ rb.baseMax }}}</b></span>
+                                @for (p of rb.parts; track p.label) {
+                                  <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
+                                }
+                              </span>
+                            }
+                          </span>
+                          dégâts@if (rb.effects.length) { <span class="se-box__sep"> et </span>}
+                        }
+                        @for (e of rb.effects; track e.label; let i = $index; let count = $count) {
+                          @if (i > 0) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
+                          {{ e.label }} de <span class="se-inline-val is-recoil">−{{ e.value }}</span>
+                        }@if (rb.note) { {{ rb.note }}}.
                       </span>
                     }
                   </span>
@@ -502,7 +561,9 @@
                                     <span class="se-effect-tip se-status-tip" role="tooltip">
                                       <span class="se-status-tip__head">{{ def.name }} · {{ statusCategoryLabel(def.category) }}</span>
                                       <span class="se-effect-tip__row">{{ def.effect }}</span>
-                                      <span class="se-effect-tip__row">durée {{ s.duration }} tour{{ s.duration > 1 ? 's' : '' }}</span>
+                                      @if (def.healReduction) { <span class="se-effect-tip__row se-status-tip__antiheal">{{ healReductionLabel(def.healReduction) }}</span> }
+                                      @if (def.save; as sv) { <span class="se-effect-tip__row se-status-tip__save">{{ saveLabel(sv) }}</span> }
+                                      <span class="se-effect-tip__row">durée {{ durationLabel(s.duration) }}</span>
                                       <span class="se-effect-tip__row se-status-tip__ends">{{ def.ends }}</span>
                                     </span>
                                   }
@@ -539,6 +600,8 @@
                               <span class="se-effect-tip se-status-tip" role="tooltip">
                                 <span class="se-status-tip__head">{{ s.name }} · {{ statusCategoryLabel(s.category) }}</span>
                                 <span class="se-effect-tip__row">{{ s.effect }}</span>
+                                @if (s.healReduction) { <span class="se-effect-tip__row se-status-tip__antiheal">{{ healReductionLabel(s.healReduction) }}</span> }
+                                @if (s.save; as sv) { <span class="se-effect-tip__row se-status-tip__save">{{ saveLabel(sv) }}</span> }
                                 @if (s.weaknesses?.length) {
                                   <span class="se-effect-tip__row">Faiblesse : @for (t of s.weaknesses; track t; let l = $last) { {{ dmgTypeLabel(t) }}@if (!l) {, }}</span>
                                 }

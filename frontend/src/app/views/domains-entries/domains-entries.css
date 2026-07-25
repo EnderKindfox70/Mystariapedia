@@ -129,6 +129,59 @@
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+/* Bouton de repli des sorts (chevron + titre) */
+.de-spells-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.de-spells-toggle h2 {
+  margin: 0;
+}
+.de-spells-caret {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 55%, #000);
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 18%, rgba(237, 230, 214, .5));
+  color: #16110d;
+  font-size: .8rem;
+  line-height: 1;
+  transition: transform .22s ease, background .2s ease;
+}
+.de-spells-toggle:hover .de-spells-caret {
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 32%, rgba(237, 230, 214, .5));
+}
+.de-spells.is-collapsed .de-spells-caret {
+  transform: rotate(-90deg);
+}
+
+/* Bandeau affiché quand les sorts sont repliés */
+.de-spells-peek {
+  width: 100%;
+  margin-top: .9rem;
+  padding: .7rem 1rem;
+  border: 1px dashed color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 45%, #000);
+  border-radius: 6px;
+  background: rgba(43, 26, 18, .04);
+  color: rgba(34, 23, 19, .74);
+  font: italic .9rem/1.4 var(--font-body, inherit);
+  text-align: center;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.de-spells-peek:hover {
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 12%, rgba(43, 26, 18, .04));
+}
 .de-tree-btn {
   display: inline-flex;
   align-items: center;
@@ -508,6 +561,128 @@
   font-size: .88rem;
   line-height: 1.55;
   color: rgba(34, 23, 19, .72);
+}
+
+/* Courte citation évoquant l'aspect. */
+.de-aspect-quote {
+  margin: 0 0 .35rem;
+  padding-left: .7rem;
+  border-left: 2px solid color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 60%, transparent);
+  font-size: .86rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 40%, #16110d);
+}
+.de-aspect-quote__mark {
+  font-family: var(--font-title);
+  font-style: normal;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 70%, transparent);
+}
+
+/* ═══════════════════════════════════════════
+   AFFINITÉ PAR PEUPLE (classement de ce domaine)
+═══════════════════════════════════════════ */
+.de-races__intro {
+  margin: 0 0 1.4rem;
+  font-size: .9rem;
+  line-height: 1.5;
+  color: rgba(34, 23, 19, .74);
+}
+
+.de-races__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+  gap: .6rem;
+  align-items: stretch;
+}
+
+.de-race {
+  --share: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  padding: .7rem .3rem .55rem;
+  border: 1px solid rgba(34, 23, 19, .1);
+  border-radius: 8px;
+  /* Fond « chaleur » : teinte de fond proportionnelle à la valeur. */
+  background:
+    radial-gradient(circle at 50% 34%,
+      color-mix(in srgb, var(--domain-color, var(--ancient-gold)) calc(var(--share) * 16%), transparent),
+      transparent 72%),
+    rgba(34, 23, 19, .025);
+}
+
+/* Puits carré fixe : garde les pastilles alignées quelle que soit leur taille. */
+.de-race__well {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 3.9rem;
+}
+
+.de-race__dot {
+  width: calc(.85rem + var(--share) * 3rem);
+  height: calc(.85rem + var(--share) * 3rem);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 32%,
+      color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 78%, #fff 22%),
+      var(--domain-color, var(--ancient-gold)) 78%);
+  opacity: calc(.4 + var(--share) * .6);
+  box-shadow:
+    inset 0 0 6px rgba(0, 0, 0, .28),
+    0 0 calc(var(--share) * .7rem) color-mix(in srgb, var(--domain-color, var(--ancient-gold)) calc(var(--share) * 60%), transparent);
+  transition: width .4s ease, height .4s ease, opacity .4s ease;
+}
+
+.de-race.is-top {
+  border-color: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 42%, transparent);
+}
+.de-race.is-top .de-race__dot {
+  box-shadow:
+    inset 0 0 6px rgba(0, 0, 0, .28),
+    0 0 .8rem color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 60%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 35%, transparent);
+}
+
+.de-race__value {
+  font: 700 1rem var(--font-title);
+  font-variant-numeric: tabular-nums;
+  color: #2b1a12;
+  line-height: 1;
+}
+.de-race.is-top .de-race__value {
+  color: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 45%, #16110d);
+}
+
+.de-race__name {
+  font: 600 .74rem var(--font-title);
+  letter-spacing: .02em;
+  text-align: center;
+  line-height: 1.15;
+  color: rgba(34, 23, 19, .82);
+}
+
+/* Peuple sans affinité mesurée : pastille creuse, texte estompé. */
+.de-race.is-zero .de-race__dot {
+  background: none;
+  opacity: 1;
+  border: 1px dashed rgba(34, 23, 19, .32);
+  box-shadow: none;
+}
+.de-race.is-zero .de-race__value,
+.de-race.is-zero .de-race__name {
+  color: rgba(34, 23, 19, .42);
+}
+
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .de-race__dot { background: var(--ancient-gold); }
+  .de-race { background: rgba(34, 23, 19, .025); }
 }
 
 /* ═══════════════════════════════════════════
@@ -1105,4 +1280,109 @@
   .de-affinities      { grid-template-columns: 1fr; }
   .de-affinities__aside { grid-column: 1; }
   .domain-entry       { margin-block: 12px; }
+}
+
+/* ═══════════════════════════════════════════
+   PIED DE PAGE — les douze domaines (icônes JSON)
+═══════════════════════════════════════════ */
+.de-footer {
+  margin-top: 2.6rem;
+  padding: 1.6rem clamp(.5rem, 3vw, 1.5rem) .6rem;
+  text-align: center;
+}
+
+.de-footer__rule {
+  width: min(100%, 26rem);
+  height: 2px;
+  margin: 0 auto 1.1rem;
+  background: linear-gradient(90deg, transparent, rgba(139, 107, 47, .6), transparent);
+}
+
+.de-footer__legend {
+  margin: 0 0 1.1rem;
+  color: rgba(43, 26, 18, .72);
+  font: 700 .74rem var(--font-title);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+.de-footer__domains {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(.6rem, 2vw, 1.4rem);
+}
+
+.de-footer__domain {
+  --domain-color: #8b6b2f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  width: 4.2rem;
+  padding: .35rem;
+  color: rgba(43, 26, 18, .78);
+  text-decoration: none;
+  transition: transform .18s ease, color .18s ease;
+}
+
+.de-footer__icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--domain-color) 40%, transparent));
+  opacity: .82;
+  transition: opacity .18s ease, filter .18s ease, transform .18s ease;
+}
+
+.de-footer__label {
+  font: 600 .68rem var(--font-title);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #f2eee4;
+  text-shadow:
+    1px 1px 0 rgba(15, 13, 10, .95),
+    -1px -1px 0 rgba(15, 13, 10, .95),
+    1px -1px 0 rgba(15, 13, 10, .95),
+    -1px 1px 0 rgba(15, 13, 10, .95),
+    0 0 3px rgba(15, 13, 10, .8);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.de-footer__domain:hover,
+.de-footer__domain:focus-visible {
+  color: color-mix(in srgb, var(--domain-color) 60%, #2b1a12);
+  transform: translateY(-3px);
+  outline: none;
+}
+.de-footer__domain:hover .de-footer__icon,
+.de-footer__domain:focus-visible .de-footer__icon {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--domain-color) 70%, transparent));
+  transform: scale(1.08);
+}
+.de-footer__domain:hover .de-footer__label,
+.de-footer__domain:focus-visible .de-footer__label,
+.de-footer__domain.is-current .de-footer__label {
+  opacity: 1;
+}
+
+/* Domaine de la page courante : icône grossie, couleur débordante — repère de position. */
+.de-footer__domain.is-current {
+  color: color-mix(in srgb, var(--domain-color) 60%, #2b1a12);
+}
+.de-footer__domain.is-current .de-footer__icon {
+  width: 3.7rem;
+  height: 3.7rem;
+  opacity: 1;
+  transform: translateY(-3px);
+  filter:
+    drop-shadow(0 0 10px color-mix(in srgb, var(--domain-color) 90%, transparent))
+    drop-shadow(0 0 26px color-mix(in srgb, var(--domain-color) 55%, transparent));
+}
+.de-footer__domain.is-current:hover .de-footer__icon,
+.de-footer__domain.is-current:focus-visible .de-footer__icon {
+  transform: translateY(-5px) scale(1.05);
 }

@@ -75,6 +75,12 @@
   --domain-space-muted: #1f5862;
   --domain-space-glow: rgba(104, 169, 179, .38);
 
+  /* Magie non polarisée — mana brute, gris-blanchâtre (hors des 12 domaines). */
+  --domain-nonpolar: #c7c4bb;
+  --domain-nonpolar-secondary: #eae6dc;
+  --domain-nonpolar-muted: #3f3d39;
+  --domain-nonpolar-glow: rgba(217, 213, 203, .34);
+
   --domain-color: var(--ancient-gold);
   --domain-secondary: var(--burned-paper);
   --domain-muted: var(--dust-brown);
@@ -188,6 +194,16 @@
   --domain-glow: var(--domain-space-glow);
 }
 
+.domain-theme-renforcement,
+.domain-renforcement,
+.domain-theme-emission,
+.domain-emission {
+  --domain-color: var(--domain-nonpolar);
+  --domain-secondary: var(--domain-nonpolar-secondary);
+  --domain-muted: var(--domain-nonpolar-muted);
+  --domain-glow: var(--domain-nonpolar-glow);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -223,6 +239,11 @@ body::before {
 }
 
 .paper-surface {
+  /* Teinte du papier. Elle est multipliée par la texture (voir `multiply` plus
+     bas), donc le rendu final est un peu plus sombre que cette valeur. Monter
+     le % de --burned-paper réchauffe/jaunit, le baisser tire vers le beige
+     neutre. */
+  --paper-tint: color-mix(in srgb, var(--burned-paper) 62%, #cec7ba);
   background:
     /* Fondu de bord : chaque côté part EXACTEMENT de la couleur de la bordure
        (#847059) sur la jointure, puis s'efface vers le centre. On fond vers
@@ -231,9 +252,17 @@ body::before {
     linear-gradient(to left,   #847059, rgba(132, 112, 89, 0) 120px),
     linear-gradient(to bottom, #847059, rgba(132, 112, 89, 0) 120px),
     linear-gradient(to top,    #847059, rgba(132, 112, 89, 0) 120px),
-    /* texture/lumière d'origine */
-    radial-gradient(circle at 20% 12%, rgba(255, 248, 220, .22), transparent 28%),
-    var(--burned-paper);
+    /* halo de lumière — refroidi pour ne pas rajouter de jaune */
+    radial-gradient(circle at 20% 12%, rgba(255, 253, 246, .16), transparent 28%),
+    /* texture papier : tuile seamless 720x720 répétée à sa taille native
+       (ancrée en haut à gauche pour ne pas couper la trame) */
+    url('/resources/media/pictures/background_parchment_texture.png') left top / 720px 720px repeat,
+    var(--paper-tint);
+  /* `multiply` : la texture assombrit la teinte au lieu de la remplacer. En
+     `luminosity` / `soft-light` c'est la clarté du fichier (crème très clair)
+     qui l'emportait et le papier virait au blanc. Le jaune d'origine, lui, est
+     neutralisé par --paper-tint, pas par le mode de fusion. */
+  background-blend-mode: normal, normal, normal, normal, normal, multiply, normal;
   /* keep the paper fill inside the torn ring so it never bleeds through the
      transparent parts of the border image */
   background-clip: padding-box;

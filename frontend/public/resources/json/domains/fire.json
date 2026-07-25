@@ -7,19 +7,23 @@
     "subdomains": [
         {
             "name": "Combustion",
-            "icon": "/resources/media/icons/domains/fire/combustion_icon.png"
+            "icon": "/resources/media/icons/domains/fire/combustion_icon.png",
+            "quote": "Rien ne s'éteint vraiment. Tout attend l'étincelle."
         },
         {
             "name": "Chaleur",
-            "icon": "/resources/media/icons/domains/fire/heat_icon.png"
+            "icon": "/resources/media/icons/domains/fire/heat_icon.png",
+            "quote": "Je ne brûle pas toujours ; parfois je réchauffe, et c'est plus dangereux encore."
         },
         {
             "name": "Destruction",
-            "icon": "/resources/media/icons/domains/fire/destruction_icon.png"
+            "icon": "/resources/media/icons/domains/fire/destruction_icon.png",
+            "quote": "Ce que je touche ne redevient jamais ce qu'il était."
         },
         {
             "name": "Passion & rage",
-            "icon": "/resources/media/icons/domains/fire/rage_and_passion_icon.png"
+            "icon": "/resources/media/icons/domains/fire/rage_and_passion_icon.png",
+            "quote": "La flamme la plus dévorante brûle d'abord celui qui la porte."
         }
     ],
     "spells": [
@@ -270,7 +274,7 @@
         },
         {
             "key": "fire-physical-destruction",
-            "requires": ["fire-embers"],
+            "requires": [""],
             "name": "Destruction au contact",
             "description": "Concentre une energie déstructrice au niveau de la main et detruit au contact quelquonque objet de la taille d'un poing. Cela endommage l'integrité physique de la main.",
             "mana": 16,
@@ -417,8 +421,7 @@
             "name": "Lame ardente",
             "description": "Enrobe une arme de flammes : tant que l'enchantement dure, chaque coup inflige des dégâts de feu supplémentaires.",
             "usage": {
-                "combat": "Enflammez votre arme pour ajouter des dégâts de feu à chacune de vos attaques au corps à corps, le temps de l'enchantement.",
-                "outOfCombat": "Une lame embrasée éclaire, cautérise une plaie ou met le feu à ce qu'elle touche."
+                "combat": "Enflammez votre arme pour ajouter des dégâts de feu à chacune de vos attaques au corps à corps, le temps de l'enchantement."
             },
             "mana": 3,
             "level": 3,
@@ -450,10 +453,10 @@
         {
             "key": "fire-revetement-poings",
             "name": "Poings ardents",
+            "requires": ["fire-embers"],
             "description": "Embrase vos poings : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de feu supplémentaires.",
             "usage": {
-                "combat": "Enflammez vos poings pour ajouter des dégâts de feu à vos attaques à mains nues, le temps de l'enchantement.",
-                "outOfCombat": "Des poings embrasés pour allumer un feu, éclairer un passage ou impressionner."
+                "combat": "Enflammez vos poings pour ajouter des dégâts de feu à vos attaques à mains nues, le temps de l'enchantement."
             },
             "mana": 3,
             "level": 2,
@@ -478,6 +481,52 @@
                         "id": "frp3", "tier": 3, "branch": "trunk", "name": "Poings ardents III",
                         "description": "Des poings changés en brasier, dont chaque impact calcine.",
                         "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "fire-revetement-manteau",
+            "requires": ["fire-revetement-poings"],
+            "name": "Manteau de flammes",
+            "description": "Enveloppe le lanceur d'un voile de flammes : sa défense magique est renforcée. Tout attaquant au corps-à-corps subit la brûlure en retour.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile de flammes pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Combustion"],
+            "progression": {
+                "root": "fmt1",
+                "nodes": [
+                    {
+                        "id": "fmt1", "tier": 1, "branch": "trunk", "name": "Manteau de flammes I",
+                        "description": "S'entoure d'un voile de flammes : la défense magique du lanceur est renforcée le temps de l'enchantement.",
+                        "next": ["fmt2"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }], "retaliate": { "trigger": "melee", "damageMin": 2, "damageMax": 4, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.2 }], "inflicts": [{ "status": "brulure", "chance": 50 }] } }
+                    },
+                    {
+                        "id": "fmt2", "tier": 2, "branch": "trunk", "name": "Manteau de flammes II",
+                        "description": "L'enveloppe s'épaissit : protection accrue et plus durable.",
+                        "next": ["fmt3"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 6, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }], "retaliate": { "trigger": "melee", "damageMin": 3, "damageMax": 6, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.2 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
+                    },
+                    {
+                        "id": "fmt3", "tier": 3, "branch": "trunk", "name": "Manteau de flammes III",
+                        "description": "Le voile se stabilise : une protection fiable contre les sorts et attaques magiques.",
+                        "next": ["fmt4"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 8, "scaling": [{ "source": "intelligence", "ratio": 0.5 }] }], "retaliate": { "trigger": "melee", "damageMin": 5, "damageMax": 9, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.25 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
+                    },
+                    {
+                        "id": "fmt4", "tier": 4, "branch": "trunk", "name": "Manteau de flammes IV",
+                        "description": "L'enveloppe atteint une densité rare et se maintient plus longtemps.",
+                        "next": ["fmt5"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 10, "scaling": [{ "source": "intelligence", "ratio": 0.6 }] }], "retaliate": { "trigger": "melee", "damageMin": 7, "damageMax": 12, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.3 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
+                    },
+                    {
+                        "id": "fmt5", "tier": 5, "branch": "trunk", "name": "Manteau de flammes V",
+                        "description": "Une maîtrise totale : le meilleur rempart de la voie contre les sorts et attaques magiques.",
+                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_mag", "value": 11, "scaling": [{ "source": "intelligence", "ratio": 0.65 }] }], "retaliate": { "trigger": "melee", "damageMin": 9, "damageMax": 15, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.35 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
                     }
                 ]
             }

@@ -67,10 +67,18 @@
 .codex-header,
 .left-page,
 .right-page {
+  /* Même recette que .paper-surface (styles.css) : la texture assombrit en
+     multiply la teinte définie ici. Ajuster le % pour réchauffer. */
+  --paper-tint: color-mix(in srgb, var(--paper) 62%, #cec7ba);
   background:
-    radial-gradient(circle at 20% 12%, rgba(255, 248, 220, .28), transparent 24%),
+    /* halo de lumière — refroidi pour ne pas rajouter de jaune */
+    radial-gradient(circle at 20% 12%, rgba(255, 253, 246, .2), transparent 24%),
     linear-gradient(90deg, rgba(42, 24, 14, .2), transparent 15% 85%, rgba(42, 24, 14, .22)),
-    var(--paper);
+    /* texture papier : tuile seamless 720x720 à sa taille native */
+    url('/resources/media/pictures/background_parchment_texture.png') left top / 720px 720px repeat,
+    var(--paper-tint);
+  /* seule la texture est fondue dans la couleur ; les dégradés restent nets */
+  background-blend-mode: normal, normal, multiply, normal;
   box-shadow: inset 0 0 54px rgba(61, 38, 23, .54);
 }
 
@@ -572,12 +580,53 @@
 
 .codex-footer {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   padding: 8px 28px 0;
   color: #9d7b4c;
   font-size: .62rem;
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+
+/* Bande d'icônes de domaines : au centre du footer, à la place du croissant. */
+.codex-footer__domains {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.3rem, 1.2vw, .8rem);
+}
+
+.codex-footer__domain {
+  --domain-color: #8b6b2f;
+  display: inline-flex;
+  padding: 1px;
+  line-height: 0;
+  transition: transform .18s ease;
+}
+
+.codex-footer__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+  opacity: .78;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--domain-color) 35%, transparent));
+  transition: opacity .18s ease, filter .18s ease, transform .18s ease;
+}
+
+.codex-footer__domain:hover,
+.codex-footer__domain:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.codex-footer__domain:hover .codex-footer__icon,
+.codex-footer__domain:focus-visible .codex-footer__icon {
+  opacity: 1;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--domain-color) 70%, transparent));
+  transform: scale(1.12);
 }
 
 @media (max-width: 1180px) {

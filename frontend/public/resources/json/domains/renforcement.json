@@ -1,0 +1,31 @@
+{
+    "name": "Renforcement",
+    "icon": "/resources/media/icons/magic.svg",
+    "banner": "",
+    "first-quote": "Je ne change pas ta nature. Je la rends seulement plus difficile à briser.",
+    "first-quote-author": "Adage des maîtres d'armes de la mana brute",
+    "usage-quote": "Ne demande pas à la mana de faire. Demande-lui de tenir.",
+    "description": "Le Renforcement est le premier des deux usages de la magie non polarisée : la mana brute canalisée vers l'intérieur, versée dans une matière pour en resserrer la trame. Elle ne crée rien, ne transforme rien — elle densifie. Un corps devient plus dur à entamer, un os plus difficile à rompre, une lame plus mordante, une armure plus tenace. L'effet dure tant que la mana l'alimente et s'efface quand elle se retire, sans laisser de trace. C'est une discipline sans éveil ni affinité : elle ne demande que la capacité de percevoir sa propre mana et la patience de la retenir avant qu'elle ne glisse vers un domaine.",
+    "subdomains": [],
+    "manifestations": [
+        {
+            "name": "Corps renforcé",
+            "icon": "",
+            "description": "La mana brute imprègne muscles, os et tendons : le corps encaisse davantage, frappe plus fort et résiste à ce qui devrait le briser. Base martiale des guerriers de l'Archipel comme des combattants non éveillés."
+        },
+        {
+            "name": "Arme & armure",
+            "icon": "",
+            "description": "Versée dans l'acier, elle affûte le tranchant et serre les plaques. Une lame ordinaire renforcée mord comme une lame d'exception — le temps que dure la mana."
+        },
+        {
+            "name": "Objet & structure",
+            "icon": "",
+            "description": "Une corde, une poutre, une porte : toute matière peut être temporairement raffermie au-delà de sa résistance naturelle, sans rien changer à ce qu'elle est."
+        }
+    ],
+    "teaching": "Le réflexe d'un mage éveillé est de laisser sa mana glisser vers ses canaux — le domaine s'exprime, presque malgré lui. Le Renforcement exige l'inverse : retenir cette énergie disponible sans la laisser filer, et l'orienter vers la matière plutôt que vers la fréquence. C'est une discipline de refus autant que de maîtrise, et beaucoup d'éveillés puissants ne l'apprennent jamais.",
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

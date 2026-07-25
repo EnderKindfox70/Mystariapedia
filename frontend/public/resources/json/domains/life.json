@@ -7,15 +7,18 @@
     "subdomains": [
         {
             "name": "Soin & vitalité",
-            "icon": "/resources/media/icons/domains/life/vitality_icon.png"
+            "icon": "/resources/media/icons/domains/life/vitality_icon.png",
+            "quote": "Accompagne la vie : elle sait où elle va mieux que toi."
         },
         {
             "name": "Manipulation de la chair",
-            "icon": "/resources/media/icons/domains/life/flesh_manipulation_icon.png"
+            "icon": "/resources/media/icons/domains/life/flesh_manipulation_icon.png",
+            "quote": "La chair n'est qu'une argile qui respire."
         },
         {
             "name": "Création d'âme",
-            "icon": "/resources/media/icons/domains/life/soul_creation_icon.png"
+            "icon": "/resources/media/icons/domains/life/soul_creation_icon.png",
+            "quote": "Donner un souffle est aisé ; en répondre l'est moins."
         }
     ],
     "spells": [
@@ -79,7 +82,7 @@
         },
         {
             "key": "life-regeneration-de-la-chair",
-            "requires": ["life-soin-vital"],
+            "requires": [""],
             "name": "Régénération de la chair",
             "description": "Force la chair à se reconstruire, restaurant membres meurtris et tissus déchirés.",
             "mana": 5,
@@ -174,8 +177,7 @@
             "name": "Lame vitale",
             "description": "Nimbe une arme d'énergie vitale : tant que l'enchantement dure, chaque coup inflige des dégâts de vitalité supplémentaires.",
             "usage": {
-                "combat": "Enchantez votre arme pour ajouter des dégâts de vitalité à chacune de vos attaques au corps à corps, le temps de l'enchantement.",
-                "outOfCombat": "Hors combat, l'enchantement peut servir à cautériser une plaie, revigorer ou raffermir."
+                "combat": "Enchantez votre arme pour ajouter des dégâts de vitalité à chacune de vos attaques au corps à corps, le temps de l'enchantement."
             },
             "mana": 3,
             "level": 3,
@@ -207,10 +209,10 @@
         {
             "key": "life-revetement-poings",
             "name": "Poings vitaux",
+            "requires": ["life-soin-vital"],
             "description": "Nimbe vos poings d'énergie vitale : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de vitalité supplémentaires.",
             "usage": {
-                "combat": "Enchantez vos poings pour ajouter des dégâts de vitalité à vos attaques à mains nues, le temps de l'enchantement.",
-                "outOfCombat": "Hors combat, l'enchantement des poings peut servir à cautériser une plaie, revigorer ou raffermir."
+                "combat": "Enchantez vos poings pour ajouter des dégâts de vitalité à vos attaques à mains nues, le temps de l'enchantement."
             },
             "mana": 3,
             "level": 2,
@@ -235,6 +237,52 @@
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings vitaux III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts de vitalité.",
                         "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de vitalité de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "life-revetement-manteau",
+            "requires": ["life-revetement-poings"],
+            "name": "Manteau vital",
+            "description": "Enveloppe le lanceur d'une aura de vitalité : sa défense magique est renforcée. Le lanceur régénère des points de vie à chaque tour.",
+            "usage": {
+                "combat": "Enveloppez-vous d'une aura de vitalité pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Soin & vitalité"],
+            "progression": {
+                "root": "lman1",
+                "nodes": [
+                    {
+                        "id": "lman1", "tier": 1, "branch": "trunk", "name": "Manteau vital I",
+                        "description": "S'entoure d'une aura de vitalité : la défense magique du lanceur est renforcée le temps de l'enchantement.",
+                        "next": ["lman2"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_mag", "value": 3, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }], "inflicts": [{ "status": "regeneration", "chance": 100 }] }
+                    },
+                    {
+                        "id": "lman2", "tier": 2, "branch": "trunk", "name": "Manteau vital II",
+                        "description": "L'enveloppe s'épaissit : protection accrue et plus durable.",
+                        "next": ["lman3"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.35 }] }], "inflicts": [{ "status": "regeneration", "chance": 100 }] }
+                    },
+                    {
+                        "id": "lman3", "tier": 3, "branch": "trunk", "name": "Manteau vital III",
+                        "description": "Le voile se stabilise : une protection fiable contre les sorts et attaques magiques.",
+                        "next": ["lman4"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 5, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }], "inflicts": [{ "status": "regeneration", "chance": 100 }] }
+                    },
+                    {
+                        "id": "lman4", "tier": 4, "branch": "trunk", "name": "Manteau vital IV",
+                        "description": "L'enveloppe atteint une densité rare et se maintient plus longtemps.",
+                        "next": ["lman5"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 7, "scaling": [{ "source": "intelligence", "ratio": 0.45 }] }], "inflicts": [{ "status": "regeneration", "chance": 100 }] }
+                    },
+                    {
+                        "id": "lman5", "tier": 5, "branch": "trunk", "name": "Manteau vital V",
+                        "description": "Une maîtrise totale : le meilleur rempart de la voie contre les sorts et attaques magiques.",
+                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_mag", "value": 8, "scaling": [{ "source": "intelligence", "ratio": 0.5 }] }], "inflicts": [{ "status": "regeneration", "chance": 100 }] }
                     }
                 ]
             }

@@ -19,9 +19,12 @@
     ],
     "genetics-stats":
     [
-      {"key": "hp", "value":5},
-      {"key": "endurance", "value":5},
-      {"key": "mana", "value":3}
+      {"key": "hp", "value":9},
+      {"key": "atk_phy", "value":8},
+      {"key": "atk_mag", "value":8},
+      {"key": "endurance", "value":9},
+      {"key": "mana", "value":8},
+      {"key": "speed", "value":8}
     ]
   },
   {
@@ -46,9 +49,12 @@
     ],
     "genetics-stats":
     [
-      {"key": "hp", "value":10},
-      {"key": "endurance", "value":10},
-      {"key": "atk_phy", "value":1}
+      {"key": "hp", "value":15},
+      {"key": "endurance", "value":15},
+      {"key": "atk_phy", "value":10},
+      {"key": "atk_mag", "value":2},
+      {"key": "mana", "value":3},
+      {"key": "speed", "value":5}
     ]
   },
   {
@@ -74,10 +80,12 @@
     ],
     "genetics-stats":
     [
-      {"key": "mana", "value":7},
-      {"key": "atk_mag", "value":3},
-      {"key": "hp", "value":5},
-      {"key": "endurance", "value":3}
+      {"key": "hp", "value":8},
+      {"key": "endurance", "value":4},
+      {"key": "atk_phy", "value":3},
+      {"key": "atk_mag", "value":12},
+      {"key": "mana", "value":15},
+      {"key": "speed", "value":8}
     ]
   },
   {
@@ -104,9 +112,12 @@
     ],
     "genetics-stats":
     [
-      {"key": "hp", "value":7},
-      {"key": "endurance", "value":15},
-      {"key": "atk_phy", "value":2}
+      {"key": "hp", "value":8},
+      {"key": "endurance", "value":14},
+      {"key": "atk_phy", "value":14},
+      {"key": "atk_mag", "value":2},
+      {"key": "mana", "value":2},
+      {"key": "speed", "value":10}
     ]
   },
   {
@@ -134,8 +145,12 @@
     ],
     "genetics-stats":
     [
-      {"key": "hp", "value":5},
-      {"key": "endurance", "value":5}    
+      {"key": "hp", "value":8},
+      {"key": "endurance", "value":11},
+      {"key": "atk_phy", "value":8},
+      {"key": "atk_mag", "value":8},
+      {"key": "mana", "value":8},
+      {"key": "speed", "value":7}
     ]
   }
 ]

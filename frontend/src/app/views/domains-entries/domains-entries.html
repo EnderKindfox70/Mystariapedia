@@ -68,6 +68,9 @@
                     </div>
                     <div class="de-icon-body">
                       <strong class="de-icon-name">{{ sub.name }}</strong>
+                      @if (sub.quote) {
+                        <p class="de-aspect-quote"><span class="de-aspect-quote__mark" aria-hidden="true">«</span> {{ sub.quote }} <span class="de-aspect-quote__mark" aria-hidden="true">»</span></p>
+                      }
                       @if (sub.description) {
                         <p class="de-icon-desc">{{ sub.description }}</p>
                       }
@@ -109,9 +112,16 @@
 
     <!-- ── Sorts ── -->
     @if (spells().length || combinations().length) {
-      <section class="de-section de-spells">
+      <section class="de-section de-spells" [class.is-collapsed]="spellsCollapsed()">
         <div class="de-section-heading de-spells-heading">
-          <h2>Sorts</h2>
+          <button type="button" class="de-spells-toggle"
+                  [attr.aria-expanded]="!spellsCollapsed()"
+                  aria-controls="de-spells-body"
+                  [title]="spellsCollapsed() ? 'Déplier les sorts' : 'Replier les sorts'"
+                  (click)="toggleSpells()">
+            <span class="de-spells-caret" aria-hidden="true">▾</span>
+            <h2>Sorts</h2>
+          </button>
           @if (spellTree()?.edges?.length) {
             <button type="button" class="de-tree-btn" (click)="openSpellTree()">
               <span aria-hidden="true">⤳</span> Voir l'arbre de sorts
@@ -119,6 +129,13 @@
           }
         </div>
 
+        @if (spellsCollapsed()) {
+          <button type="button" class="de-spells-peek" (click)="toggleSpells()">
+            {{ spellCount() }} sort{{ spellCount() > 1 ? 's' : '' }} replié{{ spellCount() > 1 ? 's' : '' }} — cliquez pour afficher
+          </button>
+        }
+
+        <div id="de-spells-body" class="de-spells-body" [hidden]="spellsCollapsed()">
         @if (selectedAspect()) {
           <div class="de-spell-filter">
             <span>Aspect : <strong>{{ selectedAspect() }}</strong></span>
@@ -265,7 +282,29 @@
             }
           }
         </div>
+        </div>
       </section>
+    }
+
+    <!-- ── Répartition par peuple (masquée pour la magie non polarisée, sans affinité) ── -->
+    @if (maxRaceShare() > 0) {
+    <section class="de-section de-races">
+      <div class="de-section-heading"><h2>Affinité par peuple</h2></div>
+      <p class="de-races__intro">Part des éveillés de chaque peuple qui présentent une affinité pour {{ entry().name }} — plus la pastille est grande et intense, plus le peuple est concerné.</p>
+      <ul class="de-races__grid">
+        @for (r of raceDistribution(); track r.people) {
+          <li class="de-race" [class.is-top]="$first && r.value > 0" [class.is-zero]="r.value === 0"
+              [style.--share]="maxRaceShare() ? r.value / maxRaceShare() : 0"
+              [style.--domain-color]="domainColor(domainSlug())">
+            <span class="de-race__well" aria-hidden="true">
+              <span class="de-race__dot"></span>
+            </span>
+            <span class="de-race__value">{{ r.value }} %</span>
+            <span class="de-race__name">{{ r.people }}</span>
+          </li>
+        }
+      </ul>
+    </section>
     }
 
     <!-- ── Liens & Affinités ── -->
@@ -340,35 +379,24 @@
       </div>
     }
 
-    <!-- ── Navigation domaines ── -->
-    <nav class="de-domain-nav" aria-label="Navigation entre domaines">
-
-      <a [routerLink]="'/magics/' + prevDomain().slug"
-         [class]="'de-domain-nav__link de-domain-nav__link--prev domain-' + prevDomain().slug">
-        <span class="de-domain-nav__arrow">←</span>
-        <span class="de-domain-nav__sigil" aria-hidden="true">{{ prevDomain().sigil }}</span>
-        <span class="de-domain-nav__info">
-          <span class="de-domain-nav__hint">Domaine précédent</span>
-          <span class="de-domain-nav__name">{{ prevDomain().label }}</span>
-        </span>
-      </a>
-
-      <a routerLink="/magics" fragment="domains" class="de-domain-nav__index">
-        <span class="de-domain-nav__index-sigil" aria-hidden="true">✦</span>
-        <span class="de-domain-nav__index-label">Tous les domaines</span>
-      </a>
-
-      <a [routerLink]="'/magics/' + nextDomain().slug"
-         [class]="'de-domain-nav__link de-domain-nav__link--next domain-' + nextDomain().slug">
-        <span class="de-domain-nav__info">
-          <span class="de-domain-nav__hint">Domaine suivant</span>
-          <span class="de-domain-nav__name">{{ nextDomain().label }}</span>
-        </span>
-        <span class="de-domain-nav__sigil" aria-hidden="true">{{ nextDomain().sigil }}</span>
-        <span class="de-domain-nav__arrow">→</span>
-      </a>
-
-    </nav>
+    <!-- ── Navigation entre domaines : bandeau d'icônes (JSON + repli) ── -->
+    <footer class="de-footer" aria-label="Naviguer entre les domaines">
+      <div class="de-footer__rule" aria-hidden="true"></div>
+      <p class="de-footer__legend">{{ isNonPolar() ? 'Magie non polarisée' : 'Les douze empreintes' }}</p>
+      <nav class="de-footer__domains" aria-label="Accès aux domaines">
+        @for (d of footerDomains(); track d.slug) {
+          <a class="de-footer__domain"
+             [class.is-current]="d.slug === domainSlug()"
+             [style.--domain-color]="d.color"
+             [routerLink]="'/magics/' + d.slug"
+             [title]="d.label"
+             [attr.aria-current]="d.slug === domainSlug() ? 'page' : null">
+            <img class="de-footer__icon" [src]="d.icon || defaultDomainIcon" [alt]="d.label">
+            <span class="de-footer__label">{{ d.label }}</span>
+          </a>
+        }
+      </nav>
+    </footer>
 
     <!-- ── Overlay : arbre de sorts complet (téléporté sous <body> par le composant) ── -->
     <div #treeOverlay

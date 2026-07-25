@@ -10,6 +10,8 @@ import lifeDomain from '../../public/resources/json/domains/life.json';
 import deathDomain from '../../public/resources/json/domains/death.json';
 import timeDomain from '../../public/resources/json/domains/time.json';
 import spaceDomain from '../../public/resources/json/domains/space.json';
+import renforcementDomain from '../../public/resources/json/domains/renforcement.json';
+import emissionDomain from '../../public/resources/json/domains/emission.json';
 
 /**
  * Catalogue unique des 12 domaines pour l'affichage (grille des domaines de la
@@ -78,7 +80,21 @@ export const DOMAINS: DomainMeta[] = PRESENTATION.map((p) => ({
   icon: ICON_BY_SLUG[p.slug] ?? '',
 }));
 
-const DOMAIN_BY_SLUG = new Map(DOMAINS.map((d) => [d.slug, d]));
+/**
+ * « Domaines » de la magie non polarisée (Renforcement, Émission). Volontairement
+ * tenus HORS de `DOMAINS` : ils ont une page cliquable mais n'apparaissent pas
+ * dans les grilles ni les bandeaux d'icônes, pour signifier qu'ils ne sont liés
+ * à aucune des douze fréquences divines. Gris-blanchâtres — la mana brute.
+ */
+export const NONPOLAR_DOMAINS: DomainMeta[] = [
+  { slug: 'renforcement', label: 'Renforcement', sigil: '◈', color: '#c7c4bb', cssClass: 'domain-renforcement', quote: "Je ne change pas ta nature. Je la rends plus difficile à briser.", icon: renforcementDomain.icon ?? '' },
+  { slug: 'emission',     label: 'Émission',     sigil: '✵', color: '#c7c4bb', cssClass: 'domain-emission',     quote: "Je m'interpose, et je bois le coup à ta place.",                icon: emissionDomain.icon ?? '' },
+];
+
+/** Résolution par slug : les 12 domaines + les usages non polarisés. */
+const DOMAIN_BY_SLUG = new Map(
+  [...DOMAINS, ...NONPOLAR_DOMAINS].map((d) => [d.slug, d])
+);
 
 export const domainMeta  = (slug: string): DomainMeta | undefined => DOMAIN_BY_SLUG.get(slug);
 export const domainIcon  = (slug: string): string => DOMAIN_BY_SLUG.get(slug)?.icon ?? '';

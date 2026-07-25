@@ -1,16 +1,100 @@
 [
-  { "slug": "epee-longue",       "name": "Épée longue",       "subtitle": "Lame d'acier à une ou deux mains",       "weaponCategory": "longsword", "minDamage": 4, "maxDamage": 9,  "rarity": "Commune",     "weight": 1.5 },
-  { "slug": "dague",             "name": "Dague",             "subtitle": "Lame courte, rapide et discrète",        "weaponCategory": "dagger",    "minDamage": 2, "maxDamage": 5,  "rarity": "Commune",     "weight": 0.5 },
-  { "slug": "masse-d-armes",     "name": "Masse d'armes",     "subtitle": "Tête de métal pour broyer les armures",  "weaponCategory": "mace",      "minDamage": 5, "maxDamage": 11, "rarity": "Peu commune", "weight": 2 },
-  { "slug": "hache",             "name": "Hache de guerre",   "subtitle": "Tranchant lourd à une main",             "weaponCategory": "axe",       "minDamage": 4, "maxDamage": 9,  "rarity": "Commune",     "weight": 1.8 },
-  { "slug": "hache-de-bataille", "name": "Hache de bataille", "subtitle": "Fendoir à deux mains",                   "weaponCategory": "battleAxe", "minDamage": 6, "maxDamage": 13, "rarity": "Peu commune", "weight": 3.5 },
-  { "slug": "claymore",          "name": "Claymore",          "subtitle": "Grande épée des highlands",              "weaponCategory": "claymore",  "minDamage": 7, "maxDamage": 14, "rarity": "Rare",        "weight": 3.2 },
-  { "slug": "espadon",           "name": "Espadon",           "subtitle": "Épée à deux mains de guerre",            "weaponCategory": "greatsword","minDamage": 7, "maxDamage": 15, "rarity": "Rare",        "weight": 3 },
-  { "slug": "katana",            "name": "Katana",            "subtitle": "Sabre courbe d'Orient",                  "weaponCategory": "katana",    "minDamage": 5, "maxDamage": 11, "rarity": "Rare",        "weight": 1.2 },
-  { "slug": "rapiere",           "name": "Rapière",           "subtitle": "Lame fine pour l'estoc",                 "weaponCategory": "rapier",    "minDamage": 3, "maxDamage": 8,  "rarity": "Peu commune", "weight": 1 },
-  { "slug": "sabre",             "name": "Sabre",             "subtitle": "Lame courbe de cavalerie",               "weaponCategory": "saber",     "minDamage": 4, "maxDamage": 9,  "rarity": "Commune",     "weight": 1.1 },
-  { "slug": "lance",             "name": "Lance",             "subtitle": "Hampe à pointe, allonge redoutable",     "weaponCategory": "spear",     "minDamage": 5, "maxDamage": 10, "rarity": "Commune",     "weight": 2.2 },
-  { "slug": "baton",             "name": "Bâton",             "subtitle": "Hampe de bois ferré",                    "weaponCategory": "staff",     "minDamage": 3, "maxDamage": 7,  "rarity": "Commune",     "weight": 1.5 },
-  { "slug": "marteau-de-guerre", "name": "Marteau de guerre", "subtitle": "Masse à deux mains, briseur d'acier",    "weaponCategory": "warhammer", "minDamage": 6, "maxDamage": 13, "rarity": "Peu commune", "weight": 4 },
-  { "slug": "fouet",             "name": "Fouet",             "subtitle": "Lanière cinglante à grande allonge",     "weaponCategory": "whip",      "minDamage": 2, "maxDamage": 6,  "rarity": "Peu commune", "weight": 0.8 }
+  {
+    "slug": "baton",
+    "name": "Bâton",
+    "subtitle": "Hampe de bois ferré",
+    "rarity": "Commune",
+    "weight": 1.5
+  },
+  {
+    "slug": "claymore",
+    "name": "Claymore",
+    "subtitle": "Grande épée des highlands",
+    "rarity": "Rare",
+    "weight": 3.2
+  },
+  {
+    "slug": "dague",
+    "name": "Dague",
+    "subtitle": "Lame courte, rapide et discrète",
+    "rarity": "Commune",
+    "weight": 0.5
+  },
+  {
+    "slug": "epee-longue",
+    "name": "Épée longue",
+    "subtitle": "Lame d'acier à une ou deux mains",
+    "rarity": "Commune",
+    "weight": 1.5
+  },
+  {
+    "slug": "espadon",
+    "name": "Espadon",
+    "subtitle": "Épée à deux mains de guerre",
+    "rarity": "Rare",
+    "weight": 3
+  },
+  {
+    "slug": "fouet",
+    "name": "Fouet",
+    "subtitle": "Lanière cinglante à grande allonge",
+    "rarity": "Peu commune",
+    "weight": 0.8
+  },
+  {
+    "slug": "hache-de-bataille",
+    "name": "Hache de bataille",
+    "subtitle": "Fendoir à deux mains",
+    "rarity": "Peu commune",
+    "weight": 3.5
+  },
+  {
+    "slug": "hache",
+    "name": "Hache de guerre",
+    "subtitle": "Tranchant lourd à une main",
+    "rarity": "Commune",
+    "weight": 1.8
+  },
+  {
+    "slug": "katana",
+    "name": "Katana",
+    "subtitle": "Sabre courbe d'Orient",
+    "rarity": "Rare",
+    "weight": 1.2
+  },
+  {
+    "slug": "lance",
+    "name": "Lance",
+    "subtitle": "Hampe à pointe, allonge redoutable",
+    "rarity": "Commune",
+    "weight": 2.2
+  },
+  {
+    "slug": "marteau-de-guerre",
+    "name": "Marteau de guerre",
+    "subtitle": "Masse à deux mains, briseur d'acier",
+    "rarity": "Peu commune",
+    "weight": 4
+  },
+  {
+    "slug": "masse-d-armes",
+    "name": "Masse d'armes",
+    "subtitle": "Tête de métal pour broyer les armures",
+    "rarity": "Peu commune",
+    "weight": 2
+  },
+  {
+    "slug": "rapiere",
+    "name": "Rapière",
+    "subtitle": "Lame fine pour l'estoc",
+    "rarity": "Peu commune",
+    "weight": 1
+  },
+  {
+    "slug": "sabre",
+    "name": "Sabre",
+    "subtitle": "Lame courbe de cavalerie",
+    "rarity": "Commune",
+    "weight": 1.1
+  }
 ]

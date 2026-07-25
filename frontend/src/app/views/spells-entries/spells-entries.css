@@ -896,6 +896,8 @@
   margin-bottom: .2rem;
 }
 .se-status-tip .se-effect-tip__row { white-space: normal; }
+.se-status-tip__antiheal { color: #e6a5a5; font-weight: 600; }
+.se-status-tip__save { color: #a5c7e6; font-weight: 600; }
 .se-status-tip__ends {
   margin-top: .2rem;
   padding-top: .25rem;
@@ -1224,6 +1226,34 @@
   color: #8a2f1a;
 }
 .se-inline-val.is-recoil { color: #8a2f1a; }
+
+/* Clause de riposte (épines : l'attaquant subit un effet en retour) */
+.se-box__retaliate {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(196, 122, 44, .4);
+  font-weight: 600;
+  color: #a5651f;
+}
+/* Clause de purification (statuts levés tant que le buff tient) */
+.se-box__cleanse {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(90, 160, 140, .4);
+  font-weight: 600;
+  color: #3f8f7a;
+}
+/* Clause d'esquive (chance d'annuler une attaque) */
+.se-box__evade {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(61, 121, 168, .4);
+  font-weight: 600;
+  color: #3d79a8;
+}
 
 /* Mot-clé de statut inline (survolable → détail du statut) */
 .se-status-kw {

@@ -1,7 +1,351 @@
 <div class="layout">
-    <navbar></navbar>
-    <main class="paper-surface">
-        <h1>Bestiary</h1>
-        <p>Bienvenue dans la section bestiary de Mystariapedia !</p>
-    </main>
+  <navbar></navbar>
+
+  <main class="codex-shell">
+
+    <header class="codex-head">
+      <span class="codex-head__kicker">Codex de Mystaria</span>
+      <h1 class="codex-head__title">Bestiaire</h1>
+      <div class="codex-head__rule" aria-hidden="true"></div>
+    </header>
+
+    <div class="codex" tabindex="0" (keydown)="onKeydown($event)"
+         [class.is-turning-next]="turning() === 'next'"
+         [class.is-turning-prev]="turning() === 'prev'">
+
+      <!-- Onglets de chapitre, collés sur la tranche droite. -->
+      <nav class="codex__tabs" aria-label="Chapitres du bestiaire">
+        @for (c of chapters; track c.slug) {
+          <a class="codex__tab" [class.is-active]="c.slug === chapter().slug"
+             [routerLink]="['/bestiary', c.slug]">
+            <span class="codex__tab-glyph" aria-hidden="true">{{ c.glyph }}</span>
+            <span class="codex__tab-label">{{ c.label }}</span>
+          </a>
+        }
+      </nav>
+
+      <div class="codex__binding">
+        <div class="codex__edge codex__edge--left" aria-hidden="true"></div>
+        <div class="codex__edge codex__edge--right" aria-hidden="true"></div>
+
+        <div class="codex__book">
+          <section class="codex__page codex__page--left">
+            <ng-container *ngTemplateOutlet="folioTpl;
+              context: { $implicit: staticLeft().folio, number: staticLeft().no }"></ng-container>
+          </section>
+
+          <section class="codex__page codex__page--right">
+            <ng-container *ngTemplateOutlet="folioTpl;
+              context: { $implicit: staticRight().folio, number: staticRight().no }"></ng-container>
+          </section>
+
+          <!-- Feuille animée : n'existe que pendant le feuilletage. -->
+          @if (turning()) {
+            <div class="codex__leaf" aria-hidden="true">
+              <div class="codex__page codex__leaf-face codex__leaf-face--front">
+                <ng-container *ngTemplateOutlet="folioTpl;
+                  context: { $implicit: leafFront()?.folio, number: leafFront()?.no }"></ng-container>
+              </div>
+              <div class="codex__page codex__leaf-face codex__leaf-face--back">
+                <ng-container *ngTemplateOutlet="folioTpl;
+                  context: { $implicit: leafBack()?.folio, number: leafBack()?.no }"></ng-container>
+              </div>
+            </div>
+          }
+
+          <!-- Exemplaires cachés, laissés en colonne unique : c'est sur eux
+               qu'on mesure en combien de pages découper chaque flux. Tous les
+               chapitres sont mesurés en permanence, car la foliation d'un
+               chapitre dépend de la longueur de ceux qui le précèdent. -->
+          @for (c of chapters; track c.slug) {
+            <div class="codex__page codex__measure" [attr.data-flow]="c.slug" aria-hidden="true">
+              <div class="sheet">
+                <div class="sheet__cols" style="--cols: 1; --col: 0">
+                  <ng-container *ngTemplateOutlet="indexBody; context: { $implicit: entriesOf(c.slug) }"></ng-container>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (entry(); as measured) {
+            <div class="codex__page codex__measure" data-flow="detail" aria-hidden="true">
+              <div class="sheet">
+                <div class="sheet__cols" style="--cols: 1; --col: 0">
+                  <ng-container *ngTemplateOutlet="detailBody; context: { $implicit: measured }"></ng-container>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="codex__gutter" aria-hidden="true"></div>
+
+          <!-- Navigation posée à même le parchemin : on tourne en cliquant le
+               coin bas de la page, comme on soulève un vrai feuillet. -->
+          <button type="button" class="codex__corner codex__corner--prev"
+                  [disabled]="!hasPrev()" (click)="prev()" aria-label="Page précédente">
+            <span aria-hidden="true">‹</span>
+          </button>
+
+          <button type="button" class="codex__corner codex__corner--next"
+                  [disabled]="!hasNext()" (click)="next()" aria-label="Page suivante">
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Gabarit unique d'un feuillet. Il est instancié quatre fois : page gauche,
+     page droite, recto et verso de la feuille animée. Toute la mise en page
+     d'un folio se décide donc ici, et nulle part ailleurs.
+     ───────────────────────────────────────────────────────────────────────── -->
+<ng-template #folioTpl let-page let-number="number">
+  <!-- Foliation : au milieu du bas de *sa* page, pas du livre. Un numéro nul
+       marque un feuillet hors foliation — une fiche est un encart. -->
+  @if (number && page && page.kind !== 'blank') {
+    <span class="folio__number" aria-hidden="true">{{ number }}</span>
+  }
+
+  @switch (page?.kind) {
+
+    @case ('chapter') {
+      <div class="folio folio--chapter">
+        <span class="folio__glyph" aria-hidden="true">{{ page.chapter.glyph }}</span>
+        <h2 class="folio__chapter-title">{{ page.chapter.label }}</h2>
+        <div class="folio__flourish" aria-hidden="true"></div>
+        <p class="folio__blurb">{{ page.chapter.blurb }}</p>
+        <p class="folio__quote">{{ page.chapter.quote }}</p>
+      </div>
+    }
+
+    @case ('index') {
+      <div class="folio folio--sheet">
+        <div class="sheet">
+          <div class="sheet__cols" [style.--cols]="page.columns" [style.--col]="page.column">
+            <ng-container *ngTemplateOutlet="indexBody; context: { $implicit: page.entries }"></ng-container>
+          </div>
+        </div>
+      </div>
+    }
+
+    @case ('colophon') {
+      <div class="folio folio--chapter">
+        <div class="folio__flourish" aria-hidden="true"></div>
+        <p class="folio__quote">Ici s'achève le chapitre<br>{{ page.chapter.label }}.</p>
+        <span class="folio__tailpiece" aria-hidden="true">⁂</span>
+      </div>
+    }
+
+    @case ('detail') {
+      <div class="folio folio--sheet">
+        <div class="sheet">
+          <!-- `--cols` : nombre total de colonnes du flux ; `--col` : celle
+               que cette page montre. Le decoupage lui-meme est fait par le
+               moteur de rendu, pas par nous. -->
+          <div class="sheet__cols" [style.--cols]="page.columns" [style.--col]="page.column">
+            <ng-container *ngTemplateOutlet="detailBody; context: { $implicit: page.entry }"></ng-container>
+          </div>
+        </div>
+      </div>
+    }
+
+    @case ('entry-end') {
+      <div class="folio folio--chapter">
+        <div class="folio__flourish" aria-hidden="true"></div>
+        <p class="folio__quote">Fin de la fiche<br>{{ page.entry.name }}.</p>
+        <span class="folio__tailpiece" aria-hidden="true">⁂</span>
+      </div>
+    }
+
+    @case ('loading') {
+      <div class="folio folio--message"><p>L'encre sèche encore…</p></div>
+    }
+
+    @case ('missing') {
+      <div class="folio folio--message">
+        <p>Ce folio a été arraché.</p>
+        <a class="folio__back" [routerLink]="['/bestiary', chapter().slug]">‹ Revenir au folio</a>
+      </div>
+    }
+
+    @default {
+      <div class="folio folio--blank" aria-hidden="true"></div>
+    }
+  }
+</ng-template>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Corps d'une fiche, en flux continu. Il est rendu deux fois : dans chaque
+     page-colonne visible, et dans le mesureur caché. Il ne connaît pas les
+     pages — c'est le découpage en colonnes qui s'en charge.
+     ───────────────────────────────────────────────────────────────────────── -->
+<ng-template #detailBody let-entry>
+  <a class="folio__back" [routerLink]="['/bestiary', chapter().slug]"
+     [queryParams]="{ folio: folio() + 1 }">‹ Revenir au folio</a>
+
+  <h2 class="folio__title">{{ entry.name }}</h2>
+  <p class="folio__subtitle">
+    Menace {{ threatOf(entry.cr) }} · {{ typeName(entry.entityTypeId) }} · Taille {{ entry.size }}
+  </p>
+
+  @if (entry.quote) {
+    <blockquote class="folio__epigraph">
+      {{ entry.quote }}
+      @if (entry['quote-author']) {
+        <cite>— {{ entry['quote-author'] }}</cite>
+      }
+    </blockquote>
+  }
+
+  @for (p of entry.description; track $index) {
+    <p class="folio__text">{{ p }}</p>
+  }
+
+  <!-- L'illustration vient après la description, en entier : si elle ne tient
+       pas sous le texte, elle bascule d'un bloc sur le feuillet suivant. -->
+  @if (entry.banner) {
+    <figure class="folio__banner">
+      <!-- Tant que l'image n'est pas chargée elle occupe zéro hauteur : sans
+           cette remesure, la fiche serait paginée comme si elle n'existait
+           pas et la dernière page déborderait. -->
+      <img [src]="entry.banner" [alt]="entry.name" (load)="remeasure()">
+    </figure>
+  }
+
+  @if (entry.attributes?.length) {
+    <section class="folio__block">
+    <h3 class="folio__section">Caractéristiques</h3>
+    <ul class="statblock">
+      @for (a of entry.attributes; track a.shortLabel) {
+        <li class="statblock__cell">
+          <span class="statblock__key">{{ a.shortLabel }}</span>
+          <span class="statblock__value">{{ a.value }}</span>
+          <span class="statblock__mod">{{ modifierOf(a.value) }}</span>
+        </li>
+      }
+    </ul>
+    </section>
+  }
+
+  <ul class="statline">
+    @for (s of statsOf(entry); track s.label) {
+      <li><span>{{ s.label }}</span><b>{{ s.value }}</b></li>
+    }
+  </ul>
+
+  @if (entry.traitIds?.length) {
+    <section class="folio__block">
+      <h3 class="folio__section">Traits</h3>
+      <dl class="traits">
+        @for (t of traitsOf(entry.traitIds); track t.id) {
+          <dt class="traits__name">{{ t.name }}</dt>
+          <dd class="traits__text">{{ t.description }}</dd>
+        }
+      </dl>
+    </section>
+  }
+
+  @if (entry.affinities?.length) {
+    <section class="folio__block">
+    <h3 class="folio__section">Affinités</h3>
+    <dl class="affinities">
+      @for (g of entry.affinities; track g.kind) {
+        @if (damageNames(g.damageTypeIds); as types) {
+          @if (types.length) {
+            <dt [class]="'affinities__kind affinities__kind--' + g.kind">
+              {{ affinityLabels[g.kind] }}
+            </dt>
+            <dd>{{ types.join(', ') }}</dd>
+          }
+        }
+      }
+    </dl>
+    </section>
+  }
+
+  @if (entry.habitat?.length) {
+    <section class="folio__block">
+    <h3 class="folio__section">Habitat</h3>
+    <ul class="reflist">
+      @for (h of entry.habitat; track h.ref) {
+        <li>{{ h.label }}</li>
+      }
+    </ul>
+    @if (entry.frequency) {
+      <p class="folio__note">Fréquence : {{ entry.frequency }}</p>
+    }
+    </section>
+  }
+
+  @if (entry.loot?.length) {
+    <section class="folio__block">
+      <h3 class="folio__section">Butin</h3>
+      <ul class="reflist">
+        @for (l of lootRows(entry.loot); track $index) {
+          <li>
+            @if (l.link) {
+              <a class="reflist__link" [routerLink]="l.link">{{ l.label }}</a>
+            } @else {
+              {{ l.label }}
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @if (entry.behaviour) {
+    <p class="folio__note">Comportement : {{ entry.behaviour }}</p>
+  }
+</ng-template>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Index d'un chapitre, en flux continu. Comme le corps d'une fiche, il ne
+     connaît pas les pages : les vignettes se répartissent d'elles-mêmes, donc
+     ajouter une créature ne demande jamais de rééquilibrer quoi que ce soit.
+     ───────────────────────────────────────────────────────────────────────── -->
+<ng-template #indexBody let-entries>
+  @for (e of entries; track e.slug) {
+    <article class="vignette">
+      <div class="vignette__plate">
+        @if (e.icon && !broken.has(e.slug)) {
+          <img [src]="e.icon" [alt]="e.name" (error)="broken.add(e.slug)">
+        } @else {
+          <span class="vignette__fallback" aria-hidden="true">◈</span>
+        }
+      </div>
+
+      <div class="vignette__body">
+        <h3 class="vignette__name">{{ e.name }}</h3>
+        <p class="vignette__meta">
+          <span class="vignette__cr">{{ threatOf(e.cr) }}</span>
+          <span>{{ typeName(e.entityTypeId) }}</span>
+          <span>Taille {{ e.size }}</span>
+        </p>
+
+        @if (e.domains?.length) {
+          <ul class="vignette__domains">
+            @for (d of e.domains; track d) {
+              <li class="vignette__domain" [class]="'domain-' + d">
+                {{ domainLabels[d] }}
+              </li>
+            }
+          </ul>
+        }
+
+        @if (e.teaser) {
+          <p class="vignette__teaser">{{ e.teaser }}</p>
+        }
+
+        <a class="vignette__more" [routerLink]="['/bestiary', chapter().slug, e.slug]"
+           [queryParams]="{ folio: current() + 1 }">
+          Voir plus <span aria-hidden="true">⟶</span>
+        </a>
+      </div>
+    </article>
+  } @empty {
+    <p class="folio__note">Aucune créature recensée dans ce chapitre.</p>
+  }
+</ng-template>

@@ -1,0 +1,84 @@
+{
+  "slug": "hurle-vent",
+  "name": "Hurle-Vent",
+  "chapter": "rares",
+  "cr": 2,
+  "entityTypeId": 1,
+  "size": "M",
+  "icon": "/resources/media/pictures/bestiary/hurlevent.png",
+  "banner": "/resources/media/pictures/bestiary/hurlevent.png",
+  "teaser": "Il chasse en meute en en faisant qu'un avec le vent",
+  "behaviour": "Carnivore, meute",
+  "description": [
+    "Prédateur habitant les taigas du royaume perdu, l'hurle-vent est discret et mortel.\n Il chasse en meute et leur proie ne remarque que leur presence lorsqu'elle est deja entre ses crocs.",
+    "Ils possèdent la capacité de se transformer en vent et de se déplacer à grande vitesse, ce qui leur permet de surprendre leurs proies et de les attaquer avec une précision redoutable.",
+    "En etat de vent, ils sont presque invincibles et peuvent se déplacer à travers les obstacles et les murs. Cependant, cette capacité a un coût : elle épuise rapidement leur énergie et les rend vulnérables lorsqu'ils sont fatigués."
+  ],
+  "traitIds": [
+    2,
+    5
+  ],
+  "statBonuses": {
+    "hp": 15,
+    "physical_atk": 7,
+    "magical_atk": 6,
+    "mana": 6,
+    "speed": 16
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 2
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 14
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 7
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 8
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 15
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 8
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": [
+
+      ]
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        13
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": [
+        14
+      ]
+    }
+  ]
+}

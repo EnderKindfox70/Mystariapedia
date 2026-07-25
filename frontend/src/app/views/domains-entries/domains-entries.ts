@@ -3,11 +3,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { DomainCombination, DomainEntry, DomainSpellEntry } from '../../wiki.types';
+import { racesForDomain } from '../magics/domain-distribution';
 import { WikiLinkPipe } from '../../pipes/wiki-link-pipe';
 import { Navbar } from '../../components/navbar/navbar';
 import { DomainCombinationsService } from '../../services/domain-combinations-service';
 import {
   DOMAINS,
+  NONPOLAR_DOMAINS,
   domainColor as colorOf,
   domainIcon as iconOf,
   domainLabel as labelOf,
@@ -76,6 +78,19 @@ export class DomainEntryComponent {
     this.selectedAspect.update(cur => (cur === name ? null : name));
   }
 
+  /** Repli de la liste des sorts (page souvent très longue). */
+  spellsCollapsed = signal(false);
+
+  toggleSpells(): void {
+    this.spellsCollapsed.update(v => !v);
+  }
+
+  /** Nombre total de sorts affichés (sorts du domaine + sorts de combinaison). */
+  spellCount = computed(() => {
+    const combos = this.combinations().reduce((n, c) => n + (c.spells?.length ?? 0), 0);
+    return this.spells().length + combos;
+  });
+
   /**
    * Sorts groupés par leur sous-domaine réel (un sort apparaît sous chaque
    * sous-domaine auquel il appartient), triés par niveau. Les sorts sans
@@ -94,6 +109,33 @@ export class DomainEntryComponent {
     if (noSub.length) groups.push({ label: '', spells: noSub });
     return groups;
   });
+
+  /** Vrai si la page courante est un « domaine » de magie non polarisée. */
+  isNonPolar = computed(() =>
+    NONPOLAR_DOMAINS.some((d) => d.slug === this.domainSlug())
+  );
+
+  /**
+   * Domaines listés dans le pied de page : les deux usages non polarisés entre
+   * eux sur leurs propres pages, sinon les douze domaines divins ailleurs.
+   */
+  footerDomains = computed(() =>
+    this.isNonPolar() ? NONPOLAR_DOMAINS : DOMAINS
+  );
+
+  /** Icône de repli du pied de page quand un domaine n'a pas encore d'icône propre. */
+  readonly defaultDomainIcon = '/resources/media/icons/magic.svg';
+
+  /**
+   * Répartition de ce domaine par peuple (classement décroissant), tirée de la
+   * même source que les camemberts de la page Magie.
+   */
+  raceDistribution = computed(() => racesForDomain(this.domainSlug()));
+
+  /** Plus forte part (pour dimensionner les barres du classement). */
+  maxRaceShare = computed(() =>
+    this.raceDistribution().reduce((m, r) => Math.max(m, r.value), 0)
+  );
 
   domainSigil = (slug: string): string => sigilOf(slug);
   domainLabel = (slug: string): string => labelOf(slug);
@@ -323,20 +365,6 @@ export class DomainEntryComponent {
 
   /** Icône du domaine courant — emblème des sorts du domaine quand elle existe. */
   currentIcon = computed(() => this.domainIcon(this.domainSlug()));
-
-  private currentIndex = computed(() =>
-    DOMAINS.findIndex(d => d.slug === this.domainSlug())
-  );
-
-  prevDomain = computed(() => {
-    const i = this.currentIndex();
-    return DOMAINS[(i - 1 + DOMAINS.length) % DOMAINS.length];
-  });
-
-  nextDomain = computed(() => {
-    const i = this.currentIndex();
-    return DOMAINS[(i + 1) % DOMAINS.length];
-  });
 
   crossRefSections = computed(() => [
     { label: 'Artefacts & Objets magiques', items: this.entry()['magic-items-and-artifacts'] ?? [] },

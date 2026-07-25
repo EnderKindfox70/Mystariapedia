@@ -23,6 +23,8 @@ export interface SubdomainEntry {
   name: string;
   icon: string;
   description: string;
+  /** Courte citation évoquant ce que l'aspect représente (affichée sur la carte). */
+  quote?: string;
 }
 
 /** Cibles qu'un sort peut affecter. */
@@ -104,16 +106,44 @@ export interface SpellClassBonus {
   manaFactor?: number;
 }
 
-/** Contre-coup : dégâts que le lanceur s'inflige à lui-même en lançant le sort. */
+/**
+ * Contre-coup : ce que le lanceur subit en retour du sort — des dégâts qu'il
+ * s'inflige et/ou un malus de stat le temps de l'effet (ex. une armure lourde
+ * qui ralentit son porteur).
+ */
 export interface SpellRecoil {
-  /** Dégâts subis par le lanceur (min). */
-  damageMin: number;
+  /** Dégâts subis par le lanceur (min). Absent si le contre-coup est purement statistique. */
+  damageMin?: number;
   /** Dégâts subis par le lanceur (max, si différent du min). */
   damageMax?: number;
   /** Scaling éventuel du contre-coup. */
   scaling?: SpellScaling[];
+  /**
+   * Malus de stats subis par le lanceur tant que le sort est actif. La `value`
+   * est une magnitude positive : le signe négatif est ajouté à l'affichage.
+   */
+  effects?: SpellStatEffect[];
   /** Précision affichée (ex. « à la main »). */
   note?: string;
+}
+
+/**
+ * Riposte défensive (« épines ») d'un buff : tant que le buff est actif, un
+ * attaquant qui touche le lanceur subit un statut et/ou des dégâts en retour.
+ */
+export interface SpellRetaliate {
+  /** Déclencheur : au corps-à-corps (`melee`, défaut) ou sur toute attaque (`any`). */
+  trigger?: 'melee' | 'any';
+  /** Statut(s) renvoyé(s) à l'attaquant (avec % de chance). */
+  inflicts?: SpellStatusApplication[];
+  /** Dégâts renvoyés à l'attaquant (min). */
+  damageMin?: number;
+  /** Dégâts renvoyés à l'attaquant (max, si différent du min). */
+  damageMax?: number;
+  /** Type des dégâts renvoyés (cf. damage_type.json). */
+  damageType?: string;
+  /** Scaling éventuel des dégâts renvoyés. */
+  scaling?: SpellScaling[];
 }
 
 /**
@@ -224,6 +254,15 @@ export interface SpellNodeStats {
   effects?: SpellStatEffect[];
   /** Statuts que le sort peut infliger à l'impact (avec % de chance). */
   inflicts?: SpellStatusApplication[];
+  /** Riposte défensive : un attaquant subit un effet en retour tant que le buff est actif. */
+  retaliate?: SpellRetaliate;
+  /**
+   * Statuts purifiés tant que le buff est actif : ils sont levés à l'incantation
+   * et ne peuvent pas se réinstaller. Clés de `status_effects.json`.
+   */
+  cleanses?: string[];
+  /** Chance (0–100 %) d'annuler complètement une attaque subie tant que le buff est actif. */
+  evadeChance?: number;
   /**
    * Choix sélectionnables (sorts à options). Le lanceur en choisit UN ; la liste
    * s'étoffe souvent au fil des paliers. Chaque choix a ses propres effets
@@ -248,6 +287,43 @@ export interface StatusTick {
   damage?: number;
   heal?: number;
   scaling?: SpellScaling[];
+  /**
+   * Dégâts par tour exprimés en pourcentage des PV max de la cible.
+   * Un tableau décrit une rampe (une valeur par tour, la dernière se répète
+   * quand le statut dure plus longtemps que le tableau). Ex. `[3, 5, 7]`.
+   */
+  percentMaxHp?: number | number[];
+}
+
+/** Attributs pouvant être testés par un jet de statut. */
+export type StatusSaveAttribute =
+  | 'force' | 'dexterite' | 'constitution'
+  | 'intelligence' | 'sagesse' | 'charisme';
+
+/**
+ * Jet d'attribut imposé par un statut. Sa réussite lève le statut (`clear`)
+ * ou permet à la cible d'agir malgré lui (`act`).
+ */
+export interface StatusSave {
+  /** Attribut testé (constitution, sagesse…). */
+  attribute: StatusSaveAttribute;
+  /**
+   * Score de base à atteindre pour réussir le jet (DC). C'est la référence
+   * minimale du statut ; certains sorts et traits peuvent l'élever pour rendre
+   * l'effet plus tenace.
+   */
+  dc: number;
+  /**
+   * Déclencheur du jet : `turn` = automatiquement au fil des tours (voir
+   * `interval`) ; `action` = seulement lorsque la cible tente d'agir.
+   */
+  trigger: 'turn' | 'action';
+  /** Périodicité du jet en tours quand `trigger` vaut `turn` (1 = chaque tour). */
+  interval?: number;
+  /** Conséquence d'une réussite : `clear` lève le statut, `act` autorise l'action. */
+  onSuccess: 'clear' | 'act';
+  /** Formulation lisible du jet et de son effet. */
+  description: string;
 }
 
 /** Un effet de statut du catalogue (brûlure, poison, paralysie…). */
@@ -264,6 +340,13 @@ export interface StatusEffect {
   effect: string;
   /** Effet par tour (DoT / régénération), ou absent. */
   tick?: StatusTick | null;
+  /**
+   * Réduction des soins reçus tant que le statut est actif (0–1 ; 0.5 = −50 %,
+   * 1 = aucun soin possible). Absent = pas d'anti-soin.
+   */
+  healReduction?: number;
+  /** Jet d'attribut imposé par le statut (purge ou action), ou absent. */
+  save?: StatusSave;
   /** Modificateurs de stats appliqués tant que le statut est actif. */
   statEffects: SpellStatEffect[];
   preventsAction: boolean;
@@ -477,16 +560,83 @@ export interface DomainEntry {
   flora: CrossRef[];
 }
 
-export interface BestiaryEntry {
+/** Chapitres du codex du bestiaire (un onglet = un chapitre). */
+export type BestiaryChapter =
+  | 'communes'
+  | 'rares'
+  | 'legendaires'
+  | 'entites'
+  | 'mutations'
+  | 'archives';
+
+/**
+ * Ligne de `bestiary/index.json` : tout ce qu'il faut pour dessiner une
+ * vignette de folio, sans charger la fiche complète.
+ */
+export interface BestiaryIndexEntry {
+  slug: string;
   name: string;
-  icon: string;
-  banner: string;
+  chapter: BestiaryChapter;
+  /** Vignette carrée. À défaut, le folio affiche un glyphe. */
+  icon?: string;
   cr: number;
-  type: string;
+  /** Type d'entité, référencé par son id dans `entity_type.json`. */
+  entityTypeId: number;
+  /** Ex. « TP », « P », « M », « G », « TG ». */
   size: string;
-  domains: CrossRef[];
-  loot: CrossRef[];
-  habitat: CrossRef[];
+  /** Clés de domaine (`fire`, `darkness`…) pilotant la teinte des pastilles. */
+  domains?: string[];
+  /** Accroche d'une ligne affichée sous la bande d'identité. */
+  teaser?: string;
+}
+
+/** Les cinq stats de combat portées par un type d'entité (`entity_type.json`). */
+export type BestiaryStatKey = 'hp' | 'physical_atk' | 'magical_atk' | 'mana' | 'speed';
+
+/** Un groupe d'affinités de la fiche. */
+export interface BestiaryAffinityGroup {
+  kind: 'immunities' | 'resistances' | 'weaknesses' | 'absorptions';
+  /** Types de dégâts, référencés par leur id dans `damage_type.json`. */
+  damageTypeIds: number[];
+}
+
+/**
+ * Une caractéristique de la fiche. Le modificateur n'est pas stocké : il se
+ * déduit du score par la formule commune (`abilityModifier`), donc il ne peut
+ * pas diverger de la valeur qu'il est censé refléter.
+ */
+export interface BestiaryAttribute {
+  label: string;
+  shortLabel: string;
+  value: number;
+}
+
+/**
+ * Fiche complète, chargée à la demande depuis `bestiary/<slug>.json` quand on
+ * ouvre le chapitre d'une créature.
+ */
+export interface BestiaryEntry extends BestiaryIndexEntry {
+  banner?: string;
+  quote?: string;
+  'quote-author'?: string;
+  /** Paragraphes de description (page de gauche). */
+  description: string[];
+  /** Ex. « Carnivore, meute, nocturne ». */
+  behaviour?: string;
+  /** Traits, référencés par leur id dans `trait.json`. */
+  traitIds?: number[];
+  /**
+   * Bonus de stats propres à la créature, ajoutés à la base de son type
+   * (cf. `entity_type.json`). Absent = aucun bonus. Le total affiché n'est
+   * jamais stocké : il se recompose toujours depuis le type + ces bonus.
+   */
+  statBonuses?: Partial<Record<BestiaryStatKey, number>>;
+  attributes?: BestiaryAttribute[];
+  affinities?: BestiaryAffinityGroup[];
+  loot?: CrossRef[];
+  habitat?: CrossRef[];
+  /** Fréquence de rencontre, ex. « Rare », « Commune en hiver ». */
+  frequency?: string;
 }
 
 export interface ArtifactEntry {

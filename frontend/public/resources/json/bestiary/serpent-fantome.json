@@ -1,0 +1,85 @@
+{
+  "slug": "serpent-fantome",
+  "name": "Serpent Fantôme",
+  "chapter": "rares",
+  "cr": 2,
+  "entityTypeId": 1,
+  "size": "TP",
+  "icon": "/resources/media/pictures/bestiary/serpent-fantomatique.png",
+  "banner": "/resources/media/pictures/bestiary/serpent-fantomatique.png",
+  "teaser": "Il vit dans les sous bois pourris et les marais, il chasse en solitaire et possède un venin neurologique très puissant.",
+  "behaviour": "Carnivore, solitaire",
+  "description": [
+    "Prédateur discret vivant dans les sous bois pourris et les marais, Le serpent fantôme est un reptile mesurant 1 mètre de long aillant la particularité d'avoir leur ecailles translucides permettant a quiconque de voir leur organes et os.",
+    "Il chasse en solitaire, son alimentation se compose principalement de petits mammifères, d'oiseaux et de leurs oeufs.",
+    "Il possède dans ses crochets un venin neurologique très potent qui fait ressentir a sa victime la sensation d'une mort imminente, paralysant le corps, ce qui le rend très dangereux pour les humains et les animaux de grande taille. Heureusement il est très discret et peureux face aux humains, il ne les attaquera que si il se sent menacé ou acculé."
+  ],
+  "traitIds": [],
+  "statBonuses": {
+    "hp": 5,
+    "physical_atk": 2,
+    "magical_atk": 3,
+    "mana": 3,
+    "speed": 7
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 2
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 16
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 11
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 1
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 10
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 3
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        14
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        13
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "loot": [
+    {
+      "ref": "venin-de-serpent-fantome",
+      "collection": "natural-resources/remains"
+    }
+  ]
+}

@@ -1,0 +1,893 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   Le codex du bestiaire.
+
+   Modèle du feuilletage — une seule feuille bouge à la fois :
+
+     avant (next)                          arrière (prev)
+     ┌─────────┬─────────┐                 ┌─────────┬─────────┐
+     │ gauche  │ FEUILLE │  rotateY 0→-180 │ FEUILLE │ droite  │  rotateY 0→180
+     │ (fixe)  │  recto  │  origine = dos  │  recto  │ (fixe)  │  origine = dos
+     └─────────┴─────────┘                 └─────────┴─────────┘
+       recto = ancienne page de droite       recto = ancienne page de gauche
+       verso = nouvelle page de gauche       verso = nouvelle page de droite
+
+   Sous la feuille, la page fixe du côté opposé affiche déjà l'état d'arrivée :
+   c'est ce qui donne l'illusion qu'on découvre la page du dessous.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:host {
+  --turn-duration: 720ms;
+  --leather: #2a1d14;
+  --leather-light: #4a3423;
+  /* Texture seamless de la couverture et des onglets. La tuile est large pour
+     que le grain ne se répète pas visiblement sur la largeur du livre. */
+  --leather-texture: url('/resources/media/pictures/leather-texture-background.jpg');
+  --page-tint: color-mix(in srgb, var(--burned-paper) 62%, #cec7ba);
+  --gutter-shade: rgba(60, 40, 20, .78);
+  /* Hauteur du livre — donc d'une colonne de page — dérivée une seule fois ici
+     pour que l'image pleine page puisse s'y borner (voir `.folio__banner img`). */
+  --book-h: clamp(380px, calc(100vh - 19rem), 780px);
+  /* Marge haute + basse d'une page (cf. `.codex__page`), à retrancher pour
+     obtenir la hauteur utile d'une colonne. */
+  --page-pad-y: 5.6rem;
+  display: block;
+}
+
+.codex-shell {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 2.5rem 5vw 4rem;
+}
+
+/* ── Titre de section ─────────────────────────────────────────────────────── */
+
+.codex-head {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.codex-head__kicker {
+  color: var(--ancient-gold);
+  font-family: var(--font-title);
+  font-size: .74rem;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+}
+
+.codex-head__title {
+  margin: .35rem 0 0;
+  color: var(--faded-ivory);
+  font-family: var(--font-occult);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.codex-head__rule {
+  width: min(420px, 60%);
+  height: 1px;
+  margin: .9rem auto 0;
+  background: linear-gradient(90deg, transparent, var(--ancient-gold), transparent);
+}
+
+/* ── Reliure ──────────────────────────────────────────────────────────────── */
+
+.codex {
+  position: relative;
+  /* Les onglets débordent à droite de la reliure : on leur réserve la place
+     ici, sinon ils sortent de la fenêtre sur les écrans moyens. */
+  margin-right: 178px;
+  perspective: 2600px;
+  outline: none;
+}
+
+.codex:focus-visible .codex__binding {
+  box-shadow: 0 0 0 2px var(--ancient-gold), 0 30px 70px rgba(0, 0, 0, .6);
+}
+
+.codex__binding {
+  position: relative;
+  padding: 18px;
+  border-radius: 10px;
+  /* Le dégradé passe au-dessus de la texture : il ne la remplace pas, il lui
+     donne son relief (haut éclairé, bas dans l'ombre). */
+  background:
+    linear-gradient(180deg, rgba(128, 92, 54, .3), rgba(0, 0, 0, .06) 30%, rgba(0, 0, 0, .34) 100%),
+    var(--leather-texture) center / 620px repeat;
+  box-shadow:
+    inset 0 0 0 1px rgba(139, 107, 47, .45),
+    inset 0 0 40px rgba(0, 0, 0, .55),
+    0 30px 70px rgba(0, 0, 0, .55);
+}
+
+/* Tranche : l'empilement de pages qui dépasse de la couverture. */
+.codex__edge {
+  position: absolute;
+  top: 32px;
+  bottom: 32px;
+  width: 9px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    #cfc3ad 0 1px,
+    #a08e73 1px 2px,
+    #e3d9c5 2px 3px
+  );
+  opacity: .75;
+}
+
+.codex__edge--left { left: 10px; }
+.codex__edge--right { right: 10px; }
+
+.codex__book {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Hauteur *définie* et non `min-height` : sans elle, le `height: 100%` du
+     flux en colonnes ne peut pas se résoudre et la page s'étirerait à la
+     hauteur de tout le contenu.
+
+     Elle se cale sur la place réellement libre (les ~19rem retranchées sont
+     le titre et les marges) pour que le livre tienne dans la
+     fenêtre : sinon on aurait supprimé le défilement des pages pour le voir
+     réapparaître sur la fenêtre elle-même. */
+  height: var(--book-h);
+  transform-style: preserve-3d;
+}
+
+/* ── Une page ─────────────────────────────────────────────────────────────── */
+
+.codex__page {
+  position: relative;
+  /* Bas plus généreux : c'est la bande où vivent les coins de navigation et
+     la foliation, le texte ne doit pas y descendre. */
+  padding: 2.2rem 2.4rem 3.4rem;
+  overflow: hidden auto;
+  color: #241a14;
+  /* Même recette que `.paper-surface` : la texture multiplie la teinte. */
+  background:
+    url('/resources/media/pictures/background_parchment_texture.png') left top / 720px 720px repeat,
+    var(--page-tint);
+  background-blend-mode: multiply, normal;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(94, 70, 50, .55) transparent;
+}
+
+/* ── Flux en colonnes : la pagination du contenu long ──────────────────────
+   Un chapitre comme une fiche est un contenu continu. Plutôt que de le faire
+   défiler, on le coule dans des colonnes larges d'exactement une page, et
+   chaque page du livre en montre une seule. Le découpage est fait par le moteur de rendu ; nous ne
+   décidons que du nombre de colonnes (`--cols`, mesuré) et de celle qu'on
+   affiche (`--col`).
+
+   Le décalage se fait en `margin-left` et non en `transform` : un pourcentage
+   de marge se calcule sur la largeur du conteneur (une page), alors qu'un
+   pourcentage de `translateX` se calcule sur la largeur de l'élément lui-même
+   — qui fait ici plusieurs pages de large.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.folio--sheet { display: block; height: 100%; }
+
+.sheet {
+  height: 100%;
+  /* Indispensable : c'est ce masquage qui découpe la colonne affichée, et
+     c'est aussi lui qui rend `scrollWidth` mesurable côté TypeScript. */
+  overflow: hidden;
+}
+
+.sheet__cols {
+  --col-gap: 4.8rem;
+  width: calc(var(--cols) * 100% + (var(--cols) - 1) * var(--col-gap));
+  height: 100%;
+  margin-left: calc(var(--col) * -1 * (100% + var(--col-gap)));
+  column-count: var(--cols);
+  column-gap: var(--col-gap);
+  /* `balance` répartirait le texte équitablement entre les colonnes ; on veut
+     au contraire remplir chaque page avant de passer à la suivante. */
+  column-fill: auto;
+}
+
+/* Rien ne doit être coupé en deux par une fin de page. */
+.sheet__cols .vignette,
+.sheet__cols .statblock,
+.sheet__cols .statblock__cell,
+.sheet__cols .statline,
+.sheet__cols .affinities,
+.sheet__cols .folio__banner,
+.sheet__cols .folio__epigraph { break-inside: avoid; }
+
+/* Un titre de section ne doit jamais rester seul en bas d'une page. Chrome
+   ignore `break-after: avoid` en multicolonnes, d'où le regroupement du titre
+   et de son contenu dans un bloc insécable. */
+.sheet__cols .folio__block { break-inside: avoid; }
+
+/* Le mesureur : un exemplaire hors-champ du contenu, gardé en colonne unique.
+   Il a exactement les dimensions d'une page, donc sa largeur de défilement
+   donne le nombre de pages nécessaires (cf. `measure()` côté TypeScript). */
+.codex__measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 50%;
+  height: 100%;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Ombre de gouttière : chaque page s'assombrit vers la reliure. */
+.codex__page--left {
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -30px 0 42px -24px var(--gutter-shade);
+}
+
+.codex__page--right {
+  border-radius: 0 4px 4px 0;
+  box-shadow: inset 30px 0 42px -24px var(--gutter-shade);
+}
+
+/* Rainure centrale, posée par-dessus les deux pages. */
+.codex__gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 9px);
+  width: 18px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(52, 34, 18, .38) 45%,
+    rgba(52, 34, 18, .5) 50%,
+    rgba(52, 34, 18, .38) 55%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* ── La feuille animée ────────────────────────────────────────────────────── */
+
+.codex__leaf {
+  position: absolute;
+  top: 0;
+  z-index: 3;
+  width: 50%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.is-turning-next .codex__leaf {
+  left: 50%;
+  transform-origin: left center;
+  animation: leaf-next var(--turn-duration) cubic-bezier(.36, .06, .22, 1) forwards;
+}
+
+.is-turning-prev .codex__leaf {
+  left: 0;
+  transform-origin: right center;
+  animation: leaf-prev var(--turn-duration) cubic-bezier(.36, .06, .22, 1) forwards;
+}
+
+.codex__leaf-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 4px;
+}
+
+.codex__leaf-face--back { transform: rotateY(180deg); }
+
+/* Ombre qui balaie la feuille : c'est elle qui vend le volume, pas la
+   rotation. Elle culmine quand la feuille est à la verticale. */
+.codex__leaf-face::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  opacity: 0;
+  animation: leaf-shade var(--turn-duration) ease-in-out forwards;
+}
+
+.codex__leaf-face--front::after {
+  background: linear-gradient(to left, rgba(28, 16, 8, .55), transparent 65%);
+}
+
+.codex__leaf-face--back::after {
+  background: linear-gradient(to right, rgba(28, 16, 8, .55), transparent 65%);
+}
+
+@keyframes leaf-next {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-180deg); }
+}
+
+@keyframes leaf-prev {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(180deg); }
+}
+
+@keyframes leaf-shade {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Onglets de chapitre ──────────────────────────────────────────────────── */
+
+.codex__tabs {
+  position: absolute;
+  top: 46px;
+  left: 100%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.codex__tab {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  width: 172px;
+  padding: .55rem .9rem .55rem .7rem;
+  color: color-mix(in srgb, var(--faded-ivory) 72%, transparent);
+  font-family: var(--font-title);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, .15), rgba(0, 0, 0, .55)),
+    var(--leather-texture) center / 260px repeat;
+  border: 1px solid rgba(139, 107, 47, .35);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 4px 6px 14px rgba(0, 0, 0, .45);
+  transform: translateX(-6px);
+  transition: transform .24s ease, color .24s ease;
+}
+
+.codex__tab:hover { transform: translateX(0); }
+
+.codex__tab.is-active {
+  color: var(--ancient-gold);
+  /* L'onglet actif éclaircit la même texture au lieu d'en changer. */
+  background:
+    linear-gradient(90deg, rgba(146, 106, 58, .3), rgba(0, 0, 0, .3)),
+    var(--leather-texture) center / 260px repeat;
+  border-color: rgba(139, 107, 47, .8);
+  transform: translateX(2px);
+}
+
+.codex__tab-glyph { font-size: .95rem; }
+
+/* ── Navigation dans les coins ────────────────────────────────────────────
+   Les commandes vivent sur le parchemin, pas dans un bandeau : au repos ce ne
+   sont que deux chevrons pâles, et le coin s'éclaire au survol comme un
+   feuillet qu'on soulève.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.codex__corner {
+  position: absolute;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  /* La zone cliquable reste large, mais le chevron se colle à l'angle : c'est
+     le coin de la page qu'on soulève, pas un bouton posé à côté. */
+  place-items: end;
+  width: 6rem;
+  height: 5.4rem;
+  padding: 0 .9rem .7rem;
+  color: #6b4a1f;
+  font-family: var(--font-title);
+  font-size: 2rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: .5;
+  transition: opacity .22s ease, color .22s ease;
+}
+
+.codex__corner--prev { left: 0; justify-items: start; }
+.codex__corner--next { right: 0; justify-items: end; }
+
+/* L'ombre de coin : c'est elle qui suggère la page qu'on va soulever. */
+.codex__corner::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+
+.codex__corner--prev::before {
+  background: linear-gradient(45deg, rgba(94, 70, 50, .55), transparent 66%);
+}
+
+.codex__corner--next::before {
+  background: linear-gradient(-45deg, rgba(94, 70, 50, .55), transparent 66%);
+}
+
+.codex__corner:hover:not(:disabled),
+.codex__corner:focus-visible:not(:disabled) {
+  color: var(--ritual-red);
+  opacity: 1;
+}
+
+.codex__corner:hover:not(:disabled)::before,
+.codex__corner:focus-visible:not(:disabled)::before { opacity: 1; }
+
+/* Un livre ouvert à sa première page n'a pas de coin à soulever à gauche. */
+.codex__corner:disabled { opacity: 0; pointer-events: none; }
+
+/* Foliation : chaque page porte son numéro, centré sur *sa* largeur — donc
+   deux numéros par double page, comme dans un livre imprimé. Posée sur la
+   page, elle suit le feuillet quand il pivote. */
+.folio__number {
+  position: absolute;
+  bottom: 1.15rem;
+  left: 50%;
+  z-index: 1;
+  color: color-mix(in srgb, #4a3320 55%, transparent);
+  font-family: var(--font-title);
+  font-size: .82rem;
+  letter-spacing: .1em;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ── Contenu d'un folio ───────────────────────────────────────────────────── */
+
+.folio {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.folio--chapter {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.folio__glyph {
+  color: var(--dust-brown);
+  font-size: 3rem;
+  opacity: .8;
+}
+
+.folio__chapter-title {
+  margin: 1rem 0 0;
+  font-family: var(--font-occult);
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+}
+
+.folio__flourish {
+  width: 60%;
+  height: 1px;
+  margin: 1.1rem 0;
+  background: linear-gradient(90deg, transparent, var(--dust-brown), transparent);
+}
+
+.folio__blurb {
+  max-width: 34ch;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.folio__quote {
+  margin-top: 2rem;
+  color: var(--dust-brown);
+  font-size: .92rem;
+  font-style: italic;
+}
+
+/* ── Vignette d'index ─────────────────────────────────────────────────────── */
+
+.vignette {
+  /* Marge basse plutôt qu'un `gap` de conteneur : dans un flux en colonnes,
+     l'espacement doit appartenir à la vignette pour survivre au découpage. */
+  margin-bottom: 1.6rem;
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 1.1rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid rgba(94, 70, 50, .28);
+}
+
+.vignette:last-of-type { border-bottom: none; }
+
+.vignette__plate {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: rgba(94, 70, 50, .12);
+  border: 1px solid rgba(94, 70, 50, .4);
+  border-radius: 3px;
+  box-shadow: inset 0 0 18px rgba(94, 70, 50, .25);
+}
+
+.vignette__plate img { width: 100%; height: 100%; object-fit: cover; }
+
+.vignette__fallback { color: var(--dust-brown); font-size: 1.9rem; opacity: .55; }
+
+.vignette__name {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 1.22rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+/* Les champs sont séparés par l'espacement seul : un séparateur « · » se
+   retrouverait en début de ligne dès que la bande passe à la ligne. */
+.vignette__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .2rem 1.1rem;
+  margin: .25rem 0 .55rem;
+  color: var(--dust-brown);
+  font-size: .76rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.vignette__meta > span { white-space: nowrap; }
+
+.vignette__cr { font-weight: 700; }
+
+.vignette__domains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 0 0 .6rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* La pastille prend sa teinte de `--domain-color`, posé par `.domain-<clé>`. */
+.vignette__domain {
+  padding: .12rem .55rem;
+  color: color-mix(in srgb, var(--domain-color) 70%, #1a1208);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--domain-color) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--domain-color) 45%, transparent);
+  border-radius: 999px;
+}
+
+.vignette__teaser {
+  margin: 0 0 .7rem;
+  font-size: .93rem;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.vignette__more {
+  align-self: start;
+  color: #6b4a1f;
+  font-family: var(--font-title);
+  font-size: .74rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(107, 74, 31, .45);
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.vignette__more:hover { color: var(--ritual-red); border-color: var(--ritual-red); }
+
+/* Cul-de-lampe : comble le bas d'un folio incomplet plutôt qu'un blanc. */
+.folio__tailpiece {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  color: var(--dust-brown);
+  font-size: 1.3rem;
+  text-align: center;
+  opacity: .45;
+}
+
+/* Sur un folio centré (garde, colophon) l'ornement suit le texte au lieu
+   d'être plaqué en bas de page. */
+.folio--chapter .folio__tailpiece { margin-top: 1.4rem; padding-top: 0; }
+
+/* ── Fiche créature ───────────────────────────────────────────────────────── */
+
+.folio__back {
+  color: var(--dust-brown);
+  font-family: var(--font-title);
+  font-size: .72rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.folio__back:hover { color: var(--ritual-red); }
+
+.folio__title {
+  margin: .8rem 0 0;
+  font-family: var(--font-occult);
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  font-weight: 700;
+}
+
+.folio__subtitle {
+  margin: .2rem 0 1.2rem;
+  color: var(--dust-brown);
+  font-size: .78rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* Sans cadre : l'illustration se pose à même le parchemin, ce qui laisse
+   respirer les fonds transparents. */
+.folio__banner {
+  margin: 0 0 1.2rem;
+}
+
+/* Image entière, jamais recadrée : elle garde ses proportions et occupe la
+   largeur de la page. Comme elle passe après la description et qu'elle est
+   insécable, elle migre d'un bloc au feuillet suivant quand elle ne tient
+   plus — c'est le comportement voulu, pas un débordement. */
+.folio__banner img {
+  display: block;
+  max-width: 100%;
+  /* Bornée à la hauteur utile réelle d'une colonne (hauteur du livre moins ses
+     marges verticales) : au-delà, l'image dépassait le bas de la page et se
+     faisait couper par le masquage de la colonne. On soustrait un peu plus que
+     les seules marges pour laisser respirer la légende sous l'image. On limite
+     les deux dimensions sans en fixer aucune, donc le ratio reste intact. */
+  max-height: calc(var(--book-h) - var(--page-pad-y) - 1.2rem);
+  margin: 0 auto;
+}
+
+.folio__epigraph {
+  margin: 0 0 1.2rem;
+  padding-left: 1rem;
+  color: var(--dust-brown);
+  font-style: italic;
+  border-left: 2px solid rgba(94, 70, 50, .45);
+}
+
+.folio__epigraph cite { display: block; margin-top: .35rem; font-size: .82rem; }
+
+.folio__text { margin: 0 0 .9rem; font-size: .97rem; line-height: 1.7; }
+
+.folio__section {
+  margin: 1.6rem 0 .8rem;
+  color: #4a3320;
+  font-family: var(--font-title);
+  font-size: .8rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.folio__section:first-child { margin-top: 0; }
+
+.folio__section::after {
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin-top: .4rem;
+  background: linear-gradient(90deg, rgba(94, 70, 50, .5), transparent);
+  content: '';
+}
+
+.statblock {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statblock__cell {
+  display: grid;
+  gap: .1rem;
+  padding: .6rem .3rem;
+  text-align: center;
+  background: rgba(94, 70, 50, .1);
+  border: 1px solid rgba(94, 70, 50, .3);
+  border-radius: 3px;
+}
+
+.statblock__key {
+  color: var(--dust-brown);
+  font-family: var(--font-title);
+  font-size: .66rem;
+  letter-spacing: .16em;
+}
+
+.statblock__value { font-size: 1.3rem; font-weight: 600; line-height: 1; }
+
+.statblock__mod { color: var(--dust-brown); font-size: .74rem; }
+
+.statline {
+  display: grid;
+  gap: .35rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statline li {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: .3rem;
+  font-size: .9rem;
+  border-bottom: 1px dotted rgba(94, 70, 50, .4);
+}
+
+.affinities {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .4rem .9rem;
+  margin: 0;
+}
+
+.affinities__kind {
+  font-family: var(--font-title);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.affinities__kind--immunities { color: #4a3320; }
+.affinities__kind--resistances { color: #3f655d; }
+.affinities__kind--weaknesses { color: var(--ritual-red); }
+.affinities__kind--absorptions { color: #4b2e59; }
+
+.affinities dd { margin: 0; font-size: .9rem; }
+
+.reflist { margin: 0; padding-left: 1.1rem; font-size: .92rem; line-height: 1.6; }
+
+.reflist__link {
+  color: #6b4a1f;
+  border-bottom: 1px solid rgba(107, 74, 31, .4);
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.reflist__link:hover { color: var(--ritual-red); border-color: var(--ritual-red); }
+
+/* Traits : le nom du catalogue, puis ce qu'il fait — sans la description,
+   un trait n'est qu'une étiquette. */
+.traits { margin: 0; }
+
+.traits__name {
+  color: #4a3320;
+  font-family: var(--font-title);
+  font-size: .84rem;
+  letter-spacing: .06em;
+  /* Les noms de `trait.json` sont en minuscules. */
+  text-transform: capitalize;
+}
+
+.traits__text {
+  margin: .1rem 0 .7rem;
+  font-size: .88rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.traits__text:last-child { margin-bottom: 0; }
+
+.folio__note {
+  margin: .8rem 0 0;
+  color: var(--dust-brown);
+  font-size: .85rem;
+  font-style: italic;
+}
+
+.folio--message {
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  color: var(--dust-brown);
+  font-style: italic;
+  text-align: center;
+}
+
+/* ── Écrans étroits : page simple, plus de 3D ─────────────────────────────── */
+
+@media (max-width: 900px) {
+  .codex-shell { padding: 1.5rem 1rem 3rem; }
+
+  /* `perspective` fait du livre le référent des positions fixes : sans ce
+     retrait, les commandes ancrées à la fenêtre resteraient collées au bas du
+     livre. La 3D ne sert plus ici de toute façon. */
+  .codex { margin-right: 0; perspective: none; }
+
+  /* `preserve-3d` piège lui aussi les positions fixes : à retirer avec la
+     perspective, sans quoi la barre de navigation reste dans le livre. */
+  .codex__book {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 60vh;
+    transform-style: flat;
+  }
+
+  /* En page simple, la pagination en colonnes n'a plus de sens : la fiche
+     redevient un texte qui défile, et `measure()` renvoie une seule colonne. */
+  .codex__measure { display: none; }
+
+  .folio--sheet,
+  .sheet { height: auto; overflow: visible; }
+
+  .sheet__cols {
+    width: 100%;
+    height: auto;
+    margin-left: 0;
+    column-count: 1;
+  }
+
+  /* Sans double page, la feuille animée n'a plus de sens : on l'efface. */
+  .codex__leaf,
+  .codex__gutter,
+  .codex__edge { display: none; }
+
+  .codex__page--left,
+  .codex__page--right { border-radius: 4px; box-shadow: none; }
+
+  /* Un feuillet vierge ne doit pas laisser un grand trou sous l'autre. */
+  .folio--blank { display: none; }
+
+  /* La page défile de nouveau : un coin ancré au bas du livre serait hors de
+     vue. Les commandes se détachent en pastilles fixes au bas de l'écran. */
+  .codex__corner {
+    position: fixed;
+    bottom: .9rem;
+    z-index: 5;
+    width: 3.2rem;
+    height: 3.2rem;
+    padding: 0;
+    color: var(--ancient-gold);
+    font-size: 1.5rem;
+    background: rgba(26, 17, 10, .88);
+    border: 1px solid rgba(139, 107, 47, .5);
+    border-radius: 50%;
+    opacity: 1;
+  }
+
+  .codex__corner--prev { left: 1rem; }
+  .codex__corner--next { right: 1rem; }
+  .codex__corner::before { display: none; }
+
+  .codex__tabs {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: .9rem;
+  }
+
+  .codex__tab {
+    width: auto;
+    border-left: 1px solid rgba(139, 107, 47, .35);
+    border-radius: 8px;
+    transform: none;
+  }
+
+  .codex__tab.is-active { transform: none; }
+  .codex__tab-label { font-size: .66rem; }
+}
+
+/* ── Accessibilité ────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Le feuilletage devient un fondu : la feuille ne pivote plus. */
+  .is-turning-next .codex__leaf,
+  .is-turning-prev .codex__leaf {
+    animation: leaf-fade 200ms ease forwards;
+  }
+
+  .codex__leaf-face--back { display: none; }
+  .codex__leaf-face::after { animation: none; opacity: 0; }
+  .codex__tab { transition: none; }
+}
+
+@keyframes leaf-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

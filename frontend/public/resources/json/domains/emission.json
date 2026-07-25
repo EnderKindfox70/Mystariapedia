@@ -1,0 +1,31 @@
+{
+    "name": "Émission",
+    "icon": "/resources/media/icons/magic.svg",
+    "banner": "",
+    "first-quote": "Je ne te rends pas plus solide. Je m'interpose, et je bois le coup à ta place.",
+    "first-quote-author": "Adage des maîtres d'armes de la mana brute",
+    "usage-quote": "Ne retiens pas la mana en toi. Déploie-la, et fais-en un mur qui n'existe qu'un instant.",
+    "description": "L'Émission est le second usage de la magie non polarisée : la mana brute projetée vers l'extérieur plutôt que retenue dans la matière. Déployée comme un voile autour de l'utilisateur, elle intercepte les sorts qui l'atteignent et en absorbe une part de la puissance avant qu'elle ne se traduise en dégâts réels. Elle ne renvoie rien, ne neutralise rien complètement — elle atténue. Comme le Renforcement, elle ne crée pas et ne dure que le temps qu'on l'alimente ; mais là où l'un durcit ce qui existe déjà, l'autre occupe l'espace vide entre le mage et ce qui le menace.",
+    "subdomains": [],
+    "manifestations": [
+        {
+            "name": "Voile absorbant",
+            "icon": "",
+            "description": "Une pellicule de mana brute autour du corps qui boit une fraction de l'impact magique reçu. Discret, permanent tant qu'il est nourri, il ne bloque pas — il amortit."
+        },
+        {
+            "name": "Barrière déployée",
+            "icon": "",
+            "description": "La mana projetée en avant forme un plan d'interception, plus large mais plus coûteux : de quoi couvrir brièvement un allié ou encaisser une salve."
+        },
+        {
+            "name": "Diffusion",
+            "icon": "",
+            "description": "Émise sans forme précise, la mana brute perturbe la cohérence des sorts alentour, réduisant leur portée et leur précision au prix d'un effort constant."
+        }
+    ],
+    "teaching": "L'Émission demande de renoncer à l'instinct de garde-le-pour-soi. La mana projetée au-dehors est une mana qu'on ne récupère pas : chaque instant de voile est une dépense sèche. Les praticiens apprennent à ne l'ouvrir qu'au moment juste — trop tôt, on s'épuise pour rien ; trop tard, le sort est déjà passé.",
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

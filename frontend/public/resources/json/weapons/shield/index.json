@@ -1,3 +1,9 @@
 [
-  { "slug": "bouclier-rond", "name": "Bouclier rond", "subtitle": "Garde polyvalente de bois cerclé", "rarity": "Commune", "weight": 3 }
+  {
+    "slug": "bouclier-rond",
+    "name": "Bouclier rond",
+    "subtitle": "Garde polyvalente de bois cerclé",
+    "rarity": "Commune",
+    "weight": 0
+  }
 ]

@@ -10,7 +10,6 @@ import { Peoples } from './views/peoples/peoples';
 import { PeopleEntryComponent } from './views/peoples-entries/peoples-entries';
 import { peopleResolver } from './resolvers/people.resolver';
 import { Factions } from './views/factions/factions';
-import { Entities } from './entities/entities';
 import { Alchemy } from './views/alchemy/alchemy';
 import { DomainEntryComponent } from './views/domains-entries/domains-entries';
 import { SpellEntryComponent } from './views/spells-entries/spells-entries';
@@ -46,8 +45,17 @@ export const routes: Routes =
     { path: 'resources', component: NaturalResources },
     { path: 'resources/:category/:slug', component: ResourceEntryComponent, resolve: { entry: resourceResolver } },
     { path: 'locations', component: Locations },
-    { path: 'entities', component: Entities },
-    { path: 'bestiary', component: Bestiary },
+    // Un seul composant pour tout le codex : le livre reste monté, donc changer
+    // de chapitre / de folio / ouvrir une fiche déclenche un feuilletage.
+    { path: 'bestiary', redirectTo: 'bestiary/communes', pathMatch: 'full' },
+    // « faune » est devenu « communes » : on garde l'ancienne adresse vivante.
+    // Chemin absolu : une cible relative se résoudrait sous /bestiary.
+    { path: 'bestiary/faune', redirectTo: '/bestiary/communes', pathMatch: 'full' },
+    // Les entités anciennes sont devenues un chapitre du bestiaire ; on garde
+    // l'ancienne adresse vivante pour les liens déjà dans la nature.
+    { path: 'entities', redirectTo: 'bestiary/entites', pathMatch: 'full' },
+    { path: 'bestiary/:chapter', component: Bestiary },
+    { path: 'bestiary/:chapter/:slug', component: Bestiary },
     { path: 'artifacts', component: Artifacts },
     { path: 'weapons', component: Weapons },
     { path: 'weapons/:category/:slug', component: WeaponEntryComponent, resolve: { entry: weaponResolver } },

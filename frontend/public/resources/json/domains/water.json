@@ -5,11 +5,11 @@
     "first-quote": "Je peux être douce. Je peux être profonde. Je peux être les deux en même temps.",
     "usage-quote": "Ne force pas le chemin. Trouve la fissure.",
     "subdomains": [
-        { "name": "Forme de l'eau", "icon": "/resources/media/icons/domains/water/liquid_water_icon.png" },
-        { "name": "Glace", "icon": "/resources/media/icons/domains/water/ice_icon.png" },
-        { "name": "Vapeur", "icon": "/resources/media/icons/domains/water/mist_icon.png" },
-        { "name": "purification", "icon": "/resources/media/icons/domains/water/purification_icon.png" },
-        { "name": "Océan", "icon": "/resources/media/icons/domains/water/ocean_icon.png" }
+        { "name": "Forme de l'eau", "icon": "/resources/media/icons/domains/water/liquid_water_icon.png", "quote": "Je n'ai pas de forme. J'ai toutes les formes." },
+        { "name": "Glace", "icon": "/resources/media/icons/domains/water/ice_icon.png", "quote": "La patience de l'eau finit toujours par durcir." },
+        { "name": "Vapeur", "icon": "/resources/media/icons/domains/water/mist_icon.png", "quote": "On croit me saisir ; il ne reste que le souffle." },
+        { "name": "purification", "icon": "/resources/media/icons/domains/water/purification_icon.png", "quote": "Je ne détruis pas la souillure : je la porte ailleurs." },
+        { "name": "Océan", "icon": "/resources/media/icons/domains/water/ocean_icon.png", "quote": "Sous chaque vague dort une colère plus vieille que les rois." }
     ],
     "spells": [
         {
@@ -136,7 +136,7 @@
             "level": 2,
             "subdomains": ["Glace"],
             "damageType": "ice",
-            "requires": ["water-manipulation-aquatique"],
+            "requires": ["water_ice_shard"],
             "progression": {
                 "root": "wi1",
                 "nodes": [
@@ -286,8 +286,7 @@
             "name": "Lame déferlante",
             "description": "Nimbe une arme d'un voile d'eau : tant que l'enchantement dure, chaque coup inflige des dégâts d'eau supplémentaires.",
             "usage": {
-                "combat": "Enchantez votre arme pour ajouter des dégâts d'eau à chacune de vos attaques au corps à corps, le temps de l'enchantement.",
-                "outOfCombat": "Hors combat, l'enchantement peut servir à humidifier, éteindre un feu ou fournir de l'eau."
+                "combat": "Enchantez votre arme pour ajouter des dégâts d'eau à chacune de vos attaques au corps à corps, le temps de l'enchantement."
             },
             "mana": 3,
             "level": 3,
@@ -321,8 +320,7 @@
             "name": "Poings déferlants",
             "description": "Nimbe vos poings d'un voile d'eau : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts d'eau supplémentaires.",
             "usage": {
-                "combat": "Enchantez vos poings pour ajouter des dégâts d'eau à vos attaques à mains nues, le temps de l'enchantement.",
-                "outOfCombat": "Hors combat, l'enchantement des poings peut servir à humidifier, éteindre un feu ou fournir de l'eau."
+                "combat": "Enchantez vos poings pour ajouter des dégâts d'eau à vos attaques à mains nues, le temps de l'enchantement."
             },
             "mana": 3,
             "level": 2,
@@ -356,8 +354,7 @@
             "name": "Poings de glace",
             "description": "Nimbe vos poings d'une gangue de givre : chaque coup à mains nues inflige des dégâts de glace supplémentaires et peut engourdir la cible.",
             "usage": {
-                "combat": "Givrez vos poings pour ajouter des dégâts de glace à vos attaques à mains nues et ralentir vos cibles.",
-                "outOfCombat": "Hors combat, le givre conserve les aliments, refroidit ou fige une petite surface d'eau."
+                "combat": "Givrez vos poings pour ajouter des dégâts de glace à vos attaques à mains nues et ralentir vos cibles."
             },
             "mana": 3,
             "level": 2,
@@ -392,8 +389,7 @@
             "name": "Lame de glace",
             "description": "Nimbe une arme d'une gangue de givre : chaque coup inflige des dégâts de glace supplémentaires et peut engourdir la cible.",
             "usage": {
-                "combat": "Givrez votre arme pour ajouter des dégâts de glace à vos attaques au corps à corps et ralentir vos cibles.",
-                "outOfCombat": "Hors combat, le givre conserve les aliments, refroidit ou fige une petite surface d'eau."
+                "combat": "Givrez votre arme pour ajouter des dégâts de glace à vos attaques au corps à corps et ralentir vos cibles."
             },
             "mana": 3,
             "level": 3,
@@ -427,8 +423,7 @@
             "name": "Poings de brume",
             "description": "Nimbe vos poings d'une brume dense : chaque coup à mains nues inflige des dégâts d'eau supplémentaires et peut aveugler la cible.",
             "usage": {
-                "combat": "Enveloppez vos poings de brume pour ajouter des dégâts d'eau à vos attaques à mains nues et gêner la vue de l'adversaire.",
-                "outOfCombat": "Hors combat, la brume masque vos déplacements et condense un peu d'eau à boire."
+                "combat": "Enveloppez vos poings de brume pour ajouter des dégâts d'eau à vos attaques à mains nues et gêner la vue de l'adversaire."
             },
             "mana": 3,
             "level": 2,
@@ -463,8 +458,7 @@
             "name": "Lame de brume",
             "description": "Nimbe une arme d'une brume dense : chaque coup inflige des dégâts d'eau supplémentaires et peut aveugler la cible.",
             "usage": {
-                "combat": "Enveloppez votre arme de brume pour ajouter des dégâts d'eau à vos attaques au corps à corps et gêner la vue de l'adversaire.",
-                "outOfCombat": "Hors combat, la brume masque vos déplacements et condense un peu d'eau à boire."
+                "combat": "Enveloppez votre arme de brume pour ajouter des dégâts d'eau à vos attaques au corps à corps et gêner la vue de l'adversaire."
             },
             "mana": 3,
             "level": 3,
@@ -534,6 +528,204 @@
                         "id": "pu5", "tier": 5, "branch": "trunk", "name": "Purification de l'eau V",
                         "usage": { "outOfCombat": "Assainissement absolu : dessale et purifie de vastes volumes, jusqu'à rendre potable l'eau de mer." },
                         "stats": { "mana": 6, "range": "12 m", "area": "Vaste volume / eau de mer" }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-glace",
+            "requires": ["water-revetement-glace-poings"],
+            "name": "Armure de glace",
+            "description": "Enveloppe le lanceur d'une gangue de glace : sa défense physique est renforcée sans l'entraver. La glace peut ensuite rester fine et libre de mouvement, ou s'épaissir en carapace écrasante au prix de la vitesse.",
+            "usage": {
+                "combat": "Enveloppez-vous d'une gangue de glace pour mieux encaisser les coups et attaques physiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Glace"],
+            "progression": {
+                "root": "wgl1",
+                "branches": [
+                    { "id": "givre", "label": "Voie du Givre", "description": "Une glace fine qui protège correctement sans jamais entraver les mouvements." },
+                    { "id": "banquise", "label": "Voie de la Banquise", "description": "Une carapace de glace massive : protection écrasante, payée en vitesse." }
+                ],
+                "nodes": [
+                    {
+                        "id": "wgl1", "tier": 1, "branch": "trunk", "name": "Armure de glace I",
+                        "description": "S'entoure d'une gangue de glace : la défense physique du lanceur est renforcée le temps de l'enchantement.",
+                        "next": ["wgl2"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_phy", "value": 4, "scaling": [{ "source": "constitution", "ratio": 0.3 }] }] }
+                    },
+                    {
+                        "id": "wgl2", "tier": 2, "branch": "trunk", "name": "Armure de glace II",
+                        "description": "Point de scission : la glace s'épaissit et peut rester fine et libre, ou se figer en carapace.",
+                        "next": ["wgv3", "wgb3"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_phy", "value": 6, "scaling": [{ "source": "constitution", "ratio": 0.35 }] }] }
+                    },
+                    {
+                        "id": "wgv3", "tier": 3, "branch": "givre", "name": "Armure de givre I",
+                        "description": "Une pellicule de givre souple qui durcit à l'impact sans jamais gêner le porteur.",
+                        "next": ["wgv4"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_phy", "value": 7, "scaling": [{ "source": "constitution", "ratio": 0.4 }] }] }
+                    },
+                    {
+                        "id": "wgv4", "tier": 4, "branch": "givre", "name": "Armure de givre II",
+                        "description": "Le givre se réagence en continu : protection solide et mouvements intacts.",
+                        "next": ["wgv5"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_phy", "value": 8, "scaling": [{ "source": "constitution", "ratio": 0.45 }] }] }
+                    },
+                    {
+                        "id": "wgv5", "tier": 5, "branch": "givre", "name": "Armure de givre III",
+                        "description": "Un givre vivant qui épouse chaque geste : la meilleure protection sans la moindre entrave.",
+                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.3 }], "effects": [{ "stat": "def_phy", "value": 9, "scaling": [{ "source": "constitution", "ratio": 0.5 }] }] }
+                    },
+                    {
+                        "id": "wgb3", "tier": 3, "branch": "banquise", "name": "Armure de banquise I",
+                        "description": "La glace s'accumule en plaques épaisses : bien plus solide, mais le pas s'alourdit.",
+                        "next": ["wgb4"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_phy", "value": 10, "scaling": [{ "source": "constitution", "ratio": 0.5 }] }], "recoil": { "effects": [{ "stat": "speed", "value": 1 }] } }
+                    },
+                    {
+                        "id": "wgb4", "tier": 4, "branch": "banquise", "name": "Armure de banquise II",
+                        "description": "Une carapace massive qui encaisse presque tout, au prix d'une démarche pesante.",
+                        "next": ["wgb5"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_phy", "value": 13, "scaling": [{ "source": "constitution", "ratio": 0.6 }] }], "recoil": { "effects": [{ "stat": "speed", "value": 2 }] } }
+                    },
+                    {
+                        "id": "wgb5", "tier": 5, "branch": "banquise", "name": "Armure de banquise III",
+                        "description": "Un bloc de banquise ambulant : le porteur devient une muraille, mais avance à peine.",
+                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.3 }], "effects": [{ "stat": "def_phy", "value": 16, "scaling": [{ "source": "constitution", "ratio": 0.7 }] }], "recoil": { "effects": [{ "stat": "speed", "value": 3 }] } }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-brume",
+            "requires": ["water-revetement-brume-poings"],
+            "name": "Manteau de brume",
+            "description": "Enveloppe le lanceur d'un voile de brume : une protection ténue mais presque gratuite, qui allège la démarche et s'entretient très longtemps.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile de brume pour une protection légère et durable, sans grever votre réserve de mana."
+            },
+            "mana": 2,
+            "level": 3,
+            "subdomains": ["Vapeur"],
+            "progression": {
+                "root": "wbr1",
+                "nodes": [
+                    {
+                        "id": "wbr1", "tier": 1, "branch": "trunk", "name": "Manteau de brume I",
+                        "description": "S'entoure d'un mince voile de brume : une protection ténue, pour un souffle de mana.",
+                        "next": ["wbr2"],
+                        "stats": { "mana": 2, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_mag", "value": 1, "scaling": [{ "source": "intelligence", "ratio": 0.2 }] }, { "stat": "speed", "value": 1, "scaling": [{ "source": "dexterite", "ratio": 0.15 }] }] }
+                    },
+                    {
+                        "id": "wbr2", "tier": 2, "branch": "trunk", "name": "Manteau de brume II",
+                        "description": "La brume s'étale et tient plus longtemps, toujours pour presque rien.",
+                        "next": ["wbr3"],
+                        "stats": { "mana": 2, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 2, "scaling": [{ "source": "intelligence", "ratio": 0.2 }] }, { "stat": "speed", "value": 1, "scaling": [{ "source": "dexterite", "ratio": 0.15 }] }] }
+                    },
+                    {
+                        "id": "wbr3", "tier": 3, "branch": "trunk", "name": "Manteau de brume III",
+                        "description": "Le voile devient une nappe stable qui accompagne les mouvements du porteur.",
+                        "next": ["wbr4"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 2, "scaling": [{ "source": "intelligence", "ratio": 0.25 }] }, { "stat": "speed", "value": 2, "scaling": [{ "source": "dexterite", "ratio": 0.2 }] }] }
+                    },
+                    {
+                        "id": "wbr4", "tier": 4, "branch": "trunk", "name": "Manteau de brume IV",
+                        "description": "Une nappe tenace qui se renouvelle d'elle-même et se dissipe à peine.",
+                        "next": ["wbr5"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_mag", "value": 3, "scaling": [{ "source": "intelligence", "ratio": 0.25 }] }, { "stat": "speed", "value": 2, "scaling": [{ "source": "dexterite", "ratio": 0.2 }] }] }
+                    },
+                    {
+                        "id": "wbr5", "tier": 5, "branch": "trunk", "name": "Manteau de brume V",
+                        "description": "Une brume permanente et insaisissable : dérisoire à entretenir, elle ne quitte plus le porteur.",
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 7, "durationScaling": [{ "source": "constitution", "ratio": 0.3 }], "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }, { "stat": "speed", "value": 3, "scaling": [{ "source": "dexterite", "ratio": 0.25 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "water-revetement-manteau",
+            "requires": ["water-revetement-poings"],
+            "name": "Manteau des ondes",
+            "description": "Enveloppe le lanceur d'un voile d'eau : sa défense magique est renforcée et il est trempé (résistant au feu, vulnérable à la foudre). L'onde peut ensuite se durcir en rempart, se faire purifiante ou vivifiante.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile d'eau pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": ["Forme de l'eau"],
+            "progression": {
+                "root": "wmt1",
+                "branches": [
+                    { "id": "ondes", "label": "Voie des Ondes", "description": "Défense magique toujours plus haute, pour un coût en mana qui ne bouge plus." },
+                    { "id": "purifiant", "label": "Voie Purifiante", "description": "L'eau lave les altérations : le manteau dissout poisons, brûlures et entraves tant qu'il tient." },
+                    { "id": "rafraichissant", "label": "Voie Rafraîchissante", "description": "L'eau vivifie : le porteur régénère ses blessures tant que le manteau tient." }
+                ],
+                "nodes": [
+                    {
+                        "id": "wmt1", "tier": 1, "branch": "trunk", "name": "Manteau des ondes I",
+                        "description": "S'entoure d'un voile d'eau : la défense magique du lanceur est renforcée le temps de l'enchantement.",
+                        "next": ["wmt2"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_mag", "value": 3, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }], "inflicts": [{ "status": "wet", "chance": 100 }] }
+                    },
+                    {
+                        "id": "wmt2", "tier": 2, "branch": "trunk", "name": "Manteau des ondes II",
+                        "description": "Point de scission : l'onde s'épaissit et peut désormais se durcir en rempart, se faire purifiante ou vivifiante.",
+                        "next": ["wmt3", "wpu3", "wra3"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.35 }] }], "inflicts": [{ "status": "wet", "chance": 100 }] }
+                    },
+                    {
+                        "id": "wmt3", "tier": 3, "branch": "ondes", "name": "Manteau des ondes III",
+                        "description": "L'onde se densifie en un rempart régulier contre la magie.",
+                        "next": ["wmt4"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 6, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }], "inflicts": [{ "status": "wet", "chance": 100 }] }
+                    },
+                    {
+                        "id": "wmt4", "tier": 4, "branch": "ondes", "name": "Manteau des ondes IV",
+                        "description": "La maîtrise du flux rend le manteau plus solide sans rien coûter de plus.",
+                        "next": ["wmt5"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 8, "scaling": [{ "source": "intelligence", "ratio": 0.5 }] }], "inflicts": [{ "status": "wet", "chance": 100 }] }
+                    },
+                    {
+                        "id": "wmt5", "tier": 5, "branch": "ondes", "name": "Manteau des ondes V",
+                        "description": "Une onde parfaite : un rempart magique majeur entretenu pour une bouchée de mana.",
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 10, "scaling": [{ "source": "intelligence", "ratio": 0.6 }] }], "inflicts": [{ "status": "wet", "chance": 100 }] }
+                    },
+                    {
+                        "id": "wpu3", "tier": 3, "branch": "purifiant", "name": "Manteau purifiant I",
+                        "description": "L'eau se fait limpide et lave les souillures : poisons et brûlures ne tiennent plus sur le porteur.",
+                        "next": ["wpu4"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }], "inflicts": [{ "status": "wet", "chance": 100 }], "cleanses": ["poison", "brulure"] }
+                    },
+                    {
+                        "id": "wpu4", "tier": 4, "branch": "purifiant", "name": "Manteau purifiant II",
+                        "description": "Le courant délie aussi les muscles figés : la paralysie ne prend plus.",
+                        "next": ["wpu5"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 5, "scaling": [{ "source": "intelligence", "ratio": 0.35 }] }], "inflicts": [{ "status": "wet", "chance": 100 }], "cleanses": ["poison", "brulure", "paralysie"] }
+                    },
+                    {
+                        "id": "wpu5", "tier": 5, "branch": "purifiant", "name": "Manteau purifiant III",
+                        "description": "Une eau sacrée qui repousse jusqu'à la pourriture : plus aucune de ces altérations ne tient.",
+                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 6, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }], "inflicts": [{ "status": "wet", "chance": 100 }], "cleanses": ["poison", "brulure", "paralysie", "necrose"] }
+                    },
+                    {
+                        "id": "wra3", "tier": 3, "branch": "rafraichissant", "name": "Manteau rafraîchissant I",
+                        "description": "L'eau vivifiante irrigue les chairs : le porteur récupère des points de vie à chaque tour.",
+                        "next": ["wra4"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }], "inflicts": [{ "status": "wet", "chance": 100 }, { "status": "regeneration", "chance": 100 }] }
+                    },
+                    {
+                        "id": "wra4", "tier": 4, "branch": "rafraichissant", "name": "Manteau rafraîchissant II",
+                        "description": "Le flux vital s'intensifie et se maintient plus longtemps.",
+                        "next": ["wra5"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_mag", "value": 5, "scaling": [{ "source": "intelligence", "ratio": 0.35 }] }], "inflicts": [{ "status": "wet", "chance": 100 }, { "status": "regeneration", "chance": 100 }] }
+                    },
+                    {
+                        "id": "wra5", "tier": 5, "branch": "rafraichissant", "name": "Manteau rafraîchissant III",
+                        "description": "Une source vive enveloppe le porteur : les blessures se referment presque aussi vite qu'elles s'ouvrent.",
+                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.3 }], "effects": [{ "stat": "def_mag", "value": 6, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }], "inflicts": [{ "status": "wet", "chance": 100 }, { "status": "regeneration", "chance": 100 }] }
                     }
                 ]
             }

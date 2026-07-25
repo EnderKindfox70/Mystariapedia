@@ -11,6 +11,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'alchemy/:slug', renderMode: RenderMode.Client },
   { path: 'weapons/:category/:slug', renderMode: RenderMode.Client },
   { path: 'lore/peuples/:slug', renderMode: RenderMode.Client },
+  { path: 'bestiary/:chapter', renderMode: RenderMode.Client },
+  { path: 'bestiary/:chapter/:slug', renderMode: RenderMode.Client },
 
   // Espace personnages : dépend de l'auth et de l'API, rendu côté client.
   { path: 'characters', renderMode: RenderMode.Client },

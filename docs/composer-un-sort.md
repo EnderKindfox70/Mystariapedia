@@ -231,6 +231,8 @@ Modifie une stat/attribut. `SpellStatEffect` :
 "inflicts": [{ "status": "brulure", "chance": 50, "duration": 3 }]
 ```
 
+**Affichage** : `chance < 100` → « **Peut appliquer** <statut> (X %) » ; `chance = 100` → « **Applique** <statut> » (sans pourcentage, l'effet est certain).
+
 ### 7.6 Durée qui scale — `durationScaling[]`
 Ajoute des tours selon une source : `ratio × valeur(source)`.
 ```json

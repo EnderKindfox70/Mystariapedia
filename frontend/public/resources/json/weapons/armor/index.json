@@ -1,32 +1,212 @@
 [
-  { "slug": "cotte-de-mailles",      "name": "Cotte de mailles",                 "subtitle": "Armure souple d'anneaux entrelacés",          "rarity": "Commune",     "weight": 20 },
-  { "slug": "armure-de-plaques",     "name": "Armure de plaques",                "subtitle": "Protection lourde des chevaliers",            "rarity": "Rare",        "weight": 20 },
-  { "slug": "thief",                 "name": "Tenue de voleur",                  "subtitle": "Cuir souple et capuche, pour passer inaperçu", "rarity": "Commune",     "weight": 5 },
-  { "slug": "spy",                   "name": "Tenue d'espion",                   "subtitle": "Habits passe-partout du renseignement",        "rarity": "Commune",     "weight": 4.4 },
-  { "slug": "hitman",                "name": "Tenue de tueur à gages",           "subtitle": "Sombre, sobre, silencieuse",                   "rarity": "Peu commune", "weight": 5 },
-  { "slug": "vigilante",             "name": "Tenue de vigilante",               "subtitle": "Masque et cape du justicier nocturne",         "rarity": "Peu commune", "weight": 5.2 },
-  { "slug": "footman",               "name": "Tenue de fantassin",               "subtitle": "Gambison rembourré du soldat de rang",         "rarity": "Commune",     "weight": 8 },
-  { "slug": "range-shooter",         "name": "Tenue de tireur",                  "subtitle": "Cuir léger pour ne pas gêner la visée",        "rarity": "Commune",     "weight": 5 },
-  { "slug": "field-medic",           "name": "Tenue de médecin d'armée",         "subtitle": "Tablier et brassard du soigneur",              "rarity": "Commune",     "weight": 4.5 },
-  { "slug": "scholar",               "name": "Robe d'érudit",                    "subtitle": "Toge et coiffe des bibliothèques",             "rarity": "Commune",     "weight": 4 },
-  { "slug": "alchemist",             "name": "Tenue d'alchimiste",               "subtitle": "Tablier de cuir et gants tachés de réactifs",  "rarity": "Commune",     "weight": 4.8 },
-  { "slug": "astronomer",            "name": "Robe d'astronome",                 "subtitle": "Manteau étoilé et capuche du veilleur",        "rarity": "Commune",     "weight": 4.2 },
-  { "slug": "forgeron",              "name": "Tenue de forgeron",                "subtitle": "Tablier de cuir épais contre les étincelles",  "rarity": "Commune",     "weight": 6 },
-  { "slug": "runiste",               "name": "Robe de runiste",                  "subtitle": "Étoffe gravée de runes mineures",              "rarity": "Peu commune", "weight": 4.2 },
-  { "slug": "adventurer",            "name": "Tenue d'aventurier",               "subtitle": "Habits robustes du baroudeur",                 "rarity": "Commune",     "weight": 5.5 },
-  { "slug": "gatherer-wanderer",     "name": "Tenue de récolteur-vagabond",      "subtitle": "Vêtements rapiécés et besace de cueilleur",    "rarity": "Commune",     "weight": 4.5 },
-  { "slug": "wandering-merchant",    "name": "Tenue de marchand ambulant",       "subtitle": "Habits pratiques aux multiples poches",        "rarity": "Commune",     "weight": 4.5 },
-  { "slug": "heir",                  "name": "Tenue d'héritier",                 "subtitle": "Habits fins brodés aux armes de la maison",    "rarity": "Peu commune", "weight": 4.5 },
-  { "slug": "knight-aspirant",       "name": "Tenue de chevalier aspirant",      "subtitle": "Gambison et tabard de l'écuyer",               "rarity": "Peu commune", "weight": 8.5 },
-  { "slug": "aristocratic-merchant", "name": "Tenue de marchand aristocratique", "subtitle": "Soieries et fourrures du négociant fortuné",   "rarity": "Peu commune", "weight": 4.8 },
-  { "slug": "deckhand",              "name": "Tenue de matelot",                 "subtitle": "Toile imperméable et bonnet du pont",          "rarity": "Commune",     "weight": 4.2 },
-  { "slug": "navigator",             "name": "Tenue de navigateur",              "subtitle": "Manteau ciré et tricorne du timonier",         "rarity": "Commune",     "weight": 4.6 },
-  { "slug": "pirate",                "name": "Tenue de pirate",                  "subtitle": "Chemise large, foulard et bottes de cuir",     "rarity": "Commune",     "weight": 5 },
-  { "slug": "farmer",                "name": "Tenue de fermier",                 "subtitle": "Chemise de toile et tablier de travail",       "rarity": "Commune",     "weight": 4 },
-  { "slug": "sheperd",               "name": "Tenue de berger",                  "subtitle": "Cape de laine contre le vent des pâtures",     "rarity": "Commune",     "weight": 4.3 },
-  { "slug": "lumberjack",            "name": "Tenue de bûcheron",                "subtitle": "Grosse chemise et bottes ferrées",             "rarity": "Commune",     "weight": 5.5 },
-  { "slug": "tracker",               "name": "Tenue de traqueur",                "subtitle": "Cuir et capuche de camouflage",                "rarity": "Commune",     "weight": 5 },
-  { "slug": "trapper",               "name": "Tenue de trappeur",                "subtitle": "Fourrures et cuir des bois profonds",          "rarity": "Commune",     "weight": 6 },
-  { "slug": "coastline-fisher",      "name": "Tenue de pêcheur des côtes",       "subtitle": "Ciré et bottes contre les embruns",            "rarity": "Commune",     "weight": 4.5 },
-  { "slug": "river-angler",          "name": "Tenue de pêcheur des eaux douces", "subtitle": "Veste de toile et cuissardes",                 "rarity": "Commune",     "weight": 4.8 }
+  {
+    "slug": "armure-de-plaques",
+    "name": "Armure de plaques",
+    "subtitle": "Protection lourde des chevaliers",
+    "rarity": "Rare",
+    "weight": 0
+  },
+  {
+    "slug": "cotte-de-mailles",
+    "name": "Cotte de mailles",
+    "subtitle": "Armure souple d'anneaux entrelacés",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "astronomer",
+    "name": "Robe d'astronome",
+    "subtitle": "Manteau étoilé et capuche du veilleur",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "scholar",
+    "name": "Robe d'érudit",
+    "subtitle": "Toge et coiffe des bibliothèques",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "runiste",
+    "name": "Robe de runiste",
+    "subtitle": "Étoffe gravée de runes mineures",
+    "rarity": "Peu commune",
+    "weight": 0
+  },
+  {
+    "slug": "alchemist",
+    "name": "Tenue d'alchimiste",
+    "subtitle": "Tablier de cuir et gants tachés de réactifs",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "adventurer",
+    "name": "Tenue d'aventurier",
+    "subtitle": "Habits robustes du baroudeur",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "spy",
+    "name": "Tenue d'espion",
+    "subtitle": "Habits passe-partout du renseignement",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "heir",
+    "name": "Tenue d'héritier",
+    "subtitle": "Habits fins brodés aux armes de la maison",
+    "rarity": "Peu commune",
+    "weight": 0
+  },
+  {
+    "slug": "sheperd",
+    "name": "Tenue de berger",
+    "subtitle": "Cape de laine contre le vent des pâtures",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "lumberjack",
+    "name": "Tenue de bûcheron",
+    "subtitle": "Grosse chemise et bottes ferrées",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "knight-aspirant",
+    "name": "Tenue de chevalier aspirant",
+    "subtitle": "Gambison et tabard de l'écuyer",
+    "rarity": "Peu commune",
+    "weight": 0
+  },
+  {
+    "slug": "footman",
+    "name": "Tenue de fantassin",
+    "subtitle": "Gambison rembourré du soldat de rang",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "farmer",
+    "name": "Tenue de fermier",
+    "subtitle": "Chemise de toile et tablier de travail",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "forgeron",
+    "name": "Tenue de forgeron",
+    "subtitle": "Tablier de cuir épais contre les étincelles",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "wandering-merchant",
+    "name": "Tenue de marchand ambulant",
+    "subtitle": "Habits pratiques aux multiples poches",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "aristocratic-merchant",
+    "name": "Tenue de marchand aristocratique",
+    "subtitle": "Soieries et fourrures du négociant fortuné",
+    "rarity": "Peu commune",
+    "weight": 0
+  },
+  {
+    "slug": "deckhand",
+    "name": "Tenue de matelot",
+    "subtitle": "Toile imperméable et bonnet du pont",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "field-medic",
+    "name": "Tenue de médecin d'armée",
+    "subtitle": "Tablier et brassard du soigneur",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "navigator",
+    "name": "Tenue de navigateur",
+    "subtitle": "Manteau ciré et tricorne du timonier",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "coastline-fisher",
+    "name": "Tenue de pêcheur des côtes",
+    "subtitle": "Ciré et bottes contre les embruns",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "river-angler",
+    "name": "Tenue de pêcheur des eaux douces",
+    "subtitle": "Veste de toile et cuissardes",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "pirate",
+    "name": "Tenue de pirate",
+    "subtitle": "Chemise large, foulard et bottes de cuir",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "gatherer-wanderer",
+    "name": "Tenue de récolteur-vagabond",
+    "subtitle": "Vêtements rapiécés et besace de cueilleur",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "range-shooter",
+    "name": "Tenue de tireur",
+    "subtitle": "Cuir léger pour ne pas gêner la visée",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "trapper",
+    "name": "Tenue de trappeur",
+    "subtitle": "Fourrures et cuir des bois profonds",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "tracker",
+    "name": "Tenue de traqueur",
+    "subtitle": "Cuir et capuche de camouflage",
+    "rarity": "Commune",
+    "weight": 0
+  },
+  {
+    "slug": "hitman",
+    "name": "Tenue de tueur à gages",
+    "subtitle": "Sombre, sobre, silencieuse",
+    "rarity": "Peu commune",
+    "weight": 0
+  },
+  {
+    "slug": "vigilante",
+    "name": "Tenue de vigilante",
+    "subtitle": "Masque et cape du justicier nocturne",
+    "rarity": "Peu commune",
+    "weight": 0
+  },
+  {
+    "slug": "thief",
+    "name": "Tenue de voleur",
+    "subtitle": "Cuir souple et capuche, pour passer inaperçu",
+    "rarity": "Commune",
+    "weight": 0
+  }
 ]

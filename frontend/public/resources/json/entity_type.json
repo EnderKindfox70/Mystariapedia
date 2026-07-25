@@ -70,6 +70,20 @@
                 "mana": 0,
                 "speed": -2
             }
+        },
+        {
+            "id": 6,
+            "name": "abberation",
+            "description": "Entities that defy natural laws, often with bizarre forms and unpredictable behaviors.",
+            "link": "/entity-types/abberation",
+            "stats":
+            {
+                "hp": 40,
+                "physical_atk": 10,
+                "magical_atk": 3,
+                "mana": 3,
+                "speed": 3
+            }
         }
     ]
 }

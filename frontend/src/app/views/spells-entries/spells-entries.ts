@@ -16,6 +16,9 @@ import {
   SpellStatEffect,
   SpellTarget,
   StatusCategory,
+  StatusEffect,
+  StatusSave,
+  StatusTick,
 } from '../../wiki.types';
 import {
   domainColor as colorOf,
@@ -480,9 +483,15 @@ export class SpellEntryComponent {
     const r = this.selectedNode()?.stats.recoil;
     if (!r) return null;
     return {
-      baseMin: r.damageMin,
-      baseMax: r.damageMax ?? r.damageMin,
+      hasDamage: r.damageMin !== undefined,
+      baseMin: r.damageMin ?? 0,
+      baseMax: r.damageMax ?? r.damageMin ?? 0,
       parts: (r.scaling ?? []).map((sc) => ({ label: this.sourceLabel(sc.source), ratio: sc.ratio })),
+      /** Malus de stats du contre-coup, en magnitude positive (le « − » est ajouté au rendu). */
+      effects: (r.effects ?? []).map((e) => ({
+        label: this.statNoun(e.stat),
+        value: Math.abs(e.value ?? 0),
+      })),
       note: r.note,
     };
   });
@@ -579,6 +588,40 @@ export class SpellEntryComponent {
     });
   });
 
+  /** Riposte défensive du nœud sélectionné (statuts renvoyés résolus + dégâts). */
+  retaliateInfo = computed(() => {
+    const r = this.selectedNode()?.stats.retaliate;
+    if (!r) return undefined;
+    return {
+      trigger: r.trigger ?? 'melee',
+      damageMin: r.damageMin,
+      damageMax: r.damageMax,
+      damageType: r.damageType ? this.damageTypes.resolve(r.damageType) : undefined,
+      statuses: (r.inflicts ?? []).map((app) => ({
+        chance: app.chance,
+        duration: app.duration ?? this.statusService.byKey(app.status)?.defaultDuration ?? 0,
+        def: this.statusService.byKey(app.status),
+      })),
+    };
+  });
+
+  /** Chance d'esquive (annulation totale d'une attaque) du nœud sélectionné, ou 0. */
+  evadeChance = computed<number>(() => this.selectedNode()?.stats.evadeChance ?? 0);
+
+  /** Statuts purifiés par le nœud sélectionné, résolus depuis le catalogue. */
+  cleansedStatuses = computed(() =>
+    (this.selectedNode()?.stats.cleanses ?? []).map((key) => this.statusService.byKey(key) ?? { key } as StatusEffect)
+  );
+
+  /**
+   * Vrai si tous les statuts infligés le sont à coup sûr (100 %). Pilote la
+   * formulation : « Applique … » (certain) vs « Peut appliquer … (X %) ».
+   */
+  allInflictsCertain = computed(() => {
+    const list = this.inflictedStatuses();
+    return list.length > 0 && list.every((s) => s.chance >= 100);
+  });
+
   /** Bonus de classe du nœud sélectionné. */
   classBonuses = computed<SpellClassBonus[]>(() => this.selectedNode()?.stats.classBonuses ?? []);
 
@@ -633,6 +676,32 @@ export class SpellEntryComponent {
 
   /** Libellé FR d'une catégorie de statut. */
   statusCategoryLabel = (cat: StatusCategory): string => STATUS_CATEGORY_LABELS[cat] ?? cat;
+
+  /** Dégâts par tour en % PV max : « 3 → 5 → 7 % PV max / tour » ou « 5 % PV max / tour ». */
+  tickPercentLabel = (tick: StatusTick): string | null => {
+    const p = tick.percentMaxHp;
+    if (p === undefined) return null;
+    const value = Array.isArray(p) ? p.join(' → ') : `${p}`;
+    return `${value} % PV max / tour`;
+  };
+
+  /** Libellé d'anti-soin : « aucun soin possible » (1) ou « soins reçus −50 % ». */
+  healReductionLabel = (r: number): string =>
+    r >= 1 ? 'aucun soin possible' : `soins reçus −${Math.round(r * 100)} %`;
+
+  /** Durée d'un statut : « ∞ » si négative, sinon « 3 tours ». */
+  durationLabel = (d: number): string => (d < 0 ? '∞' : `${d} tour${d > 1 ? 's' : ''}`);
+
+  /** Ligne d'un jet de statut : « Jet de constitution (base 12) tous les 2 tours : purge le statut. » */
+  saveLabel = (save: StatusSave): string => {
+    const attr = this.sourceLabel(save.attribute);
+    const when =
+      save.trigger === 'action'
+        ? 'à chaque tentative d’action'
+        : `tous les ${save.interval ?? 1} tour${(save.interval ?? 1) > 1 ? 's' : ''}`;
+    const outcome = save.onSuccess === 'clear' ? 'lève le statut' : 'permet d’agir ce tour';
+    return `Jet de ${attr} (base ${save.dc}) ${when} : réussite ${outcome}.`;
+  };
 
   /** Puce d'un modificateur de classe : « +2 Attaque physique ». */
   classEffectChip = (e: SpellStatEffect): string => {

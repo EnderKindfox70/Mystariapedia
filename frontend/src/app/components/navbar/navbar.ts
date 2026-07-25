@@ -83,9 +83,10 @@ export class Navbar {
       label: 'Bestiaire',
       path: '/bestiary',
       children: [
-        { key: 'creatures-communes', label: 'Creatures communes', path: '/bestiary/faune' },
-        { key: 'creatures-interdites', label: 'Creatures interdites', path: '/bestiary/legendaires' },
-        { key: 'entites-anciennes', label: 'Entites anciennes', path: '/entities' },
+        { key: 'especes-communes', label: 'Especes communes', path: '/bestiary/communes' },
+        { key: 'especes-rares', label: 'Especes rares', path: '/bestiary/rares' },
+        { key: 'creatures-legendaires', label: 'Creatures legendaires', path: '/bestiary/legendaires' },
+        { key: 'entites-anciennes', label: 'Entites anciennes', path: '/bestiary/entites' },
         { key: 'mutations', label: 'Mutations', path: '/bestiary/mutations' },
         { key: 'archives-disparues', label: 'Archives disparues', path: '/bestiary/archives' },
       ],

@@ -1,0 +1,98 @@
+{
+  "slug": "loup-gris",
+  "name": "Loup Gris",
+  "chapter": "communes",
+  "cr": 1,
+  "entityTypeId": 1,
+  "size": "M",
+  "icon": "/resources/media/pictures/wolf.png",
+  "banner": "/resources/media/pictures/wolf.png",
+  "teaser": "Il chasse en meute, avec une coordination qui met à sa portée des proies plus grandes que lui.",
+  "behaviour": "Carnivore, meute",
+  "description": [
+    "Prédateur courant des terres sauvages, le loup gris est rapide et coordonné. Il chasse en meute avec une intelligence redoutable, capable de surprendre des proies plus grandes."
+  ],
+  "traitIds": [
+    2,
+    5
+  ],
+  "statBonuses": {
+    "hp": 20,
+    "physical_atk": 5,
+    "magical_atk": 2,
+    "mana": 3,
+    "speed": 10
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 14
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 14
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 12
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 3
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 12
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 10
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        1
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        2
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "foret",
+      "collection": "locations",
+      "label": "Forêt"
+    },
+    {
+      "ref": "plaine",
+      "collection": "locations",
+      "label": "Plaine"
+    }
+  ],
+  "loot": [
+    {
+      "ref": "croc-de-loup",
+      "collection": "natural-resources/remains"
+    }
+  ]
+}

@@ -7,21 +7,17 @@
         "Leur royaume est une théocratie où la magie n'est pas une capacité mais un don divin accordé par la Déesse de la Vie. L'éveil y est un sacrement, l'affinité révélée une vocation. Peuple longévif et contemplatif, les elfes mesurent le temps à une autre échelle que les races brèves."
     ],
     "info": [
-        { "key": "type", "label": "Espérance de vie", "value": "500 à 800 ans" },
+        { "key": "type", "label": "Espérance de vie", "value": "200 à 400 ans" },
         { "label": "Taille moyenne", "value": "1,70 – 1,95 m" },
         { "key": "habitat", "label": "Territoire", "value": "Royaume elfique" },
         { "label": "Société", "value": "Théocratie de la Vie" }
     ],
     "traits": [
-        { "name": "Longévité", "description": "Plusieurs siècles d'existence : les elfes cultivent la patience, la mémoire et une maîtrise magique que le temps affine lentement." },
-        { "name": "Communion végétale", "description": "Sensibilité innée au vivant : perçoivent l'état d'une plante ou d'un animal, s'orientent en forêt, favorisent la croissance autour d'eux." },
-        { "name": "Héritage de l'Équilibre", "description": "Lumière et Ténèbres apparaissent plus fréquemment chez les elfes — écho probable de la division originelle de la divinité de l'Équilibre, dont leur culture garde une mémoire religieuse." }
-    ],
+        { "name": "Longévité", "description": "entre 2 et 4 siècles d'existence : les elfes cultivent la patience, la mémoire et une maîtrise magique que le temps affine lentement." },
+        { "name": "Communion végétale", "description": "Sensibilité innée au vivant : perçoivent l'état d'une plante ou d'un animal, s'orientent en forêt, favorisent la croissance autour d'eux." }    ],
     "affinities": [
         { "domain": "plant", "note": "24 % — affinité dominante, lien direct avec le territoire et l'Arbre sacré." },
-        { "domain": "life", "note": "23 % — les fréquences de Vie de l'Arbre sacré imprègnent les naissances alentour." },
-        { "domain": "light", "note": "9 % — plus fréquent que dans les autres races (héritage de l'Équilibre)." },
-        { "domain": "darkness", "note": "8 % — contrepartie de la Lumière dans le même héritage divin." }
+        { "domain": "life", "note": "23 % — les fréquences de Vie de l'Arbre sacré imprègnent les naissances alentour." }
     ],
     "notes": [
         "L'aspect jeu (attributs, sous-races, traits chiffrés, stats de départ) provient de characters/races.json."

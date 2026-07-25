@@ -653,6 +653,46 @@ h1
 .domain-card.domain-space { --domain-color: var(--domain-space); }
 .domain-card.domain-death { --domain-color: var(--domain-death-muted); }
 
+/* ── Magie non polarisée : deux « domaines » gris-blanchâtres ── */
+.nonpolar-grid
+{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+    margin: 1.3rem 0 1.4rem;
+}
+
+.domain-card.domain-nonpolar
+{
+    /* Gris-blanchâtre : la mana brute, sans couleur de domaine. */
+    --domain-color: #c7c4bb;
+}
+
+.domain-nonpolar .domain-sigil
+{
+    color: #e9e5db;
+    text-shadow:
+        0 0 1px #d9ccb8,
+        0 0 15px rgba(201, 198, 189, .5);
+}
+
+.domain-nonpolar h3
+{
+    color: #f1ede3;
+}
+
+.domain-nonpolar strong
+{
+    color: #e9e5db;
+    background: color-mix(in srgb, #c7c4bb 20%, rgba(0, 0, 0, .6));
+    border-color: rgba(233, 229, 219, .32);
+}
+
+@media (max-width: 560px)
+{
+    .nonpolar-grid { grid-template-columns: 1fr; }
+}
+
 .domain-death .domain-sigil
 {
     color: var(--domain-death-muted);

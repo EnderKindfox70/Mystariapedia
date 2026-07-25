@@ -29,7 +29,7 @@
     <nav id="home-navigation" class="nav-links" [class.open]="isNavigationOpen" aria-label="Sections principales">
       <a routerLink="/lore" (click)="closeNavigation()">Lore</a>
       <a routerLink="/factions" (click)="closeNavigation()">Factions</a>
-      <a routerLink="/entities" (click)="closeNavigation()">Entités</a>
+      <a routerLink="/bestiary/entites" (click)="closeNavigation()">Entités</a>
       <a routerLink="/locations" (click)="closeNavigation()">Lieux</a>
       <a routerLink="/objects" (click)="closeNavigation()">Objets</a>
       <a routerLink="/magics" (click)="closeNavigation()">Magie</a>
@@ -74,7 +74,7 @@
             <p>Peuples, cultes, ordres et organisations.</p>
             <strong>Explorer →</strong>
           </a>
-          <a class="category-card" routerLink="/entities">
+          <a class="category-card" routerLink="/bestiary/entites">
             <img class="card-art" src="/resources/media/icons/entities.svg" alt="" aria-hidden="true">
             <h3>Entités</h3>
             <p>Dieux anciens et intelligences au-delà de l'entendement.</p>
@@ -112,7 +112,7 @@
             <h3>Yog-Sothoth</h3>
             <p class="subtitle">La Clé et la Porte</p>
             <p>Celui qui connaît toutes les portes et tous les chemins. Gardien du savoir impossible.</p>
-            <a routerLink="/entities">Lire l'article →</a>
+            <a routerLink="/bestiary/entites">Lire l'article →</a>
           </div>
         </article>
       </section>
@@ -133,7 +133,16 @@
 
   <footer class="codex-footer">
     <span>Veritas foris est. Sapientia interdicitur.</span>
-    <span>☾</span>
+    <nav class="codex-footer__domains" aria-label="Les domaines de magie">
+      @for (d of domains; track d.slug) {
+        <a class="codex-footer__domain"
+           [style.--domain-color]="d.color"
+           [routerLink]="'/magics/' + d.slug"
+           [title]="d.label">
+          <img class="codex-footer__icon" [src]="d.icon || defaultDomainIcon" [alt]="d.label">
+        </a>
+      }
+    </nav>
     <span>Dernière mise à jour : 12 mai 2026</span>
   </footer>
 </main>
