@@ -15,8 +15,10 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:4200')
   .filter(Boolean);
 
 app.use(cors({ origin: allowedOrigins }));
-// Limite relevée : les fiches embarquent des images en base64 (portrait jusqu'à
-// ~2 Mo + image plein corps jusqu'à ~5 Mo, soit ~9-10 Mo encodés). 16 Mo de marge.
+// Limite relevée : les fiches embarquent leurs images en base64. Ce n'est pas la
+// taille des fichiers importés qui compte ici (10 Mo autorisés côté éditeur) mais
+// celle après recompression WebP par le navigateur — portrait redimensionné à
+// 512 px, vignette 240x296, image plein corps à 1024 px. 16 Mo de marge large.
 app.use(express.json({ limit: '16mb' }));
 
 // Route de santé, point de départ de l'API.

@@ -62,9 +62,9 @@ import {
   skillLabel,
 } from '../../character/universe-data';
 
-/** Tailles max des images importées (octets bruts du fichier). */
-const MAX_PORTRAIT_BYTES = 2 * 1024 * 1024;
-const MAX_FULL_IMAGE_BYTES = 5 * 1024 * 1024;
+/** Tailles max des images importées (octets bruts du fichier, avant recompression). */
+const MAX_PORTRAIT_BYTES = 10 * 1024 * 1024;
+const MAX_FULL_IMAGE_BYTES = 10 * 1024 * 1024;
 
 /** Collections du wiki proposées comme objets d'inventaire (avec poids). */
 const INVENTORY_COLLECTIONS = [
