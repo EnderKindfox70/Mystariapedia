@@ -1,10 +1,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { dataDir } from '../data-dir.js';
 
 // Petit magasin d'utilisateurs sur fichier JSON : suffisant tant qu'aucune
 // base de données n'est branchée. Le fichier est ignoré par git.
-const dataDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'data');
 const usersFile = join(dataDir, 'users.json');
 
 export type StoredUser = {

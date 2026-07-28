@@ -1,10 +1,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { dataDir } from '../data-dir.js';
 
 // Magasin de fiches de personnage sur fichier JSON, calqué sur auth/store.ts :
 // suffisant tant qu'aucune base de données n'est branchée. Ignoré par git.
-const dataDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'data');
 const sheetsFile = join(dataDir, 'sheets.json');
 
 // Données libres de la fiche (identité, attributs, sorts…). On ne contraint pas

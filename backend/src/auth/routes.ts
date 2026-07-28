@@ -3,6 +3,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createUser, findByEmail, findById, toPublicUser } from './store.js';
 
+// En production, un secret par défaut rendrait tous les jetons forgeables :
+// on refuse de démarrer plutôt que de laisser passer.
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET doit être défini en production');
+}
+
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-me';
 const TOKEN_TTL = '7d';
 

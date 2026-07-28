@@ -11,13 +11,13 @@
   },
   {
     "slug": "corneille_funeste",
-    "name": "Hurle-Vent",
+    "name": "Corneille Funeste",
     "chapter": "rares",
     "cr": 2,
     "entityTypeId": 1,
-    "size": "M",
+    "size": "TP",
     "icon": "/resources/media/pictures/bestiary/hurlevent.png",
-    "teaser": "Il chasse en meute en en faisant qu'un avec le vent"
+    "teaser": "Il emerge des cadavres pour apporter les mauvais presages."
   },
   {
     "slug": "hurle-vent",

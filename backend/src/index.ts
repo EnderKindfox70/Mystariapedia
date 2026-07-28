@@ -6,8 +6,15 @@ import { sheetsRouter } from './sheets/routes.js';
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
 
-// CORS ouvert en dev pour que le ng serve (localhost:4200) puisse appeler l'API.
-app.use(cors());
+// Front et back sont sur des domaines distincts : seules les origines listées
+// dans CORS_ORIGIN (séparées par des virgules) sont autorisées. Par défaut, le
+// ng serve local.
+const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:4200')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins }));
 // Limite relevée : les fiches embarquent des images en base64 (portrait jusqu'à
 // ~2 Mo + image plein corps jusqu'à ~5 Mo, soit ~9-10 Mo encodés). 16 Mo de marge.
 app.use(express.json({ limit: '16mb' }));

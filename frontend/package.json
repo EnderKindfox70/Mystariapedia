@@ -1,6 +1,9 @@
 {
   "name": "frontend",
   "version": "0.0.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "ng": "ng",
     "gen:index": "node scripts/generate-resource-index.mjs",
@@ -10,8 +13,7 @@
     "build": "ng build",
     "prewatch": "npm run gen:index",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:frontend": "node dist/frontend/server/server.mjs"
+    "test": "ng test"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
@@ -24,7 +26,6 @@
     "@angular/platform-server": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@angular/ssr": "^21.2.6",
-    "express": "^5.1.0",
     "html2canvas-pro": "^2.0.4",
     "jspdf": "^4.2.1",
     "rxjs": "~7.8.0",
@@ -35,7 +36,6 @@
     "@angular/cli": "^21.2.6",
     "@angular/compiler-cli": "^21.2.0",
     "@tailwindcss/postcss": "^4.1.12",
-    "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.3",
