@@ -3,5 +3,5 @@
 // un service séparé : les appels /api doivent viser son domaine.
 // ⚠ Valeur figée à la compilation : la changer impose un redéploiement du front.
 export const environment = {
-  apiBaseUrl: 'https://mystariapedia-api.onrender.com',
+  apiBaseUrl: 'https://mystariapedia2.onrender.com',
 };

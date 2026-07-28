@@ -1,9 +1,9 @@
 # Blueprint Render — configuration gratuite.
 #
-#   mystariapedia      : le wiki, site statique prérendu au build (gratuit,
-#                        servi par CDN, jamais endormi)
-#   mystariapedia-api  : l'API Express (comptes + fiches de personnage), sur
-#                        une instance free qui s'endort après 15 min d'inactivité
+#   mystariapedia   : le wiki, site statique prérendu au build (gratuit,
+#                     servi par CDN, jamais endormi)
+#   mystariapedia2  : l'API Express (comptes + fiches de personnage), sur une
+#                     instance free qui s'endort après 15 min d'inactivité
 #
 # ⚠ Les noms de service fixent les domaines *.onrender.com, qui sont câblés en
 #   dur à deux endroits : CORS_ORIGIN ci-dessous, et apiBaseUrl dans
@@ -17,7 +17,7 @@
 
 services:
   - type: web
-    name: mystariapedia-api
+    name: mystariapedia2
     runtime: node
     region: frankfurt
     plan: free
