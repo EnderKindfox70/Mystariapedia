@@ -88,6 +88,8 @@ export interface SpellTree {
 interface RawDomain {
   /** Sorts de base du domaine (cf. tableau `spells` des fichiers domains/*.json). */
   spells?: RawSpell[];
+  /** Icône du domaine, en taille d'origine (~2 Mo) — cf. `domainIcon`. */
+  icon?: string;
 }
 interface RawCombination {
   components?: string[];
@@ -116,6 +118,18 @@ const DOMAIN_FILES = {
   time: timeDomain,
   space: spaceDomain,
 } as unknown as Record<string, RawDomain>;
+
+/**
+ * Icône d'un domaine, en VIGNETTE. Les fiches `domains/*.json` pointent l'icône
+ * pleine taille (1024–1254 px, ~2 Mo) : bien trop lourde pour les pastilles de
+ * la fiche de personnage, qui les affiche en 2 rem. On sert donc la dérivée
+ * produite par `scripts/generate-domain-thumbnails.mjs`.
+ *
+ * Le chemin vient du dataset et non d'une convention sur la clé : le dossier du
+ * domaine `plant` s'appelle `plants`.
+ */
+export const domainIcon = (key: string): string | undefined =>
+  DOMAIN_FILES[key]?.icon?.replace(/_icon\.png$/, '_icon_sm.png');
 
 const COMBINATION_SPELLS: DomainSpell[] = (combinationsCatalog as RawCombination[]).flatMap((c) =>
   (c.spells ?? []).map((s) => ({ ...s, components: c.components ?? [] })),
@@ -276,6 +290,82 @@ export const EQUIPMENT_SLOTS: { key: string; label: string; side: 'left' | 'righ
   { key: 'bag', label: 'Sac à dos', side: 'right' },
 ];
 
+/* ── Expérience et niveaux ────────────────────────────────────────────────── */
+
+/** Niveau maximal atteignable. */
+export const MAX_LEVEL = 20;
+/** Coût en XP du tout premier palier (niveau 1 → 2). */
+export const XP_FIRST_STEP = 250;
+/**
+ * Facteur multiplicatif du coût à chaque palier : monter coûte toujours plus
+ * cher que le palier précédent. 1,32 amène le total du niveau 20 aux alentours
+ * de 150 000 XP, avec des paliers qui restent atteignables en début de partie.
+ */
+export const XP_GROWTH = 1.32;
+
+/** Coût en XP du passage `level` → `level + 1` (0 au niveau maximal). */
+export const xpToNextLevel = (level: number): number => {
+  if (level >= MAX_LEVEL) return 0;
+  const raw = XP_FIRST_STEP * XP_GROWTH ** (Math.max(1, level) - 1);
+  return Math.round(raw / 10) * 10; // dizaines : des seuils lisibles à la table
+};
+
+/**
+ * Seuils cumulés, index = niveau − 1. Table calculée une fois : `levelForXp`
+ * est appelé à chaque cycle de détection de changement.
+ */
+const XP_THRESHOLDS: number[] = (() => {
+  const out = [0];
+  for (let level = 1; level < MAX_LEVEL; level++) out.push(out[level - 1] + xpToNextLevel(level));
+  return out;
+})();
+
+/** XP cumulés nécessaires pour ATTEINDRE `level` (0 au niveau 1). */
+export const xpForLevel = (level: number): number =>
+  XP_THRESHOLDS[Math.min(MAX_LEVEL, Math.max(1, Math.round(level))) - 1];
+
+/** XP total du niveau maximal — plafond de saisie. */
+export const XP_MAX = XP_THRESHOLDS[MAX_LEVEL - 1];
+
+/** Niveau atteint avec un total d'XP donné. */
+export const levelForXp = (xp: number): number => {
+  const total = Math.max(0, Number(xp) || 0);
+  let level = 1;
+  while (level < MAX_LEVEL && total >= XP_THRESHOLDS[level]) level++;
+  return level;
+};
+
+/** Avancement dans le niveau courant, prêt à afficher. */
+export interface XpProgress {
+  level: number;
+  /** XP engrangés depuis le début du niveau courant. */
+  into: number;
+  /** XP que coûte le niveau courant (0 une fois au niveau maximal). */
+  needed: number;
+  /** XP restants avant le palier suivant. */
+  remaining: number;
+  /** Avancement 0–100 (100 au niveau maximal). */
+  pct: number;
+  /** Total d'XP nécessaire pour atteindre le niveau suivant. */
+  nextAt: number;
+}
+
+export const xpProgress = (xp: number): XpProgress => {
+  const total = Math.max(0, Math.min(XP_MAX, Math.round(Number(xp) || 0)));
+  const level = levelForXp(total);
+  const floor = xpForLevel(level);
+  const needed = xpToNextLevel(level);
+  const into = total - floor;
+  return {
+    level,
+    into,
+    needed,
+    remaining: needed ? needed - into : 0,
+    pct: needed ? Math.min(100, (into / needed) * 100) : 100,
+    nextAt: floor + needed,
+  };
+};
+
 /** Achat de points (point-buy à la D&D 5e) : tous les attributs partent de 8, on
  *  dépense ATTRIBUTE_POINTS pour monter jusqu'à MAX_ATTRIBUTE (14 et 15 coûtent
  *  plus cher). On peut descendre jusqu'à MIN_ATTRIBUTE pour récupérer des points.
@@ -333,6 +423,7 @@ export function emptySheet(): CharacterSheet {
       portraitPosY: 50,
       fullImage: '',
     },
+    xp: 0,
     level: 1,
     domains: [],
     attributes: {

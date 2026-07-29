@@ -41,11 +41,35 @@ services:
     # --include=dev : @angular/build et la CLI sont en devDependencies
     buildCommand: npm ci --include=dev && npm run build
     staticPublishPath: dist/frontend/browser
+    # L'ORDRE COMPTE : Render applique la première règle qui correspond.
+    #
+    # Une route prérendue est un dossier (`/lore` → `/lore/index.html`), donc
+    # aucun fichier ne correspond exactement à `/lore` et le catch-all plus bas
+    # l'avalerait — servant la coquille vide à la place du HTML prérendu, ce qui
+    # annule tout l'intérêt du prérendu. D'où une règle explicite par route.
+    # `/` n'en a pas besoin : Render le mappe nativement sur index.html.
+    #
+    # Cette liste doit suivre app.routes.server.ts : toute route passant en
+    # RenderMode.Prerender est à ajouter ici. Le build en donne l'inventaire
+    # exact dans dist/frontend/prerendered-routes.json.
     routes:
-      # Les 17 routes prérendues sont servies telles quelles ; tout le reste
-      # (bestiary/:chapter/:slug, characters/:id…) est en RenderMode.Client et
-      # doit retomber sur la coquille CSR — surtout pas sur index.html, qui est
-      # la page d'accueil prérendue.
-      - type: rewrite
-        source: /*
-        destination: /index.csr.html
+      - { type: rewrite, source: /alchemy, destination: /alchemy/index.html }
+      - { type: rewrite, source: /artifacts, destination: /artifacts/index.html }
+      - { type: rewrite, source: /bestiary, destination: /bestiary/index.html }
+      - { type: rewrite, source: /entities, destination: /entities/index.html }
+      - { type: rewrite, source: /factions, destination: /factions/index.html }
+      - { type: rewrite, source: /home, destination: /home/index.html }
+      - { type: rewrite, source: /locations, destination: /locations/index.html }
+      - { type: rewrite, source: /login, destination: /login/index.html }
+      - { type: rewrite, source: /lore, destination: /lore/index.html }
+      - { type: rewrite, source: /lore/peuples, destination: /lore/peuples/index.html }
+      - { type: rewrite, source: /magics, destination: /magics/index.html }
+      - { type: rewrite, source: /objects, destination: /objects/index.html }
+      - { type: rewrite, source: /register, destination: /register/index.html }
+      - { type: rewrite, source: /resources, destination: /resources/index.html }
+      - { type: rewrite, source: /tests, destination: /tests/index.html }
+      - { type: rewrite, source: /weapons, destination: /weapons/index.html }
+      # Tout le reste (bestiary/:chapter/:slug, characters/:id…) est en
+      # RenderMode.Client : on sert la coquille CSR et Angular route côté
+      # navigateur. Surtout pas index.html, qui est l'accueil prérendue.
+      - { type: rewrite, source: /*, destination: /index.csr.html }

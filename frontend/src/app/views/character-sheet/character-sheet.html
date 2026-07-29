@@ -11,6 +11,13 @@
         @if (error()) {
           <span class="cs-error">{{ error() }}</span>
         }
+        <!-- Import : le PDF exporté embarque la fiche éditable dans ses
+             métadonnées, on la relit donc telle quelle. -->
+        <label class="cs-btn cs-btn--ghost" [class.is-busy]="importing()">
+          {{ importing() ? 'Lecture…' : '⤒ Importer un PDF' }}
+          <input type="file" accept="application/pdf,.pdf" hidden
+                 [disabled]="importing()" (change)="importPdf($event)" />
+        </label>
         <button type="button" class="cs-btn cs-btn--ghost" [disabled]="exporting()" (click)="downloadPdf()">
           {{ exporting() ? 'Génération…' : '⤓ Télécharger PDF' }}
         </button>
@@ -141,12 +148,47 @@
             </label>
             <label class="cs-field cs-field--narrow">
               <span>Niveau</span>
-              <input type="number" name="level" min="1" max="20" [(ngModel)]="model.level" (ngModelChange)="clampLevel()" />
+              <input type="number" name="level" min="1" [max]="maxLevel" [(ngModel)]="model.level" (ngModelChange)="clampLevel()" />
             </label>
             <label class="cs-field cs-field--narrow">
               <span>Âge</span>
               <input type="text" name="age" [(ngModel)]="model.identity.age" placeholder="—" />
             </label>
+          </div>
+
+          <!-- Expérience : l'XP pilote le niveau, le champ Niveau ci-dessus
+               n'est qu'un raccourci qui recale l'XP sur le seuil du palier. -->
+          <div class="cs-xp">
+            <div class="cs-xp__head">
+              <label class="cs-field cs-field--narrow">
+                <span>Expérience</span>
+                <input type="number" name="xp" min="0" [max]="xpMax" step="10"
+                       [(ngModel)]="model.xp" (ngModelChange)="onXpChange()" />
+              </label>
+              <div class="cs-xp__gains">
+                <span>Gain rapide</span>
+                <div>
+                  @for (gain of [50, 100, 250, 1000]; track gain) {
+                    <button type="button" class="cs-xp__chip" (click)="addXp(gain)">+{{ gain }}</button>
+                  }
+                  <button type="button" class="cs-xp__chip cs-xp__chip--minus" (click)="addXp(-50)">−50</button>
+                </div>
+              </div>
+            </div>
+
+            @let p = xp;
+            <div class="cs-xp__track" [class.is-max]="p.level >= maxLevel">
+              <div class="cs-xp__fill" [style.width.%]="p.pct"></div>
+            </div>
+            @if (p.level >= maxLevel) {
+              <p class="cs-xp__legend">Niveau maximal atteint ({{ maxLevel }}) — {{ model.xp }} XP</p>
+            } @else {
+              <p class="cs-xp__legend">
+                Niveau {{ p.level }} → {{ p.level + 1 }} :
+                <b>{{ p.into }} / {{ p.needed }}</b> XP
+                <span class="cs-xp__left">encore {{ p.remaining }} XP (palier à {{ p.nextAt }})</span>
+              </p>
+            }
           </div>
         </fieldset>
 
@@ -206,7 +248,11 @@
                 [disabled]="!isDomainSelected(d.key) && model.domains.length >= 3"
                 (click)="toggleDomain(d.key)"
               >
-                <span class="cs-domain__sigil" aria-hidden="true">{{ d.sigil }}</span>
+                @if (domainIcon(d.key); as icon) {
+                  <img class="cs-domain__icon" [src]="icon" alt="" aria-hidden="true" loading="lazy" />
+                } @else {
+                  <span class="cs-domain__sigil" aria-hidden="true">{{ d.sigil }}</span>
+                }
                 <span>{{ d.name }}</span>
               </button>
             }
@@ -348,7 +394,15 @@
                     [class.is-equipped]="isSpellEquipped(s.key)"
                     [class.is-locked]="!isSpellUnlocked(s.key) && !canUnlock(s)">
                   <div class="cs-poolspell__row">
-                    <span class="cs-poolspell__sigil" aria-hidden="true">{{ domainSpellSigils(s) }}</span>
+                    <span class="cs-poolspell__sigil" [title]="domainSpellNames(s)">
+                      @for (k of domainSpellKeys(s); track k) {
+                        @if (domainIcon(k); as icon) {
+                          <img [src]="icon" [alt]="domainName(k)" loading="lazy" />
+                        } @else {
+                          <span aria-hidden="true">{{ domainSigil(k) }}</span>
+                        }
+                      }
+                    </span>
                     <span class="cs-poolspell__body">
                       <span class="cs-poolspell__name">{{ s.name }}</span>
                       <span class="cs-poolspell__meta">
@@ -507,13 +561,32 @@
                 <p><strong>Background :</strong> {{ backgroundDisplay || '—' }}</p>
                 <p><strong>Âge :</strong> {{ model.identity.age || '—' }}</p>
                 <p><strong>Or :</strong> {{ gold }}</p>
+                @let px = xp;
+                <div class="sheet-xp">
+                  <div class="sheet-xp__head">
+                    <span class="sheet-xp__label">Expérience</span>
+                    <span class="sheet-xp__value">
+                      @if (px.level >= maxLevel) { {{ model.xp }} XP — max }
+                      @else { {{ px.into }} / {{ px.needed }} }
+                    </span>
+                  </div>
+                  <div class="sheet-xp__track">
+                    <div class="sheet-xp__fill" [style.width.%]="px.pct"></div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="sheet-domains">
               <span class="sheet-domains__label">Domaines de magie</span>
               <div class="sheet-domains__circles">
                 @for (key of model.domains; track key) {
-                  <span class="sheet-domains__circle" [title]="domainName(key)">{{ domainSigil(key) }}</span>
+                  <span class="sheet-domains__circle" [title]="domainName(key)">
+                    @if (domainIcon(key); as icon) {
+                      <img [src]="icon" [alt]="domainName(key)" />
+                    } @else {
+                      {{ domainSigil(key) }}
+                    }
+                  </span>
                 } @empty {
                   <span class="sheet-domains__none">—</span>
                 }
@@ -633,7 +706,15 @@
                   <span class="sheet-spell__lvl">{{ s.level }}</span>
                   <span class="sheet-spell__name" [title]="s.name">{{ spellCurrentName(s.key) }}@if (spellMaxRank(s.key) > 1) { <span class="sheet-spell__rank">R{{ spellRank(s.key) }}</span>}</span>
                   <span class="sheet-spell__mana" title="Coût en mana">{{ s.mana }} mana</span>
-                  <span class="sheet-spell__school" [title]="domainSpellSigils(s)">{{ domainSpellSigils(s) }}</span>
+                  <span class="sheet-spell__school" [title]="domainSpellNames(s)">
+                      @for (k of domainSpellKeys(s); track k) {
+                        @if (domainIcon(k); as icon) {
+                          <img [src]="icon" [alt]="domainName(k)" />
+                        } @else {
+                          <span class="sheet-spell__sigil">{{ domainSigil(k) }}</span>
+                        }
+                      }
+                    </span>
                 </li>
               } @empty {
                 <li class="sheet-empty">Aucun sort équipé</li>
@@ -648,7 +729,15 @@
                     <span class="sheet-spell__lvl">{{ s.level }}</span>
                     <span class="sheet-spell__name" [title]="s.name">{{ spellCurrentName(s.key) }}@if (spellMaxRank(s.key) > 1) { <span class="sheet-spell__rank">R{{ spellRank(s.key) }}</span>}</span>
                     <span class="sheet-spell__mana" title="Coût en mana">{{ s.mana }} mana</span>
-                    <span class="sheet-spell__school" [title]="domainSpellSigils(s)">{{ domainSpellSigils(s) }}</span>
+                    <span class="sheet-spell__school" [title]="domainSpellNames(s)">
+                      @for (k of domainSpellKeys(s); track k) {
+                        @if (domainIcon(k); as icon) {
+                          <img [src]="icon" [alt]="domainName(k)" />
+                        } @else {
+                          <span class="sheet-spell__sigil">{{ domainSigil(k) }}</span>
+                        }
+                      }
+                    </span>
                   </li>
                 }
               </ul>
@@ -704,7 +793,10 @@
                     <span class="sheet-slot__label">{{ slot.label }}</span>
                     <span class="sheet-slot__item">{{ model.equipment[slot.key] || '—' }}</span>
                     @if (weaponForSlot(slot.key); as w) {
-                      <span class="sheet-slot__dmg">{{ w.minDamage }}–{{ w.maxDamage }} ({{ w.modMin }}–{{ w.modMax }})</span>
+                      <span class="sheet-slot__dmg" [title]="'Dégâts de base (avec modificateur de ' + w.attributeDamage + ')'">
+                        {{ w.minDamage }}–{{ w.maxDamage }} ({{ w.modMin }}–{{ w.modMax }}) · {{ w.damageType }}
+                      </span>
+                      <span class="sheet-slot__meta">{{ w.attributeDamage }} · {{ w.enduranceCost }} end.</span>
                     }
                     @if (armorForSlot(slot.key); as a) {
                       <span class="sheet-slot__dmg">Arm. {{ a.physicalArmor }} · Mag. {{ a.magicalProtection }}</span>

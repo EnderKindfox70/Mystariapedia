@@ -92,7 +92,18 @@ export type StatMode = 'random' | 'mean';
  *  Seuls le mode et la graine du tirage aléatoire sont persistés. */
 export interface CharacterSheet {
   identity: CharacterIdentity;
-  /** Niveau du personnage (1 à 20). */
+  /**
+   * Points d'expérience cumulés. C'est LA valeur de référence de la
+   * progression : `level` en est déduit (cf. `levelForXp`), et l'éditeur
+   * maintient les deux en accord. Une fiche antérieure à ce champ voit son XP
+   * initialisé au seuil de son niveau.
+   */
+  xp: number;
+  /**
+   * Niveau du personnage (1 à MAX_LEVEL). Redondant avec `xp` dont il dérive,
+   * mais conservé dans le modèle : toutes les règles (stats, sorts de classe,
+   * inspiration) le lisent directement.
+   */
   level: number;
   /** Jusqu'à 3 clés de domaine de magie. */
   domains: string[];

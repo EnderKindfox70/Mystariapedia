@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
@@ -7,7 +7,7 @@ import { CharacterSheetService } from '../../services/character-sheet.service';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
 import weaponCategoryCatalog from '../../../../public/resources/json/weapon_category.json';
 import bagsCatalog from '../../../../public/resources/json/bags.json';
-import { ArmorEntry, ResourceIndexEntry, WeaponCategoryDef } from '../../wiki.types';
+import { ArmorEntry, ResourceIndexEntry, WeaponCategoryDef, WeaponEntry } from '../../wiki.types';
 import {
   AttributeKey,
   BackgroundDef,
@@ -30,6 +30,13 @@ import {
   attributeCost,
   attributeIncrementCost,
   BAR_STATS,
+  MAX_LEVEL,
+  XP_MAX,
+  levelForXp,
+  xpForLevel,
+  xpProgress,
+  xpToNextLevel,
+  type XpProgress,
   DEFAULT_TRAIT_ICON,
   EQUIPMENT_SLOTS,
   DEFENSE_STATS,
@@ -47,6 +54,7 @@ import {
   statContributions,
   type StatContribution,
   domainName,
+  domainIcon,
   domainSigil,
   availableSpellsFor,
   findDomainSpell,
@@ -61,10 +69,12 @@ import {
   roll4d6DropLowest,
   skillLabel,
 } from '../../character/universe-data';
+import type { PdfSlotRow, PdfSpellRow, SheetPdfData } from './sheet-pdf';
 
 /** Tailles max des images importées (octets bruts du fichier, avant recompression). */
 const MAX_PORTRAIT_BYTES = 10 * 1024 * 1024;
 const MAX_FULL_IMAGE_BYTES = 10 * 1024 * 1024;
+
 
 /** Collections du wiki proposées comme objets d'inventaire (avec poids). */
 const INVENTORY_COLLECTIONS = [
@@ -184,14 +194,12 @@ export class CharacterSheetEditor {
   model: CharacterSheet = emptySheet();
   sheetId: string | null = null;
 
-  // Élément de l'aperçu, capturé pour générer le PDF.
-  private readonly sheetEl = viewChild<ElementRef<HTMLElement>>('sheetRef');
-
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly justSaved = signal(false);
   readonly exporting = signal(false);
+  readonly importing = signal(false);
 
   // Listes chargées depuis les datasets JSON.
   readonly races = signal<RaceDef[]>([]);
@@ -227,6 +235,7 @@ export class CharacterSheetEditor {
 
   readonly domainName = domainName;
   readonly domainSigil = domainSigil;
+  readonly domainIcon = domainIcon;
   readonly formatBonus = formatBonus;
 
   constructor() {
@@ -257,9 +266,31 @@ export class CharacterSheetEditor {
     });
 
     // Suggestions d'équipement : armes (slots arme) + pièces d'armure par emplacement.
+    // Les index d'armes ne portent que nom/poids : les dégâts et la catégorie
+    // (maniement, type de dégâts, attribut, endurance) ne vivent que dans la
+    // fiche détaillée de chaque arme, qu'on va donc chercher entrée par entrée.
     const weapons$ = forkJoin(
-      WEAPON_COLLECTIONS.map((c) =>
-        this.wiki.loadAll<ResourceIndexEntry>(c).pipe(catchError(() => of([] as ResourceIndexEntry[]))),
+      WEAPON_COLLECTIONS.map((col) =>
+        this.wiki.loadAll<ResourceIndexEntry>(col).pipe(
+          catchError(() => of([] as ResourceIndexEntry[])),
+          switchMap((index) =>
+            index.length
+              ? forkJoin(
+                  index.map((e) =>
+                    this.wiki.load<WeaponEntry>(col, e.slug).pipe(
+                      map((w) => ({
+                        ...e,
+                        weaponCategory: w.weaponCategory ?? e.weaponCategory,
+                        minDamage: w.minDamage ?? e.minDamage,
+                        maxDamage: w.maxDamage ?? e.maxDamage,
+                      })),
+                      catchError(() => of(e)),
+                    ),
+                  ),
+                )
+              : of([] as ResourceIndexEntry[]),
+          ),
+        ),
       ),
     ).pipe(map((lists) => lists.flat()));
 
@@ -403,10 +434,49 @@ export class CharacterSheetEditor {
     if (!valid) this.model.identity.subbackground = '';
   }
 
-  /** Borne le niveau entre 1 et 20. */
+  // ── Expérience ─────────────────────────────────────────────────────────────
+
+  readonly maxLevel = MAX_LEVEL;
+  readonly xpMax = XP_MAX;
+
+  /** Avancement dans le niveau courant (barre, restant, seuils). */
+  get xp(): XpProgress {
+    return xpProgress(this.model.xp);
+  }
+
+  /** Coût du palier suivant, pour l'afficher sans recalcul dans le gabarit. */
+  get xpToNext(): number {
+    return xpToNextLevel(this.model.level);
+  }
+
+  /**
+   * Saisie d'XP : borne la valeur puis en redéduit le niveau. L'XP est la
+   * source de vérité, le niveau la suit.
+   */
+  onXpChange(): void {
+    const xp = Math.round(Number(this.model.xp) || 0);
+    this.model.xp = Math.max(0, Math.min(XP_MAX, xp));
+    this.model.level = levelForXp(this.model.xp);
+  }
+
+  /**
+   * Saisie directe du niveau — pratique pour poser un personnage sans compter
+   * ses XP. On borne, puis on cale l'XP au seuil du niveau demandé, sauf si
+   * l'XP courant y correspond déjà : sinon changer le niveau perdrait
+   * l'avancement en cours dès qu'on repasse sur le champ.
+   */
   clampLevel(): void {
     const n = Math.round(Number(this.model.level) || 1);
-    this.model.level = Math.max(1, Math.min(20, n));
+    this.model.level = Math.max(1, Math.min(MAX_LEVEL, n));
+    if (levelForXp(this.model.xp) !== this.model.level) {
+      this.model.xp = xpForLevel(this.model.level);
+    }
+  }
+
+  /** Ajoute (ou retire) des XP — les boutons de gain rapide. */
+  addXp(amount: number): void {
+    this.model.xp = Math.max(0, Math.min(XP_MAX, Math.round(Number(this.model.xp) || 0) + amount));
+    this.model.level = levelForXp(this.model.xp);
   }
 
   // ── Race / classe / traits / stats calculées ───────────────────────────────
@@ -573,8 +643,8 @@ export class CharacterSheetEditor {
 
   /**
    * Redimensionne et recompresse une image (WebP, repli PNG) pour alléger
-   * fortement la fiche. La qualité du PDF n'est pas affectée : html2canvas
-   * re-rasterise l'élément affiché au moment de l'export.
+   * fortement la fiche. C'est aussi la définition qui partira dans le PDF, où
+   * l'image est retranscodée en JPEG (cf. `toPdfImage` dans sheet-pdf.ts).
    */
   private compressImage(file: File, maxDim: number, quality = 0.82): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -668,8 +738,8 @@ export class CharacterSheetEditor {
   }
 
   /** Recadre le portrait (zoom + point focal) dans une image cuite, façon
-   *  object-fit: cover. L'image affichée est donc déjà recadrée → rendu
-   *  identique dans l'aperçu ET dans le PDF (html2canvas). */
+   *  object-fit: cover. L'image stockée est donc déjà recadrée → même cadrage
+   *  dans l'aperçu et dans le PDF. */
   rebakePortrait(): void {
     const img = this.portraitImg;
     if (!img || !img.naturalWidth) return;
@@ -736,9 +806,18 @@ export class CharacterSheetEditor {
   // si le modèle évolue ou si une fiche ancienne n'a pas tous les champs).
   private normalize(data: Partial<CharacterSheet>): CharacterSheet {
     const base = emptySheet();
+    // XP d'abord : c'est lui qui fixe le niveau. Une fiche antérieure à ce champ
+    // n'a qu'un niveau — on la place alors au seuil exact de ce niveau.
+    const level = Math.max(1, Math.min(MAX_LEVEL, Math.round(Number(data.level) || 1)));
+    const xp =
+      typeof data.xp === 'number' && Number.isFinite(data.xp)
+        ? Math.max(0, Math.min(XP_MAX, Math.round(data.xp)))
+        : xpForLevel(level);
+
     return {
       identity: { ...base.identity, ...data.identity },
-      level: Math.max(1, Math.min(20, Math.round(Number(data.level) || 1))),
+      xp,
+      level: levelForXp(xp),
       domains: Array.isArray(data.domains) ? data.domains.slice(0, 3) : base.domains,
       attributes: { ...base.attributes, ...data.attributes },
       attributeMode: data.attributeMode === 'roll' ? 'roll' : 'pointbuy',
@@ -1313,10 +1392,16 @@ export class CharacterSheetEditor {
     }
   }
 
-  /** Sigils d'un sort de base : un seul pour un domaine, tous les composants pour une combinaison. */
-  domainSpellSigils(s: DomainSpell): string {
+  /** Domaines d'un sort : un seul pour un sort de base, tous les composants
+   *  pour une combinaison. Sert à afficher leurs icônes sur la fiche. */
+  domainSpellKeys(s: DomainSpell): string[] {
     const keys = s.components?.length ? s.components : [s.domain ?? ''];
-    return keys.filter(Boolean).map((k) => this.domainSigil(k)).join(' ');
+    return keys.filter(Boolean);
+  }
+
+  /** Domaines d'un sort en toutes lettres (infobulles, export PDF). */
+  domainSpellNames(s: DomainSpell): string {
+    return this.domainSpellKeys(s).map((k) => domainName(k)).join(' + ');
   }
 
   /** Sorts débloqués résolus, triés par niveau (pour la fiche). */
@@ -1401,40 +1486,193 @@ export class CharacterSheetEditor {
     });
   }
 
-  /** Génère et télécharge le PDF de la fiche (rendu de l'aperçu, sans dialogue). */
+  /**
+   * Assemble la fiche pour l'export PDF. Tout ce que le gabarit affiche est
+   * résolu ici (stats finales, bonus, libellés) : `sheet-pdf.ts` ne redessine
+   * que des valeurs prêtes, il ne connaît rien aux règles de l'univers.
+   */
+  private pdfData(): SheetPdfData {
+    const stats = this.finalStats;
+    const attrs = this.finalAttributes;
+    const maxBar = this.barScale;
+
+    const spellRow = (s: DomainSpell): PdfSpellRow => ({
+      level: s.level,
+      name: this.spellCurrentName(s.key),
+      rank: this.hasSpellTree(s.key) ? `R${this.spellRank(s.key)}` : undefined,
+      mana: s.mana,
+      domainIcons: this.domainSpellKeys(s)
+        .map((k) => domainIcon(k))
+        .filter((icon): icon is string => !!icon),
+      // Repli si une icône manque : les sigils sont des glyphes Unicode absents
+      // des polices embarquées dans le PDF, on écrit donc les noms.
+      domains: this.domainSpellNames(s),
+    });
+
+    const slotRow = (slot: { key: string; label: string }): PdfSlotRow => {
+      const lines: string[] = [];
+      const weapon = this.weaponForSlot(slot.key);
+      if (weapon) {
+        lines.push(
+          `${weapon.minDamage}–${weapon.maxDamage} (${weapon.modMin}–${weapon.modMax}) · ${weapon.damageType}`,
+        );
+        lines.push(`${weapon.attributeDamage} · ${weapon.enduranceCost} end.`);
+      }
+      const armor = this.armorForSlot(slot.key);
+      if (armor) lines.push(`Arm. ${armor.physicalArmor} · Mag. ${armor.magicalProtection}`);
+      return { label: slot.label, item: this.model.equipment[slot.key] ?? '', lines };
+    };
+
+    return {
+      fileName: (this.model.identity.name || 'fiche').replace(/[^\p{L}\p{N}_-]+/gu, '_'),
+      source: this.model,
+      identity: {
+        name: this.model.identity.name,
+        race: this.raceDisplay,
+        className: this.model.identity.class,
+        level: this.model.level,
+        background: this.backgroundDisplay,
+        age: this.model.identity.age,
+        gold: this.gold,
+        portrait: this.model.identity.portrait,
+        fullImage: this.model.identity.fullImage,
+      },
+      xp: {
+        total: this.model.xp,
+        into: this.xp.into,
+        needed: this.xp.needed,
+        pct: this.xp.pct,
+        atMax: this.model.level >= MAX_LEVEL,
+      },
+      domains: this.model.domains.map((k) => ({ name: domainName(k), icon: domainIcon(k) })),
+      attributes: this.attributes.map((a) => ({
+        label: a.label,
+        score: attrs[a.key],
+        mod: formatBonus(this.modifier(a.key)),
+      })),
+      bars: this.barStats.map((st) => ({
+        label: st.label,
+        icon: st.icon,
+        value: stats[st.key],
+        pct: this.barPct(stats[st.key], maxBar),
+      })),
+      defenses: this.defenseStats.map((st) => ({
+        label: st.label,
+        icon: st.icon,
+        spark: st.key === 'def_mag' ? MAGIC_DEFENSE_SPARK : undefined,
+        value: stats[st.key],
+      })),
+      spells: {
+        cap: this.equippedCap,
+        inspirationLeft: this.inspirationLeft,
+        inspirationTotal: this.inspirationTotal,
+        equipped: this.equippedSpells.map(spellRow),
+        unlocked: this.unlockedNotEquipped.map(spellRow),
+      },
+      classSpells: this.unlockedClassSpells.map((sp) => ({
+        level: sp.level,
+        name: sp.name,
+        endurance: sp.endurance,
+        description: sp.description,
+      })),
+      equipment: {
+        left: this.leftSlots.map(slotRow),
+        right: this.rightSlots.map(slotRow),
+      },
+      skills: this.skills.map((s) => ({
+        label: s.label,
+        bonus: formatBonus(this.skillBonus(s.key, s.attribute)),
+        trained: this.isSkillTrained(s.key),
+      })),
+      inventory: this.model.inventory.map((i) => ({
+        name: i.name,
+        qty: Number(i.qty) || 0,
+        weight: Number(i.weight) || 0,
+      })),
+      weight: {
+        total: this.totalWeight,
+        capacity: this.carryCapacity,
+        over: this.overweight,
+      },
+      traits: this.traits.map((t) => ({
+        name: t.name,
+        description: t.description,
+        icon: t.icon ?? DEFAULT_TRAIT_ICON,
+      })),
+      notes: this.model.notes,
+    };
+  }
+
+  /**
+   * Recharge une fiche depuis un PDF exporté. Les données éditables voyagent
+   * dans les métadonnées du document (cf. sheet-transfer.ts) : on ne relit donc
+   * rien de ce qui est dessiné, et la fiche est restituée à l'identique.
+   *
+   * L'import remplit l'éditeur SANS rien enregistrer, et détache la fiche
+   * courante : la sauvegarde suivante crée une nouvelle fiche plutôt que
+   * d'écraser celle qu'on était en train de consulter.
+   */
+  async importPdf(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = ''; // permet de re-sélectionner le même fichier plus tard
+    if (!file || this.importing()) return;
+
+    if (this.hasContent && !confirm(
+      'Importer cette fiche remplacera ce qui est actuellement à l’écran. Continuer ?',
+    )) {
+      return;
+    }
+
+    this.importing.set(true);
+    this.error.set(null);
+    this.justSaved.set(false);
+    try {
+      const { extractSheetFromPdf, SheetImportError } = await import('./sheet-transfer');
+      try {
+        this.model = this.normalize(await extractSheetFromPdf(file));
+      } catch (err) {
+        this.error.set(
+          err instanceof SheetImportError ? err.message : 'Import impossible : fichier illisible.',
+        );
+        return;
+      }
+      this.loadPortraitOriginal(false); // rend le recadrage du portrait à nouveau ajustable
+      if (this.sheetId) {
+        this.sheetId = null;
+        this.router.navigate(['/characters/new'], { replaceUrl: true });
+      }
+    } finally {
+      this.importing.set(false);
+    }
+  }
+
+  /** Vrai si l'éditeur contient déjà quelque chose qu'un import écraserait. */
+  private get hasContent(): boolean {
+    const m = this.model;
+    return !!(
+      m.identity.name.trim() ||
+      m.identity.race ||
+      m.identity.class ||
+      m.domains.length ||
+      m.skills.length ||
+      m.inventory.length ||
+      m.spells.unlocked.length ||
+      m.notes.trim()
+    );
+  }
+
+  /**
+   * Génère et télécharge le PDF de la fiche. Le rendu est vectoriel : la fiche
+   * est redessinée en primitives PDF plutôt que photographiée (cf. sheet-pdf.ts).
+   */
   async downloadPdf(): Promise<void> {
-    const el = this.sheetEl()?.nativeElement;
-    if (!el || this.exporting()) return;
+    if (this.exporting()) return;
     this.exporting.set(true);
     this.error.set(null);
     try {
-      const [{ jsPDF }, html2canvas] = await Promise.all([
-        import('jspdf'),
-        import('html2canvas-pro').then((m) => m.default),
-      ]);
-
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        backgroundColor: '#bca98b',
-        useCORS: true,
-      });
-
-      // JPEG + compression du PDF : une page parchemin pleine en PNG pèse
-      // des dizaines de Mo ; en JPEG compressé on tombe à quelques Mo.
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const margin = 8;
-      const ratio = Math.min(
-        (pageW - margin * 2) / canvas.width,
-        (pageH - margin * 2) / canvas.height,
-      );
-      const w = canvas.width * ratio;
-      const h = canvas.height * ratio;
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.85), 'JPEG', (pageW - w) / 2, margin, w, h);
-
-      const safeName = (this.model.identity.name || 'fiche').replace(/[^\p{L}\p{N}_-]+/gu, '_');
-      pdf.save(`${safeName}.pdf`);
+      const { exportSheetPdf } = await import('./sheet-pdf');
+      await exportSheetPdf(this.pdfData());
     } catch {
       this.error.set('Échec de la génération du PDF.');
     } finally {

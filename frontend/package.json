@@ -13,7 +13,8 @@
     "build": "ng build",
     "prewatch": "npm run gen:index",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "gen:domain-icons": "node scripts/generate-domain-thumbnails.mjs"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
@@ -26,7 +27,6 @@
     "@angular/platform-server": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@angular/ssr": "^21.2.6",
-    "html2canvas-pro": "^2.0.4",
     "jspdf": "^4.2.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

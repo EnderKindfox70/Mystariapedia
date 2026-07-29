@@ -50,6 +50,14 @@
   background: transparent;
 }
 
+/* Le bouton d'import est un <label> portant un <input type="file"> caché :
+   il doit donc s'aligner comme un bouton et refléter l'état occupé. */
+label.cs-btn {
+  display: inline-block;
+  line-height: normal;
+}
+label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
+
 .cs-loading { color: var(--burned-paper); font-style: italic; }
 
 /* ── Grille principale : formulaire + aperçu ───────────────────────────── */
@@ -108,6 +116,41 @@
 }
 .cs-form select option { color: #111; }
 
+/* Expérience (formulaire) */
+.cs-xp { margin-top: 0.9rem; }
+.cs-xp__head { display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
+.cs-xp__gains { display: flex; flex-direction: column; gap: 0.25rem; }
+.cs-xp__gains > span {
+  font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dust-brown);
+}
+.cs-xp__gains > div { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.cs-xp__chip {
+  padding: 0.3rem 0.55rem;
+  font-size: 0.72rem;
+  color: var(--burned-paper);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 30%, transparent);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.cs-xp__chip:hover { border-color: var(--ancient-gold); color: var(--faded-ivory); }
+.cs-xp__chip--minus { color: color-mix(in srgb, var(--ritual-red) 60%, var(--burned-paper)); }
+.cs-xp__track {
+  height: 9px; margin: 0.55rem 0 0.3rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 25%, transparent);
+  border-radius: 5px; overflow: hidden;
+}
+.cs-xp__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ancient-gold), var(--burned-paper));
+  transition: width 0.25s ease;
+}
+.cs-xp__track.is-max .cs-xp__fill { background: linear-gradient(90deg, var(--ancient-gold), #d6a736); }
+.cs-xp__legend { font-size: 0.74rem; color: var(--burned-paper); }
+.cs-xp__legend b { color: var(--faded-ivory); }
+.cs-xp__left { margin-left: 0.5rem; color: var(--dust-brown); }
+
 /* Domaines */
 .cs-domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 0.5rem; }
 .cs-domain {
@@ -121,6 +164,12 @@
   font-size: 0.74rem;
 }
 .cs-domain__sigil { font-size: 1.25rem; }
+.cs-domain__icon { width: 2.2rem; height: 2.2rem; object-fit: contain; }
+/* Sélectionné, le fond passe en doré clair : l'icône sombre y ressort mal sans
+   un léger halo derrière elle. */
+.cs-domain.is-selected .cs-domain__icon {
+  filter: drop-shadow(0 0 2px rgba(255, 252, 240, 0.9));
+}
 .cs-domain.is-selected {
   color: var(--abyss);
   background: linear-gradient(180deg, var(--burned-paper), var(--ancient-gold));
@@ -387,7 +436,11 @@
 .cs-poolspell.is-locked { opacity: 0.5; }
 .cs-poolspell.is-unlocked { border-left-color: color-mix(in srgb, var(--ancient-gold) 55%, transparent); }
 .cs-poolspell.is-equipped { border-left-color: var(--ancient-gold); background: rgba(214, 167, 54, 0.12); }
-.cs-poolspell__sigil { font-size: 0.9rem; color: var(--ancient-gold); white-space: nowrap; }
+.cs-poolspell__sigil {
+  display: flex; align-items: center; gap: 0.15rem;
+  font-size: 0.9rem; color: var(--ancient-gold); white-space: nowrap;
+}
+.cs-poolspell__sigil img { width: 1.35rem; height: 1.35rem; object-fit: contain; }
 .cs-poolspell__body { display: flex; flex-direction: column; min-width: 0; }
 .cs-poolspell__name { font-family: var(--font-title); font-size: 0.84rem; color: var(--faded-ivory); }
 .cs-poolspell__meta { font-size: 0.68rem; color: var(--dust-brown); }
@@ -489,15 +542,23 @@
   gap: 0.9rem;
   padding: 1.4rem;
   color: #221713;
+  /* Parchemin : même recette que `.paper-surface` (styles.css) — teinte de
+     papier, texture 720px en `multiply` par-dessus, halo de lumière au-dessus.
+     Garder ces valeurs alignées avec PAPER_TINT / PAPER_TILE_PX du composant,
+     qui repeignent le même fond dans le canvas du PDF. */
+  --paper-tint: color-mix(in srgb, var(--burned-paper) 62%, #cec7ba);
   background:
-    radial-gradient(circle at 20% 12%, rgba(255, 248, 220, 0.3), transparent 32%),
-    var(--burned-paper);
+    radial-gradient(circle at 20% 12%, rgba(255, 253, 246, 0.16), transparent 32%),
+    url('/resources/media/pictures/background_parchment_texture.png') left top / 720px 720px repeat,
+    var(--paper-tint);
+  background-blend-mode: normal, multiply, normal;
   border: 14px solid transparent;
   border-image: url('/resources/media/pictures/parchement_border.png') 45 round;
   box-shadow: inset 0 0 0 2px #847059, inset 0 0 50px rgba(132, 112, 89, 0.5), 0 10px 30px rgba(0, 0, 0, 0.3);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+
 
 .sheet-character { grid-area: character; }
 .sheet-attrs { grid-area: attrs; }
@@ -568,6 +629,28 @@
 .sheet-identity strong { color: #3a2a1c; }
 
 .sheet-level { font-style: italic; color: #5e4632; font-size: 0.8rem; }
+
+/* Expérience (fiche) : jauge d'avancement vers le palier suivant. */
+.sheet-xp { margin-top: 0.35rem; }
+.sheet-xp__head { display: flex; justify-content: space-between; align-items: baseline; }
+.sheet-xp__label {
+  font-family: var(--font-title);
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #5e4632;
+}
+.sheet-xp__value { font-size: 0.72rem; font-weight: 600; color: #2a1c14; font-variant-numeric: tabular-nums; }
+.sheet-xp__track {
+  height: 6px; margin-top: 0.15rem;
+  background: rgba(94, 70, 50, 0.18);
+  border: 1px solid rgba(94, 70, 50, 0.4);
+  border-radius: 4px; overflow: hidden;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.sheet-xp__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ancient-gold), #5e4632);
+  border-radius: 4px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
 
 .sheet-stats-layout { display: flex; gap: 0.8rem; align-items: stretch; }
 
@@ -688,6 +771,12 @@
   color: #5e4632;
   font-variant-numeric: tabular-nums;
 }
+/* Attribut de dégâts + coût d'endurance, en appui sous les dégâts */
+.sheet-slot__meta {
+  font-size: 0.62rem;
+  color: #6b5340;
+  font-variant-numeric: tabular-nums;
+}
 .sheet-figure {
   display: flex; align-items: center; justify-content: center;
   width: 130px;
@@ -735,6 +824,12 @@
   font-size: 1.1rem; color: #2a1c14;
   border: 2px solid #5e4632; border-radius: 50%;
   background: rgba(255, 250, 235, 0.35);
+  overflow: hidden;
+}
+/* Icône du domaine : elle déborde légèrement du disque pour le remplir, la
+   marge transparente des PNG sources laissant sinon une pastille trop vide. */
+.sheet-domains__circle img {
+  width: 118%; height: 118%; object-fit: contain;
 }
 .sheet-domains__none { color: #6b5340; font-style: italic; }
 
@@ -770,7 +865,12 @@
 .sheet-spell-list li { grid-template-columns: 1.6rem 1fr auto auto; gap: 0.4rem; }
 .sheet-spell__lvl { text-align: center; font-weight: 700; }
 .sheet-spell__mana { text-align: right; font-size: 0.72rem; color: var(--dust-brown); white-space: nowrap; }
-.sheet-spell__school { text-align: right; white-space: nowrap; }
+.sheet-spell__school {
+  display: flex; align-items: center; justify-content: flex-end; gap: 0.15rem;
+  white-space: nowrap;
+}
+.sheet-spell__school img { width: 1.05rem; height: 1.05rem; object-fit: contain; }
+.sheet-spell__sigil { font-size: 0.8rem; }
 .sheet-spells__cap {
   font-size: 0.66rem; font-weight: 700; color: #3a2a1c;
   background: color-mix(in srgb, var(--ancient-gold) 55%, var(--burned-paper));
@@ -782,10 +882,17 @@
 }
 .sheet-spell-list--muted li { opacity: 0.72; }
 .sheet-spells__insp { margin: 0 0 0.3rem; font-size: 0.74rem; font-weight: 700; color: var(--dust-brown); }
+/* Badge de palier (« R2 ») : collé au titre du sort, il se confondait avec lui.
+   Marge, contour et fond plus dense le détachent nettement du nom. */
 .sheet-spell__rank {
-  font-size: 0.6rem; font-weight: 700; color: #3a2a1c;
-  background: color-mix(in srgb, var(--ancient-gold) 60%, var(--burned-paper));
-  padding: 0 0.28rem; border-radius: 8px; vertical-align: middle;
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.56rem; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--faded-ivory);
+  background: var(--dust-brown);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 70%, transparent);
+  padding: 0.02rem 0.32rem; border-radius: 8px; vertical-align: middle;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
 
 .sheet-inv-list li { grid-template-columns: 1fr 2.5rem 3rem; gap: 0.4rem; }
