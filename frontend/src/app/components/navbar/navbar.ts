@@ -75,6 +75,7 @@ export class Navbar {
         { key: 'ressources-naturelles', label: 'Ressources naturelles', path: '/resources' },
         { key: 'artefacts', label: 'Artefacts & objets magiques', path: '/artifacts' },
         { key: 'armes-armures', label: 'Armes & armures', path: '/weapons' },
+        { key: 'equipement', label: 'Equipement d\'aventurier', path: '/equipment' },
         { key: 'potions', label: 'Potions', path: '/alchemy' },
       ],
     },

@@ -6,7 +6,6 @@ import { Navbar } from '../../components/navbar/navbar';
 import { CharacterSheetService } from '../../services/character-sheet.service';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
 import weaponCategoryCatalog from '../../../../public/resources/json/weapon_category.json';
-import bagsCatalog from '../../../../public/resources/json/bags.json';
 import { ArmorEntry, ResourceIndexEntry, WeaponCategoryDef, WeaponEntry } from '../../wiki.types';
 import {
   AttributeKey,
@@ -50,6 +49,8 @@ import {
   computeAttributes,
   computeGold,
   computeStats,
+  purseDelta,
+  purseTotal,
   maxTheoreticalScale,
   statContributions,
   type StatContribution,
@@ -79,6 +80,7 @@ const MAX_FULL_IMAGE_BYTES = 10 * 1024 * 1024;
 /** Collections du wiki proposées comme objets d'inventaire (avec poids). */
 const INVENTORY_COLLECTIONS = [
   'potions',
+  'equipment',
   'natural-resources/fauna',
   'natural-resources/flora',
   'natural-resources/minerals',
@@ -158,17 +160,13 @@ interface EquipmentStat {
   weight: number;
 }
 
-/** Un sac à dos : poids propre + bonus de capacité (kg) et/ou allègement du sac (%). */
-interface BagDef {
-  key: string;
-  name: string;
-  weight?: number;
-  capacityBonus?: number;
-  weightReductionPct?: number;
-}
-
-const BAGS = bagsCatalog.bags as BagDef[];
-const BAG_BY_NAME = new Map(BAGS.map((b) => [b.name, b]));
+/**
+ * Sacs à dos : ce sont des fiches d'équipement comme les autres. Une fiche est
+ * un sac dès qu'elle annonce une capacité ou un allègement dans sa bande
+ * d'identité — le build en dérive les valeurs dans equipment/index.json.
+ */
+const isBag = (e: ResourceIndexEntry): boolean =>
+  e.capacityBonus != null || e.weightReductionPct != null;
 
 /**
  * Part du poids des objets PORTÉS qui compte dans la charge. Bien réparti sur le
@@ -216,6 +214,10 @@ export class CharacterSheetEditor {
   private readonly weaponInfo = signal<
     Map<string, { minDamage: number; maxDamage: number; weaponCategory?: string }>
   >(new Map());
+  /** Sacs à dos indexés par nom (capacité, allègement, poids propre). */
+  private readonly bagByName = signal<Map<string, ResourceIndexEntry>>(new Map());
+  /** Objets du wiki indexés par slug (pour le matériel de départ des backgrounds). */
+  private readonly itemBySlug = signal<Map<string, { name: string; weight: number }>>(new Map());
   /** Tenue/armure complète indexée par slug (pour l'auto-équipement). */
   private readonly outfitBySlug = signal<Map<string, ArmorEntry>>(new Map());
   /** Nom d'arme indexé par slug (pour l'auto-équipement). */
@@ -253,9 +255,15 @@ export class CharacterSheetEditor {
       ),
     ).subscribe((lists) => {
       const byName = new Map<string, number>();
+      const bySlug = new Map<string, { name: string; weight: number }>();
       for (const entry of lists.flat()) {
         if (entry?.name && !byName.has(entry.name)) byName.set(entry.name, entry.weight ?? 0);
+        // Slug → objet : sert à résoudre le matériel de départ d'un background.
+        if (entry?.slug && !bySlug.has(entry.slug)) {
+          bySlug.set(entry.slug, { name: entry.name, weight: entry.weight ?? 0 });
+        }
       }
+      this.itemBySlug.set(bySlug);
       this.itemWeights.clear();
       byName.forEach((w, name) => this.itemWeights.set(name, w));
       this.itemCatalog.set(
@@ -314,7 +322,13 @@ export class CharacterSheetEditor {
       ),
     ).pipe(map((lists) => lists.flat()));
 
-    forkJoin([weapons$, armorSets$]).subscribe(([weapons, sets]) => {
+    // Sacs à dos : les fiches d'équipement qui annoncent une capacité ou un allègement.
+    const bags$ = this.wiki.loadAll<ResourceIndexEntry>('equipment').pipe(
+      catchError(() => of([] as ResourceIndexEntry[])),
+      map((index) => index.filter(isBag)),
+    );
+
+    forkJoin([weapons$, armorSets$, bags$]).subscribe(([weapons, sets, bags]) => {
       const opts: Record<string, string[]> = {
         head: [], chest: [], legs: [], feet: [],
         weapon: [], offhand: [], amulet: [], ring: [], bag: [],
@@ -328,10 +342,11 @@ export class CharacterSheetEditor {
       };
 
       // Sacs à dos : proposés dans l'emplacement « bag », avec leur poids propre.
-      for (const b of BAGS) {
+      for (const b of bags) {
         push('bag', b.name);
         stats.set(b.name, { physicalArmor: 0, magicalProtection: 0, weight: b.weight ?? 0 });
       }
+      this.bagByName.set(new Map(bags.map((b) => [b.name, b])));
 
       // Armes : main principale (sauf catégories réservées) et/ou main secondaire (1 main).
       for (const w of weapons) {
@@ -400,10 +415,13 @@ export class CharacterSheetEditor {
   /** Vrai si on peut auto-équiper : un sous-background est choisi et ses sets sont chargés. */
   get canAutoEquip(): boolean {
     const sub = this.selectedSubbackground;
-    return !!sub && (this.outfitBySlug().has(sub.key) || !!sub.startingWeapon);
+    return (
+      !!sub &&
+      (this.outfitBySlug().has(sub.key) || !!sub.startingWeapon || !!sub.startingItems?.length)
+    );
   }
 
-  /** Équipe la tenue + l'arme de départ du sous-background sélectionné. */
+  /** Équipe la tenue, l'arme et le matériel de départ du sous-background sélectionné. */
   autoEquipStartingGear(): void {
     const sub = this.selectedSubbackground;
     if (!sub) return;
@@ -418,6 +436,21 @@ export class CharacterSheetEditor {
       ? this.weaponNameBySlug().get(sub.startingWeapon)
       : undefined;
     if (weaponName) this.model.equipment['weapon'] = weaponName;
+
+    // Matériel de départ : un sac à dos va dans son emplacement, le reste à
+    // l'inventaire. Idempotent : re-cliquer n'empile pas les doublons.
+    const bySlug = this.itemBySlug();
+    const bags = this.bagByName();
+    for (const slug of sub.startingItems ?? []) {
+      const item = bySlug.get(slug);
+      if (!item) continue;
+      if (bags.has(item.name)) {
+        this.model.equipment['bag'] = item.name;
+        continue;
+      }
+      if (this.model.inventory.some((line) => line.name === item.name)) continue;
+      this.model.inventory.push({ name: item.name, qty: 1, weight: item.weight });
+    }
   }
 
   /** À chaque changement de race, on invalide une sous-race devenue incohérente. */
@@ -496,9 +529,39 @@ export class CharacterSheetEditor {
     return this.backgrounds().find((b) => b.name === this.model.identity.background);
   }
 
-  /** Or de départ (tiré entre min/max du background, lié à la graine). */
-  get gold(): number {
+  // ── Bourse ─────────────────────────────────────────────────────────────────
+
+  /** Or de départ, tiré entre min/max du background et lié à la graine. */
+  get goldBase(): number {
     return computeGold(this.model, this.selectedBackground);
+  }
+
+  /**
+   * Bourse courante = tirage de départ + tout ce que la partie a rapporté ou
+   * coûté. Modifiable : la saisie est reconvertie en écart, pour que la base
+   * reste celle du background.
+   */
+  get gold(): number {
+    return purseTotal(this.goldBase, this.model.goldDelta);
+  }
+
+  set gold(value: number) {
+    this.model.goldDelta = purseDelta(this.goldBase, value);
+  }
+
+  /** Ajoute (ou retire) des pièces, sans jamais passer sous zéro. */
+  addGold(amount: number): void {
+    this.gold = this.gold + amount;
+  }
+
+  /** Vrai si la bourse a bougé depuis le tirage du background. */
+  get goldAdjusted(): boolean {
+    return this.model.goldDelta !== 0;
+  }
+
+  /** Revient au montant tiré par le background. */
+  resetGold(): void {
+    this.model.goldDelta = 0;
   }
 
   /** Sorts de la classe, triés par niveau requis. */
@@ -830,6 +893,7 @@ export class CharacterSheetEditor {
       proficiencyBonus: data.proficiencyBonus ?? base.proficiencyBonus,
       skills: Array.isArray(data.skills) ? data.skills : [],
       spells: this.normalizeSpells(data.spells),
+      goldDelta: Math.round(Number(data.goldDelta) || 0),
       inventory: data.inventory ?? [],
       equipment: { ...base.equipment, ...data.equipment },
       notes: data.notes ?? '',
@@ -1113,8 +1177,8 @@ export class CharacterSheetEditor {
   }
 
   /** Sac à dos actuellement équipé (donne un bonus de capacité et/ou allège le sac). */
-  get equippedBag(): BagDef | undefined {
-    return BAG_BY_NAME.get(this.model.equipment['bag'] ?? '');
+  get equippedBag(): ResourceIndexEntry | undefined {
+    return this.bagByName().get(this.model.equipment['bag'] ?? '');
   }
 
   get totalWeight(): number {

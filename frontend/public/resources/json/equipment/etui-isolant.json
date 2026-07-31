@@ -1,0 +1,46 @@
+{
+    "name": "Étui isolant",
+    "subtitle": "Contenant blindé",
+    "category": "recolte",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un coffret de la taille d'un poing, doublé de plomb battu et garni de feutre, dont le couvercle se verrouille par deux crochets. Il n'est pas enchanté : c'est de la matière dense, et la matière dense suffit à étouffer ce qui suinte d'un éclat primordial.",
+        "Un éclat n'a pas d'interrupteur. Sa manifestation passive agit en permanence, jour et nuit, sur tout ce qui l'entoure : l'éclat d'aube brille sans jamais s'éteindre, l'éclat de sève fait cicatriser les blessures de qui le porte, l'éclat funeste fait ce qu'il fait. L'étui est la seule façon de transporter un éclat sans annoncer sa présence ni subir son influence."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "1,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Contenant — 1 éclat" },
+        { "key": "rarity", "label": "Rareté",      "value": "Peu commun" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; annule le passif de l'éclat contenu" },
+        { "key": "value",  "label": "Valeur",      "value": "90 pièces d'or" }
+    ],
+    "properties": [
+        "Contient un éclat primordial et supprime entièrement sa manifestation passive tant que le couvercle est verrouillé.",
+        "L'usage actif de l'éclat est impossible sans l'ouvrir : ouvrir ou refermer l'étui coûte une action.",
+        "Coupe la lueur d'un éclat d'aube — donc la trace lumineuse qui trahit un porteur à distance dans le noir.",
+        "Ne protège pas de la fouille : un étui de plomb dans un sac attire l'attention de n'importe quel garde formé.",
+        "Le plomb se déforme aux chocs violents. Un étui bosselé cesse d'isoler complètement, et il faut le refaire battre."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Fabriqué par les plombiers et les orfèvres des grandes cités, souvent sur commande ; les guildes d'étude de la mana en gardent des rangées entières en réserve.",
+            "Les modèles de marché noir sont doublés d'étain au lieu du plomb : ils atténuent le passif sans l'annuler, et se vendent pourtant au même prix."
+        ]
+    },
+    "notes": [
+        "Un éclat rangé dans un étui est un éclat qu'on oublie d'utiliser. Beaucoup y laissent le leur pendant des mois.",
+        "Ne jamais ranger deux éclats dans le même étui : ce qu'ils se font l'un à l'autre dans le noir n'a rien d'étouffé."
+    ],
+    "references": [
+        {
+            "label": "Éclats concernés",
+            "items": [
+                { "ref": "eclat-d-aube", "collection": "resources/minerals", "label": "Éclat d'aube" },
+                { "ref": "eclat-de-seve", "collection": "resources/minerals", "label": "Éclat de sève" },
+                { "ref": "eclat-funeste", "collection": "resources/minerals", "label": "Éclat funeste" }
+            ]
+        }
+    ]
+}

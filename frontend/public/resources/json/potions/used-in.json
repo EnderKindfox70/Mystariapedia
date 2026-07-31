@@ -1,4 +1,97 @@
 {
+  "resources/remains/venin-de-serpent": [
+    {
+      "ref": "antidote",
+      "collection": "potions",
+      "label": "Antidote"
+    }
+  ],
+  "resources/flora/herbes-medicinales": [
+    {
+      "ref": "antidote",
+      "collection": "potions",
+      "label": "Antidote"
+    },
+    {
+      "ref": "potion_de_soin_faible",
+      "collection": "potions",
+      "label": "Potion de soin faible"
+    },
+    {
+      "ref": "potion_de_soin_intermediaire",
+      "collection": "potions",
+      "label": "Potion de soin intermédiaire"
+    },
+    {
+      "ref": "potion_de_soin_superieure",
+      "collection": "potions",
+      "label": "Potion de soin supérieure"
+    }
+  ],
+  "resources/minerals/eclat-d-aube": [
+    {
+      "ref": "antidote",
+      "collection": "potions",
+      "label": "Antidote"
+    }
+  ],
+  "resources/liquids/eau-pure": [
+    {
+      "ref": "antidote",
+      "collection": "potions",
+      "label": "Antidote"
+    },
+    {
+      "ref": "elixir_d_eveil",
+      "collection": "potions",
+      "label": "Élixir d'éveil forcé"
+    },
+    {
+      "ref": "potion_de_mana_faible",
+      "collection": "potions",
+      "label": "Potion de mana faible"
+    },
+    {
+      "ref": "potion_de_mana_intermediaire",
+      "collection": "potions",
+      "label": "Potion de mana Intermédiaire"
+    },
+    {
+      "ref": "potion_de_mana_superieure",
+      "collection": "potions",
+      "label": "Potion de mana supérieure"
+    },
+    {
+      "ref": "potion_peau_de_pierre",
+      "collection": "potions",
+      "label": "Potion de peau de pierre"
+    },
+    {
+      "ref": "potion_de_soin_faible",
+      "collection": "potions",
+      "label": "Potion de soin faible"
+    },
+    {
+      "ref": "potion_de_soin_intermediaire",
+      "collection": "potions",
+      "label": "Potion de soin intermédiaire"
+    },
+    {
+      "ref": "potion_de_soin_superieure",
+      "collection": "potions",
+      "label": "Potion de soin supérieure"
+    },
+    {
+      "ref": "tonique_de_constitution",
+      "collection": "potions",
+      "label": "Tonique de constitution"
+    },
+    {
+      "ref": "tonique_de_force",
+      "collection": "potions",
+      "label": "Tonique de force"
+    }
+  ],
   "resources/remains/venin-de-serpent-fantome": [
     {
       "ref": "elixir_d_eveil",
@@ -35,33 +128,11 @@
       "ref": "potion_peau_de_pierre",
       "collection": "potions",
       "label": "Potion de peau de pierre"
-    }
-  ],
-  "resources/liquids/eau-pure": [
-    {
-      "ref": "elixir_d_eveil",
-      "collection": "potions",
-      "label": "Élixir d'éveil forcé"
     },
     {
-      "ref": "potion_de_mana_faible",
+      "ref": "tonique_de_constitution",
       "collection": "potions",
-      "label": "Potion de mana faible"
-    },
-    {
-      "ref": "potion_de_mana_intermediaire",
-      "collection": "potions",
-      "label": "Potion de mana Intermédiaire"
-    },
-    {
-      "ref": "potion_de_mana_superieure",
-      "collection": "potions",
-      "label": "Potion de mana supérieure"
-    },
-    {
-      "ref": "potion_peau_de_pierre",
-      "collection": "potions",
-      "label": "Potion de peau de pierre"
+      "label": "Tonique de constitution"
     }
   ],
   "resources/flora/fruit_de_mana": [
@@ -86,6 +157,21 @@
       "ref": "potion_de_mana_faible",
       "collection": "potions",
       "label": "Potion de mana faible"
+    },
+    {
+      "ref": "potion_de_soin_intermediaire",
+      "collection": "potions",
+      "label": "Potion de soin intermédiaire"
+    },
+    {
+      "ref": "tonique_de_constitution",
+      "collection": "potions",
+      "label": "Tonique de constitution"
+    },
+    {
+      "ref": "tonique_de_force",
+      "collection": "potions",
+      "label": "Tonique de force"
     }
   ],
   "resources/flora/racine_d_arbre_ancien": [
@@ -98,6 +184,28 @@
       "ref": "potion_de_mana_superieure",
       "collection": "potions",
       "label": "Potion de mana supérieure"
+    },
+    {
+      "ref": "potion_de_soin_superieure",
+      "collection": "potions",
+      "label": "Potion de soin supérieure"
+    },
+    {
+      "ref": "tonique_de_constitution",
+      "collection": "potions",
+      "label": "Tonique de constitution"
+    },
+    {
+      "ref": "tonique_de_force",
+      "collection": "potions",
+      "label": "Tonique de force"
+    }
+  ],
+  "resources/minerals/eclat-de-seve": [
+    {
+      "ref": "potion_de_soin_superieure",
+      "collection": "potions",
+      "label": "Potion de soin supérieure"
     }
   ],
   "resources/remains/corne-de-belier": [
@@ -105,6 +213,11 @@
       "ref": "potion_peau_de_pierre",
       "collection": "potions",
       "label": "Potion de peau de pierre"
+    },
+    {
+      "ref": "tonique_de_force",
+      "collection": "potions",
+      "label": "Tonique de force"
     }
   ],
   "resources/remains/glande-de-lezard-rocailleux": [

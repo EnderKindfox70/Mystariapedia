@@ -197,9 +197,9 @@
 
     <!-- ── Retour ── -->
     <nav class="re-nav" aria-label="Navigation ressources">
-      <a routerLink="/resources" [fragment]="category()" class="re-nav__back">
+      <a [routerLink]="indexLink()" [fragment]="entry().category ?? category()" class="re-nav__back">
         <span class="re-nav__arrow" aria-hidden="true">←</span>
-        <span>Retour à la {{ categoryLabel() }}</span>
+        <span>{{ backLabel() }}</span>
       </a>
     </nav>
 

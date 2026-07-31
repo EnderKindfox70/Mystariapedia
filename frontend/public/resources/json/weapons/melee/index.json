@@ -11,6 +11,7 @@
     "name": "Claymore",
     "subtitle": "Grande épée des highlands",
     "rarity": "Rare",
+    "image": "/resources/media/pictures/weapons/claymore.png",
     "weight": 3.2
   },
   {
@@ -18,6 +19,7 @@
     "name": "Dague",
     "subtitle": "Lame courte, rapide et discrète",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/weapons/dagger.png",
     "weight": 0.5
   },
   {
@@ -25,6 +27,7 @@
     "name": "Épée longue",
     "subtitle": "Lame d'acier à une ou deux mains",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/weapons/straight_sword.png",
     "weight": 1.5
   },
   {
@@ -32,6 +35,7 @@
     "name": "Espadon",
     "subtitle": "Épée à deux mains de guerre",
     "rarity": "Rare",
+    "image": "/resources/media/pictures/weapons/greatsword.png",
     "weight": 3
   },
   {
@@ -46,6 +50,7 @@
     "name": "Hache de bataille",
     "subtitle": "Fendoir à deux mains",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/weapons/battle_axe.png",
     "weight": 3.5
   },
   {

@@ -1,0 +1,45 @@
+{
+    "name": "Outre en peau",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "image": "/resources/media/pictures/equipment/waterskin.png",
+    "icon": "",
+    "description": [
+        "Deux litres d'eau dans une peau de chèvre cousue et poissée, fermée par un bouchon de bois taillé. Elle donne à l'eau un goût de cuir dont on cesse de se plaindre vers le troisième jour de marche.",
+        "C'est l'objet dont on ne parle jamais avant d'en manquer. Une journée de marche sous le soleil réclame ses deux litres ; une cure de tonique en réclame davantage, et un aventurier qui suit une cure sans outre la gâche purement et simplement."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,3 kg à vide (2,3 kg pleine)" },
+        { "key": "type",   "label": "Type",        "value": "Contenant — 2 litres" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; une journée de marche par outre pleine" },
+        { "key": "value",  "label": "Valeur",      "value": "5 pièces d'or" }
+    ],
+    "properties": [
+        "Contient 2 litres, soit la ration d'eau d'une journée de marche pour un adulte.",
+        "Indispensable au suivi d'une cure de tonique : la soif imposée par la cure ne peut pas être étanchée sans réserve d'eau, et une cure mal hydratée n'accorde aucun gain.",
+        "Une journée entière sans boire impose Affaiblissement jusqu'au prochain repos long avec de l'eau.",
+        "Se remplit à toute source. L'eau d'une mare stagnante se boit, mais expose à la fièvre : la faire bouillir ou la filtrer.",
+        "Vidée et gonflée, elle sert de flotteur de fortune pour un passage à gué."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez tous les selliers, bourreliers et bouchers de campagne ; les caravaniers en portent trois par personne.",
+            "Une outre neuve se rince deux fois avant usage. Une outre laissée pleine dans un sac finit par tourner et se crève à la couture."
+        ]
+    },
+    "notes": [
+        "Suspendue à l'ombre et mouillée à l'extérieur, elle garde l'eau fraîche par simple évaporation.",
+        "Les Marcheurs des Profondeurs n'en portent jamais. Ils affirment savoir où boire, ce qui n'aide personne d'autre."
+    ],
+    "references": [
+        {
+            "label": "Cures associées",
+            "items": [
+                { "ref": "tonique_de_constitution", "collection": "potions", "label": "Tonique de constitution" },
+                { "ref": "tonique_de_force", "collection": "potions", "label": "Tonique de force" }
+            ]
+        }
+    ]
+}

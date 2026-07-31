@@ -1,0 +1,51 @@
+{
+    "name": "Marmite et gamelle",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une marmite de fonte à anse, deux gamelles d'étain, une louche et un trépied pliant qui se plante au-dessus des braises. L'ensemble s'emboîte et se sangle à l'extérieur du sac, où il cogne à chaque pas — c'est le bruit reconnaissable d'une compagnie en marche.",
+        "Elle sert à manger chaud, ce qui n'est pas rien après douze heures de pluie. Mais son vrai intérêt est ailleurs : une décoction se prépare à feu doux, et une marmite au camp signifie qu'un groupe peut fabriquer ses potions de soin faibles sur place, avec les herbes récoltées dans la journée, au lieu de les acheter quarante pièces d'or la fiole."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "2 kg" },
+        { "key": "type",   "label": "Type",        "value": "Matériel — cuisine et décoction" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Exige un feu et une heure de repos" },
+        { "key": "value",  "label": "Valeur",      "value": "12 pièces d'or" }
+    ],
+    "properties": [
+        "Permet de préparer sur le terrain les décoctions simples : potion de soin faible, infusions, cataplasmes.",
+        "Un repas chaud pris au camp rend la nuit plus efficace : sans marmite, les rations se mangent froides et le repos reste correct sans être bon.",
+        "Fait bouillir l'eau douteuse — celle d'une mare ou d'un puits abandonné — et la rend potable.",
+        "La fonte garde la chaleur longtemps et supporte les braises directes. L'étain des gamelles, lui, se déforme si on l'oublie sur le feu.",
+        "Une marmite ayant servi à une décoction alchimique se récure avant tout usage alimentaire, et l'inverse est plus vrai encore.",
+        "Encombrante et bruyante : impossible d'approcher discrètement d'un camp ennemi en la portant."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les ferblantiers, les fondeurs et sur tous les marchés ; c'est l'un des rares objets qu'on trouve identique d'un bout à l'autre de Mystaria.",
+            "Une marmite d'occasion vaut la neuve si le fond n'est pas percé. Le vérifier en la remplissant d'eau avant d'acheter."
+        ]
+    },
+    "notes": [
+        "Un groupe qui cuisine attire ce qui a faim. Éteindre le feu avant de dormir, et laver la marmite loin du campement.",
+        "Les alchimistes de terrain en portent une réservée à leur art, marquée d'une croix gravée sous l'anse."
+    ],
+    "references": [
+        {
+            "label": "Préparations possibles",
+            "items": [
+                { "ref": "potion_de_soin_faible", "collection": "potions", "label": "Potion de soin faible" }
+            ]
+        },
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "briquet-a-silex", "collection": "equipment", "label": "Briquet à silex" }
+            ]
+        }
+    ]
+}

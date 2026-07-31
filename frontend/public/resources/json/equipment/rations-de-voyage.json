@@ -1,0 +1,44 @@
+{
+    "name": "Rations de voyage",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Sept jours de nourriture sèche, emballés par jour dans du papier huilé : galette de campagne, viande fumée, fruits secs, un morceau de fromage dur et une pincée de sel. Rien qui fasse rêver, tout qui se garde.",
+        "Les rations sont la mesure réelle d'une expédition. On ne part pas « vers les ruines », on part pour six jours de rations, et le jour où il n'en reste que deux, la discussion autour du feu change de ton."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "3,5 kg (7 jours)" },
+        { "key": "type",   "label": "Type",        "value": "Consommable — vivres" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Une ration par jour ; se conserve deux mois" },
+        { "key": "value",  "label": "Valeur",      "value": "14 pièces d'or les sept jours" }
+    ],
+    "properties": [
+        "Une ration par jour et par personne. Un lot pèse 3,5 kg et se divise sans peine entre plusieurs sacs.",
+        "Un repos long sans ration ne rend que la moitié des points de vie et de l'endurance habituels.",
+        "Deux jours consécutifs sans manger imposent Affaiblissement jusqu'à un vrai repas.",
+        "Se conserve deux mois au sec. L'humidité est l'ennemie : une ration moisie ne nourrit pas et rend malade.",
+        "La chasse et la cueillette peuvent remplacer les rations, mais coûtent du temps de trajet et échouent parfois."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Préparées par les aubergistes d'étape, les monastères et les intendants de compagnie ; les prix doublent dans les villages proches d'un front ou d'une zone de mutation.",
+            "Se préparent aussi soi-même à moitié prix, à condition d'avoir du sel et deux jours pour fumer la viande."
+        ]
+    },
+    "notes": [
+        "Répartir les rations entre tous les sacs du groupe. Un seul sac perdu ne doit jamais être la fin de l'expédition.",
+        "Le sel des rations n'est pas du sel de conservation : ne pas puiser dans l'un pour économiser l'autre."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "outre-en-peau", "collection": "equipment", "label": "Outre en peau" }
+            ]
+        }
+    ]
+}

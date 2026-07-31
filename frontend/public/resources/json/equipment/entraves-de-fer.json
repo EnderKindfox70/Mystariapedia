@@ -1,0 +1,46 @@
+{
+    "name": "Entraves de fer",
+    "subtitle": "Matériel de contention",
+    "category": "chasse",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Deux bracelets de fer forgé articulés, reliés par deux pieds de chaîne courte, fermés par une serrure à goupille dont la clé tient dans une poche. Le modèle courant des milices : lourd, laid, efficace.",
+        "Elles ne servent qu'après coup, jamais pendant : on n'entrave pas une créature qui se bat encore. Mais un prisonnier vivant vaut souvent plus qu'un cadavre — une prime, un aveu, un nom — et c'est ce petit poids de fer au fond du sac qui rend ce choix possible."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "3 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — contention réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Cible maîtrisée, endormie ou inconsciente ; livrée avec une clé" },
+        { "key": "value",  "label": "Valeur",      "value": "25 pièces d'or" }
+    ],
+    "properties": [
+        "Se posent sur une créature maîtrisée, endormie ou inconsciente, en une action. Impossible sur une cible qui se défend encore.",
+        "Une créature entravée aux poignets subit Enracinement sans limite de durée, tant que les entraves tiennent.",
+        "Entravée aux poignets, elle ne peut plus manier d'arme ni accomplir de geste précis. Elle peut encore parler, donc encore lancer un sort à composante purement verbale.",
+        "S'en libérer demande un jet de Force très difficile, ou 15 points de dégâts contondants portés sur la chaîne — au risque de briser le poignet qu'elle enserre.",
+        "Un crocheteur muni de ses outils les ouvre en quelques minutes, sur lui-même comme sur un autre.",
+        "Inutilisables sur les créatures de taille G ou plus, et sur celles dont les membres n'ont pas la forme prévue."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les forgerons, les milices de cité et les guildes de chasseurs de prime, qui en louent à la journée contre caution.",
+            "Toujours vérifier la clé avant d'acheter, et en garder un double ailleurs que dans le même sac. Un prisonnier qu'on ne peut plus détacher devient un problème permanent."
+        ]
+    },
+    "notes": [
+        "Entraver quelqu'un est un acte réglementé dans la plupart des cités : hors mandat, la milice y voit un enlèvement.",
+        "Les chasseurs de prime expérimentés entravent aussi les chevilles. Un prisonnier aux seuls poignets court encore."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "filet-leste", "collection": "equipment", "label": "Filet lesté" },
+                { "ref": "outils-de-crocheteur", "collection": "equipment", "label": "Outils de crocheteur" }
+            ]
+        }
+    ]
+}

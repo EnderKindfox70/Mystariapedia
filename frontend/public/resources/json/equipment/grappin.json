@@ -1,0 +1,44 @@
+{
+    "name": "Grappin",
+    "subtitle": "Matériel de franchissement",
+    "category": "escalade",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Quatre becs de fer forgé repliés autour d'un anneau d'attache, assez lourds pour porter loin et assez ouverts pour mordre presque n'importe quoi : un créneau, une racine, le rebord d'un puits, la margelle d'une fenêtre.",
+        "Seul, il ne sert à rien. Avec quinze mètres de corde de chanvre, il double la carte : les murs deviennent des portes et les gouffres des détours. C'est le couple corde-grappin, jamais le grappin, que l'on achète."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "2 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — franchissement" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Portée de jet 10 m ; exige une corde" },
+        { "key": "value",  "label": "Valeur",      "value": "20 pièces d'or" }
+    ],
+    "properties": [
+        "Se lance jusqu'à 10 mètres de hauteur. Au-delà, le poids de la corde emporte le jet vers le bas.",
+        "Accroché, il supporte le même poids que la corde qui le porte, soit environ 200 kg.",
+        "Un jet manqué fait retomber le grappin avec fracas : dans un lieu gardé, la discrétion du groupe est perdue.",
+        "Mord mal sur la pierre lisse, le marbre poli et la glace. Sur ces surfaces, il faut des pitons.",
+        "Peut servir à récupérer un objet hors de portée, à crocher une grille ou à arracher une planche clouée."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les forgerons de village comme dans les ports, où les modèles de marine à trois becs se vendent un peu moins cher.",
+            "Vérifier la soudure de l'anneau avant l'achat : c'est là que cède un grappin, et il ne cède jamais au bon moment."
+        ]
+    },
+    "notes": [
+        "Un grappin bien accroché ne prouve rien : on tire dessus de tout son poids depuis le bas avant d'y confier une vie.",
+        "Les voleurs des cités enveloppent les becs de chiffons. Cela réduit la prise, mais un grappin qui claque sur la pierre réveille une rue entière."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "corde-de-chanvre", "collection": "equipment", "label": "Corde de chanvre" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+{
+    "name": "Piège à mâchoires",
+    "subtitle": "Matériel de trappeur",
+    "category": "chasse",
+    "image": "/resources/media/pictures/equipment/bear_trap.png",
+    "icon": "",
+    "description": [
+        "Deux demi-cercles d'acier dentés, montés sur un ressort à double lame qu'il faut bander à deux mains, avec une palette de déclenchement au centre et une chaîne d'ancrage terminée par un piquet. Bandé, on ne le porte plus qu'avec précaution ; déclenché, il claque assez fort pour s'entendre d'un vallon à l'autre.",
+        "C'est l'outil du trappeur, et le seul objet non magique du sac qui immobilise franchement une créature. On le pose sur une coulée, on le recouvre de feuilles, on ancre la chaîne à un tronc — et l'on revient le lendemain voir ce que la nuit a donné."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "4 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — piège réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Peu commun" },
+        { "key": "usage",  "label": "Utilisation", "value": "Une minute pour armer et dissimuler" },
+        { "key": "value",  "label": "Valeur",      "value": "40 pièces d'or" }
+    ],
+    "properties": [
+        "Une créature qui marche sur la palette subit 1d6 dégâts perforants, puis Enracinement et Saignement tant qu'elle reste prise.",
+        "Se libérer exige un jet de Force difficile, ou l'aide d'un tiers qui rouvre les mâchoires — ce qui prend une action et coûte les deux mains.",
+        "La chaîne s'ancre à un piquet ou à un tronc : une bête prise ne s'éloigne pas avec le piège.",
+        "Une minute pour l'armer, le poser et le dissimuler. Une créature attentive ou un traqueur exercé peut le repérer avant de marcher dessus.",
+        "Sans effet sur les créatures de taille TP, qui passent entre les dents, et sur les TG, qui l'arrachent en se relevant.",
+        "Réutilisable indéfiniment. Le ressort se détend avec les années : un piège trop vieux se referme sans force et laisse partir la bête blessée."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les forgerons des régions de chasse et dans les comptoirs de fourrure ; certaines cités en interdisent la pose à moins d'une lieue des routes.",
+            "Un piège d'occasion se juge au ressort : bandé puis relâché à vide, il doit claquer sec. Un claquement mou est un piège mort."
+        ]
+    },
+    "notes": [
+        "Marquer l'emplacement de chaque piège posé, et les relever tous avant de lever le camp. Un piège oublié finit toujours par prendre quelqu'un.",
+        "Poser un piège sur un chemin fréquenté est un crime dans la plupart des royaumes, et se juge comme un meurtre si quelqu'un y laisse un pied."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "filet-leste", "collection": "equipment", "label": "Filet lesté" },
+                { "ref": "couteau-de-depouille", "collection": "equipment", "label": "Couteau de dépouille" }
+            ]
+        }
+    ]
+}

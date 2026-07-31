@@ -1,0 +1,45 @@
+{
+    "name": "Sels odorants",
+    "subtitle": "Consommable de soin",
+    "category": "soins",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un petit flacon de verre épais, bouché à l'émeri, contenant des cristaux de sel ammoniac mêlés de racine broyée. Débouché sous le nez de quelqu'un, il dégage une vapeur si mordante que le corps se réveille avant que l'esprit ait décidé quoi que ce soit.",
+        "Ce n'est pas de l'alchimie, c'est de la chimie brutale — et c'est précisément pour cela que cela fonctionne sur un dormeur magique comme sur un homme sonné. Jusqu'ici, la seule façon de réveiller un allié endormi en pleine mêlée était de le frapper. Le flacon coûte douze pièces d'or et évite d'avoir à choisir."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,2 kg" },
+        { "key": "type",   "label": "Type",        "value": "Consommable — 3 doses" },
+        { "key": "rarity", "label": "Rareté",      "value": "Peu commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Une action ; contact ; 3 doses par flacon" },
+        { "key": "value",  "label": "Valeur",      "value": "12 pièces d'or le flacon" }
+    ],
+    "properties": [
+        "Met fin au statut Sommeil sur une créature à portée de contact, sans lui infliger de dégâts.",
+        "Met fin au statut Étourdissement sur la même portée.",
+        "Une action, une dose. Un flacon contient trois doses.",
+        "Sans effet sur l'inconscience due à des blessures : un mourant à 0 point de vie ne se réveille pas aux sels, il se stabilise à la trousse.",
+        "Aucun effet sur la Paralysie, le Charme ou la Confusion : les sels réveillent, ils ne purifient pas.",
+        "Un flacon mal rebouché s'évente en quelques jours et ne vaut plus rien."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les apothicaires et les barbiers des villes ; les salles de garde et les arènes en gardent toujours un flacon à portée de main.",
+            "Les modèles de campagne, moins concentrés, demandent deux doses pour le même effet et se vendent pourtant à peine moins cher."
+        ]
+    },
+    "notes": [
+        "Ne jamais respirer le flacon soi-même pour vérifier s'il est encore bon. Tout le monde le fait une fois.",
+        "Un allié endormi par un sort et réveillé aux sels reste désorienté un instant : il agira, mais sans finesse."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "trousse-de-chirurgien", "collection": "equipment", "label": "Trousse de chirurgien" }
+            ]
+        }
+    ]
+}

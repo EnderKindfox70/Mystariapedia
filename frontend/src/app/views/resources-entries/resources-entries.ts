@@ -43,8 +43,30 @@ export class ResourceEntryComponent {
   private paramMap = toSignal(this.route.paramMap, { requireSync: true });
 
   entry = computed(() => this.routeData()['entry'] as ResourceEntry);
-  category = computed(() => this.paramMap().get('category') ?? '');
-  categoryLabel = computed(() => CATEGORY_LABELS[this.category()] ?? 'Ressources');
+
+  /**
+   * Catégorie de la fiche : segment d'URL pour les ressources naturelles
+   * (/resources/:category/:slug), sinon valeur fixe donnée par la route (`data`)
+   * pour les collections plates qui réutilisent cette vue (équipement…).
+   */
+  category = computed(
+    () => this.paramMap().get('category') ?? (this.routeData()['category'] as string) ?? '',
+  );
+
+  categoryLabel = computed(
+    () =>
+      (this.routeData()['categoryLabel'] as string) ??
+      CATEGORY_LABELS[this.category()] ??
+      'Ressources',
+  );
+
+  /** Page d'index vers laquelle renvoie le lien de retour. */
+  indexLink = computed(() => (this.routeData()['indexLink'] as string) ?? '/resources');
+
+  /** Libellé du lien de retour (accord variable selon la collection). */
+  backLabel = computed(
+    () => (this.routeData()['backLabel'] as string) ?? `Retour à la ${this.categoryLabel()}`,
+  );
 
   /** Groupes de références saisis à la main, hors « Utilisé dans » (désormais dérivé). */
   referenceGroups = computed(() =>
@@ -55,14 +77,21 @@ export class ResourceEntryComponent {
     ),
   );
 
+  /**
+   * Clé de collection sous laquelle les potions référencent cette fiche
+   * (cf. `collection` des CrossRef d'ingrédients) : `resources/<catégorie>` pour
+   * une ressource naturelle, le nom de la collection pour les collections plates.
+   */
+  private usageCollection = computed(() => {
+    const routeCategory = this.paramMap().get('category');
+    return routeCategory ? `resources/${routeCategory}` : this.category();
+  });
+
   /** « Utilisé dans » dérivé : les potions employant cette ressource comme ingrédient. */
   usedIn = toSignal(
     this.route.paramMap.pipe(
       switchMap((pm) =>
-        this.potionUsage.forResource(
-          `resources/${pm.get('category')}`,
-          pm.get('slug') ?? '',
-        ),
+        this.potionUsage.forResource(this.usageCollection(), pm.get('slug') ?? ''),
       ),
     ),
     { initialValue: [] as CrossRef[] },

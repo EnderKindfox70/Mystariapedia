@@ -1,0 +1,73 @@
+{
+    "name": "Tonique de constitution",
+    "subtitle": "Tonique peu commun",
+    "category": "tonique",
+    "image": "/resources/media/pictures/potions/constitution_tonic.png",
+    "icon": "",
+    "description": [
+        "Un fortifiant clair et salé, presque désagréable à boire, où le sel cristallin dessine de fines aiguilles au fond du flacon quand il repose. On le reconnaît à son arrière-goût de pierre mouillée.",
+        "Il ne rend pas plus fort : il rend plus dur à abattre. Les mineurs des Royaumes du Nord, les marins au long cours et les soldats en garnison d'hiver le prennent en cure avant les saisons rudes, et jurent qu'un homme sous tonique attrape deux fois moins de fièvres."
+    ],
+    "effects": [
+        "Dose unique : +2 en Constitution pendant 1 heure (le modificateur de Constitution est recalculé pour la durée, points de vie maximum inclus).",
+        "En cure : une dose par jour pendant sept jours consécutifs accorde +1 en Constitution de façon durable, à condition de dormir chaque nuit à l'abri et à sa faim.",
+        "Le corps ne répond qu'à une seule cure de constitution réussie : les cures suivantes n'apportent plus que l'effet d'une dose unique."
+    ],
+    "secondary-effects": [
+        "Soif permanente pendant la cure ; qui ne boit pas assez se réveille avec des crampes.",
+        "Sueurs nocturnes abondantes et sommeil lourd les trois premières nuits.",
+        "Une cure interrompue avant le septième jour ne donne aucun gain durable."
+    ],
+    "quote": "On ne survit pas à l'hiver du Nord parce qu'on est fort. On y survit parce qu'on est difficile à user.",
+    "quote-author": "Dicton des mines de Fendreroche",
+    "ingredients": [
+        {
+            "name": "Racine de ginseng",
+            "icon": "",
+            "quantity": "2 racines",
+            "note": "Soutient les défenses naturelles pendant toute la durée de la cure.",
+            "ref": { "ref": "ginseng", "collection": "resources/flora", "label": "Racine de ginseng" }
+        },
+        {
+            "name": "Racine d'arbre ancien",
+            "icon": "",
+            "quantity": "1 fragment de la taille d'un pouce",
+            "note": "Remède traditionnel d'endurance : c'est elle qui inscrit l'effet dans la durée.",
+            "ref": { "ref": "racine_d_arbre_ancien", "collection": "resources/flora", "label": "Racine d'arbre ancien" }
+        },
+        {
+            "name": "Sel cristallin",
+            "icon": "",
+            "quantity": "3 pincées",
+            "note": "Fixe le tonique et permet au corps de retenir l'eau pendant la cure.",
+            "ref": { "ref": "sel_cristallin", "collection": "resources/minerals", "label": "Sel cristallin" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "500 ml (sept doses)",
+            "note": "Un flacon de tonique contient la cure entière, pas une prise.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Faire bouillir les racines de ginseng et le fragment de racine d'arbre ancien dans l'eau de source pendant une heure, à couvert.",
+        "Filtrer la décoction, la remettre sur le feu doux sans jamais la laisser bouillir de nouveau.",
+        "Dissoudre le sel cristallin pincée par pincée, en remuant jusqu'à disparition complète des grains.",
+        "Retirer du feu et laisser refroidir sans couvrir : le tonique doit devenir limpide. Un liquide resté laiteux est raté.",
+        "Mettre en flacon de sept doses et étiqueter la date du premier jour de cure."
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Tonique" },
+        { "key": "rarity", "label": "Rareté",  "value": "Peu commun" },
+        { "key": "weight", "label": "Poids",   "value": "0,6 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "150 pièces d'or le flacon de cure" }
+    ],
+    "notes": [
+        "Le gain durable relève de l'arbitrage du meneur, comme pour le tonique de force : plafond, cure unique dans une vie, ou simple bonus d'une semaine selon la table.",
+        "Déconseillé à qui suit déjà un traitement contre le poison : le tonique fait retenir l'eau, donc aussi ce qui s'y trouve dissous."
+    ],
+    "references": [
+
+    ]
+}

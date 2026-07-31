@@ -1,0 +1,57 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="paper-surface nr-index">
+
+    <header class="nr-header">
+      <span class="nr-header__kicker">Codex de Mystaria</span>
+      <h1 class="nr-header__title">Équipement d'aventurier</h1>
+      <div class="nr-header__rule" aria-hidden="true"></div>
+      <p class="nr-header__intro">
+        Le matériel du quotidien : sacs, cordes, lumière, vivres et outils que l'on emporte
+        parce qu'ils sauvent plus souvent qu'on ne le raconte. Presque rien n'y est enchanté —
+        seuls quelques sacs font exception, et encore restent-ils des sacs.
+      </p>
+    </header>
+
+    @for (cat of categories; track cat.slug) {
+      <!-- La section de repli ne s'affiche que si une fiche y est tombée. -->
+      @if (cat.cards().length || !cat.fallback) {
+        <section class="nr-section" [id]="cat.slug">
+          <div class="nr-divider"><span>{{ cat.label }}</span></div>
+          <p class="nr-section__blurb">{{ cat.blurb }}</p>
+
+          @if (cat.cards().length) {
+            <ul class="nr-grid">
+              @for (item of cat.cards(); track item.slug) {
+                <li>
+                  <a class="nr-card" [routerLink]="['/equipment', item.slug]">
+                    <div class="nr-card__media" aria-hidden="true">
+                      @if (item.image && !broken.has(item.slug)) {
+                        <img [src]="item.image" [alt]="item.name" (error)="broken.add(item.slug)">
+                      } @else {
+                        <span class="nr-card__glyph">⚙</span>
+                      }
+                    </div>
+                    <div class="nr-card__body">
+                      <h3 class="nr-card__name">{{ item.name }}</h3>
+                      @if (item.subtitle) {
+                        <p class="nr-card__subtitle">{{ item.subtitle }}</p>
+                      }
+                      @if (item.rarity) {
+                        <span class="nr-card__rarity">{{ item.rarity }}</span>
+                      }
+                    </div>
+                  </a>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="nr-empty">Aucune entrée pour l'instant.</p>
+          }
+        </section>
+      }
+    }
+
+  </main>
+</div>

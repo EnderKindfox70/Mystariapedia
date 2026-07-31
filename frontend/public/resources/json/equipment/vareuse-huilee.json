@@ -1,0 +1,40 @@
+{
+    "name": "Vareuse huilée",
+    "subtitle": "Vêtement de campagne",
+    "category": "camp",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une longue veste de toile serrée, imprégnée d'huile de lin jusqu'à devenir presque rigide, avec capuchon, rabat d'épaule et pans descendant sous les genoux. Elle sent le vernis, elle craque quand on marche, et l'eau glisse dessus sans jamais la traverser.",
+        "C'est le vêtement des marins, des pêcheurs et de quiconque a compris qu'être trempé n'est pas un inconfort mais un danger. Sous une pluie battante, un homme sec avance ; un homme trempé grelotte, sa corde pourrit, son amadou ne prend plus, et la nuit venue il ne dort pas."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "1,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Vêtement — protection contre les éléments" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Se porte par-dessus l'armure ; à ré-huiler chaque saison" },
+        { "key": "value",  "label": "Valeur",      "value": "18 pièces d'or" }
+    ],
+    "properties": [
+        "Empêche l'application du statut Trempé par la pluie, les embruns et la traversée d'un gué. Une immersion complète reste une immersion complète.",
+        "Garde au sec ce que l'on porte dessous : amadou, parchemins et bandages restent utilisables sous l'averse.",
+        "N'offre aucune protection au combat : elle ne compte ni comme armure ni comme pièce d'équipement défensive.",
+        "Se porte par-dessus une armure sans en gêner le port, mais dissimule les couleurs et les blasons — ce qui arrange parfois.",
+        "La toile huilée craque : elle rend toute approche discrète plus difficile.",
+        "L'huile s'use. Une vareuse non ré-huilée chaque saison boit l'eau comme une toile ordinaire."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Dans tous les ports, chez les voiliers et les drapiers des côtes ; à l'intérieur des terres, elle se commande et coûte moitié plus cher.",
+            "Les vareuses de marine, coupées plus longues et doublées au col, valent le double et durent trois fois plus longtemps."
+        ]
+    },
+    "notes": [
+        "Ne jamais la faire sécher près d'un feu vif : l'huile de lin s'enflamme, et une vareuse qui prend feu est portée par quelqu'un.",
+        "La ré-huiler à la fin de l'automne, avant la saison des pluies. Ceux qui attendent le premier orage s'en souviennent longtemps."
+    ],
+    "references": [
+
+    ]
+}

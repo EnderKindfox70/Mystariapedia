@@ -1,6 +1,7 @@
 {
   "name": "Hache de bataille",
   "subtitle": "Fendoir à deux mains",
+  "image": "/resources/media/pictures/weapons/battle_axe.png",
   "description": [
     "Plus longue et plus lourde que sa cousine à une main, la hache de bataille demande les deux bras et tout le corps. Chaque coup décrit un arc dévastateur.",
     "Arme de choc des lignes de front, elle brise les rangs serrés autant que les armures qui s'y trouvent."

@@ -1,0 +1,53 @@
+{
+    "name": "Bandages",
+    "subtitle": "Matériel de soin",
+    "category": "soins",
+    "image": "/resources/media/pictures/equipment/bandage.png",
+    "icon": "",
+    "description": [
+        "Un rouleau de toile de lin bouillie, découpé en bandes et imprégné d'une décoction d'herbes médicinales avant d'être séché puis roulé serré. Rien de magique : de la toile propre, des plantes, et le savoir-faire de qui l'a préparé.",
+        "C'est le premier objet que l'on met dans un sac et le dernier dont on se sépare. Un bandage bien posé ne remplace pas une potion, mais il ne coûte presque rien et il arrête le sang — et sur une route de campagne, c'est souvent tout ce qui sépare une blessure d'une tombe."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,2 kg" },
+        { "key": "type",   "label": "Type",        "value": "Consommable — matériel de soin" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Une utilisation ; 1 action pour poser" },
+        { "key": "source", "label": "Fabrication", "value": "Toile de lin bouillie + décoction d'herbes médicinales" },
+        { "key": "value",  "label": "Valeur",      "value": "5 pièces d'or le rouleau" }
+    ],
+    "properties": [
+        "Soigne 1d4 + modificateur de Constitution du blessé (minimum 1 point de vie).",
+        "Met fin au statut Saignement sur la cible.",
+        "Une action pour poser sur soi ou sur un allié à portée de contact. Le rouleau est consommé.",
+        "Un même blessé ne peut bénéficier que d'un bandage par repos court : au-delà, la toile ne fait plus que couvrir la plaie.",
+        "Posé avec une trousse de chirurgien : soigne 1d4 + 2 + modificateur, et un second bandage devient possible durant le même repos court.",
+        "Le modificateur employé est celui du blessé, non celui de qui pose le bandage : c'est le corps soigné qui fait le travail."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "En vente chez tous les apothicaires, les barbiers et la plupart des auberges d'étape ; les compagnies de mercenaires en achètent par caisses entières.",
+            "Fabricables sur le pouce : deux poignées d'herbes médicinales, de la toile propre et une heure de travail donnent trois rouleaux."
+        ]
+    },
+    "notes": [
+        "Un bandage souillé ou déjà utilisé n'a aucun effet et risque d'infecter la plaie. Les vétérans les brûlent après usage.",
+        "Les guérisseurs comptent en rouleaux, pas en pièces d'or : « Combien de rouleaux avons-nous ? » est la vraie question avant une bataille."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "garrot", "collection": "equipment", "label": "Garrot" },
+                { "ref": "trousse-de-chirurgien", "collection": "equipment", "label": "Trousse de chirurgien" }
+            ]
+        },
+        {
+            "label": "Composants",
+            "items": [
+                { "ref": "herbes-medicinales", "collection": "resources/flora", "label": "Herbes médicinales" }
+            ]
+        }
+    ]
+}

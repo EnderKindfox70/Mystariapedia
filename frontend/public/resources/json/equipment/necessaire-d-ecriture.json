@@ -1,0 +1,40 @@
+{
+    "name": "Nécessaire d'écriture",
+    "subtitle": "Outillage d'érudit",
+    "category": "erudition",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un coffret plat de bois ciré : trois plumes d'oie taillées, un canif à retailler, un encrier bouché à vis, un bâton d'encre sèche à délayer, un sablier à poudre pour sécher, et une douzaine de feuilles de parchemin roulées dans un étui de cuir.",
+        "C'est l'outil qui transforme ce qu'on a vu en ce que d'autres sauront. Un contrat signé, une carte relevée, une créature décrite, une formule recopiée avant que le grimoire ne reparte : sans de quoi écrire, une expédition ne rapporte que des souvenirs, et les souvenirs ne se vendent pas."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "1 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — écriture réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; encre et parchemin à renouveler" },
+        { "key": "value",  "label": "Valeur",      "value": "30 pièces d'or" }
+    ],
+    "properties": [
+        "Permet de rédiger, relever une carte, tenir un journal de route, recopier un texte ou signer un acte qui vaudra devant un tribunal.",
+        "Indispensable pour consigner une découverte : sans écrit, aucune guilde ni académie ne reconnaît une trouvaille à son auteur.",
+        "Permet de recopier un sort ou une formule d'un grimoire emprunté, à raison de plusieurs heures par page.",
+        "L'encre gèle en dessous de zéro et coule à la chaleur : par grand froid, on grave à la pointe sèche.",
+        "Le parchemin s'épuise. Compter 5 pièces d'or pour un nouveau rouleau, davantage loin des villes.",
+        "Un parchemin trempé est perdu : c'est ce que les aventuriers rangent en premier dans le cuir huilé."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les papetiers et les copistes des cités, dans les échoppes attenantes aux académies, et dans toute chancellerie de seigneur.",
+            "Les modèles d'étudiant, à une seule plume et sans sablier, valent le tiers du prix et se cassent au premier voyage."
+        ]
+    },
+    "notes": [
+        "Écrire au fur et à mesure. Ce qu'on se promet de noter le soir venu ne se note jamais.",
+        "Les érudits notent au crayon de plomb sur le terrain et repassent à l'encre au propre. La pluie ne dilue pas le plomb."
+    ],
+    "references": [
+
+    ]
+}

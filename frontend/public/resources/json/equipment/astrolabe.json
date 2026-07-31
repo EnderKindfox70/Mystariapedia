@@ -1,0 +1,45 @@
+{
+    "name": "Astrolabe",
+    "subtitle": "Instrument de mesure",
+    "category": "erudition",
+    "image": "/resources/media/pictures/equipment/astrolabe.png",
+    "icon": "",
+    "description": [
+        "Un disque de laiton gravé, monté sur un anneau de suspension, où tournent une araignée ajourée figurant les étoiles fixes et une alidade à pinnules. On le tient pendu au pouce, on vise un astre, on lit l'angle : l'heure, la latitude et la date se déduisent du reste.",
+        "C'est le seul objet de Mystaria qui donne une réponse exacte sans magie. Les navigateurs s'en servent pour savoir où ils sont, les astronomes pour savoir quand ; les uns et les autres tiennent le même instrument sans jamais poser les mêmes questions."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "1 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — mesure réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Peu commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Exige un astre visible et un horizon dégagé" },
+        { "key": "value",  "label": "Valeur",      "value": "250 pièces d'or" }
+    ],
+    "properties": [
+        "Donne la position, l'heure et la date à qui sait le lire : impossible de se perdre en mer ou en plaine tant que le ciel est visible.",
+        "Permet de prévoir le lever et le coucher des astres, donc de planifier une marche de nuit ou un rituel à heure fixe.",
+        "Un ciel couvert, un brouillard ou une tempête le rendent inutile : sous ces conditions, l'instrument ne vaut pas mieux qu'un compas.",
+        "Sans effet sous terre. Beaucoup de navigateurs l'apprennent à leurs dépens la première fois qu'ils descendent dans une ruine.",
+        "Les observations relevées ne servent qu'écrites : il se manie avec un nécessaire d'écriture à portée de main.",
+        "Un astrolabe faussé par un choc ment sans le dire. Le vérifier sur une position connue avant de partir."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les fabricants d'instruments des grands ports et auprès des académies, souvent sur commande ; les astrolabes d'occasion des marines de guerre sont excellents et se négocient bien.",
+            "Les modèles bon marché en fer-blanc existent, mais leurs graduations s'effacent en une saison de sel et de pluie."
+        ]
+    },
+    "notes": [
+        "Un astronome qui a relevé le ciel d'une région peut y revenir des années plus tard et retrouver le même point à quelques pas près.",
+        "Certains navigateurs jurent que les étoiles ont bougé depuis le retrait des dieux. Les tables les plus anciennes ne concordent plus tout à fait."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "necessaire-d-ecriture", "collection": "equipment", "label": "Nécessaire d'écriture" }
+            ]
+        }
+    ]
+}

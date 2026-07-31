@@ -1,6 +1,7 @@
 {
   "name": "Claymore",
   "subtitle": "Grande épée des highlands",
+  "image": "/resources/media/pictures/weapons/claymore.png",
   "description": [
     "La claymore est une épée démesurée, dont la lame dépasse parfois la taille d'un homme. Ses quillons inclinés en font une arme reconnaissable entre toutes.",
     "Maniée par les guerriers les plus puissants, elle balaie plusieurs adversaires d'un seul mouvement ample."

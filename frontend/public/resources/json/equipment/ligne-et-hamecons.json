@@ -1,0 +1,46 @@
+{
+    "name": "Ligne et hameçons",
+    "subtitle": "Matériel de pêche",
+    "category": "chasse",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Trente mètres de ligne de crin tressé enroulés sur une plombée de bois, une douzaine d'hameçons de tailles diverses piqués dans un bouchon de liège, quelques plombs, deux flotteurs de plume et un peu de fil de rechange. Le tout tient dans une bourse et pèse moins qu'une gamelle.",
+        "C'est l'objet qui allonge une expédition. Cinq pièces d'or contre une source de nourriture qui ne s'épuise pas : tant qu'il y a de l'eau, le groupe mange sans entamer ses rations, et des rations non entamées sont des jours de marche en plus au bout du compte."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,3 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — pêche réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Une à deux heures au bord de l'eau" },
+        { "key": "value",  "label": "Valeur",      "value": "5 pièces d'or" }
+    ],
+    "properties": [
+        "Une à deux heures de pêche en eau poissonneuse nourrissent une à deux personnes pour la journée, sans consommer de rations.",
+        "Se pratique pendant un repos long : la pêche ne coûte pas de temps de trajet, contrairement à la chasse.",
+        "Le rendement dépend de l'eau : abondant en rivière vive et sur les côtes, maigre en eau stagnante, nul dans une eau souillée ou magiquement corrompue.",
+        "Les hameçons se perdent et se tordent. Une douzaine tient une saison de pêche régulière.",
+        "Le poisson pris se conserve deux jours au frais, ou un mois au sel de conservation.",
+        "Sert aussi à réparer : la ligne de crin fait un fil solide pour recoudre le cuir ou tendre un piège d'alerte."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Dans tous les villages de bord d'eau, chez les merciers et sur les marchés de port ; c'est l'un des rares équipements qu'un enfant sait fabriquer.",
+            "Les hameçons d'acier valent trois fois ceux de fer et ne rouillent pas. Sur une saison en mer, la différence se voit."
+        ]
+    },
+    "notes": [
+        "Pêcher à l'aube ou au crépuscule. Le poisson de midi se fait attendre et fait perdre l'heure de marche.",
+        "Un pêcheur des côtes et un pêcheur d'eau douce ne montent pas la même ligne. Les deux se moquent volontiers du montage de l'autre."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "filet-leste", "collection": "equipment", "label": "Filet lesté" },
+                { "ref": "sel-de-conservation", "collection": "equipment", "label": "Sel de conservation" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,64 @@
+{
+    "name": "Potion de soin intermédiaire",
+    "subtitle": "Potion peu commune",
+    "category": "potion",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une décoction concentrée, épaissie par une racine de ginseng réduite en pulpe et laissée à reposer une nuit entière. Le liquide en ressort presque sirupeux, d'un vert profond qui tire sur l'ambre à la lumière.",
+        "C'est la fiole que l'on emporte quand on sait que l'on va se battre. Elle recolle une plaie ouverte, arrête une hémorragie et rend assez de forces pour tenir jusqu'au bout de l'engagement — mais elle demande un alchimiste patient, ce qui explique son prix."
+    ],
+    "effects": [
+        "Rend 4d4 + 4 points de vie au buveur, immédiatement.",
+        "Referme les plaies ouvertes et met fin au statut Saignement."
+    ],
+    "secondary-effects": [
+        "Bouffée de chaleur et pouls rapide pendant une minute ; certains buveurs décrivent des fourmillements dans les plaies qui se referment.",
+        "Deux fioles coup sur coup provoquent des vertiges et une fatigue lourde qui retombe une heure plus tard."
+    ],
+    "quote": "Le corps sait guérir. L'alchimiste ne fait que lui donner l'ordre de se presser.",
+    "quote-author": "Maîtresse apothicaire Vellane",
+    "ingredients": [
+        {
+            "name": "Herbes médicinales",
+            "icon": "",
+            "quantity": "4 poignées",
+            "note": "Le double de la version faible : la concentration fait tout.",
+            "ref": { "ref": "herbes-medicinales", "collection": "resources/flora", "label": "Herbes médicinales" }
+        },
+        {
+            "name": "Racine de ginseng",
+            "icon": "",
+            "quantity": "1 racine de cinq ans",
+            "note": "Apporte l'énergie vitale qui manque à la simple décoction d'herbes.",
+            "ref": { "ref": "ginseng", "collection": "resources/flora", "label": "Racine de ginseng" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "300 ml",
+            "note": "Prélevée à la source, jamais en aval d'un village.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Piler la racine de ginseng en pulpe, réserver le jus qui s'en écoule.",
+        "Faire infuser les herbes médicinales dans l'eau frémissante un quart d'heure, puis filtrer.",
+        "Incorporer la pulpe et le jus de ginseng à la décoction encore chaude, remuer jusqu'à obtenir un liquide homogène.",
+        "Laisser reposer une nuit entière au frais et à l'obscurité : la potion épaissit et prend sa teinte définitive.",
+        "Filtrer une seconde fois, puis mettre en fiole."
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Potion" },
+        { "key": "rarity", "label": "Rareté",  "value": "Peu commune" },
+        { "key": "weight", "label": "Poids",   "value": "0,3 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "90 pièces d'or" }
+    ],
+    "notes": [
+        "Une potion qui n'a pas reposé la nuit entière garde l'effet d'une potion faible : le repos n'est pas une coquetterie de recette.",
+        "Un dépôt au fond de la fiole est normal. Remuer avant de boire."
+    ],
+    "references": [
+
+    ]
+}

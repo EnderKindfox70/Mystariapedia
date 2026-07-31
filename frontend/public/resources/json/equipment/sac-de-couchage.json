@@ -1,0 +1,45 @@
+{
+    "name": "Sac de couchage",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une double épaisseur de laine feutrée cousue en fourreau, doublée d'une toile huilée côté sol et fermée par des lacets jusqu'au menton. Roulé, il se sangle sous le sac ; déroulé, il isole du sol, qui est ce qui vole vraiment la chaleur d'un dormeur.",
+        "Vingt pièces d'or contre une nuit de vrai sommeil. Les groupes qui s'en passent l'apprennent en une semaine de route : on ne récupère pas roulé dans sa cape, on somnole, et un personnage qui somnole depuis six nuits ne vaut plus grand-chose au septième combat."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "2,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Matériel — couchage réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Se sangle à l'extérieur du sac" },
+        { "key": "value",  "label": "Valeur",      "value": "20 pièces d'or" }
+    ],
+    "properties": [
+        "Permet un repos long complet en extérieur. Sans lui, une nuit dehors ne vaut qu'un repos dégradé.",
+        "Protège du froid nocturne des plaines et des forêts. En haute montagne ou sous blizzard, il faut en plus un abri.",
+        "Doublure de toile huilée : isole de la terre humide et de la rosée du matin.",
+        "Se déroule et se roule en un instant : de quoi lever le camp sans perdre un quart d'heure.",
+        "Trempé, il ne sèche pas avant une journée entière au soleil, et une nuit dedans vaut moins que pas de sac du tout.",
+        "La laine prend les odeurs. Les traqueurs et les chasseurs le rangent loin du feu et de la nourriture."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les drapiers, les selliers et les intendants de compagnie ; les auberges d'étape en louent parfois à la nuitée.",
+            "Les modèles doublés de fourrure, deux fois plus chers et deux fois plus lourds, sont indispensables au nord de la ligne des neiges."
+        ]
+    },
+    "notes": [
+        "Le sol vole plus de chaleur que l'air. Une couche de branchages sous le sac vaut une couverture de plus.",
+        "Le faire sécher dès que le soleil revient, même à midi et même si l'on est pressé. Un sac humide gèle la nuit suivante."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "rations-de-voyage", "collection": "equipment", "label": "Rations de voyage" }
+            ]
+        }
+    ]
+}

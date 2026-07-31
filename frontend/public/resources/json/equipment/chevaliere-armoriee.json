@@ -1,0 +1,46 @@
+{
+    "name": "Chevalière armoriée",
+    "subtitle": "Insigne de maison",
+    "category": "insignes",
+    "image": "/resources/media/pictures/equipment/ring_noble.png",
+    "icon": "",
+    "description": [
+        "Un anneau d'or ou d'argent dont le chaton porte les armes d'une maison, gravées en creux pour servir de sceau. On la porte à l'auriculaire, on la presse dans la cire chaude, et ce qu'on a écrit devient la parole d'une lignée plutôt que celle d'un individu.",
+        "Elle n'a aucune valeur au combat et une valeur considérable partout ailleurs. Une porte de garnison s'ouvre, un intendant avance des vivres, un capitaine accepte un ordre, un créancier patiente — non pas pour celui qui la porte, mais pour le nom qu'elle désigne. C'est aussi ce qui la rend dangereuse : ce nom répond de ce qu'on en fait."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,05 kg" },
+        { "key": "type",   "label": "Type",        "value": "Insigne — se porte à l'emplacement « bagues »" },
+        { "key": "rarity", "label": "Rareté",      "value": "Rare" },
+        { "key": "usage",  "label": "Utilisation", "value": "Sceau et preuve d'identité ; ne se vend pas" },
+        { "key": "value",  "label": "Valeur",      "value": "150 pièces d'or de métal, sans prix pour la maison" }
+    ],
+    "properties": [
+        "Prouve l'appartenance à une maison noble : les portes, les audiences et les crédits qui en découlent relèvent de l'arbitrage du meneur, pas d'un jet.",
+        "Scelle un document dans la cire : un acte ainsi scellé engage la maison et vaut devant un tribunal.",
+        "Sans effet sur qui ne connaît pas les armes de la maison — ni valeur ni sens hors de son royaume d'origine.",
+        "Une chevalière volée ou portée à tort est un faux : l'usurpation d'armes est un crime lourdement puni partout.",
+        "Se porte à l'emplacement « bagues, bracelets ». N'apporte aucune protection ni bonus de combat.",
+        "Un noble déshérité perd le droit de la porter, mais rarement l'anneau lui-même. Beaucoup d'histoires commencent là."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Ne s'achète pas : elle se transmet à la majorité, s'octroie par adoubement, ou se laisse en gage dans les histoires que les héritiers préfèrent taire.",
+            "Les orfèvres des capitales en gravent de nouvelles sur ordre écrit d'un chef de maison, jamais sur simple demande du porteur."
+        ]
+    },
+    "notes": [
+        "La montrer ouvre des portes et signale exactement qui vient d'entrer. Beaucoup d'héritiers en voyage la portent au cou, sous la chemise.",
+        "Un marchand aristocratique la presse dans la cire vingt fois par jour. Le chaton s'use, et une empreinte usée finit par être contestée."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "lettre-de-credit", "collection": "equipment", "label": "Lettre de crédit" },
+                { "ref": "necessaire-d-ecriture", "collection": "equipment", "label": "Nécessaire d'écriture" }
+            ]
+        }
+    ]
+}

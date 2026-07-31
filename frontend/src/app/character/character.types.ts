@@ -126,6 +126,14 @@ export interface CharacterSheet {
   skills: string[];
   /** Sorts débloqués (appris) et équipés (loadout de combat) — cf. CharacterSpells. */
   spells: CharacterSpells;
+  /**
+   * Écart de bourse par rapport au tirage du background. L'or de départ reste
+   * dérivé du background et de la graine (cf. `computeGold`) ; ce champ porte
+   * tout ce que la partie y ajoute ou en retire. Stocker l'écart plutôt qu'un
+   * montant absolu garde le lien avec le tirage : changer de background ou
+   * relancer les dés met la base à jour sans effacer les gains de la campagne.
+   */
+  goldDelta: number;
   /** Le « sac » : objets transportés. */
   inventory: InventoryItem[];
   /** Équipement porté, indexé par emplacement (cf. EQUIPMENT_SLOTS). */
@@ -178,6 +186,12 @@ export interface SubraceDef {
   /** Sous-backgrounds : slug de l'arme de départ (cf. weapons/*). La tenue de
    *  départ est, elle, déduite de `key` (= slug du set d'armure correspondant). */
   startingWeapon?: string;
+  /**
+   * Sous-backgrounds : slugs du matériel de départ (équipement, potions,
+   * ressources — toute collection proposée à l'inventaire). Un sac à dos de la
+   * liste est équipé dans son emplacement, le reste rejoint l'inventaire.
+   */
+  startingItems?: string[];
 }
 
 export interface RaceDef {

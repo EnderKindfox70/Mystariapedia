@@ -1,0 +1,39 @@
+{
+    "name": "Besace d'allègement",
+    "subtitle": "Sac enchanté",
+    "category": "sacs",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une besace de cuir souple, d'apparence ordinaire, dont la doublure porte une couture de fil d'argent courant tout autour de l'ouverture. L'enchantement ne crée aucun espace : il allège. Ce qu'on y range pèse un quart de moins, sans qu'aucune balance ne puisse le confirmer une fois l'objet ressorti.",
+        "C'est le premier objet enchanté que s'offre un aventurier qui gagne correctement sa vie. Il ne fait rien de spectaculaire, ne se raconte pas dans les tavernes — et pourtant c'est lui qui décide si l'on rentre avec le butin ou si l'on doit choisir quoi abandonner au fond de la ruine."
+    ],
+    "info": [
+        { "key": "weight",     "label": "Poids",      "value": "1 kg" },
+        { "key": "type",       "label": "Type",       "value": "Sac à dos enchanté" },
+        { "key": "rarity",     "label": "Rareté",     "value": "Rare" },
+        { "key": "lightening", "label": "Allègement", "value": "25 %" },
+        { "key": "value",      "label": "Valeur",     "value": "900 pièces d'or" }
+    ],
+    "properties": [
+        "Allège de 25 % le poids de tout ce qu'elle contient. Elle n'augmente pas la capacité de charge : elle réduit ce que la charge pèse.",
+        "L'allègement cesse dès que l'objet quitte la besace : rien ne s'allège durablement, et l'astuce du portage à répétition ne fonctionne pas.",
+        "Sans effet sur le volume : ce qui ne rentre pas physiquement ne rentre pas, si léger soit-il.",
+        "L'enchantement est passif et permanent. Il ne consomme pas de mana et ne s'épuise pas.",
+        "Une couture d'argent rompue suspend l'effet jusqu'à réparation — un travail d'enchanteur, pas de sellier."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les enchanteurs établis des grandes cités, sur commande et avec délai ; les guildes d'aventuriers en tiennent parfois quelques-unes en réserve pour leurs membres anciens.",
+            "Les contrefaçons abondent : une besace ordinaire ourlée de fil d'argent se vend au prix fort à qui ne pèse pas son sac avant et après."
+        ]
+    },
+    "notes": [
+        "Vérifier l'allègement avant l'achat : charger le sac de vingt kilos et le soulever. Un quart de différence se sent immédiatement.",
+        "Les voleurs des cités les connaissent mieux que quiconque et savent exactement ce qu'elles valent. Ne pas la laisser sans surveillance dans une auberge."
+    ],
+    "references": [
+
+    ]
+}

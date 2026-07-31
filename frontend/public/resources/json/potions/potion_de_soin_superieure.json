@@ -1,0 +1,73 @@
+{
+    "name": "Potion de soin supérieure",
+    "subtitle": "Potion rare",
+    "category": "potion",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Ici l'artisanat s'arrête et la magie commence : la décoction est mise à macérer avec un éclat de sève, dont la seule présence suffit à charger le liquide. L'éclat n'est pas consommé — on le retire, on le rince, il servira des centaines de fois — mais il faut le posséder, et c'est ce qui rend la potion rare.",
+        "Le résultat est un liquide clair, presque lumineux, qui régénère les chairs à vue d'œil. Les chirurgiens de guerre en gardent toujours une fiole de côté, non pour eux, mais pour celui qu'ils n'auraient pas su sauver autrement."
+    ],
+    "effects": [
+        "Rend 6d4 + 6 points de vie au buveur, immédiatement.",
+        "Referme les plaies profondes, met fin au statut Saignement et ressoude les fractures simples en quelques minutes."
+    ],
+    "secondary-effects": [
+        "La régénération est visible et douloureuse : la chair qui se reforme brûle comme une plaie lavée à l'alcool pendant une dizaine de secondes.",
+        "Épuisement marqué dans l'heure qui suit — le corps a payé en énergie ce qu'il a gagné en tissus.",
+        "Chez qui en abuse, les cicatrices anciennes se rouvrent parfois sans raison apparente."
+    ],
+    "quote": "La sève ne guérit pas par bonté. Elle ignore simplement que ton corps avait renoncé.",
+    "quote-author": "Traité des éclats primordiaux, chapitre de la Vie",
+    "ingredients": [
+        {
+            "name": "Herbes médicinales",
+            "icon": "",
+            "quantity": "6 poignées",
+            "note": "Réduites en décoction très concentrée avant macération.",
+            "ref": { "ref": "herbes-medicinales", "collection": "resources/flora", "label": "Herbes médicinales" }
+        },
+        {
+            "name": "Racine d'arbre ancien",
+            "icon": "",
+            "quantity": "1 fragment de la taille d'un pouce",
+            "note": "Sert d'ancrage : sans elle, la charge de l'éclat se dissipe en quelques heures.",
+            "ref": { "ref": "racine_d_arbre_ancien", "collection": "resources/flora", "label": "Racine d'arbre ancien" }
+        },
+        {
+            "name": "Éclat de sève",
+            "icon": "",
+            "quantity": "1 éclat (récupéré après macération)",
+            "note": "Plongé une nuit dans la décoction, puis retiré. Il n'est jamais consommé.",
+            "ref": { "ref": "eclat-de-seve", "collection": "resources/minerals", "label": "Éclat de sève" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "400 ml",
+            "note": "Base neutre ; toute impureté se voit dans la potion finie.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Réduire les herbes médicinales et la racine d'arbre ancien en décoction dans l'eau de source, jusqu'à n'en garder que la moitié du volume.",
+        "Filtrer très finement : un résidu solide brûle au contact de l'éclat et gâte toute la préparation.",
+        "Plonger l'éclat de sève dans la décoction tiède et laisser macérer une nuit entière, à l'abri de la lumière.",
+        "Retirer l'éclat au matin. Le liquide doit être clair et garder une luminescence pâle ; s'il est resté trouble, la charge n'a pas pris.",
+        "Mettre en fiole scellée à la cire.",
+        { "text": "Un praticien à affinité Vie peut canaliser un souffle de mana dans la fiole avant de la sceller : la potion gagne alors en régularité, sans gagner en puissance.", "optional": true }
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Potion" },
+        { "key": "rarity", "label": "Rareté",  "value": "Rare" },
+        { "key": "weight", "label": "Poids",   "value": "0,3 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "200 pièces d'or" }
+    ],
+    "notes": [
+        "Ne rend ni un membre perdu, ni un œil crevé : elle reconstruit ce qui est encore là, pas ce qui a disparu.",
+        "La luminescence s'éteint quand la potion est périmée. Une fiole éteinte est bonne à jeter, jamais à vendre."
+    ],
+    "references": [
+
+    ]
+}

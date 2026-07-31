@@ -206,7 +206,34 @@
               <button type="button" class="cs-add" (click)="rerollStats()">⟳ Relancer les dés</button>
             }
           </div>
-          <p class="cs-stats-note">Or de départ (background) : <strong>{{ gold }}</strong></p>
+          <!-- Bourse : le background donne le montant de départ, la partie le
+               fait évoluer. On stocke l'écart, pas le total (cf. goldDelta). -->
+          <div class="cs-purse">
+            <div class="cs-purse__head">
+              <label class="cs-field cs-field--narrow">
+                <span>Or</span>
+                <input type="number" name="gold" min="0" [(ngModel)]="gold" />
+              </label>
+              <div class="cs-purse__gains">
+                <span>Gain / dépense</span>
+                <div>
+                  @for (coin of [-50, -10, -1]; track coin) {
+                    <button type="button" class="cs-xp__chip cs-xp__chip--minus" (click)="addGold(coin)">{{ coin }}</button>
+                  }
+                  @for (coin of [1, 10, 50]; track coin) {
+                    <button type="button" class="cs-xp__chip" (click)="addGold(coin)">+{{ coin }}</button>
+                  }
+                </div>
+              </div>
+            </div>
+            <p class="cs-stats-note">
+              Départ (background) : <strong>{{ goldBase }}</strong>
+              @if (goldAdjusted) {
+                · évolution <strong>{{ formatBonus(model.goldDelta) }}</strong>
+                <button type="button" class="cs-purse__reset" (click)="resetGold()">↺ remettre au départ</button>
+              }
+            </p>
+          </div>
           @let fsForm = finalStats;
           <div class="cs-stats-grid">
             @for (st of stats; track st.key) {
@@ -502,8 +529,8 @@
             class="cs-add"
             (click)="autoEquipStartingGear()"
             [disabled]="!canAutoEquip"
-            title="Équipe la tenue et l'arme de départ du sous-background choisi"
-          >⚔ Équiper la tenue de départ</button>
+            title="Équipe la tenue, l'arme et le matériel de départ du sous-background choisi"
+          >⚔ Équiper le matériel de départ</button>
           <div class="cs-equip-grid">
             @for (slot of equipmentSlots; track slot.key) {
               <label class="cs-equip">

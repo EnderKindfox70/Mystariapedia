@@ -10,6 +10,7 @@ export class WikiLinkPipe implements PipeTransform {
       bestiary: '/bestiary',
       artifacts: '/artifacts',
       potions: '/alchemy',
+      equipment: '/equipment',
       rituals: '/alchemy',
       locations: '/locations',
       factions: '/factions',

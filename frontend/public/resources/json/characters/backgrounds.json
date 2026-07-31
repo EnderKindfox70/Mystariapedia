@@ -5,10 +5,10 @@
     "min_money": 0,
     "max_money":50,
     "subbackgrounds": [
-      { "key": "thief", "name": "Voleur", "startingWeapon": "dague" },
-      { "key": "spy", "name": "Espion", "startingWeapon": "dague" },
-      {"key": "hitman", "name": "Tueur à gages", "startingWeapon": "dague"},
-      {"key": "vigilante", "name": "Vigilante", "startingWeapon": "baton"}
+      { "key": "thief", "name": "Voleur", "startingWeapon": "dague", "startingItems": ["outils-de-crocheteur", "corde-de-chanvre", "grappin", "besace"] },
+      { "key": "spy", "name": "Espion", "startingWeapon": "dague", "startingItems": ["fil-de-soie-et-clochette", "lanterne-a-huile", "necessaire-d-ecriture", "besace"] },
+      {"key": "hitman", "name": "Tueur à gages", "startingWeapon": "dague", "startingItems": ["outils-de-crocheteur", "fil-de-soie-et-clochette", "chausse-trappes", "besace"]},
+      {"key": "vigilante", "name": "Vigilante", "startingWeapon": "baton", "startingItems": ["entraves-de-fer", "corde-de-chanvre", "filet-leste", "besace"]}
     ],
     "subattributes":
     [
@@ -23,9 +23,9 @@
     "min_money": 15,
     "max_money":30,
     "subbackgrounds": [
-      { "key": "footman", "name": "Fantassin", "startingWeapon": "lance" },
-      { "key": "range-shooter", "name": "Tireur de précision", "startingWeapon": "arc-long" },
-      { "key": "field-medic", "name": "Médecin d'armée", "startingWeapon": "dague" }
+      { "key": "footman", "name": "Fantassin", "startingWeapon": "lance", "startingItems": ["garrot", "bandages", "pierre-a-aiguiser", "rations-de-voyage", "sac-voyageur"] },
+      { "key": "range-shooter", "name": "Tireur de précision", "startingWeapon": "arc-long", "startingItems": ["pierre-a-aiguiser", "garrot", "rations-de-voyage", "sac-voyageur"] },
+      { "key": "field-medic", "name": "Médecin d'armée", "startingWeapon": "dague", "startingItems": ["trousse-de-chirurgien", "bandages", "garrot", "sels-odorants", "sac-voyageur"] }
     ],
     "traits":
     [
@@ -44,9 +44,9 @@
     "min_money": 0,
     "max_money":20,
     "subbackgrounds": [
-      { "key": "scholar", "name": "Érudit", "startingWeapon": "baton" },
-      { "key": "alchemist", "name": "Alchimiste", "startingWeapon": "dague" },
-      { "key": "astronomer", "name": "Astronome", "startingWeapon": "baton" }
+      { "key": "scholar", "name": "Érudit", "startingWeapon": "baton", "startingItems": ["necessaire-d-ecriture", "lanterne-a-huile", "fiole-d-huile", "besace"] },
+      { "key": "alchemist", "name": "Alchimiste", "startingWeapon": "dague", "startingItems": ["bandouliere-d-alchimiste", "mortier-et-pilon", "fioles-vides", "herbes-medicinales", "besace"] },
+      { "key": "astronomer", "name": "Astronome", "startingWeapon": "baton", "startingItems": ["astrolabe", "necessaire-d-ecriture", "lanterne-a-huile", "besace"] }
     ],
     "traits":
     [
@@ -64,8 +64,8 @@
     "min_money": 10,
     "max_money":20,
     "subbackgrounds": [
-      { "key": "forgeron", "name": "Forgeron", "startingWeapon": "masse-d-armes" },
-      { "key": "runiste", "name": "Runiste", "startingWeapon": "baton" }
+      { "key": "forgeron", "name": "Forgeron", "startingWeapon": "masse-d-armes", "startingItems": ["necessaire-de-forge", "pierre-a-aiguiser", "briquet-a-silex", "sac-voyageur"] },
+      { "key": "runiste", "name": "Runiste", "startingWeapon": "baton", "startingItems": ["necessaire-de-forge", "necessaire-d-ecriture", "etui-isolant", "besace"] }
     ],
     "subattributes":
     [
@@ -79,28 +79,28 @@
     "min_money": 0,
     "max_money":15,
     "subbackgrounds": [
-      { "key": "adventurer", "name": "Aventurier", "startingWeapon": "epee-longue" },
-      { "key": "gatherer-wanderer", "name": "Récolteur-Vagabond", "startingWeapon": "dague"},
-      {"key": "wandering-merchant", "name": "Marchand ambulant", "startingWeapon": "dague"}
+      { "key": "adventurer", "name": "Aventurier", "startingWeapon": "epee-longue", "startingItems": ["sac-aventurier", "corde-de-chanvre", "sac-de-couchage", "rations-de-voyage", "outre-en-peau", "torche"] },
+      { "key": "gatherer-wanderer", "name": "Récolteur-Vagabond", "startingWeapon": "dague", "startingItems": ["hotte-de-portage", "serpe-d-herboriste", "sel-de-conservation", "sac-de-couchage", "outre-en-peau"]},
+      {"key": "wandering-merchant", "name": "Marchand ambulant", "startingWeapon": "dague", "startingItems": ["sac-voyageur", "marmite-et-gamelle", "rations-de-voyage", "outre-en-peau", "briquet-a-silex"]}
     ],
-    "subattributes": 
+    "subattributes":
     [
       {"key": "survival", "name": "Survie", "value":1},
       {"key": "nature", "name": "Nature", "value":1}
     ]
   },
-  { 
-    "key": "noble", 
-    "name": "Noble", 
+  {
+    "key": "noble",
+    "name": "Noble",
     "min_money": 40,
     "max_money":80,
-  "subbackgrounds": 
+  "subbackgrounds":
     [
-      {"key": "heir", "name": "Héritier", "startingWeapon": "rapiere"},
-      {"key": "knight-aspirant", "name": "Chevalier aspirant", "startingWeapon": "epee-longue"},
-      {"key": "aristocratic-merchant", "name": "Marchand aristocratique", "startingWeapon": "rapiere"}
+      {"key": "heir", "name": "Héritier", "startingWeapon": "rapiere", "startingItems": ["chevaliere-armoriee", "lettre-de-credit", "necessaire-d-ecriture", "sac-aventurier"]},
+      {"key": "knight-aspirant", "name": "Chevalier aspirant", "startingWeapon": "epee-longue", "startingItems": ["chevaliere-armoriee", "pierre-a-aiguiser", "rations-de-voyage", "sac-aventurier"]},
+      {"key": "aristocratic-merchant", "name": "Marchand aristocratique", "startingWeapon": "rapiere", "startingItems": ["lettre-de-credit", "chevaliere-armoriee", "necessaire-d-ecriture", "sac-voyageur"]}
     ],
-    "subattributes": 
+    "subattributes":
     [
       {"key": "history", "name": "Histoire", "value":1},
       {"key": "religion", "name": "Religion", "value":1}
@@ -112,9 +112,9 @@
     "min_money": 15,
     "max_money":40,
     "subbackgrounds": [
-      { "key": "deckhand", "name": "Matelot", "startingWeapon": "dague" },
-      { "key": "navigator", "name": "Navigateur", "startingWeapon": "sabre" },
-      { "key": "pirate", "name": "Pirate", "startingWeapon": "sabre" }
+      { "key": "deckhand", "name": "Matelot", "startingWeapon": "dague", "startingItems": ["necessaire-d-epissure", "corde-de-chanvre", "vareuse-huilee", "besace"] },
+      { "key": "navigator", "name": "Navigateur", "startingWeapon": "sabre", "startingItems": ["astrolabe", "necessaire-d-ecriture", "vareuse-huilee", "lanterne-a-huile", "sac-voyageur"] },
+      { "key": "pirate", "name": "Pirate", "startingWeapon": "sabre", "startingItems": ["grappin", "corde-de-chanvre", "vareuse-huilee", "entraves-de-fer", "sac-voyageur"] }
     ],
     "traits":
     [
@@ -133,9 +133,9 @@
     "min_money": 0,
     "max_money":10,
     "subbackgrounds": [
-      { "key": "farmer", "name": "Fermier", "startingWeapon": "baton" },
-      {"key": "sheperd", "name": "Berger", "startingWeapon": "fronde"},
-      {"key": "lumberjack", "name": "Bucheron", "startingWeapon": "hache"}
+      { "key": "farmer", "name": "Fermier", "startingWeapon": "baton", "startingItems": ["serpe-d-herboriste", "briquet-a-silex", "rations-de-voyage", "besace"] },
+      {"key": "sheperd", "name": "Berger", "startingWeapon": "fronde", "startingItems": ["houlette-de-berger", "corde-de-chanvre", "sac-de-couchage", "besace"]},
+      {"key": "lumberjack", "name": "Bucheron", "startingWeapon": "hache", "startingItems": ["pierre-a-aiguiser", "corde-de-chanvre", "briquet-a-silex", "besace"]}
     ],
     "subattributes":
     [
@@ -149,8 +149,8 @@
     "min_money": 15,
     "max_money":50,
     "subbackgrounds":[
-      {"key": "tracker", "name": "Traqueur", "startingWeapon": "arc-court"},
-      {"key": "trapper", "name": "Trappeur", "startingWeapon": "dague"}
+      {"key": "tracker", "name": "Traqueur", "startingWeapon": "arc-court", "startingItems": ["appeau", "couteau-de-depouille", "sel-de-conservation", "corde-de-chanvre", "sac-voyageur"]},
+      {"key": "trapper", "name": "Trappeur", "startingWeapon": "dague", "startingItems": ["piege-a-machoires", "filet-leste", "couteau-de-depouille", "sel-de-conservation", "sac-voyageur"]}
     ],
     "subattributes":
     [
@@ -164,8 +164,8 @@
     "min_money": 5,
     "max_money":30,
     "subbackgrounds":[
-      {"key": "coastline-fisher", "name": "pécheur des côtes", "startingWeapon": "lance"},
-      {"key": "river-angler","name": "pécheur des eaux douces", "startingWeapon": "dague"}
+      {"key": "coastline-fisher", "name": "pécheur des côtes", "startingWeapon": "lance", "startingItems": ["ligne-et-hamecons", "filet-leste", "vareuse-huilee", "sel-de-conservation", "besace"]},
+      {"key": "river-angler","name": "pécheur des eaux douces", "startingWeapon": "dague", "startingItems": ["ligne-et-hamecons", "outre-en-peau", "vareuse-huilee", "besace"]}
     ],
     "traits":
     [

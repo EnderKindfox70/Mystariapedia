@@ -1,0 +1,47 @@
+{
+    "name": "Mortier et pilon de voyage",
+    "subtitle": "Outillage d'alchimiste",
+    "category": "recolte",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un mortier de pierre dure, à peine plus large qu'une paume, et son pilon assorti, rangés dans un fourreau de cuir avec une spatule de corne et un tamis de crin. La pierre est choisie sans porosité : elle ne garde ni odeur ni principe de ce qu'on y a broyé.",
+        "C'est l'outil qui transforme une récolte en ingrédient. Une racine entière ne sert à rien dans une décoction ; une racine pilée rend tout ce qu'elle a. Un alchimiste sans mortier est un homme qui rapporte des plantes et attend d'être rentré — un alchimiste avec mortier travaille au bord du chemin."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "1,2 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — préparation réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; à récurer entre deux préparations" },
+        { "key": "value",  "label": "Valeur",      "value": "15 pièces d'or" }
+    ],
+    "properties": [
+        "Nécessaire à toute préparation exigeant de piler, écraser ou réduire en poudre : la plupart des recettes d'alchimie en dépendent.",
+        "Le tamis de crin sépare la poudre fine du grossier — indispensable aux toniques, où une poudre grossière se dépose et n'est jamais absorbée.",
+        "Permet de préparer les ingrédients sur le lieu de récolte, tant qu'ils sont frais. Une plante pilée le jour même rend davantage.",
+        "La pierre non poreuse ne transmet rien d'une préparation à l'autre, à condition de récurer entre deux.",
+        "Un mortier fêlé se jette : la fêlure retient la matière et empoisonne toutes les préparations suivantes.",
+        "Se marie à la marmite : piler, puis faire infuser, est la séquence de base de presque toute décoction."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les apothicaires et les tailleurs de pierre des cités ; les guildes d'alchimie en remettent un à chaque apprenti, avec la serpe.",
+            "Les mortiers de marbre sont beaux et poreux : bons pour la cuisine, mauvais pour l'alchimie. Préférer le granit ou la pierre volcanique."
+        ]
+    },
+    "notes": [
+        "Piler en tournant, jamais en frappant. On écrase les fibres pour qu'elles rendent, on ne les pulvérise pas.",
+        "Récurer immédiatement après usage. Une préparation séchée au fond d'un mortier se retire au ciseau, et abîme la pierre."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "fioles-vides", "collection": "equipment", "label": "Fioles vides" },
+                { "ref": "serpe-d-herboriste", "collection": "equipment", "label": "Serpe d'herboriste" },
+                { "ref": "marmite-et-gamelle", "collection": "equipment", "label": "Marmite et gamelle" }
+            ]
+        }
+    ]
+}

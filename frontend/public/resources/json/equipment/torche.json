@@ -1,0 +1,44 @@
+{
+    "name": "Torche",
+    "subtitle": "Matériel d'éclairage",
+    "category": "lumiere",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un manche de bois dur d'une coudée, dont la tête est enveloppée de chiffons imbibés de poix. Elle fume, elle crache, elle noircit les plafonds — et elle brûle une heure sans faiblir, ce que peu de sorts de lumière peuvent se permettre à ce prix.",
+        "Sous terre, la lumière n'est pas un confort : c'est une ressource qui se consomme et qui se compte. Une équipe qui descend avec trois torches descend pour trois heures, pas davantage, et tout le monde le sait en franchissant le seuil."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Consommable — éclairage" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Brûle 1 heure ; lumière vive sur 6 m, faible sur 6 m de plus" },
+        { "key": "value",  "label": "Valeur",      "value": "1 pièce d'or" }
+    ],
+    "properties": [
+        "Éclaire vivement sur 6 mètres et faiblement sur 6 mètres supplémentaires, pendant une heure.",
+        "Peut servir d'arme improvisée : 1 point de dégât contondant, plus 1 point de dégât de feu, avec 25 % de chances d'appliquer Brûlure.",
+        "Allumer une torche à une autre prend un instant ; l'allumer de zéro demande un briquet à silex ou un sort de feu.",
+        "S'éteint sous une pluie battante ou sur une cible affectée par Trempé ; un simple courant d'air ne suffit pas.",
+        "Une torche brandie annule toute discrétion : on la voit venir de très loin dans un couloir."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "En vente partout, souvent par lots de cinq ou dix ; les postes de garde et les entrées de mine en gardent des paniers entiers.",
+            "Fabricable en chemin : un manche, des chiffons, de la poix ou de la graisse animale. Le résultat brûle moins longtemps et fume deux fois plus."
+        ]
+    },
+    "notes": [
+        "Compter les torches avant de descendre, pas au fond du gouffre.",
+        "Les mineurs de Fendreroche refusent les torches dans les galeries profondes : la flamme dit tout de suite si l'air est mauvais, mais elle le dit en explosant."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "fire", "collection": "domains", "label": "Feu" }
+            ]
+        }
+    ]
+}

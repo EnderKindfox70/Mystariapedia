@@ -20,6 +20,7 @@ const JSON_ROOT = join(process.cwd(), 'public', 'resources', 'json');
  */
 const COLLECTIONS = [
   { path: 'potions' },
+  { path: 'equipment' },
   { path: 'natural-resources', nested: true },
   // Indexés pour que le butin d'une créature puisse les référencer par id.
   { path: 'artifacts', nested: true },
@@ -43,6 +44,17 @@ function parseWeight(data) {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Extrait un nombre d'un champ `info` donné (« +14 kg », « 25 % », « 2 kg »).
+ * Renvoie undefined si le champ est absent ou illisible.
+ */
+function parseInfoNumber(data, key) {
+  const raw = data.info?.find((f) => f?.key === key)?.value;
+  if (raw == null) return undefined;
+  const n = parseFloat(String(raw).replace(',', '.').replace(/[^0-9.-]/g, ''));
+  return Number.isFinite(n) ? n : undefined;
+}
+
 /** Champs légers exposés dans l'index, dérivés d'une fiche complète. */
 function toIndexEntry(slug, data) {
   const rarity =
@@ -52,11 +64,20 @@ function toIndexEntry(slug, data) {
 
   const entry = { slug, name: data.name ?? slug };
   if (data.subtitle) entry.subtitle = data.subtitle;
+  // Sous-catégorie d'affichage : pilote la section où la fiche apparaît sur la
+  // page d'index de sa collection (potions : potion/elixir/tonique…).
+  if (data.category) entry.category = data.category;
   if (rarity) entry.rarity = rarity;
   if (data.image) entry.image = data.image;
   if (data.icon) entry.icon = data.icon;
   // Poids unitaire pour l'inventaire des fiches de personnage (0 si non défini).
   entry.weight = parseWeight(data);
+  // Règles de portage des sacs à dos, lues dans la bande d'identité de la fiche
+  // (source unique) : la fiche de personnage s'en sert pour la charge.
+  const capacityBonus = parseInfoNumber(data, 'capacity');
+  const weightReductionPct = parseInfoNumber(data, 'lightening');
+  if (capacityBonus != null) entry.capacityBonus = capacityBonus;
+  if (weightReductionPct != null) entry.weightReductionPct = weightReductionPct;
   return entry;
 }
 

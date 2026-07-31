@@ -1,0 +1,371 @@
+[
+  {
+    "slug": "appeau",
+    "name": "Appeau",
+    "subtitle": "Matériel de traqueur",
+    "category": "chasse",
+    "rarity": "Peu commun",
+    "image": "/resources/media/pictures/equipment/appeau.png",
+    "weight": 0.2
+  },
+  {
+    "slug": "astrolabe",
+    "name": "Astrolabe",
+    "subtitle": "Instrument de mesure",
+    "category": "erudition",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/equipment/astrolabe.png",
+    "weight": 1
+  },
+  {
+    "slug": "bandages",
+    "name": "Bandages",
+    "subtitle": "Matériel de soin",
+    "category": "soins",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/bandage.png",
+    "weight": 0.2
+  },
+  {
+    "slug": "bandouliere-d-alchimiste",
+    "name": "Bandoulière d'alchimiste",
+    "subtitle": "Portage — accès rapide",
+    "category": "sacs",
+    "rarity": "Peu commune",
+    "weight": 0.8
+  },
+  {
+    "slug": "besace",
+    "name": "Besace",
+    "subtitle": "Sac de toile",
+    "category": "sacs",
+    "rarity": "Commune",
+    "weight": 0.5,
+    "capacityBonus": 4
+  },
+  {
+    "slug": "besace-allegement",
+    "name": "Besace d'allègement",
+    "subtitle": "Sac enchanté",
+    "category": "sacs",
+    "rarity": "Rare",
+    "weight": 1,
+    "weightReductionPct": 25
+  },
+  {
+    "slug": "briquet-a-silex",
+    "name": "Briquet à silex",
+    "subtitle": "Matériel d'allumage",
+    "category": "lumiere",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/flint_and_steel.png",
+    "weight": 0.2
+  },
+  {
+    "slug": "chausse-trappes",
+    "name": "Chausse-trappes",
+    "subtitle": "Matériel de contention",
+    "category": "chasse",
+    "rarity": "Commune",
+    "weight": 1.5
+  },
+  {
+    "slug": "chevaliere-armoriee",
+    "name": "Chevalière armoriée",
+    "subtitle": "Insigne de maison",
+    "category": "insignes",
+    "rarity": "Rare",
+    "image": "/resources/media/pictures/equipment/ring_noble.png",
+    "weight": 0.05
+  },
+  {
+    "slug": "corde-de-chanvre",
+    "name": "Corde de chanvre",
+    "subtitle": "Matériel d'aventurier",
+    "category": "escalade",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/rope.png",
+    "weight": 2.5
+  },
+  {
+    "slug": "couteau-de-depouille",
+    "name": "Couteau de dépouille",
+    "subtitle": "Outil de récolte",
+    "category": "recolte",
+    "rarity": "Commune",
+    "weight": 0.4
+  },
+  {
+    "slug": "entraves-de-fer",
+    "name": "Entraves de fer",
+    "subtitle": "Matériel de contention",
+    "category": "chasse",
+    "rarity": "Commune",
+    "weight": 3
+  },
+  {
+    "slug": "etui-isolant",
+    "name": "Étui isolant",
+    "subtitle": "Contenant blindé",
+    "category": "recolte",
+    "rarity": "Peu commun",
+    "weight": 1.5
+  },
+  {
+    "slug": "fil-de-soie-et-clochette",
+    "name": "Fil de soie et clochette",
+    "subtitle": "Matériel d'alerte",
+    "category": "chasse",
+    "rarity": "Peu commune",
+    "weight": 0.3
+  },
+  {
+    "slug": "filet-leste",
+    "name": "Filet lesté",
+    "subtitle": "Matériel de capture",
+    "category": "chasse",
+    "rarity": "Commune",
+    "weight": 1.5
+  },
+  {
+    "slug": "fiole-d-huile",
+    "name": "Fiole d'huile",
+    "subtitle": "Consommable",
+    "category": "lumiere",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/cartouche_huile.png",
+    "weight": 0.5
+  },
+  {
+    "slug": "fioles-vides",
+    "name": "Fioles vides",
+    "subtitle": "Contenants — lot de six",
+    "category": "recolte",
+    "rarity": "Commune",
+    "weight": 0.6
+  },
+  {
+    "slug": "garrot",
+    "name": "Garrot",
+    "subtitle": "Matériel de soin",
+    "category": "soins",
+    "rarity": "Commune",
+    "weight": 0.1
+  },
+  {
+    "slug": "grappin",
+    "name": "Grappin",
+    "subtitle": "Matériel de franchissement",
+    "category": "escalade",
+    "rarity": "Commune",
+    "weight": 2
+  },
+  {
+    "slug": "hotte-de-portage",
+    "name": "Hotte de portage",
+    "subtitle": "Hotte d'osier",
+    "category": "sacs",
+    "rarity": "Commune",
+    "weight": 3,
+    "capacityBonus": 22
+  },
+  {
+    "slug": "houlette-de-berger",
+    "name": "Houlette de berger",
+    "subtitle": "Outil de dressage",
+    "category": "outils",
+    "rarity": "Commune",
+    "weight": 1.5
+  },
+  {
+    "slug": "lanterne-a-huile",
+    "name": "Lanterne à huile",
+    "subtitle": "Matériel d'éclairage",
+    "category": "lumiere",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/oil_lamp.png",
+    "weight": 1
+  },
+  {
+    "slug": "lettre-de-credit",
+    "name": "Lettre de crédit",
+    "subtitle": "Papier de maison de change",
+    "category": "insignes",
+    "rarity": "Peu commune",
+    "weight": 0.05
+  },
+  {
+    "slug": "ligne-et-hamecons",
+    "name": "Ligne et hameçons",
+    "subtitle": "Matériel de pêche",
+    "category": "chasse",
+    "rarity": "Commune",
+    "weight": 0.3
+  },
+  {
+    "slug": "marmite-et-gamelle",
+    "name": "Marmite et gamelle",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "rarity": "Commune",
+    "weight": 2
+  },
+  {
+    "slug": "mortier-et-pilon",
+    "name": "Mortier et pilon de voyage",
+    "subtitle": "Outillage d'alchimiste",
+    "category": "recolte",
+    "rarity": "Commune",
+    "weight": 1.2
+  },
+  {
+    "slug": "necessaire-d-ecriture",
+    "name": "Nécessaire d'écriture",
+    "subtitle": "Outillage d'érudit",
+    "category": "erudition",
+    "rarity": "Commune",
+    "weight": 1
+  },
+  {
+    "slug": "necessaire-d-epissure",
+    "name": "Nécessaire d'épissure",
+    "subtitle": "Matériel de réparation",
+    "category": "escalade",
+    "rarity": "Commune",
+    "weight": 0.5
+  },
+  {
+    "slug": "necessaire-de-forge",
+    "name": "Nécessaire de forge portatif",
+    "subtitle": "Outillage d'artisan",
+    "category": "outils",
+    "rarity": "Commune",
+    "weight": 4
+  },
+  {
+    "slug": "outils-de-crocheteur",
+    "name": "Outils de crocheteur",
+    "subtitle": "Outillage fin",
+    "category": "chasse",
+    "rarity": "Peu commune",
+    "weight": 0.5
+  },
+  {
+    "slug": "outre-en-peau",
+    "name": "Outre en peau",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/waterskin.png",
+    "weight": 0.3
+  },
+  {
+    "slug": "piege-a-machoires",
+    "name": "Piège à mâchoires",
+    "subtitle": "Matériel de trappeur",
+    "category": "chasse",
+    "rarity": "Peu commun",
+    "image": "/resources/media/pictures/equipment/bear_trap.png",
+    "weight": 4
+  },
+  {
+    "slug": "pierre-a-aiguiser",
+    "name": "Pierre à aiguiser",
+    "subtitle": "Matériel d'entretien",
+    "category": "outils",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/whetstone.png",
+    "weight": 0.5
+  },
+  {
+    "slug": "rations-de-voyage",
+    "name": "Rations de voyage",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "rarity": "Commune",
+    "weight": 3.5
+  },
+  {
+    "slug": "sac-aventurier",
+    "name": "Sac d'aventurier",
+    "subtitle": "Sac de cuir",
+    "category": "sacs",
+    "rarity": "Commune",
+    "weight": 2,
+    "capacityBonus": 14
+  },
+  {
+    "slug": "sac-de-couchage",
+    "name": "Sac de couchage",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "rarity": "Commune",
+    "weight": 2.5
+  },
+  {
+    "slug": "sac-voyageur",
+    "name": "Sac de voyageur",
+    "subtitle": "Sac de toile",
+    "category": "sacs",
+    "rarity": "Commune",
+    "weight": 1,
+    "capacityBonus": 8
+  },
+  {
+    "slug": "sac-sans-fond",
+    "name": "Sac sans fond",
+    "subtitle": "Sac enchanté",
+    "category": "sacs",
+    "rarity": "Très rare",
+    "weight": 2,
+    "weightReductionPct": 50
+  },
+  {
+    "slug": "sel-de-conservation",
+    "name": "Sel de conservation",
+    "subtitle": "Consommable de récolte",
+    "category": "recolte",
+    "rarity": "Commune",
+    "weight": 0.5
+  },
+  {
+    "slug": "sels-odorants",
+    "name": "Sels odorants",
+    "subtitle": "Consommable de soin",
+    "category": "soins",
+    "rarity": "Peu commune",
+    "weight": 0.2
+  },
+  {
+    "slug": "serpe-d-herboriste",
+    "name": "Serpe d'herboriste",
+    "subtitle": "Outil de récolte",
+    "category": "recolte",
+    "rarity": "Commune",
+    "weight": 0.6
+  },
+  {
+    "slug": "torche",
+    "name": "Torche",
+    "subtitle": "Matériel d'éclairage",
+    "category": "lumiere",
+    "rarity": "Commune",
+    "weight": 0.5
+  },
+  {
+    "slug": "trousse-de-chirurgien",
+    "name": "Trousse de chirurgien",
+    "subtitle": "Outillage de soin",
+    "category": "soins",
+    "rarity": "Peu commune",
+    "weight": 2
+  },
+  {
+    "slug": "vareuse-huilee",
+    "name": "Vareuse huilée",
+    "subtitle": "Vêtement de campagne",
+    "category": "camp",
+    "rarity": "Commune",
+    "weight": 1.5
+  }
+]

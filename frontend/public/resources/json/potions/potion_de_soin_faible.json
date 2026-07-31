@@ -1,0 +1,56 @@
+{
+    "name": "Potion de soin faible",
+    "subtitle": "Potion commune",
+    "category": "potion",
+    "image": "",
+    "icon": "",
+    "description": [
+        "La plus répandue des préparations alchimiques : une décoction d'herbes médicinales dans de l'eau de source, filtrée puis mise en fiole. Sa couleur va du vert trouble au brun selon la récolte, et son goût amer est resté proverbial.",
+        "Elle ne referme pas une plaie profonde et ne remet pas un os en place : elle accélère brutalement ce que le corps ferait de lui-même en quelques jours. C'est peu, mais c'est ce qui ramène le plus d'aventuriers débutants au village."
+    ],
+    "effects": [
+        "Rend 2d4 + 2 points de vie au buveur, immédiatement.",
+        "Referme les coupures et éraflures superficielles en quelques secondes."
+    ],
+    "secondary-effects": [
+        "Amertume tenace et bouche pâteuse pendant une dizaine de minutes.",
+        "Trois fioles ou plus dans la même journée provoquent des maux de ventre et des démangeaisons aux cicatrices récentes."
+    ],
+    "quote": "Elle a un goût de fossé. Bois quand même.",
+    "quote-author": "Consigne des chirurgiens de campagne",
+    "ingredients": [
+        {
+            "name": "Herbes médicinales",
+            "icon": "",
+            "quantity": "2 poignées",
+            "note": "Séchées à l'ombre ; des herbes brûlées par le soleil donnent une potion sans effet.",
+            "ref": { "ref": "herbes-medicinales", "collection": "resources/flora", "label": "Herbes médicinales" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "200 ml",
+            "note": "Base neutre de la décoction.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Froisser les herbes médicinales entre les mains pour rompre les fibres, sans les réduire en poudre.",
+        "Porter l'eau de source à frémissement — jamais à gros bouillons, qui détruisent le principe actif.",
+        "Y jeter les herbes, couvrir et laisser infuser un quart d'heure hors du feu.",
+        "Filtrer au linge, presser le marc, mettre en fiole tant que la décoction est tiède."
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Potion" },
+        { "key": "rarity", "label": "Rareté",  "value": "Commune" },
+        { "key": "weight", "label": "Poids",   "value": "0,3 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "40 pièces d'or" }
+    ],
+    "notes": [
+        "Se conserve deux mois en fiole bouchée, une semaine à peine si le bouchon a été ouvert.",
+        "Aucun effet sur les maladies, les poisons ou les membres brisés : elle ne fait que hâter la cicatrisation."
+    ],
+    "references": [
+
+    ]
+}

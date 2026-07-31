@@ -151,6 +151,23 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-xp__legend b { color: var(--faded-ivory); }
 .cs-xp__left { margin-left: 0.5rem; color: var(--dust-brown); }
 
+/* Bourse (formulaire) — reprend les pastilles de gain de l'expérience. */
+.cs-purse { margin: 0.6rem 0 0.9rem; }
+.cs-purse__head { display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
+.cs-purse__gains { display: flex; flex-direction: column; gap: 0.25rem; }
+.cs-purse__gains > span {
+  font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dust-brown);
+}
+.cs-purse__gains > div { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.cs-purse__reset {
+  margin-left: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--dust-brown);
+  background: none; border: none; cursor: pointer;
+  text-decoration: underline dotted;
+}
+.cs-purse__reset:hover { color: var(--ancient-gold); }
+
 /* Domaines */
 .cs-domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 0.5rem; }
 .cs-domain {

@@ -1,8 +1,18 @@
 [
   {
+    "slug": "antidote",
+    "name": "Antidote",
+    "subtitle": "Potion peu commune",
+    "category": "potion",
+    "rarity": "Peu commune",
+    "image": "/resources/media/pictures/potions/antidote.png",
+    "weight": 0.3
+  },
+  {
     "slug": "elixir_d_eveil",
     "name": "Élixir d'éveil forcé",
     "subtitle": "Élixir dangereux",
+    "category": "elixir",
     "rarity": "Rare",
     "image": "/resources/media/pictures/potions/awakening_elixir.png",
     "weight": 0.4
@@ -38,5 +48,47 @@
     "rarity": "Peu commune",
     "image": "/resources/media/pictures/potions/rocky_skin_potion.png",
     "weight": 0.4
+  },
+  {
+    "slug": "potion_de_soin_faible",
+    "name": "Potion de soin faible",
+    "subtitle": "Potion commune",
+    "category": "potion",
+    "rarity": "Commune",
+    "weight": 0.3
+  },
+  {
+    "slug": "potion_de_soin_intermediaire",
+    "name": "Potion de soin intermédiaire",
+    "subtitle": "Potion peu commune",
+    "category": "potion",
+    "rarity": "Peu commune",
+    "weight": 0.3
+  },
+  {
+    "slug": "potion_de_soin_superieure",
+    "name": "Potion de soin supérieure",
+    "subtitle": "Potion rare",
+    "category": "potion",
+    "rarity": "Rare",
+    "weight": 0.3
+  },
+  {
+    "slug": "tonique_de_constitution",
+    "name": "Tonique de constitution",
+    "subtitle": "Tonique peu commun",
+    "category": "tonique",
+    "rarity": "Peu commun",
+    "image": "/resources/media/pictures/potions/constitution_tonic.png",
+    "weight": 0.6
+  },
+  {
+    "slug": "tonique_de_force",
+    "name": "Tonique de force",
+    "subtitle": "Tonique peu commun",
+    "category": "tonique",
+    "rarity": "Peu commun",
+    "image": "/resources/media/pictures/potions/strength_tonic.png",
+    "weight": 0.6
   }
 ]

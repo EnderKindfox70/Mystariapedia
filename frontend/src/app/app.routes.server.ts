@@ -9,6 +9,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'magics/:domain', renderMode: RenderMode.Client },
   { path: 'resources/:category/:slug', renderMode: RenderMode.Client },
   { path: 'alchemy/:slug', renderMode: RenderMode.Client },
+  { path: 'equipment/:slug', renderMode: RenderMode.Client },
   { path: 'weapons/:category/:slug', renderMode: RenderMode.Client },
   { path: 'lore/peuples/:slug', renderMode: RenderMode.Client },
   { path: 'bestiary/:chapter', renderMode: RenderMode.Client },

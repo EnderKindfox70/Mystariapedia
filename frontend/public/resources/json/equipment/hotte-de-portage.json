@@ -1,0 +1,46 @@
+{
+    "name": "Hotte de portage",
+    "subtitle": "Hotte d'osier",
+    "category": "sacs",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un grand panier d'osier tressé, évasé vers le haut, porté par deux larges bretelles de cuir et calé par un bandeau frontal. Trois kilos à vide et un volume que rien d'autre n'égale à ce prix : c'est l'outil des vendangeurs, des charbonniers et des mineurs.",
+        "Ce n'est pas un sac d'exploration, c'est un sac de récolte. On y jette en vrac ce qu'on ramasse, on le vide d'un mouvement d'épaule, et l'osier laisse respirer ce qui doit respirer. Les expéditions d'herboristerie et les convois de butin en emportent une pour deux personnes."
+    ],
+    "info": [
+        { "key": "weight",   "label": "Poids",    "value": "3 kg" },
+        { "key": "type",     "label": "Type",     "value": "Sac à dos" },
+        { "key": "rarity",   "label": "Rareté",   "value": "Commune" },
+        { "key": "capacity", "label": "Capacité", "value": "+22 kg" },
+        { "key": "value",    "label": "Valeur",   "value": "60 pièces d'or" }
+    ],
+    "properties": [
+        "Ajoute 22 kg à la capacité de charge de son porteur : le plus gros volume disponible sans enchantement.",
+        "Se vide d'un mouvement d'épaule, sans la déposer ni la délacer.",
+        "L'osier laisse circuler l'air : les plantes fraîches et les dépouilles salées s'y conservent mieux qu'en sac fermé.",
+        "Encombrante et rigide : impossible de ramper, de passer un boyau étroit ou de se battre en la portant.",
+        "Ne protège de rien — ni de la pluie, ni des chocs. Ce qui est fragile voyage ailleurs.",
+        "Une hotte pleine se pose au sol pour être fouillée. On n'y cherche rien en marchant."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les vanniers de tous les villages, dans les comptoirs de mine et sur les marchés agricoles. C'est un objet de travail, jamais un objet de prestige.",
+            "Une hotte qui a pris l'humidité se déforme et casse au premier chargement lourd. La ranger au sec et à l'envers."
+        ]
+    },
+    "notes": [
+        "Le porteur d'une hotte n'est pas un combattant : c'est un rôle qu'on assume et que le groupe protège.",
+        "Deux hottes valent mieux qu'un sac sans fond quand il s'agit de vider une carrière et non de traverser un donjon."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "serpe-d-herboriste", "collection": "equipment", "label": "Serpe d'herboriste" },
+                { "ref": "sel-de-conservation", "collection": "equipment", "label": "Sel de conservation" }
+            ]
+        }
+    ]
+}

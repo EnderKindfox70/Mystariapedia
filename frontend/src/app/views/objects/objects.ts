@@ -51,6 +51,15 @@ export class Objects {
       linkLabel: 'Parcourir l’arsenal',
     },
     {
+      id: 'equipement',
+      label: 'Équipement d’aventurier',
+      blurb: 'Le matériel du quotidien, des sacs aux torches : ce que l’on emporte parce qu’on en aura besoin.',
+      examples: ['Sacs & portage', 'Lumière & feu', 'Camp & survie', 'Récolte'],
+      glyph: '⚙',
+      link: ['/equipment'],
+      linkLabel: 'Voir l’équipement',
+    },
+    {
       id: 'potions',
       label: 'Potions',
       blurb: 'Le fruit de l’alchimie : élixirs, philtres et décoctions nés de l’assemblage des ressources.',

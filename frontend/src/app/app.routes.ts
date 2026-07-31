@@ -19,6 +19,8 @@ import { Weapons } from './views/weapons/weapons';
 import { WeaponEntryComponent } from './views/weapons-entries/weapons-entries';
 import { weaponResolver } from './resolvers/weapon.resolver';
 import { NaturalResources } from './views/natural-resources/natural-resources';
+import { Equipment } from './views/equipment/equipment';
+import { equipmentResolver } from './resolvers/equipment.resolver';
 import { ResourceEntryComponent } from './views/resources-entries/resources-entries';
 import { PotionEntryComponent } from './views/potions-entries/potions-entries';
 import { domainResolver } from './resolvers/domain.resolver';
@@ -59,6 +61,16 @@ export const routes: Routes =
     { path: 'artifacts', component: Artifacts },
     { path: 'weapons', component: Weapons },
     { path: 'weapons/:category/:slug', component: WeaponEntryComponent, resolve: { entry: weaponResolver } },
+    // Matériel non magique. La fiche réutilise la vue des ressources : même
+    // gabarit (illustration, informations, propriétés) ; `data` fournit ce qui
+    // ne peut pas venir de l'URL (section d'index et lien de retour).
+    { path: 'equipment', component: Equipment },
+    {
+      path: 'equipment/:slug',
+      component: ResourceEntryComponent,
+      resolve: { entry: equipmentResolver },
+      data: { category: 'equipment', categoryLabel: 'Équipement', indexLink: '/equipment', backLabel: "Retour à l'équipement" },
+    },
     { path: 'alchemy', component: Alchemy },
     { path: 'alchemy/:slug', component: PotionEntryComponent, resolve: { entry: potionResolver } },
     { path: 'factions', component: Factions },

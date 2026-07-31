@@ -1,0 +1,45 @@
+{
+    "name": "Serpe d'herboriste",
+    "subtitle": "Outil de récolte",
+    "category": "recolte",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une petite lame recourbée en croissant, montée sur un manche de buis, aiguisée d'un seul côté et affûtée court. Elle ne sert pas à se battre : elle sert à couper net, d'un seul geste, sans écraser la tige.",
+        "Toute la valeur d'une plante alchimique tient dans la coupe. Arrachée à la main, une herbe rompt ses fibres et perd la moitié de sa vertu en séchant ; coupée à la serpe au-dessus du nœud, elle garde tout et le pied repousse l'année suivante."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,6 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — récolte réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; à réaffûter tous les mois d'usage" },
+        { "key": "value",  "label": "Valeur",      "value": "15 pièces d'or" }
+    ],
+    "properties": [
+        "Récolte à mains nues : rendement divisé par deux et le pied ne repousse pas. Récolte à la serpe : rendement plein et la station reste exploitable.",
+        "Vaut pour toute la flore alchimique — herbes médicinales, ginseng, algue de courant, fruit de mana — et pour le prélèvement des racines.",
+        "Lame émoussée = récolte à mains nues : la serpe doit être réaffûtée après un mois d'usage intensif.",
+        "Arme improvisée médiocre : 1 point de dégât tranchant, sans allonge ni garde.",
+        "Une serpe d'argent, quatre fois plus chère, est exigée par certaines traditions pour la récolte des plantes de rituel."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les herboristes, les apothicaires et les couteliers de bourg ; les guildes d'alchimie en offrent une à chaque apprenti admis.",
+            "Se garde dans un fourreau de cuir, jamais au fond du sac : une lame nue coupe les sangles, les fioles et les doigts."
+        ]
+    },
+    "notes": [
+        "Couper au-dessus du troisième nœud, laisser un tiers du pied debout. La serpe permet la règle ; elle ne l'applique pas à votre place.",
+        "On reconnaît un herboriste sérieux à la propreté de sa lame : la sève séchée d'une plante gâte la récolte de la suivante."
+    ],
+    "references": [
+        {
+            "label": "Récoltes concernées",
+            "items": [
+                { "ref": "herbes-medicinales", "collection": "resources/flora", "label": "Herbes médicinales" },
+                { "ref": "ginseng", "collection": "resources/flora", "label": "Racine de ginseng" }
+            ]
+        }
+    ]
+}

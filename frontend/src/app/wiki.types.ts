@@ -9,6 +9,7 @@ export type WikiCollection =
   | 'bestiary'
   | 'artifacts'
   | 'potions'
+  | 'equipment'
   | 'rituals'
   | 'locations'
   | 'factions'
@@ -678,6 +679,11 @@ export interface PotionEntry {
   name: string;
   /** Sous-titre, ex. « Potion rare ». */
   subtitle?: string;
+  /**
+   * Section du catalogue d'alchimie où la fiche est rangée (cf. vue Alchemy).
+   * Absent = 'potion'.
+   */
+  category?: 'potion' | 'elixir' | 'tonique';
   /** Illustration principale (fiole). */
   image: string;
   icon?: string;
@@ -764,6 +770,13 @@ export interface ResourceIndexEntry {
   /** Dégâts minimum / maximum (armes uniquement). */
   minDamage?: number;
   maxDamage?: number;
+  /**
+   * Sacs à dos uniquement : capacité de charge ajoutée (kg) et/ou allègement du
+   * contenu (%). Dérivés au build des champs `info` 'capacity' et 'lightening'
+   * de la fiche — celle-ci reste la source unique des règles de portage.
+   */
+  capacityBonus?: number;
+  weightReductionPct?: number;
 }
 
 /* ──────────────────────────────────────────
@@ -800,6 +813,12 @@ export interface ResourceEntry {
   name: string;
   /** Sous-titre sous le nom, ex. « Ingrédient de base ». */
   subtitle?: string;
+  /**
+   * Section de la page d'index où la fiche est rangée, pour les collections
+   * plates dont les catégories ne sont pas des dossiers (équipement :
+   * 'outils' | 'soins'). Inutile pour les ressources naturelles, rangées par dossier.
+   */
+  category?: string;
   /** Illustration principale (gauche du hero). */
   image: string;
   /** Petit emblème optionnel à côté de la description (étoile, sceau…). */

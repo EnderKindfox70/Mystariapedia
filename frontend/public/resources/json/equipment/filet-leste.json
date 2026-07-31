@@ -1,0 +1,45 @@
+{
+    "name": "Filet lesté",
+    "subtitle": "Matériel de capture",
+    "category": "chasse",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Trois mètres de maille de chanvre tressée serré, bordée de plombs cousus dans un ourlet. Lancé à la volée, il s'ouvre en tournant et retombe en cloche : les plombs le referment sous la cible avant qu'elle ait compris ce qui descendait sur elle.",
+        "C'est l'outil de ceux qui ont besoin d'une créature vivante — chasseurs de prime, dépeceurs, éleveurs de bêtes rares, alchimistes qui veulent une glande fraîche plutôt qu'une carcasse. Sans une goutte de magie, il fait ce que fait un sort d'entrave."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "1,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — capture" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Portée de jet 6 m ; cibles jusqu'à taille M" },
+        { "key": "value",  "label": "Valeur",      "value": "12 pièces d'or" }
+    ],
+    "properties": [
+        "Jet jusqu'à 6 mètres. Sur un jet de précision réussi, la cible subit Enracinement.",
+        "Efficace sur les créatures de taille M au plus. Une créature G le déchire en se relevant, une créature TP passe à travers les mailles.",
+        "La cible se libère en réussissant un jet de Force, ou en infligeant 5 dégâts tranchants au filet.",
+        "Un filet déchiré se répare en une heure avec du fil et une aiguille ; un filet dont l'ourlet a lâché perd ses plombs et ne s'ouvre plus correctement.",
+        "Lesté, il sert aussi à la pêche en rivière : de quoi nourrir un groupe pour une journée."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les cordiers, les pêcheurs et les marchands de matériel de chasse ; les guildes de capture en louent à la journée.",
+            "Le lancer s'apprend : un filet mal lancé s'ouvre à moitié, retombe en paquet et ne prend rien. Compter quelques jours d'entraînement."
+        ]
+    },
+    "notes": [
+        "Un filet ne remplace pas un plan. Une créature entravée reste une créature qui hurle et qui appelle.",
+        "Ne jamais lancer sur une cible en feu ou électrifiée : le chanvre conduit très bien ce qu'on ne veut pas voir remonter jusqu'à sa main."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "entraves-de-fer", "collection": "equipment", "label": "Entraves de fer" },
+                { "ref": "chausse-trappes", "collection": "equipment", "label": "Chausse-trappes" }
+            ]
+        }
+    ]
+}

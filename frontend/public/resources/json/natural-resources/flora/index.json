@@ -22,6 +22,14 @@
     "weight": 0.2
   },
   {
+    "slug": "herbes-medicinales",
+    "name": "Herbes médicinales",
+    "subtitle": "Ingrédient de base",
+    "rarity": "Commune",
+    "image": "/resources/media/pictures/natural-resources/flora/medicinal_herbs.png",
+    "weight": 0.1
+  },
+  {
     "slug": "racine_d_arbre_ancien",
     "name": "Racine d'arbre ancien",
     "subtitle": "Ingrédient de base",

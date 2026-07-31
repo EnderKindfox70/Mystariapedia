@@ -1,0 +1,45 @@
+{
+    "name": "Outils de crocheteur",
+    "subtitle": "Outillage fin",
+    "category": "chasse",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un étui de cuir roulé, garni de cinq pièces d'acier fin : deux crochets de forme différente, un râteau, une clé dynamométrique et une pince à becs longs. L'ensemble tient dans une paume et pèse moins qu'une dague.",
+        "Ce n'est pas un outil de voleur, quoi qu'en disent les milices : c'est l'outil de qui doit ouvrir ce que personne n'a la clé d'ouvrir. Une porte de ruine scellée depuis trois siècles, un coffre remonté d'une épave, le mécanisme d'un piège qu'il vaut mieux désarmer que déclencher."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — étui de 5 pièces" },
+        { "key": "rarity", "label": "Rareté",      "value": "Peu commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; exige de la lumière et du temps" },
+        { "key": "value",  "label": "Valeur",      "value": "35 pièces d'or" }
+    ],
+    "properties": [
+        "Permettent de crocheter les serrures et de désarmer les pièges mécaniques. Sans outils, ces deux gestes sont simplement impossibles — il ne reste que la hache.",
+        "Ouvrent des entraves de fer, sur soi-même comme sur un autre.",
+        "Exigent d'y voir : dans l'obscurité totale, aucun crochetage n'aboutit.",
+        "Un échec grave brise une des cinq pièces. L'étui reste utilisable, avec une pénalité croissante, jusqu'au remplacement de la pièce manquante.",
+        "Sans effet sur les serrures magiques et sur les mécanismes scellés par enchantement : le métal ne discute pas avec la mana."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les serruriers des grandes cités, qui exigent souvent un nom et une raison ; sinon au marché noir, deux fois le prix et de l'acier plus tendre.",
+            "Les guildes de récupération d'artefacts en fournissent à leurs équipes, numérotés, et demandent des comptes quand un étui disparaît."
+        ]
+    },
+    "notes": [
+        "Porter des outils de crocheteur suffit à justifier une fouille dans la plupart des cités. Les porter sur soi lors d'une arrestation aggrave tout le reste.",
+        "Un piège désarmé se démonte souvent : le mécanisme, les ressorts et les pointes se revendent, ou se réemploient."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "entraves-de-fer", "collection": "equipment", "label": "Entraves de fer" },
+                { "ref": "lanterne-a-huile", "collection": "equipment", "label": "Lanterne à huile" }
+            ]
+        }
+    ]
+}

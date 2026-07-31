@@ -1,0 +1,45 @@
+{
+    "name": "Fil de soie et clochette",
+    "subtitle": "Matériel d'alerte",
+    "category": "chasse",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une bobine de vingt mètres de fil de soie écrue, si fin qu'il disparaît à trois pas, et six clochettes de laiton pas plus grosses qu'un ongle. On tend le fil en travers d'un couloir, à hauteur de cheville, et l'on suspend une clochette à l'autre bout.",
+        "C'est l'objet de ceux qui dorment mal. Un espion qui pose ses fils avant de se coucher n'est pas paranoïaque : il sait simplement qu'un garde ne veille jamais aussi bien qu'un fil tendu, et qu'un tueur silencieux reste silencieux jusqu'au moment où il ne l'est plus."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,3 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — alerte réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Peu commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "20 m de fil, 6 clochettes ; 10 min de pose" },
+        { "key": "value",  "label": "Valeur",      "value": "15 pièces d'or" }
+    ],
+    "properties": [
+        "Un fil tendu en travers d'un passage sonne dès qu'on le touche : impossible d'être surpris dans son sommeil par cette voie.",
+        "Le fil est invisible dans la pénombre et à plus de trois pas. Il faut le chercher pour le voir.",
+        "Sert aussi à savoir si l'on est passé : un fil rompu au retour signifie que quelqu'un est entré pendant l'absence.",
+        "Sans effet sur ce qui vole, ce qui rampe au plafond et ce qui n'a pas de corps.",
+        "Se pose en une dizaine de minutes pour couvrir les accès d'une pièce ou d'un campement. Se récupère aussi vite, à condition de se souvenir où l'on a tendu.",
+        "Le fil casse à la moindre traction franche : il alerte, il ne retient jamais."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les merciers et les marchands de soie des grandes cités, où l'on achète le fil sans éveiller de soupçon ; les clochettes viennent des ferblantiers.",
+            "Les compagnies de mercenaires en distribuent à leurs éclaireurs. Les guildes de voleurs, elles, apprennent d'abord à les détecter."
+        ]
+    },
+    "notes": [
+        "Poser toujours à deux hauteurs : cheville et poitrine. Qui enjambe le premier fil marche dans le second.",
+        "Compter ses fils avant de dormir et les compter au réveil. Un fil manquant en dit plus long qu'un fil qui a sonné."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "outils-de-crocheteur", "collection": "equipment", "label": "Outils de crocheteur" }
+            ]
+        }
+    ]
+}

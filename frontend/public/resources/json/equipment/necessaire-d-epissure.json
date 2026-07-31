@@ -1,0 +1,46 @@
+{
+    "name": "Nécessaire d'épissure",
+    "subtitle": "Matériel de réparation",
+    "category": "escalade",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un étui de toile roulé contenant trois épissoirs de bois dur, deux aiguilles à voile à section triangulaire, une paumelle de cuir qui protège la main, du fil poissé et un pain de suif. De quoi refaire une corde et recoudre une toile, assis sur un rocher ou sur un pont qui tangue.",
+        "Un marin ne remplace pas une corde qui a lâché : il l'épisse. Deux brins tressés l'un dans l'autre selon les règles retrouvent presque toute la résistance d'un cordage neuf, là où un nœud en perd le tiers. C'est un savoir qui se transmet à bord, et un étui qui vaut douze pièces d'or peut sauver un gréement de plusieurs centaines."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — réparation réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Une heure par épissure ; fil à renouveler" },
+        { "key": "value",  "label": "Valeur",      "value": "12 pièces d'or" }
+    ],
+    "properties": [
+        "Répare une corde coupée ou rompue : l'épissure rend au cordage presque toute sa résistance, contre un tiers de perte pour un simple nœud.",
+        "Raboute deux cordes bout à bout en une seule, au prix d'un mètre perdu par jonction.",
+        "Recoud une voile, une tente, une vareuse huilée, un sac éventré ou une sangle d'armure.",
+        "Compter une heure de travail par épissure, au calme et avec de la lumière.",
+        "Le fil poissé s'épuise : quelques pièces d'or de réassort après une dizaine de réparations.",
+        "Le suif réimperméabilise le chanvre : une corde entretenue au suif pourrit deux fois moins vite."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Dans tous les ports, chez les voiliers et les gréeurs ; à l'intérieur des terres, chez les bourreliers, en moins complet.",
+            "La paumelle est la pièce qui manque toujours dans les nécessaires bon marché. Coudre une toile épaisse sans elle traverse la main."
+        ]
+    },
+    "notes": [
+        "Une corde épissée se marque d'un fil de couleur à l'endroit de la jonction. On sait ainsi où elle a déjà cédé.",
+        "Sur les navires, l'étui appartient au bord, jamais au marin. À terre, c'est l'inverse, et les matelots y tiennent."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "corde-de-chanvre", "collection": "equipment", "label": "Corde de chanvre" },
+                { "ref": "vareuse-huilee", "collection": "equipment", "label": "Vareuse huilée" }
+            ]
+        }
+    ]
+}

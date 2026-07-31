@@ -1,0 +1,45 @@
+{
+    "name": "Briquet à silex",
+    "subtitle": "Matériel d'allumage",
+    "category": "lumiere",
+    "image": "/resources/media/pictures/equipment/flint_and_steel.png",
+    "icon": "",
+    "description": [
+        "Une pierre à feu, un briquet d'acier recourbé qui se tient aux doigts, et une boîte de fer-blanc garnie d'amadou sec. Trois pièces qui tiennent dans une bourse et qui, frappées l'une contre l'autre, font ce qu'aucune volonté ne fait : une étincelle.",
+        "Sans affinité magique, sans mana, sans autorisation de personne. C'est l'objet le plus démocratique de Mystaria — le paysan, le mage et le roi allument leur feu de la même façon, et celui qui a perdu son briquet passe la nuit dans le noir quel que soit son rang."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,2 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — allumage réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; amadou à renouveler" },
+        { "key": "value",  "label": "Valeur",      "value": "5 pièces d'or" }
+    ],
+    "properties": [
+        "Allume une torche, une lanterne, une chandelle ou un feu de camp préparé, sans magie ni affinité.",
+        "Compter quelques instants dans de bonnes conditions ; plusieurs minutes sous le vent, la pluie ou avec de l'amadou humide, quand cela finit par prendre.",
+        "L'amadou s'épuise : une boîte tient une centaine d'allumages, et se regarnit avec de l'écorce sèche, du linge carbonisé ou de l'amadouvier.",
+        "Amadou trempé, ou porteur affecté par Trempé : aucun allumage possible avant séchage complet.",
+        "Une seule étincelle suffit à enflammer une nappe d'huile — prudence quand on rallume une lanterne renversée."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "En vente chez tous les ferblantiers, épiciers et marchands de campement ; les modèles à boîte étanche, prisés des marins, coûtent le triple.",
+            "Se garde au sec et au chaud, contre le corps plutôt qu'au fond du sac. Un briquet mouillé est un briquet inutile jusqu'au lendemain."
+        ]
+    },
+    "notes": [
+        "En avoir deux, rangés dans deux sacs différents. C'est l'objet le moins cher dont la perte coûte le plus.",
+        "Les mages de Feu s'en moquent jusqu'au jour où ils n'ont plus de mana. Ensuite ils en portent un comme tout le monde."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "torche", "collection": "equipment", "label": "Torche" },
+                { "ref": "lanterne-a-huile", "collection": "equipment", "label": "Lanterne à huile" }
+            ]
+        }
+    ]
+}

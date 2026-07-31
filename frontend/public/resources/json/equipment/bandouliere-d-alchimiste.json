@@ -1,0 +1,46 @@
+{
+    "name": "Bandoulière d'alchimiste",
+    "subtitle": "Portage — accès rapide",
+    "category": "sacs",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une large sangle de cuir passée en travers du buste, garnie de six logements rembourrés de feutre, chacun taillé au gabarit d'une fiole standard et fermé par une patte à pression. Les fioles ne bougent pas, ne s'entrechoquent pas, et se dégagent d'une seule main.",
+        "Toute la différence est là. Une potion au fond d'un sac est une potion qu'on boit après le combat ; une potion à la bandoulière est une potion qu'on boit pendant. Les compagnies de mercenaires l'imposent à leurs soigneurs, et les alchimistes de terrain n'en démordent pas : c'est le meilleur achat d'un praticien qui sort de son atelier."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,8 kg" },
+        { "key": "type",   "label": "Type",        "value": "Portage — 6 emplacements de fiole" },
+        { "key": "rarity", "label": "Rareté",      "value": "Peu commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Se porte en plus du sac à dos" },
+        { "key": "value",  "label": "Valeur",      "value": "60 pièces d'or" }
+    ],
+    "properties": [
+        "Six emplacements pour fioles : potions, élixirs, toniques, fioles d'huile ou venins prélevés.",
+        "Boire ou administrer une fiole rangée à la bandoulière devient une action bonus au lieu d'une action complète.",
+        "Le poids des fioles portées à la bandoulière compte comme équipement porté, non comme contenu de sac : il pèse moitié moins sur la charge.",
+        "Se porte en plus d'un sac à dos, sans occuper sa capacité.",
+        "Les logements protègent le verre : une chute qui briserait les fioles d'un sac n'en casse ici qu'une seule, choisie au hasard."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les selliers des grandes cités et dans les comptoirs des guildes d'alchimie, qui la vendent souvent d'occasion à leurs apprentis.",
+            "Les modèles à huit ou dix logements existent mais gênent le maniement d'une arme à deux mains : les vétérans s'en tiennent à six."
+        ]
+    },
+    "notes": [
+        "Ranger toujours les fioles dans le même ordre. Chercher la bonne au toucher, en pleine mêlée, est exactement le temps qu'on n'a pas.",
+        "Ne jamais y mettre l'élixir d'éveil forcé à côté d'une potion de soin. Les erreurs de logement de ce genre ont fait plus de morts que le venin."
+    ],
+    "references": [
+        {
+            "label": "Contenu habituel",
+            "items": [
+                { "ref": "potion_de_soin_faible", "collection": "potions", "label": "Potion de soin faible" },
+                { "ref": "potion_de_mana_faible", "collection": "potions", "label": "Potion de mana faible" },
+                { "ref": "fiole-d-huile", "collection": "equipment", "label": "Fiole d'huile" }
+            ]
+        }
+    ]
+}

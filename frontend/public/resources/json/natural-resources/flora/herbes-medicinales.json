@@ -1,0 +1,48 @@
+{
+    "name": "Herbes médicinales",
+    "subtitle": "Ingrédient de base",
+    "image": "/resources/media/pictures/natural-resources/flora/medicinal_herbs.png",
+    "icon": "",
+    "description": [
+        "Sous ce nom d'apothicaire se cache une botte liée de plantes communes — millefeuille, plantain, souci, consoude — cueillies ensemble parce qu'elles agissent ensemble : l'une resserre la plaie, l'autre calme la douleur, la troisième empêche la fièvre de s'installer.",
+        "C'est la base de presque toute la médecine de Mystaria. On les trouve aux lisières, dans les prés fauchés et jusque dans les fossés des routes ; aucune n'exige d'affinité magique, ce qui en fait la première récolte qu'un apprenti alchimiste apprend à sécher correctement."
+    ],
+    "info": [
+        { "key": "weight",  "label": "Poids",       "value": "0,1 kg" },
+        { "key": "type",    "label": "Type",        "value": "Herbes séchées" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "habitat", "label": "Habitat",     "value": "Lisières, prés et bords de chemin des régions tempérées" },
+        { "key": "usage",   "label": "Utilisation", "value": "Potions de soin, bandages, cataplasmes, infusions" },
+        { "key": "value",   "label": "Valeur",      "value": "3 pièces d'or la botte" }
+    ],
+    "properties": [
+        "Hémostatique et cicatrisant : appliquées en cataplasme, elles referment les plaies superficielles et ralentissent les saignements.",
+        "Antifièvre et antalgique en infusion ; l'amertume est le prix de l'effet.",
+        "Support neutre : elles n'apportent aucune polarité magique, ce qui les rend compatibles avec presque toutes les préparations.",
+        "Perdent la moitié de leur vertu si elles sèchent au soleil ; il faut les suspendre à l'ombre, tête en bas."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "On les récolte de la fin du printemps à la fin de l'été, avant la floraison complète : une plante montée en graine a déjà donné sa force à ses semences.",
+            "Conseil : coupez au-dessus du troisième nœud et laissez toujours un tiers du pied debout. Un pré bien récolté nourrit un village pendant des générations ; un pré arraché ne revient pas."
+        ]
+    },
+    "notes": [
+        "Les guérisseurs de campagne prétendent qu'une botte cueillie sous la rosée vaut deux bottes cueillies à midi. Les alchimistes des cités en rient, puis achètent celles du matin."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "life", "collection": "domains", "label": "Vie" }
+            ]
+        },
+        {
+            "label": "Entre dans la fabrication de",
+            "items": [
+                { "ref": "bandages", "collection": "equipment", "label": "Bandages" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+{
+    "name": "Fiole d'huile",
+    "subtitle": "Consommable",
+    "category": "lumiere",
+    "image": "/resources/media/pictures/equipment/cartouche_huile.png",
+    "icon": "",
+    "description": [
+        "Une fiole de terre cuite bouchée au liège, contenant un demi-litre d'huile de lampe. Rien de plus banal dans un sac d'aventurier, et rien de plus versatile.",
+        "Elle nourrit une lanterne six heures. Elle graisse une charnière qui grince. Elle imperméabilise une corde. Et jetée sur un sol de pierre avant qu'on y mette une torche, elle transforme un couloir en piège — usage que les alchimistes déplorent et que tous les mercenaires connaissent."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Consommable — combustible" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "6 heures de lanterne, ou une utilisation offensive" },
+        { "key": "value",  "label": "Valeur",      "value": "3 pièces d'or" }
+    ],
+    "properties": [
+        "Remplit une lanterne à huile pour six heures de lumière.",
+        "Jetée au sol : couvre une zone de 3 mètres de diamètre. Enflammée, la zone infligera 1d4 dégâts de feu par tour pendant 2 tours et appliquera Brûlure à qui la traverse.",
+        "Jetée sur une créature (jet de précision) : la cible est enduite d'huile. Le premier dégât de feu qu'elle subit ensuite applique Brûlure automatiquement.",
+        "L'huile ne s'enflamme pas d'elle-même : il faut une source de feu, torche, étincelle ou sort.",
+        "Sert aussi d'entretien : une corde huilée pourrit moins, une serrure huilée se crochète plus facilement."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "En vente chez tous les épiciers, huiliers et chandeliers ; les comptoirs de mine en vendent par caisses de douze.",
+            "Se transporte debout et calée. Une fiole brisée au fond d'un sac ruine les rations, les parchemins et l'humeur du groupe."
+        ]
+    },
+    "notes": [
+        "Une seule fiole n'a jamais gagné un combat. Trois fioles et un couloir étroit, si.",
+        "Les compagnies réglementées interdisent l'usage offensif de l'huile en ville. Les incendies ne font pas la différence entre l'ennemi et le quartier."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "lanterne-a-huile", "collection": "equipment", "label": "Lanterne à huile" }
+            ]
+        }
+    ]
+}

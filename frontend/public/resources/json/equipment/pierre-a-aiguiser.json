@@ -1,0 +1,40 @@
+{
+    "name": "Pierre à aiguiser",
+    "subtitle": "Matériel d'entretien",
+    "category": "outils",
+    "image": "/resources/media/pictures/equipment/whetstone.png",
+    "icon": "",
+    "description": [
+        "Un bloc rectangulaire de grès à deux faces — la grossière pour redresser un fil abîmé, la fine pour l'affûter — logé dans un étui de bois avec une fiole d'huile de pierre. Quatre pièces d'or, et l'objet le plus rentable qu'un porteur de lame puisse glisser dans son sac.",
+        "Une lame ne s'émousse pas d'un coup : elle perd son fil au fil des combats, des sangles tranchées et des os rencontrés. Le soir, autour du feu, le bruit régulier de l'acier sur la pierre est celui d'une compagnie qui sait ce qu'elle fait."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,5 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — entretien réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Un quart d'heure par arme, au repos" },
+        { "key": "value",  "label": "Valeur",      "value": "4 pièces d'or" }
+    ],
+    "properties": [
+        "Rend son fil à une arme tranchante ou perforante émoussée : un quart d'heure de travail, au calme, généralement pendant un repos.",
+        "Une arme laissée sans entretien perd progressivement de son mordant ; une lame entretenue reste à ses dégâts normaux.",
+        "Sans effet sur les armes contondantes — masses, marteaux, bâtons — qui ne se démentent que sur leur manche.",
+        "Réaffûte aussi les outils : serpe d'herboriste, couteau de dépouille, ciseaux, hache de bûcheron.",
+        "S'use lentement et se creuse en son milieu ; une pierre creusée n'affûte plus droit et se remplace.",
+        "L'huile empêche la poudre d'acier de boucher le grain. Aiguiser à sec use la pierre deux fois plus vite."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez tous les couteliers, forgerons et merciers ambulants ; les carrières de grès des régions montagneuses en fournissent les meilleures.",
+            "Une bonne pierre se reconnaît au grain régulier. Les blocs bon marché contiennent des inclusions dures qui rayent le fil au lieu de le faire."
+        ]
+    },
+    "notes": [
+        "Aiguiser toujours dans le même sens, jamais en va-et-vient sur la face fine.",
+        "Les soldats la prêtent volontiers, les mercenaires jamais. Une pierre bien faite finit par prendre la forme des lames qu'elle a servies."
+    ],
+    "references": [
+
+    ]
+}

@@ -1,6 +1,7 @@
 {
   "name": "Dague",
   "subtitle": "Lame courte, rapide et discrète",
+  "image": "/resources/media/pictures/weapons/dagger.png",
   "description": [
     "Courte et légère, la dague se dissimule sous une manche ou dans une botte. Arme de dernier recours du soldat comme outil quotidien du voyageur.",
     "Entre des mains expertes, sa vitesse compense sa faible allonge : on l'emploie pour parer, désarmer ou frapper dans les interstices d'une armure."

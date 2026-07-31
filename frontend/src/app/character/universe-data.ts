@@ -290,6 +290,19 @@ export const EQUIPMENT_SLOTS: { key: string; label: string; side: 'left' | 'righ
   { key: 'bag', label: 'Sac à dos', side: 'right' },
 ];
 
+/* ── Bourse ───────────────────────────────────────────────────────────────── */
+
+/**
+ * Bourse affichée : le tirage de départ du background plus l'écart accumulé en
+ * partie. Jamais négative — on ne doit pas de l'or, on n'en a plus.
+ */
+export const purseTotal = (base: number, delta: number): number =>
+  Math.max(0, Math.round(base) + Math.round(delta));
+
+/** Écart à mémoriser pour qu'un tirage `base` affiche le total voulu. */
+export const purseDelta = (base: number, total: number): number =>
+  Math.max(0, Math.round(Number(total) || 0)) - Math.round(base);
+
 /* ── Expérience et niveaux ────────────────────────────────────────────────── */
 
 /** Niveau maximal atteignable. */
@@ -457,6 +470,7 @@ export function emptySheet(): CharacterSheet {
     proficiencyBonus: 2,
     skills: [],
     spells: { unlocked: [], equipped: [], nodes: {} },
+    goldDelta: 0,
     inventory: [],
     equipment: Object.fromEntries(EQUIPMENT_SLOTS.map((s) => [s.key, ''])),
     notes: '',

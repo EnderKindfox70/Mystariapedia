@@ -1,0 +1,44 @@
+{
+    "name": "Lanterne à huile",
+    "subtitle": "Matériel d'éclairage",
+    "category": "lumiere",
+    "image": "/resources/media/pictures/equipment/oil_lamp.png",
+    "icon": "",
+    "description": [
+        "Un boîtier de fer-blanc à quatre faces de corne translucide, monté sur une anse, avec un volet coulissant pour masquer la flamme sans l'éteindre. La mèche baigne dans un réservoir d'huile que l'on remplit fiole par fiole.",
+        "Plus chère qu'une torche, plus lourde, plus fragile — et infiniment supérieure : elle tient six heures, elle résiste au vent, elle laisse les deux mains libres si on l'accroche à la ceinture, et son volet permet de faire le noir d'un geste quand une lumière devient une cible."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "1 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — éclairage réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "6 heures par fiole d'huile ; vendue vide" },
+        { "key": "value",  "label": "Valeur",      "value": "25 pièces d'or" }
+    ],
+    "properties": [
+        "Éclaire vivement sur 9 mètres et faiblement sur 9 mètres supplémentaires.",
+        "Une fiole d'huile la fait brûler six heures. Elle est vendue sans huile.",
+        "Volet coulissant : occulter ou rouvrir la lumière ne coûte pas d'action, et la flamme n'a pas à être rallumée.",
+        "Résiste au vent et à la pluie fine, contrairement à une torche. Une chute brutale peut briser les faces de corne.",
+        "Renversée sur le sol, elle répand son huile enflammée : traiter comme une fiole d'huile jetée."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les ferblantiers et les chandeliers des villes, dans les comptoirs de mine et sur les quais ; les modèles de marine, plus étanches, coûtent le double.",
+            "Une lanterne d'occasion se juge à son volet : s'il coince, elle est bonne pour l'éclairage de grange, pas pour une descente."
+        ]
+    },
+    "notes": [
+        "L'huile de baleine brûle plus clair, l'huile d'olive plus longtemps, la graisse animale sent affreusement. Les trois fonctionnent.",
+        "Ne jamais la remplir mèche allumée. On reconnaît celui qui l'a fait à ses sourcils."
+    ],
+    "references": [
+        {
+            "label": "Consommable associé",
+            "items": [
+                { "ref": "fiole-d-huile", "collection": "equipment", "label": "Fiole d'huile" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,75 @@
+{
+    "name": "Antidote",
+    "subtitle": "Potion peu commune",
+    "category": "potion",
+    "image": "/resources/media/pictures/potions/antidote.png",
+    "icon": "",
+    "description": [
+        "Un liquide ambré, limpide, d'une amertume qui fait pleurer les yeux avant même d'être bu. Sa préparation repose sur un paradoxe que les apothicaires enseignent depuis toujours : c'est une trace infime de venin, purifiée par un bain d'éclat d'aube, qui apprend au corps à reconnaître ce qui l'attaque et à le rejeter.",
+        "L'antidote ne soigne pas : il nettoie. Il ne referme aucune plaie, ne rend pas un point de vie, et une créature déjà exsangue mourra tout de même. Ce qu'il fait, aucune potion de soin ne le fait — il chasse le poison des veines, dénoue les muscles bloqués et enraye la pourriture avant qu'elle ne gagne. Dans un sac bien fait, il voyage à côté des potions de soin, jamais à leur place."
+    ],
+    "effects": [
+        "Met fin au statut Poison.",
+        "Met fin au statut Paralysie.",
+        "Enraye le statut Nécrose : la progression s'arrête et la cible redevient soignable.",
+        "Agit immédiatement à l'ingestion, ou en une minute si administré à une cible inconsciente."
+    ],
+    "secondary-effects": [
+        "Amertume violente et haut-le-cœur dans la minute qui suit ; une cible à jeun vomit souvent, sans que l'effet en soit réduit.",
+        "Contient une trace de venin : une seconde fiole dans l'heure applique Poison au lieu de le lever.",
+        "Engourdissement passager des extrémités, le temps que les muscles se dénouent."
+    ],
+    "quote": "On ne combat pas le venin. On apprend au corps à le reconnaître, et il fait le reste.",
+    "quote-author": "Maîtresse apothicaire Vellane",
+    "ingredients": [
+        {
+            "name": "Venin de serpent",
+            "icon": "",
+            "quantity": "1 goutte",
+            "note": "Une goutte, pas deux. Toute la préparation tient dans cette mesure.",
+            "ref": { "ref": "venin-de-serpent", "collection": "resources/remains", "label": "Venin de serpent" }
+        },
+        {
+            "name": "Herbes médicinales",
+            "icon": "",
+            "quantity": "3 poignées",
+            "note": "Support neutre : elles portent le principe actif sans ajouter de polarité.",
+            "ref": { "ref": "herbes-medicinales", "collection": "resources/flora", "label": "Herbes médicinales" }
+        },
+        {
+            "name": "Éclat d'aube",
+            "icon": "",
+            "quantity": "1 éclat (récupéré après bain)",
+            "note": "Plongé une heure dans la décoction : c'est lui qui purifie le venin et permet d'enrayer la nécrose.",
+            "ref": { "ref": "eclat-d-aube", "collection": "resources/minerals", "label": "Éclat d'aube" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "250 ml",
+            "note": "Base neutre ; une eau douteuse ruine tout l'intérêt d'un antidote.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Faire infuser les herbes médicinales dans l'eau de source frémissante un quart d'heure, puis filtrer très finement.",
+        "Laisser tiédir la décoction jusqu'à la température du corps — au-delà, le venin se dénature et l'antidote ne vaut plus rien.",
+        "Ajouter une seule goutte de venin de serpent et remuer sans interruption pendant une minute entière.",
+        "Plonger l'éclat d'aube dans le mélange et laisser reposer une heure : le liquide passe du trouble à l'ambré limpide.",
+        "Retirer l'éclat, mettre en fiole et sceller. Un antidote resté trouble est un poison ; le jeter."
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Potion" },
+        { "key": "rarity", "label": "Rareté",  "value": "Peu commune" },
+        { "key": "weight", "label": "Poids",   "value": "0,3 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "120 pièces d'or" }
+    ],
+    "notes": [
+        "Ne rend aucun point de vie. Un empoisonné à bout de forces a besoin des deux fioles : l'antidote pour la cause, la potion de soin pour le reste.",
+        "Sans effet sur les maladies, les malédictions et les statuts mentaux — Charme et Confusion ne se rincent pas.",
+        "Les compagnies qui traversent les marais en emportent une par personne. Celles qui n'en emportent qu'une pour tout le groupe en reviennent rarement au complet."
+    ],
+    "references": [
+
+    ]
+}

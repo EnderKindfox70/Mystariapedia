@@ -1,0 +1,46 @@
+{
+    "name": "Nécessaire de forge portatif",
+    "subtitle": "Outillage d'artisan",
+    "category": "outils",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un rouleau de cuir épais qui se déplie en atelier : marteau à panne ronde, tenailles, deux limes, une paire de burins, un jeu de poinçons et une petite enclume de main qu'on cale sur une souche ou un rocher plat. Quatre kilos que tout forgeron de route accepte de porter.",
+        "On ne forge pas une épée avec cela. On redresse une lame tordue, on remplace un rivet, on refait une boucle, on grave une marque — les mille petites réparations sans lesquelles un équipement finit par rendre l'âme au pire moment, à deux semaines de la première forge digne de ce nom."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "4 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — réparation réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Exige un feu vif et une surface stable" },
+        { "key": "value",  "label": "Valeur",      "value": "45 pièces d'or" }
+    ],
+    "properties": [
+        "Répare sur le terrain une arme ou une armure endommagée : compter une heure de travail par pièce, et un feu assez vif pour rougir le métal.",
+        "Remplace rivets, boucles, anneaux et ferrures : de quoi remettre en service une armure dont les sangles ont lâché.",
+        "Les burins et poinçons permettent la gravure fine : marques de propriété, sceaux, et le tracé des runes pour qui sait les tracer.",
+        "Ne crée rien de neuf. Forger une arme demande une vraie forge, une enclume entière et des jours de travail.",
+        "Exige un feu de forge ou, à défaut, un bon feu de camp alimenté au charbon de bois : un feu de branchages ne montera jamais assez haut.",
+        "Encombrant et lourd. Beaucoup de compagnies le confient au porteur de hotte plutôt qu'au forgeron lui-même."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les forgerons établis, qui les assemblent eux-mêmes et les vendent à leurs anciens apprentis ; les guildes d'artisans en fournissent à leurs membres itinérants.",
+            "Les outils dépareillés se remplacent pièce par pièce. Un nécessaire complet est rarement acheté complet : il se constitue au fil des années."
+        ]
+    },
+    "notes": [
+        "L'enclume de main est la pièce qui décide de tout. Une enclume trop légère renvoie le coup dans le poignet au lieu de le rendre au métal.",
+        "Un runiste emporte le même rouleau que le forgeron, mais n'y touche que les burins. On les reconnaît à leurs limes intactes."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "pierre-a-aiguiser", "collection": "equipment", "label": "Pierre à aiguiser" },
+                { "ref": "briquet-a-silex", "collection": "equipment", "label": "Briquet à silex" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "name": "Besace",
+    "subtitle": "Sac de toile",
+    "category": "sacs",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Un simple sac de toile écrue porté en bandoulière, fermé par un rabat et une lanière. Pas d'armature, pas de compartiment, pas de prétention : de quoi emporter un repas, une gourde, deux fioles et ce qu'on aura ramassé en chemin.",
+        "C'est le sac de celui qui part pour la journée, du villageois qui descend au marché et de l'apprenti qui n'a pas encore les moyens de mieux. Il ne tient pas la charge d'une expédition — mais il pèse une demi-livre et ne gêne aucun mouvement."
+    ],
+    "info": [
+        { "key": "weight",     "label": "Poids",      "value": "0,5 kg" },
+        { "key": "type",       "label": "Type",       "value": "Sac à dos" },
+        { "key": "rarity",     "label": "Rareté",     "value": "Commune" },
+        { "key": "capacity",   "label": "Capacité",   "value": "+4 kg" },
+        { "key": "value",      "label": "Valeur",     "value": "15 pièces d'or" }
+    ],
+    "properties": [
+        "Ajoute 4 kg à la capacité de charge de son porteur.",
+        "Se porte en bandoulière : ne gêne ni la course ni le maniement d'une arme à deux mains.",
+        "Aucun compartiment : tout se mélange au fond, et l'on cherche ce qu'on veut à tâtons.",
+        "La toile ne protège de rien. Sous la pluie, le contenu est trempé ; une fiole qui se brise mouille le reste."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Sur tous les marchés, chez tous les drapiers, souvent de seconde main pour quelques pièces de cuivre.",
+            "Se recoud soi-même. Une besace qui lâche à la lanière n'est pas perdue : c'est une soirée de couture."
+        ]
+    },
+    "notes": [
+        "Le premier sac de presque tout le monde. Le second achat d'un aventurier qui a survécu à sa première sortie est presque toujours un vrai sac."
+    ],
+    "references": [
+
+    ]
+}

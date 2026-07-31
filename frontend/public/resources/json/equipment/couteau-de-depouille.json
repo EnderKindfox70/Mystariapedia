@@ -1,0 +1,46 @@
+{
+    "name": "Couteau de dépouille",
+    "subtitle": "Outil de récolte",
+    "category": "recolte",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une lame courte et large, au dos épais et au tranchant en croissant, montée sur un manche de corne qui ne glisse pas dans une main grasse. À côté, dans le même étui : une lame à écorcher à bout arrondi, une pierre à repasser et un crochet à tendon.",
+        "Ce n'est pas une arme, et un chasseur qui s'en sert comme telle ruine son outil en un coup. C'est ce qui sépare la carcasse du butin : ouvrir sans percer, prélever sans écraser, séparer la glande de la chair qui l'entoure. Sans lui, on ramène de la viande ; avec lui, on ramène ce que l'alchimiste achètera."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids",       "value": "0,4 kg" },
+        { "key": "type",   "label": "Type",        "value": "Outil — prélèvement réutilisable" },
+        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
+        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; à réaffûter régulièrement" },
+        { "key": "value",  "label": "Valeur",      "value": "10 pièces d'or" }
+    ],
+    "properties": [
+        "Prélèvement à mains nues ou à la dague : la dépouille est abîmée et perd la moitié de sa valeur. Au couteau de dépouille : prélèvement intact.",
+        "Seul outil permettant d'extraire proprement les pièces fragiles — glandes, poches à venin, organes chargés de mana.",
+        "Va de pair avec le sel de conservation : prélever proprement ne sert à rien si la pièce se dégrade dans les quatre heures.",
+        "Une lame émoussée perce ce qu'elle devrait longer. Se réaffûte à la pierre après deux ou trois grosses bêtes.",
+        "Sert aussi à écorcher, à découper les rations et à préparer le gibier du soir.",
+        "Arme de dernier recours seulement : lame courte, sans garde, elle blesse la main qui frappe autant que la cible."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Chez les couteliers, les bouchers et tous les comptoirs de chasse ; les guildes de dépeçage vendent les leurs marquées de leur poinçon.",
+            "L'étui de ceinture fait partie de l'outil. Un couteau de dépouille rangé dans un sac finit par trancher ce qui l'entoure."
+        ]
+    },
+    "notes": [
+        "Nettoyer la lame entre deux bêtes. Le sang séché d'une créature venimeuse contamine le prélèvement suivant.",
+        "Un traqueur reconnaît l'école d'un dépeceur à la façon dont la peau a été ouverte. C'est un métier, pas un geste."
+    ],
+    "references": [
+        {
+            "label": "Matériel associé",
+            "items": [
+                { "ref": "sel-de-conservation", "collection": "equipment", "label": "Sel de conservation" },
+                { "ref": "pierre-a-aiguiser", "collection": "equipment", "label": "Pierre à aiguiser" }
+            ]
+        }
+    ]
+}

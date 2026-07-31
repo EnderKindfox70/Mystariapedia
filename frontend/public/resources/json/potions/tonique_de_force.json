@@ -1,0 +1,73 @@
+{
+    "name": "Tonique de force",
+    "subtitle": "Tonique peu commun",
+    "category": "tonique",
+    "image": "/resources/media/pictures/potions/strength_tonic.png",
+    "icon": "",
+    "description": [
+        "Un fortifiant épais, couleur de rouille, où la poudre de corne de bélier reste en suspension et qu'il faut secouer longuement avant chaque prise. Il sent la corne brûlée et la terre.",
+        "Contrairement aux potions, le tonique ne se boit pas dans l'urgence : il agit lentement, sur des muscles qui travaillent. Les forgerons, les porteurs et les lutteurs des arènes le prennent en cure, à raison d'une dose par jour, et parlent d'un corps qui « répond mieux » sans savoir l'expliquer."
+    ],
+    "effects": [
+        "Dose unique : +2 en Force pendant 1 heure (le modificateur de Force est recalculé pour la durée).",
+        "En cure : une dose par jour pendant sept jours consécutifs accorde +1 en Force de façon durable, à condition que la cure soit accompagnée d'un travail physique quotidien.",
+        "Le corps ne répond qu'à une seule cure de force réussie : les cures suivantes n'apportent plus que l'effet d'une dose unique."
+    ],
+    "secondary-effects": [
+        "Raideurs musculaires et courbatures au réveil pendant toute la durée de la cure.",
+        "Appétit démesuré : une cure suivie sans manger davantage fait fondre le buveur au lieu de le renforcer.",
+        "Une cure interrompue avant le septième jour ne donne aucun gain durable — seulement les courbatures."
+    ],
+    "quote": "Le tonique ne fait pas le bras. Il rend le bras attentif à ce qu'on lui demande.",
+    "quote-author": "Hordan, maître de forge de Braise-Haute",
+    "ingredients": [
+        {
+            "name": "Corne de bélier",
+            "icon": "",
+            "quantity": "1 corne réduite en poudre fine",
+            "note": "Apporte la matière minérale que le tonique fixe dans les tendons.",
+            "ref": { "ref": "corne-de-belier", "collection": "resources/remains", "label": "Corne de bélier" }
+        },
+        {
+            "name": "Racine de ginseng",
+            "icon": "",
+            "quantity": "2 racines",
+            "note": "Support adaptogène : c'est elle qui rend l'effet progressif plutôt que brutal.",
+            "ref": { "ref": "ginseng", "collection": "resources/flora", "label": "Racine de ginseng" }
+        },
+        {
+            "name": "Racine d'arbre ancien",
+            "icon": "",
+            "quantity": "1 fragment de la taille d'un pouce",
+            "note": "Amère à l'extrême, elle ancre l'effet dans la durée.",
+            "ref": { "ref": "racine_d_arbre_ancien", "collection": "resources/flora", "label": "Racine d'arbre ancien" }
+        },
+        {
+            "name": "Eau de source pure",
+            "icon": "",
+            "quantity": "500 ml (sept doses)",
+            "note": "Un flacon de tonique contient la cure entière, pas une prise.",
+            "ref": { "ref": "eau-pure", "collection": "resources/liquids", "label": "Eau de source pure" }
+        }
+    ],
+    "preparation": [
+        "Réduire la corne de bélier en poudre la plus fine possible : une poudre grossière se dépose et ne sera jamais absorbée.",
+        "Faire bouillir les racines de ginseng et le fragment de racine d'arbre ancien dans l'eau de source pendant une heure, à couvert.",
+        "Filtrer, puis délayer la poudre de corne dans la décoction encore chaude, par petites quantités et sans cesser de remuer.",
+        "Laisser refroidir lentement : le tonique doit rester en suspension trouble. S'il se sépare en deux couches nettes, la poudre était trop grossière.",
+        "Mettre en flacon de sept doses et étiqueter la date du premier jour de cure."
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",    "value": "Tonique" },
+        { "key": "rarity", "label": "Rareté",  "value": "Peu commun" },
+        { "key": "weight", "label": "Poids",   "value": "0,6 kg" },
+        { "key": "value",  "label": "Valeur",  "value": "150 pièces d'or le flacon de cure" }
+    ],
+    "notes": [
+        "Le gain durable relève de l'arbitrage du meneur : selon les tables, il peut être plafonné, réservé à une cure unique dans une vie, ou remplacé par un bonus temporaire d'une semaine.",
+        "Mélanger un tonique de force et un tonique de constitution dans la même cure annule les deux : le corps ne sait pas à quoi obéir."
+    ],
+    "references": [
+
+    ]
+}
