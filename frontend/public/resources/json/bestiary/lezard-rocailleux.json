@@ -1,0 +1,163 @@
+{
+  "slug": "lezard-rocailleux",
+  "name": "Lézard rocailleux",
+  "chapter": "communes",
+  "cr": 1,
+  "entityTypeId": 1,
+  "size": "TP",
+  "banner": "/resources/media/pictures/bestiary/lezard_rocailleux.png",
+  "icon": "/resources/media/pictures/bestiary/lezard_rocailleux.png",
+  "teaser": "Aucun oiseau ne le garde longtemps dans le bec.",
+  "quote": "« Trois heures à fouiller un éboulis pour une glande de la taille d'un pouce. Et je recommencerai demain. »",
+  "quote-author": "Carnet d'un apothicaire des pentes",
+  "behaviour": "Insectivore, solitaire, territorial",
+  "description": [
+    "Reptile long de deux paumes, au corps aplati et entièrement hérissé de tubercules coniques, des simples aspérités sur le dos aux véritables épines au-dessus des yeux et sur la nuque. Sa livrée ocre et grise reprend les tons de la caillasse. Il vit dans les éboulis et les pentes pierreuses arides, se nourrit d'insectes et de larves qu'il déloge entre les cailloux, et passe l'essentiel de la journée au soleil sur une dalle chaude.",
+    "Sa défense n'est ni la fuite ni la morsure. Au moindre danger, une glande logée sous sa peau libère un agent durcissant qui minéralise son épiderme en quelques secondes : les épines se figent en pointes de roche et le dos devient une carapace. Il n'en reste pas moins mobile — simplement très lent, chaque pas devenant un effort tant que la croûte n'est pas résorbée —, ce qui lui permet de continuer à s'écarter au lieu de s'en remettre entièrement à sa carapace.",
+    "C'est une défense contre les becs. Un rapace qui le saisit se blesse les serres et le lâche ; celui qui l'avale quand même finit par le régurgiter, la bête étant devenue à la fois inentamable et impossible à faire descendre. Les charognards des pentes ont appris à les ignorer, et un lézard rocailleux durci se laisse ramasser à la main par un homme averti — c'est le seul prédateur contre lequel sa parade ne vaut rien.",
+    "C'est cette glande que recherchent les apothicaires : broyée et diluée, elle transmet la même défense à qui l'ingère et constitue le composant actif de la Potion de peau de pierre. Elle ne vaut que fraîche — elle se rétracte et durcit dès que le corps de la bête refroidit, ce qui rend la récolte plus délicate que la chasse."
+  ],
+  "traitIds": [
+    3
+  ],
+  "statBonuses": {
+    "hp": 6,
+    "physical_atk": -2,
+    "magical_atk": 0,
+    "mana": 0,
+    "speed": 2
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 7
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 13
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 15
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 2
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 11
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 4
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        1,
+        3,
+        8
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        5
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "eboulis",
+      "collection": "locations",
+      "label": "Éboulis et pentes arides"
+    },
+    {
+      "ref": "montagne",
+      "collection": "locations",
+      "label": "Contreforts rocheux"
+    }
+  ],
+  "frequency": "Commune, mais rarement vue : l'espèce se confond avec son terrain",
+  "loot": [
+    {
+      "ref": "glande-de-lezard-rocailleux",
+      "collection": "natural-resources/remains",
+      "chance": 60,
+      "min": 1
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Morsure",
+      "description": "Une morsure sans conviction, plus dissuasive que dangereuse.",
+      "damageMin": 1,
+      "damageMax": 2,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.3
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 1
+    },
+    {
+      "name": "Durcissement",
+      "description": "Sa glande libère l'agent durcissant : l'épiderme se minéralise, les épines se figent en pointes de roche et le dos devient une carapace. Qui le saisit à mains nues s'y blesse — le fer, lui, ne s'y pique pas. Il reste mobile, mais chaque pas devient un effort. Se durcir de nouveau ne fait que reconduire la croûte.",
+      "range": "Personnel",
+      "area": "Soi-même",
+      "targets": [
+        "self"
+      ],
+      "duration": 5,
+      "enduranceCost": 2,
+      "effects": [
+        {
+          "stat": "def_phy",
+          "value": 10
+        },
+        {
+          "stat": "def_mag",
+          "value": 5
+        }
+      ],
+      "retaliate": {
+        "trigger": "unarmed",
+        "damageMin": 2,
+        "damageMax": 4,
+        "damageType": "piercing"
+      },
+      "recoil": {
+        "effects": [
+          {
+            "stat": "speed",
+            "value": 8
+          }
+        ],
+        "note": "chaque pas est un effort tant que la croûte tient"
+      },
+      "reaction": [
+        "incoming-attack"
+      ]
+    }
+  ]
+}

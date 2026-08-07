@@ -27,41 +27,41 @@
                         "id": "el1", "tier": 1, "branch": "trunk", "name": "Éclair I",
                         "description": "Un arc de foudre instantané qui frappe une cible avec précision.",
                         "next": ["el2"],
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 3, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
                     },
                     {
                         "id": "el2", "tier": 2, "branch": "trunk", "name": "Éclair II",
                         "description": "La décharge gagne en tension : trait plus long, impact plus vif.",
                         "next": ["el3"],
-                        "stats": { "damageMin": 7, "damageMax": 11, "mana": 4, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "el3", "tier": 3, "branch": "trunk", "name": "Éclair III",
                         "description": "Point de scission : la foudre peut se concentrer ou rebondir en chaîne.",
                         "next": ["elf4", "elc4"],
-                        "stats": { "damageMin": 11, "damageMax": 16, "mana": 5, "range": "20 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 20 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 5, "range": "20 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 20 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "elf4", "tier": 4, "branch": "foudre", "name": "Foudre",
                         "description": "Une colonne de foudre qui foudroie et fige les nerfs de la cible.",
                         "next": ["elf5"],
-                        "stats": { "damageMin": 20, "damageMax": 28, "mana": 7, "range": "22 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 7, "range": "22 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
                     },
                     {
                         "id": "elf5", "tier": 5, "branch": "foudre", "name": "Fulguration",
                         "description": "Un trait de foudre céleste qui carbonise et paralyse net.",
-                        "stats": { "damageMin": 32, "damageMax": 44, "mana": 10, "range": "24 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 1.2 }] }
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 10, "range": "24 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
                     },
                     {
                         "id": "elc4", "tier": 4, "branch": "chaine", "name": "Arc en chaîne",
                         "description": "L'éclair rebondit d'une cible à l'autre pour un coût modéré.",
                         "next": ["elc5"],
-                        "stats": { "damageMin": 10, "damageMax": 15, "mana": 5, "range": "18 m", "area": "3 cibles", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 25 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "18 m", "area": "3 cibles", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 25 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
                     },
                     {
                         "id": "elc5", "tier": 5, "branch": "chaine", "name": "Foudre en chaîne",
                         "description": "Un arc qui saute de proie en proie et parcourt tout un groupe.",
-                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 6, "range": "20 m", "area": "5 cibles", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 6, "range": "20 m", "area": "5 cibles", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
                     }
                 ]
             }
@@ -116,18 +116,18 @@
                         "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame foudroyante I",
                         "description": "Votre arme se nimbe d'arcs électriques : chaque attaque au corps à corps inflige ces dégâts de foudre en plus, le temps de l'enchantement.",
                         "next": ["ra2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame foudroyante II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["ra3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame foudroyante III",
                         "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts de foudre durables.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -150,18 +150,18 @@
                         "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings foudroyants I",
                         "description": "Vos poings se nimbent d'arcs électriques : chaque coup à mains nues inflige ces dégâts de foudre en plus.",
                         "next": ["rp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings foudroyants II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["rp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings foudroyants III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts de foudre.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     }
                 ]
             }

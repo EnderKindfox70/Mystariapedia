@@ -1,0 +1,142 @@
+{
+  "slug": "vache-des-vallons",
+  "name": "Vache des vallons",
+  "chapter": "communes",
+  "cr": 0,
+  "entityTypeId": 1,
+  "size": "G",
+  "teaser": "Elle ne fuit pas et ne charge pas : elle vous regarde jusqu'à ce que vous partiez.",
+  "quote": "« On mesure la richesse d'une vallée au nombre de bêtes qui y ruminent sans lever la tête. »",
+  "quote-author": "Dicton des éleveurs du Val",
+  "behaviour": "Herbivore, grégaire, domestique",
+  "description": [
+    "Bovin trapu à robe fauve et à cornes courtes tournées vers l'avant, élevé dans toutes les vallées cultivées de Mystaria. Une bête adulte pèse le poids de quatre hommes et broute onze heures par jour ; le reste du temps, elle rumine, immobile, avec une patience que les voyageurs prennent à tort pour de la stupidité.",
+    "Elle n'attaque pas. Elle ne fuit pas non plus, ce qui surprend davantage : un troupeau dérangé se contente de faire face et d'attendre, et il faut une menace très claire pour qu'il se décide à bouger. Cette absence de réaction est le vrai danger de l'espèce — on ne compte plus les blessés qui ont tenté de traverser un pâturage en poussant les bêtes à la main, et qui ont découvert qu'une vache qui pèse une demi-tonne ne se pousse pas.",
+    "Le lait, le cuir et la force de trait en font l'animal le plus rentable des terres basses, mais son intérêt réel est ailleurs : une vache des vallons refuse de brouter une herbe saturée de mana, et une carcasse de troupeau qui s'écarte soudain d'un pré signale une contamination du sol des semaines avant que les paysans ne la voient."
+  ],
+  "traitIds": [
+    5
+  ],
+  "statBonuses": {
+    "hp": 25,
+    "physical_atk": -2,
+    "magical_atk": 0,
+    "mana": 0,
+    "speed": -3
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 16
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 6
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 16
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 2
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 11
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 5
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        1
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "plaine",
+      "collection": "locations",
+      "label": "Plaine"
+    },
+    {
+      "ref": "vallon",
+      "collection": "locations",
+      "label": "Vallons et pâturages"
+    }
+  ],
+  "frequency": "Très commune partout où l'on cultive",
+  "loot": [
+    {
+      "ref": "cuir-epais",
+      "collection": "natural-resources/remains",
+      "label": "Cuir épais",
+      "chance": 100,
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Coup de tête",
+      "description": "Sans hâte, sans colère : le poids de quatre hommes se déplace.",
+      "damageMin": 2,
+      "damageMax": 4,
+      "damageType": "bludgeoning",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.35
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 2,
+      "reaction": [
+        "leave-reach"
+      ]
+    },
+    {
+      "name": "Masse immobile",
+      "description": "Elle ne fuit pas et ne charge pas : elle reste, et vous regarde jusqu’à ce que vous partiez.",
+      "range": "Personnel",
+      "area": "Soi-même",
+      "targets": [
+        "self"
+      ],
+      "duration": 4,
+      "enduranceCost": 1,
+      "effects": [
+        {
+          "stat": "def_phy",
+          "value": 8
+        }
+      ],
+      "recoil": {
+        "note": "plantée sur ses quatre pattes"
+      }
+    }
+  ]
+}

@@ -751,6 +751,59 @@
 
 .reflist__link:hover { color: var(--ritual-red); border-color: var(--ritual-red); }
 
+/* Butin : une planche de tuiles plutôt qu'une liste. Les colonnes se posent
+   d'elles-mêmes selon la largeur de la page, donc le bloc tient aussi bien
+   dans une colonne de livre que dans la page simple du mode étroit. */
+.lootlist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr));
+  gap: 1rem .6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lootlist__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Une tuile ne se coupe jamais entre son image, son nom et son rendement. */
+.sheet__cols .lootlist__item { break-inside: avoid; }
+
+/* Même plaque que les vignettes d'index, en réduction : l'item se reconnaît
+   au premier coup d'œil, et le nom vient la légender dessous. */
+.lootlist__plate {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin-bottom: .4rem;
+  overflow: hidden;
+  background: rgba(94, 70, 50, .12);
+  border: 1px solid rgba(94, 70, 50, .4);
+  border-radius: 3px;
+  box-shadow: inset 0 0 10px rgba(94, 70, 50, .25);
+}
+
+.lootlist__plate img { width: 100%; height: 100%; object-fit: cover; }
+
+.lootlist__label { font-size: .82rem; line-height: 1.35; }
+
+/* Le rendement d'une dépouille : quantité prélevée, puis chance de l'obtenir.
+   Discret par rapport au nom — c'est une précision de règle, pas un titre. */
+.lootlist__yield {
+  margin-top: .15rem;
+  color: var(--dust-brown);
+  font-size: .72rem;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+
+.lootlist__yield b { font-weight: 700; }
+
 /* Traits : le nom du catalogue, puis ce qu'il fait — sans la description,
    un trait n'est qu'une étiquette. */
 .traits { margin: 0; }

@@ -30,41 +30,41 @@
                         "id": "wa1", "tier": 1, "branch": "trunk", "name": "Manipulation aquatique I",
                         "description": "Modèle l'eau en un fouet liquide qui cingle une cible proche.",
                         "next": ["wa2"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 2, "range": "8 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 2, "range": "8 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
                     },
                     {
                         "id": "wa2", "tier": 2, "branch": "trunk", "name": "Manipulation aquatique II",
                         "description": "La masse d'eau gagne en densité : frappe plus loin et plus fort.",
                         "next": ["wa3"],
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 3, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "wa3", "tier": 3, "branch": "trunk", "name": "Manipulation aquatique III",
                         "description": "Point de scission : l'eau peut se durcir en lame ou s'étaler en courant.",
                         "next": ["waf4", "wac4"],
-                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "waf4", "tier": 4, "branch": "fouet", "name": "Fouet lacérant",
                         "description": "Le fouet s'affûte comme une lame liquide qui ouvre les chairs.",
                         "next": ["waf5"],
-                        "stats": { "damageMin": 15, "damageMax": 22, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "saignement", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "saignement", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
                     },
                     {
                         "id": "waf5", "tier": 5, "branch": "fouet", "name": "Cravache des abysses",
                         "description": "Une lanière d'eau noire et tranchante qui déchire tout sur son passage.",
-                        "stats": { "damageMin": 24, "damageMax": 34, "mana": 9, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "saignement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 1.1 }] }
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 9, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "saignement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
                     },
                     {
                         "id": "wac4", "tier": 4, "branch": "courant", "name": "Courant maîtrisé",
                         "description": "L'eau s'étale en un courant qui balaie et freine une ligne d'ennemis.",
                         "next": ["wac5"],
-                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 4, "range": "12 m", "area": "Ligne 8 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 3, "damageMax": 4, "mana": 4, "range": "12 m", "area": "Ligne 8 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "wac5", "tier": 5, "branch": "courant", "name": "Torrent balayeur",
                         "description": "Un torrent maîtrisé qui emporte et englue tout un front à peu de frais.",
-                        "stats": { "damageMin": 10, "damageMax": 15, "mana": 5, "range": "14 m", "area": "Ligne 10 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 5, "range": "14 m", "area": "Ligne 10 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     }
                 ]
             }
@@ -89,18 +89,18 @@
                         "id": "wi1", "tier": 1, "branch": "trunk", "name": "Éclat de glace I",
                         "description": "Un éclat de glace tranchant qui transperce une cible.",
                         "next": ["wi2"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 2, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 2, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
                     },
                     {
                         "id": "wi2", "tier": 2, "branch": "trunk", "name": "Éclat de glace II",
                         "description": "L'éclat gagne en densité : frappe plus loin et plus fort.",
                         "next": ["wi3"],
-                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 3, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "wi3", "tier": 3, "branch": "trunk", "name": "Éclat de glace III",
                         "description": "Un éclat de glace redoutable, capable de transpercer les défenses les plus solides.",
-                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 4, "range": "15 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] },
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "15 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] },
                         "next": ["wi4", "wi4r"]
                     },
                     {
@@ -144,18 +144,18 @@
                         "id": "wi1", "tier": 1, "branch": "trunk", "name": "Prison de glace I",
                         "description": "Fige l'humidité autour d'une cible, la prenant dans la glace.",
                         "next": ["wi2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
                     },
                     {
                         "id": "wi2", "tier": 2, "branch": "trunk", "name": "Prison de glace II",
                         "description": "La gangue s'épaissit et se referme plus sûrement.",
                         "next": ["wi3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 5, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 75 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 5, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 75 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "wi3", "tier": 3, "branch": "trunk", "name": "Prison de glace III",
                         "description": "Un cercueil de givre quasi inéluctable, glacial jusqu'à l'os.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 90 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 90 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     }
                 ]
             }
@@ -175,18 +175,18 @@
                         "id": "wv1", "tier": 1, "branch": "trunk", "name": "Voile de vapeur I",
                         "description": "Un nuage de vapeur brûlante qui brouille la vue autour du lanceur.",
                         "next": ["wv2"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 3, "range": "Autour de soi", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "Autour de soi", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "wv2", "tier": 2, "branch": "trunk", "name": "Voile de vapeur II",
                         "description": "La vapeur s'étend et brûle davantage ceux qui la traversent.",
                         "next": ["wv3"],
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 4, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     },
                     {
                         "id": "wv3", "tier": 3, "branch": "trunk", "name": "Voile de vapeur III",
                         "description": "Une nappe bouillonnante et aveuglante qui noie tout un champ de vision.",
-                        "stats": { "damageMin": 6, "damageMax": 10, "mana": 5, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 5, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     }
                 ]
             }
@@ -241,41 +241,41 @@
                         "id": "wm1", "tier": 1, "branch": "trunk", "name": "Appel des marées I",
                         "description": "Soulève une vague qui déferle sur une zone et emporte les créatures.",
                         "next": ["wm2"],
-                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 6, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 6, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }] }
                     },
                     {
                         "id": "wm2", "tier": 2, "branch": "trunk", "name": "Appel des marées II",
                         "description": "La marée enfle : vague plus haute, poussée plus irrésistible.",
                         "next": ["wm3"],
-                        "stats": { "damageMin": 18, "damageMax": 26, "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }] }
                     },
                     {
                         "id": "wm3", "tier": 3, "branch": "trunk", "name": "Appel des marées III",
                         "description": "Point de scission : la marée peut se muer en raz-de-marée ou en maelström.",
                         "next": ["wmt4", "wmx4"],
-                        "stats": { "damageMin": 26, "damageMax": 36, "mana": 11, "range": "18 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 1.0 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 11, "range": "18 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     },
                     {
                         "id": "wmt4", "tier": 4, "branch": "tsunami", "name": "Raz-de-marée",
                         "description": "Un mur d'eau titanesque qui broie tout un front.",
                         "next": ["wmt5"],
-                        "stats": { "damageMin": 40, "damageMax": 56, "mana": 15, "range": "20 m", "area": "Rayon 8 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 1.3 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 15, "range": "20 m", "area": "Rayon 8 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "wmt5", "tier": 5, "branch": "tsunami", "name": "Déluge",
                         "description": "Un océan déchaîné qui engloutit et efface tout un champ de bataille.",
-                        "stats": { "damageMin": 60, "damageMax": 82, "mana": 20, "range": "24 m", "area": "Rayon 10 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 1.7 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 20, "range": "24 m", "area": "Rayon 10 m", "targets": ["enemy"], "inflicts": [{ "status": "ralentissement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "wmx4", "tier": 4, "branch": "maelstrom", "name": "Maelström",
                         "description": "Un tourbillon qui aspire les cibles et les noie sous la surface.",
                         "next": ["wmx5"],
-                        "stats": { "damageMin": 22, "damageMax": 32, "mana": 12, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 12, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "wmx5", "tier": 5, "branch": "maelstrom", "name": "Œil de l'abîme",
                         "description": "Un gouffre liquide qui retient ses proies et les fige dans l'eau noire.",
-                        "stats": { "damageMin": 28, "damageMax": 40, "mana": 15, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 1.0 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 15, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "gel", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     }
                 ]
             }
@@ -299,18 +299,18 @@
                         "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame déferlante I",
                         "description": "Votre arme se nimbe d'un voile d'eau : chaque attaque au corps à corps inflige ces dégâts d'eau en plus, le temps de l'enchantement.",
                         "next": ["ra2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame déferlante II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["ra3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame déferlante III",
                         "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts d'eau durables.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -333,18 +333,18 @@
                         "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings déferlants I",
                         "description": "Vos poings se nimbent d'un voile d'eau : chaque coup à mains nues inflige ces dégâts d'eau en plus.",
                         "next": ["rp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
                     },
                     {
                         "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings déferlants II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["rp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
                     },
                     {
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings déferlants III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts d'eau.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
                     }
                 ]
             }
@@ -367,18 +367,18 @@
                         "id": "gp1", "tier": 1, "branch": "trunk", "name": "Poings de glace I",
                         "description": "Vos poings se couvrent de givre : chaque coup à mains nues inflige ces dégâts de glace en plus et engourdit la cible.",
                         "next": ["gp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "ralentissement", "chance": 20 }], "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "ralentissement", "chance": 20 }], "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "gp2", "tier": 2, "branch": "trunk", "name": "Poings de glace II",
                         "description": "Le givre s'épaissit et mord plus longtemps.",
                         "next": ["gp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "ralentissement", "chance": 30 }], "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "ralentissement", "chance": 30 }], "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "gp3", "tier": 3, "branch": "trunk", "name": "Poings de glace III",
                         "description": "Des poings de givre dont chaque impact gèle et ralentit.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -402,18 +402,18 @@
                         "id": "ga1", "tier": 1, "branch": "trunk", "name": "Lame de glace I",
                         "description": "Votre arme se couvre de givre : chaque attaque au corps à corps inflige ces dégâts de glace en plus et engourdit la cible.",
                         "next": ["ga2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "ralentissement", "chance": 20 }], "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "ralentissement", "chance": 20 }], "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ga2", "tier": 2, "branch": "trunk", "name": "Lame de glace II",
                         "description": "Le givre s'épaissit et mord plus longtemps.",
                         "next": ["ga3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "ralentissement", "chance": 30 }], "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "ralentissement", "chance": 30 }], "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ga3", "tier": 3, "branch": "trunk", "name": "Lame de glace III",
                         "description": "Une lame de givre dont chaque coup gèle et ralentit.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -436,18 +436,18 @@
                         "id": "bp1", "tier": 1, "branch": "trunk", "name": "Poings de brume I",
                         "description": "Vos poings s'entourent de brume : chaque coup à mains nues inflige ces dégâts d'eau en plus et brouille la vue de la cible.",
                         "next": ["bp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "aveuglement", "chance": 15 }], "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "aveuglement", "chance": 15 }], "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "bp2", "tier": 2, "branch": "trunk", "name": "Poings de brume II",
                         "description": "La brume s'épaissit et persiste plus longtemps.",
                         "next": ["bp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "aveuglement", "chance": 25 }], "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "aveuglement", "chance": 25 }], "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "bp3", "tier": 3, "branch": "trunk", "name": "Poings de brume III",
                         "description": "Des poings de brume dont chaque impact aveugle et cingle.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "aveuglement", "chance": 35 }], "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "aveuglement", "chance": 35 }], "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     }
                 ]
             }
@@ -471,18 +471,18 @@
                         "id": "ba1", "tier": 1, "branch": "trunk", "name": "Lame de brume I",
                         "description": "Votre arme s'entoure de brume : chaque attaque au corps à corps inflige ces dégâts d'eau en plus et brouille la vue de la cible.",
                         "next": ["ba2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "aveuglement", "chance": 15 }], "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "inflicts": [{ "status": "aveuglement", "chance": 15 }], "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ba2", "tier": 2, "branch": "trunk", "name": "Lame de brume II",
                         "description": "La brume s'épaissit et persiste plus longtemps.",
                         "next": ["ba3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "aveuglement", "chance": 25 }], "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "inflicts": [{ "status": "aveuglement", "chance": 25 }], "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ba3", "tier": 3, "branch": "trunk", "name": "Lame de brume III",
                         "description": "Une lame de brume dont chaque coup aveugle et cingle.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "aveuglement", "chance": 35 }], "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "inflicts": [{ "status": "aveuglement", "chance": 35 }], "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }

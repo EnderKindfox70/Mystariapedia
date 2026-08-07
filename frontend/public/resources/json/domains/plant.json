@@ -29,41 +29,41 @@
                         "id": "pt1", "tier": 1, "branch": "trunk", "name": "Toxine végétale I",
                         "description": "Une sève toxique projetée sur la cible, qui l'empoisonne.",
                         "next": ["pt2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 2, "range": "8 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 2, "range": "8 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
                     },
                     {
                         "id": "pt2", "tier": 2, "branch": "trunk", "name": "Toxine végétale II",
                         "description": "Le venin gagne en virulence et s'accroche mieux aux chairs.",
                         "next": ["pt3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 3, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "pt3", "tier": 3, "branch": "trunk", "name": "Toxine végétale III",
                         "description": "Point de scission : la sève peut devenir venin corrosif ou neurotoxine.",
                         "next": ["ptv4", "ptp4"],
-                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "ptv4", "tier": 4, "branch": "venin", "name": "Venin corrosif",
                         "description": "Un poison qui dévore la chair et ne laisse aucun répit.",
                         "next": ["ptv5"],
-                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 85 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 85 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
                     },
                     {
                         "id": "ptv5", "tier": 5, "branch": "venin", "name": "Fléau toxique",
                         "description": "Une contagion toxique qui se répand sur tous les proches de la cible.",
-                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 7, "range": "12 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 95 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 7, "range": "12 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 95 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "ptp4", "tier": 4, "branch": "paralysant", "name": "Neurotoxine",
                         "description": "Une toxine qui engourdit les nerfs et fige les muscles.",
                         "next": ["ptp5"],
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
                     },
                     {
                         "id": "ptp5", "tier": 5, "branch": "paralysant", "name": "Torpeur mortelle",
                         "description": "Un poison paralysant si puissant qu'il cloue la cible sur place.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
                     }
                 ]
             }
@@ -83,18 +83,18 @@
                         "id": "pr1", "tier": 1, "branch": "trunk", "name": "Ronces étreignantes I",
                         "description": "Des ronces jaillissent et enserrent les créatures d'une zone.",
                         "next": ["pr2"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 3, "range": "12 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "12 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "pr2", "tier": 2, "branch": "trunk", "name": "Ronces étreignantes II",
                         "description": "Les ronces s'épaississent et se hérissent d'épines.",
                         "next": ["pr3"],
-                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 4, "range": "12 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 75 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "12 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 75 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     },
                     {
                         "id": "pr3", "tier": 3, "branch": "trunk", "name": "Ronces étreignantes III",
                         "description": "Un fourré d'épines inextricable qui cloue tout un groupe au sol.",
-                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 5, "range": "14 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 90 }], "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 5, "range": "14 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 90 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     }
                 ]
             }
@@ -114,18 +114,18 @@
                         "id": "ps1", "tier": 1, "branch": "trunk", "name": "Nuage de spores I",
                         "description": "Un nuage de spores qui affaiblit ceux qui le respirent.",
                         "next": ["ps2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "ps2", "tier": 2, "branch": "trunk", "name": "Nuage de spores II",
                         "description": "Le nuage s'épaissit : toux, vertiges et membres alourdis.",
                         "next": ["ps3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     },
                     {
                         "id": "ps3", "tier": 3, "branch": "trunk", "name": "Nuage de spores III",
                         "description": "Une brume fongique qui affaiblit et embrouille tout un secteur.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 70 }, { "status": "confusion", "chance": 25 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 5, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "affaiblissement", "chance": 70 }, { "status": "confusion", "chance": 25 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     }
                 ]
             }
@@ -145,18 +145,18 @@
                         "id": "pg1", "tier": 1, "branch": "trunk", "name": "Greffe parasitaire I",
                         "description": "Une pousse parasite s'implante et commence à drainer la vigueur de la cible.",
                         "next": ["pg2"],
-                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 5, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 50 }], "effects": [{ "stat": "force", "value": 1, "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 5, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 50 }], "effects": [{ "stat": "force", "value": 1, "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
                     },
                     {
                         "id": "pg2", "tier": 2, "branch": "trunk", "name": "Greffe parasitaire II",
                         "description": "Le parasite prend racine et pompe plus avidement la force de sa proie.",
                         "next": ["pg3"],
-                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 6, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 60 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 6, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 60 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
                     },
                     {
                         "id": "pg3", "tier": 3, "branch": "trunk", "name": "Greffe parasitaire III",
                         "description": "Une symbiose forcée qui vide la cible de sa vigueur au profit du lanceur.",
-                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 70 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 70 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
                     }
                 ]
             }
@@ -325,18 +325,18 @@
                         "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame épineuse I",
                         "description": "Votre arme se nimbe de ronces : chaque attaque au corps à corps inflige ces dégâts végétaux en plus, le temps de l'enchantement.",
                         "next": ["ra2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame épineuse II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["ra3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame épineuse III",
                         "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts végétaux durables.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -359,18 +359,18 @@
                         "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings épineux I",
                         "description": "Vos poings se nimbent de ronces : chaque coup à mains nues inflige ces dégâts végétaux en plus.",
                         "next": ["rp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings épineux II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["rp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings épineux III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts végétaux.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
                     }
                 ]
             }

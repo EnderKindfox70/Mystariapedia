@@ -1,0 +1,132 @@
+{
+  "slug": "scarabee-pollinisateur-geant",
+  "name": "Scarabée pollinisateur géant",
+  "chapter": "communes",
+  "cr": 0,
+  "entityTypeId": 1,
+  "size": "TP",
+  "teaser": "Il ne pique pas, il ne mord pas. Il transporte ce qui réveille la vie endormie.",
+  "quote": "« Relâchez-le. Une bête vivante refait sa réserve ; une bête morte ne donne qu'une pincée souillée. »",
+  "quote-author": "Règle première des récolteurs de pollen",
+  "behaviour": "Nectarivore, grégaire, diurne",
+  "description": [
+    "Coléoptère de la taille d'un poing, aux élytres bleu-vert irisés et au thorax couvert d'un duvet dense, qui butine les fleurs des clairières chargées de mana. Il vole lourdement, en ligne droite, avec un bourdonnement grave qu'on entend à vingt pas ; il est parfaitement inoffensif et se laisse cueillir à la main.",
+    "Son duvet le couvre entièrement d'un pollen doré qu'il transporte de fleur en fleur. Ce pollen a la propriété singulière de réveiller la vie en sommeil : il déclenche la germination de spores et de graines qui seraient autrement restées inertes des années. Là où les colonies passent, les clairières refleurissent hors saison.",
+    "L'insecte s'oriente sur les concentrations de mana plutôt que sur l'odeur des fleurs, ce qui en fait un traceur fiable pour les herboristes : suivre une colonne de scarabées mène à un sol riche, et un essaim qui abandonne une clairière annonce que le filon de mana s'y épuise. Les récolteurs les capturent vivants, les brossent et les relâchent — un scarabée refait sa réserve en une journée."
+  ],
+  "traitIds": [
+    4
+  ],
+  "statBonuses": {
+    "hp": -13,
+    "physical_atk": -5,
+    "magical_atk": 2,
+    "mana": 6,
+    "speed": 6
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 4
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 11
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 7
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 1
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 14
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 8
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        10
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        4
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "clairiere",
+      "collection": "locations",
+      "label": "Clairières fleuries"
+    },
+    {
+      "ref": "foret",
+      "collection": "locations",
+      "label": "Forêt"
+    }
+  ],
+  "frequency": "Commune, mais strictement liée aux sols chargés de mana",
+  "loot": [
+    {
+      "ref": "pollen-de-scarabee-pollinisateur",
+      "collection": "natural-resources/remains",
+      "chance": 75,
+      "min": 1
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Bourdonnement",
+      "description": "Un vol lourd et droit qui bouscule à peine.",
+      "damageMin": 1,
+      "damageMax": 1,
+      "damageType": "bludgeoning",
+      "range": "Contact",
+      "enduranceCost": 1
+    },
+    {
+      "name": "Nuée de pollen",
+      "description": "Il libère le pollen chargé de mana qu’il transporte : ce qui vit alentour reprend des forces.",
+      "range": "Autour de soi",
+      "area": "Rayon 4 m",
+      "targets": [
+        "self",
+        "ally"
+      ],
+      "heal": 4,
+      "manaCost": 3,
+      "scaling": [
+        {
+          "source": "atk_mag",
+          "ratio": 0.8,
+          "affects": "heal"
+        }
+      ]
+    }
+  ]
+}

@@ -92,7 +92,76 @@
   "loot": [
     {
       "ref": "croc-de-loup",
-      "collection": "natural-resources/remains"
+      "collection": "natural-resources/remains",
+      "chance": 85,
+      "min": 1,
+      "max": 4
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Morsure",
+      "description": "La morsure franche d’un prédateur habitué aux proies plus grandes que lui.",
+      "damageMin": 1,
+      "damageMax": 3,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.35
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 1,
+      "reaction": [
+        "leave-reach"
+      ]
+    },
+    {
+      "name": "Croc au jarret",
+      "description": "Il vise les tendons pour ralentir la course avant de revenir.",
+      "damageMin": 2,
+      "damageMax": 4,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.3
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 3,
+      "inflicts": [
+        {
+          "status": "saignement",
+          "chance": 60
+        },
+        {
+          "status": "ralentissement",
+          "chance": 40
+        }
+      ]
+    },
+    {
+      "name": "Hurlement de meute",
+      "description": "Son appel resserre la meute : les siens frappent de concert et plus vite.",
+      "range": "Autour de soi",
+      "area": "Rayon 9 m",
+      "targets": [
+        "ally"
+      ],
+      "duration": 3,
+      "enduranceCost": 3,
+      "effects": [
+        {
+          "stat": "atk_phy",
+          "value": 3
+        },
+        {
+          "stat": "speed",
+          "value": 3
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,614 @@
+<!-- `.layout` (styles.css) place la sidebar à gauche et la vue à sa droite.
+     Sans lui, la navbar — haute de 100vh — s'empile au-dessus du plateau. -->
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="cb">
+    <!-- ══ Bandeau : identité de la rencontre et commandes générales ══ -->
+    <header class="cb-head">
+      <div class="cb-head__title">
+        <input
+          class="cb-name"
+          type="text"
+          aria-label="Nom de la rencontre"
+          [value]="encounter().name"
+          (change)="rename($any($event.target).value)"
+        >
+        @if (encounter().started) {
+          <span class="cb-round">Round {{ encounter().round }}</span>
+        } @else {
+          <span class="cb-round cb-round--idle">Préparation</span>
+        }
+      </div>
+
+      <div class="cb-head__actions">
+        @if (!encounter().started) {
+          <button
+            type="button"
+            class="cb-btn cb-btn--primary"
+            [disabled]="encounter().combatants.length < 2"
+            (click)="start()"
+          >Lancer le combat</button>
+        } @else {
+          <button type="button" class="cb-btn cb-btn--primary" [disabled]="finished()" (click)="endTurn()">
+            Fin du tour
+          </button>
+        }
+        <button type="button" class="cb-btn" [disabled]="!canUndo()" (click)="undo()">Annuler</button>
+        <button type="button" class="cb-btn" [disabled]="saving()" (click)="save()">
+          {{ saving() ? 'Sauvegarde…' : 'Sauvegarder' }}
+        </button>
+        <button type="button" class="cb-btn" (click)="fresh()">Nouvelle</button>
+      </div>
+    </header>
+
+    @if (saveError()) {
+      <p class="cb-alert">{{ saveError() }}</p>
+    }
+    @if (finished()) {
+      <p class="cb-alert cb-alert--done">Le combat est terminé. Consultez le journal pour le détail.</p>
+    }
+
+    <div class="cb-body">
+      <!-- ══ Colonne gauche : ordre d'initiative ══ -->
+      <aside class="cb-order">
+        <h2>{{ encounter().started ? 'Ordre d’initiative' : 'Combattants' }}</h2>
+
+        @if (!encounter().combatants.length) {
+          <p class="cb-empty">Ajoutez des personnages et des créatures depuis le panneau de droite.</p>
+        }
+
+        <ul class="cb-order__list">
+          @for (unit of turnOrder(); track unit.id) {
+            <li
+              class="cb-unit"
+              [class.is-active]="active()?.id === unit.id"
+              [class.is-down]="unit.down"
+              [class.is-selected]="selectedId() === unit.id"
+              [attr.data-team]="unit.team"
+            >
+              <button type="button" class="cb-unit__main" (click)="select(unit)">
+                @if (unit.portrait) {
+                  <img class="cb-unit__face" [src]="unit.portrait" alt="">
+                } @else {
+                  <span class="cb-unit__face cb-unit__face--glyph">{{ unit.name.charAt(0) }}</span>
+                }
+                <span class="cb-unit__id">
+                  <strong>{{ unit.name }}</strong>
+                  @if (unit.role || unit.level != null) {
+                    <span class="cb-unit__role">
+                      {{ unit.role }}
+                      @if (unit.level != null) {
+                        <!-- Niveau pour un personnage, indice de menace pour une bête. -->
+                        <b [title]="unit.origin.kind === 'bestiary' ? 'Indice de menace' : 'Niveau'"
+                        >{{ unit.origin.kind === 'bestiary' ? 'menace' : 'niv.' }} {{ unit.level }}</b>
+                      }
+                    </span>
+                  }
+                  <small>
+                    {{ unit.hp }} / {{ unit.base.hp }} PV
+                    @if (encounter().started) { · vit. {{ unit.initiative }} }
+                  </small>
+                </span>
+              </button>
+
+              <div class="cb-bars">
+              <div
+                class="cb-bar cb-bar--hp"
+                [title]="unit.hp + ' / ' + unit.base.hp + ' points de vie'"
+              ><span [style.width.%]="hpPercent(unit)"></span></div>
+              <div
+                class="cb-bar cb-bar--end"
+                [title]="unit.endurance + ' / ' + effectiveStat(unit, 'endurance')
+                         + ' endurance (+' + enduranceRecovery(unit) + ' par tour)'"
+              ><span [style.width.%]="endurancePercent(unit)"></span></div>
+              <!-- Un combattant sans mana n'a pas de réserve à montrer. -->
+              @if (effectiveStat(unit, 'mana') > 0) {
+                <div
+                  class="cb-bar cb-bar--mana"
+                  [title]="unit.mana + ' / ' + effectiveStat(unit, 'mana') + ' mana'"
+                ><span [style.width.%]="manaPercent(unit)"></span></div>
+              }
+            </div>
+
+              <!-- Statuts actifs : cliquer sur une pastille la retire. -->
+              @if (unit.statuses.length || unit.effects.length) {
+                <div class="cb-tags">
+                  @for (status of unit.statuses; track status.key) {
+                    <button
+                      type="button"
+                      class="cb-tag cb-tag--status"
+                      [title]="(statusByKey(status.key)?.effect ?? '') + ' — cliquer pour retirer'"
+                      (click)="removeStatus(unit, status.key)"
+                    >
+                      {{ statusByKey(status.key)?.name ?? status.key }}
+                      @if (status.stacks > 1) { ×{{ status.stacks }} }
+                      <em>{{ status.remaining < 0 ? '∞' : status.remaining }}</em>
+                    </button>
+                  }
+                  @for (effect of unit.effects; track effect.id) {
+                    <span class="cb-tag cb-tag--effect" [title]="effect.name">
+                      {{ effect.name }} <em>{{ effect.remaining }}</em>
+                    </span>
+                  }
+                  <!-- L'essoufflement n'est pas un statut du catalogue : c'est
+                       un état de la réserve, et il doit se voir comme tel. -->
+                  @if (unit.winded) {
+                    <span class="cb-tag cb-tag--winded"
+                          title="À bout de souffle : précision et vitesse réduites jusqu'à avoir repris haleine (se garder est le plus rapide)">
+                      À bout de souffle
+                    </span>
+                  }
+                </div>
+              }
+
+              <!-- Interventions du MJ : correction de PV, pose de statut, retrait. -->
+              @if (selectedId() === unit.id) {
+                <div class="cb-unit__tools">
+                  <div class="cb-stats">
+                    <span title="Attaque physique">ATK {{ effectiveStat(unit, 'atk_phy') }}</span>
+                    <span title="Attaque magique">MAG {{ effectiveStat(unit, 'atk_mag') }}</span>
+                    <span title="Défense physique">DEF {{ effectiveStat(unit, 'def_phy') }}</span>
+                    <span title="Défense magique">RES {{ effectiveStat(unit, 'def_mag') }}</span>
+                    <span title="Vitesse">VIT {{ effectiveStat(unit, 'speed') }}</span>
+                    <span title="Mana">MP {{ unit.mana }} / {{ effectiveStat(unit, 'mana') }}</span>
+                    <span [title]="'Endurance — récupère ' + enduranceRecovery(unit) + ' par tour'">
+                      END {{ unit.endurance }} / {{ effectiveStat(unit, 'endurance') }}
+                      (+{{ enduranceRecovery(unit) }})
+                    </span>
+                  </div>
+
+                  <div class="cb-row">
+                    <button type="button" class="cb-mini" (click)="adjustHp(unit, -5)">−5 PV</button>
+                    <button type="button" class="cb-mini" (click)="adjustHp(unit, -1)">−1</button>
+                    <button type="button" class="cb-mini" (click)="adjustHp(unit, 1)">+1</button>
+                    <button type="button" class="cb-mini" (click)="adjustHp(unit, 5)">+5 PV</button>
+                  </div>
+
+                  <select
+                    class="cb-select"
+                    aria-label="Infliger un statut"
+                    (change)="applyStatusTo(unit, $any($event.target).value); $any($event.target).value = ''"
+                  >
+                    <option value="">Infliger un statut…</option>
+                    @for (status of allStatuses; track status.key) {
+                      <option [value]="status.key">{{ status.name }}</option>
+                    }
+                  </select>
+
+                  <!-- Le sac : munitions et fioles, décomptées à l'usage. Une
+                       ligne à zéro reste visible pour dire qu'il faut refaire
+                       le plein. -->
+                  @if (unit.inventory.length) {
+                    <h4 class="cb-subhead">Sac</h4>
+                    <ul class="cb-bag">
+                      @for (item of unit.inventory; track item.name) {
+                        <li [class.is-empty]="item.qty === 0" [attr.data-kind]="item.kind">
+                          <span>{{ item.name }}</span>
+                          <em>×{{ item.qty }}</em>
+                        </li>
+                      }
+                    </ul>
+                  }
+
+                  @if (unit.notes) {
+                    <p class="cb-notes">{{ unit.notes }}</p>
+                  }
+
+                  @if (!encounter().started) {
+                    <button type="button" class="cb-mini cb-mini--danger" (click)="removeCombatant(unit.id)">
+                      Retirer de la rencontre
+                    </button>
+                  }
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </aside>
+
+      <!-- ══ Centre : la grille tactique ══ -->
+      <section class="cb-arena">
+        <div class="cb-arena__bar">
+          <span class="cb-scale">1 case = {{ cellMeters }} m</span>
+
+          @if (active(); as unit) {
+            <span class="cb-turn">
+              Au tour de <strong>{{ unit.name }}</strong> ·
+              {{ movementLeft() | number:'1.0-1' }} m de déplacement ·
+              {{ unit.actionUsed ? 'action utilisée' : 'action disponible' }} ·
+              <span
+                class="cb-turn__end"
+                [title]="'Récupère ' + enduranceRecovery(unit) + ' d’endurance au début de chaque tour'"
+              >{{ unit.endurance }}/{{ effectiveStat(unit, 'endurance') }} endurance</span>
+            </span>
+          }
+
+          <span class="cb-modes">
+            @if (!encounter().started) {
+              <button
+                type="button"
+                class="cb-mini"
+                [class.is-on]="mode() === 'terrain'"
+                (click)="mode.set(mode() === 'terrain' ? 'play' : 'terrain')"
+              >Décor</button>
+            }
+            <select class="cb-select cb-select--slim" aria-label="Moment de la journée" [value]="encounter().daytime ?? ''" (change)="setDaytime($any($event.target).value)">
+              <option value="">Heure indéterminée</option>
+              @for (moment of daytimes; track moment.key) {
+                <option [value]="moment.key">{{ moment.name }}</option>
+              }
+            </select>
+            <select class="cb-select cb-select--slim" aria-label="Météo" [value]="encounter().weather ?? ''" (change)="setWeather($any($event.target).value)">
+              <option value="">Ciel dégagé</option>
+              @for (weather of weathers; track weather.key) {
+                <option [value]="weather.key">{{ weather.name }}</option>
+              }
+            </select>
+          </span>
+        </div>
+
+        <!-- Palette de décor : un clic pose, un second sur la même case efface. -->
+        @if (mode() === 'terrain') {
+          <div class="cb-palette">
+            @for (kind of terrainKinds; track kind.key) {
+              <button
+                type="button"
+                class="cb-brush"
+                [class.is-on]="brush() === kind.key"
+                [style.--tint]="kind.color"
+                [title]="kind.hint"
+                (click)="brush.set(kind.key)"
+              >
+                <span class="cb-brush__glyph">{{ kind.glyph }}</span>
+                {{ kind.label }}
+              </button>
+            }
+            <span class="cb-palette__hint">Recliquer une case avec le même décor l’efface.</span>
+          </div>
+        }
+
+        <div
+          class="cb-grid"
+          [style.--cols]="encounter().grid.width"
+          [style.--rows]="encounter().grid.height"
+          (mouseleave)="hover.set(null)"
+        >
+          @for (cell of cells(); track cell.key) {
+            <button
+              type="button"
+              class="cb-cell"
+              [class.is-terrain]="!!terrainAt(cell.key)"
+              [style.--terrain]="terrainAt(cell.key)?.color"
+              [attr.data-terrain]="terrainAt(cell.key)?.key"
+              [attr.data-glyph]="terrainAt(cell.key)?.glyph"
+              [class.is-reachable]="reachable().has(cell.key)"
+              [class.is-range]="rangeOverlay().has(cell.key)"
+              [class.is-close]="disadvantageCells().has(cell.key)"
+              [class.is-strike]="pendingCells().has(cell.key) || teleportCells().has(cell.key)"
+              [class.is-area]="areaPreview().has(cell.key)"
+              [class.is-picked]="selectedId() && unitAt(cell.key)?.id === selectedId()"
+              [attr.aria-label]="'Case ' + cell.pos.x + ', ' + cell.pos.y"
+              (mouseenter)="hover.set(cell.pos)"
+              (click)="onCellClick(cell.pos)"
+            >
+              @if (unitAt(cell.key); as unit) {
+                @if (isAnchor(unit, cell.pos)) {
+                  <span
+                    class="cb-token"
+                    [attr.data-team]="unit.team"
+                    [class.is-active]="active()?.id === unit.id"
+                    [class.is-down]="unit.down"
+                    [style.--span]="unit.footprint"
+                    [title]="unit.name + ' — ' + unit.hp + '/' + unit.base.hp + ' PV'"
+                  >
+                    @if (unit.portrait) {
+                      <img [src]="unit.portrait" alt="">
+                    } @else {
+                      <span class="cb-token__glyph">{{ unit.name.charAt(0) }}</span>
+                    }
+                    <span class="cb-token__hp" [style.width.%]="hpPercent(unit)"></span>
+                  </span>
+                }
+              } @else if (reachable().get(cell.key); as cost) {
+                <span class="cb-cost">{{ cost | number:'1.0-1' }}</span>
+              }
+            </button>
+          }
+        </div>
+
+        <!-- ══ Réaction : le combat s'arrête tant qu'elle n'est pas tranchée ══ -->
+        @if (reaction(); as window) {
+          <div class="cb-strike cb-strike--reaction">
+            <p>
+              <strong>{{ reactor()?.name }}</strong> peut réagir — {{ window.reason }}
+            </p>
+            @if (teleporting(); as spell) {
+              <p class="cb-hint">
+                <strong>{{ spell.name }}</strong> — cliquez la case où vous vous rendez
+                (jusqu’à {{ spell.teleportMeters ?? spell.rangeMeters }} m).
+                <button type="button" class="cb-mini" (click)="teleporting.set(null)">Annuler</button>
+              </p>
+            } @else {
+              <div class="cb-strike__choices">
+                @for (option of reactionChoices(); track option.id) {
+                  <button
+                    type="button"
+                    class="cb-mini"
+                    [title]="option.description ?? option.name"
+                    (click)="chooseReaction(option)"
+                  >
+                    {{ option.name }}
+                    @if (option.teleport) { <em>se dérober</em> }
+                    @else if (option.damages.length) { <em>riposter</em> }
+                  </button>
+                }
+                <button type="button" class="cb-mini cb-mini--danger" (click)="skipReaction()">
+                  Ne pas réagir
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ══ Frappe gratuite : le joueur choisit, il ne la subit pas ══ -->
+        @if (pending(); as strike) {
+          <div class="cb-strike">
+            <p>
+              <strong>{{ strike.source }}</strong> — frappe gratuite
+              ({{ strike.slot === 'unarmed' ? 'à mains nues' : 'avec l’arme' }}).
+              Désignez une cible sur le plateau, ou ci-dessous.
+            </p>
+            <div class="cb-strike__choices">
+              @for (candidate of pendingTargets(); track candidate.id) {
+                <button type="button" class="cb-mini" (click)="strikeAt(candidate)">
+                  {{ candidate.name }} <em>{{ candidate.hp }} PV</em>
+                </button>
+              }
+              <button type="button" class="cb-mini cb-mini--danger" (click)="skipStrike()">
+                Passer
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ══ Capacités du combattant actif ══ -->
+        @if (active(); as unit) {
+          <div class="cb-abilities">
+            <h3>Actions de {{ unit.name }}</h3>
+            @if (armed(); as ability) {
+              <p class="cb-hint">
+                <strong>{{ ability.name }}</strong> armé —
+                {{ ability.shape.kind === 'targets'
+                    ? 'désignez ' + shapeLabel(ability.shape)
+                    : 'cliquez la case visée' }}.
+                Portée {{ ability.rangeMeters }} m · {{ shapeLabel(ability.shape) }}.
+                <button type="button" class="cb-mini" (click)="armed.set(null)">Annuler</button>
+              </p>
+            }
+
+            <!-- Onglets par famille : on ne voit que ce qu'on cherche, et la
+                 liste tient sans défilement. -->
+            <nav class="cb-actiontabs">
+              @for (group of actionGroups; track group.key) {
+                @if (countIn(group.key)) {
+                  <button
+                    type="button"
+                    [class.is-on]="actionTab() === group.key"
+                    (click)="actionTab.set(group.key)"
+                  >
+                    {{ group.label }}
+                    <em>{{ countIn(group.key) }}</em>
+                  </button>
+                }
+              }
+            </nav>
+
+            <ul class="cb-ability__list">
+              @for (ability of visibleAbilities(); track ability.id) {
+                <li>
+                  <button
+                    type="button"
+                    class="cb-ability"
+                    [class.is-armed]="armed()?.id === ability.id"
+                    [attr.data-kind]="ability.kind"
+                    [disabled]="!!abilityBlocker(ability)"
+                    [title]="abilityBlocker(ability) ?? ability.description ?? ability.name"
+                    (click)="toggleAbility(ability)"
+                  >
+                    <span class="cb-ability__name">{{ ability.name }}</span>
+                    <span class="cb-ability__meta">
+                      <!-- Dégâts RÉELS (dés + scaling + buffs de poing), pas les
+                           chiffres bruts de la fiche. -->
+                      @for (chip of damageChips(unit, ability); track $index) {
+                        <em class="cb-ability__dmg">{{ chip }}</em>
+                      }
+                      <!-- Approché : la cible n'est pas encore désignée. -->
+                      @if (hitThresholdHint(unit, ability); as seuil) {
+                        <em class="cb-ability__hit" title="Score à faire au d20, hors esquive de la cible et gêne de tir">
+                          touche à {{ seuil }}+
+                        </em>
+                      }
+                      @if (healAmount(unit, ability); as heal) {
+                        <em class="cb-ability__heal">soin {{ heal }}</em>
+                      }
+                      @if (manaAmount(unit, ability); as mana) {
+                        <em>+{{ mana }} mana</em>
+                      }
+                      <em>{{ ability.rangeMeters }} m</em>
+                      <!-- Coût RÉEL : la météo et l'heure du jour le modulent. -->
+                      @if (manaCost(ability); as cost) {
+                        <em [class.cb-stock]="cost !== ability.manaCost">{{ cost }} mana</em>
+                      }
+                      @if (ability.enduranceCost) { <em>{{ ability.enduranceCost }} end.</em> }
+                      <!-- Stock restant : ce qui dit au joueur combien de
+                           flèches il lui reste avant même d'armer le tir. -->
+                      @if (ability.consumes; as need) {
+                        <em
+                          class="cb-stock"
+                          [class.is-out]="carriedQty(unit, need.item) < need.qty"
+                        >{{ need.item }} ×{{ carriedQty(unit, need.item) }}</em>
+                      }
+                    </span>
+                    @if (ability.manualEffects?.length) {
+                      <span class="cb-ability__manual" title="Effet à appliquer par le MJ">
+                        {{ ability.manualEffects![0] }}
+                      </span>
+                    }
+                    @if (ability.subtitle) {
+                      <span class="cb-ability__sub">{{ ability.subtitle }}</span>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+
+      <!-- ══ Colonne droite : montage / journal ══ -->
+      <aside class="cb-side">
+        <nav class="cb-tabs">
+          <button type="button" [class.is-on]="panel() === 'roster'" (click)="panel.set('roster')">Rencontre</button>
+          <button type="button" [class.is-on]="panel() === 'log'" (click)="panel.set('log')">Journal</button>
+        </nav>
+
+        @if (panel() === 'roster') {
+          <div class="cb-panel">
+            @if (rosterError()) { <p class="cb-alert">{{ rosterError() }}</p> }
+
+            <h3>Grille</h3>
+            <div class="cb-row">
+              <label>Largeur
+                <input type="number" min="5" max="60" [value]="encounter().grid.width"
+                       (change)="resize($any($event.target).valueAsNumber, encounter().grid.height)">
+              </label>
+              <label>Hauteur
+                <input type="number" min="5" max="60" [value]="encounter().grid.height"
+                       (change)="resize(encounter().grid.width, $any($event.target).valueAsNumber)">
+              </label>
+            </div>
+
+            <h3>Camp des ajouts</h3>
+            <div class="cb-row cb-row--teams">
+              @for (team of teams; track team[0]) {
+                <button type="button" class="cb-mini" [class.is-on]="addTeam() === team[0]" (click)="addTeam.set(team[0])">
+                  {{ team[1] }}
+                </button>
+              }
+            </div>
+
+            <!-- Onglets : un seul catalogue à l'écran, donc plus de défilement
+                 pour atteindre le bestiaire depuis les fiches. -->
+            <nav class="cb-rostertabs">
+              <button
+                type="button"
+                [class.is-on]="rosterTab() === 'sheets'"
+                (click)="rosterTab.set('sheets')"
+              >
+                Personnages
+                @if (sheetList().length) { <em>{{ sheetList().length }}</em> }
+              </button>
+              <button
+                type="button"
+                [class.is-on]="rosterTab() === 'bestiary'"
+                (click)="rosterTab.set('bestiary')"
+              >
+                Bestiaire
+                @if (bestiary().length) { <em>{{ bestiary().length }}</em> }
+              </button>
+            </nav>
+
+            @if (rosterTab() === 'sheets') {
+              @if (loadingRoster()) {
+                <p class="cb-empty">Chargement des catalogues…</p>
+              } @else if (!sheetList().length) {
+                <p class="cb-empty">
+                  Aucune fiche. <a routerLink="/characters">Créez-en une</a> pour l’amener au combat.
+                </p>
+              } @else {
+                <input
+                  class="cb-search"
+                  type="search"
+                  placeholder="Chercher un personnage…"
+                  [value]="sheetFilter()"
+                  (input)="sheetFilter.set($any($event.target).value)"
+                >
+                <ul class="cb-pick">
+                  @for (sheet of filteredSheets(); track sheet.id) {
+                    <li>
+                      <button type="button" (click)="addSheet(sheet)" [disabled]="loadingRoster()">
+                        @if (sheet.image) { <img [src]="sheet.image" alt=""> }
+                        <span>{{ sheet.name }}<small>{{ sheet.race }}</small></span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+                @if (!filteredSheets().length) {
+                  <p class="cb-empty">Aucune fiche ne porte ce nom.</p>
+                }
+              }
+            } @else {
+              <input
+                class="cb-search"
+                type="search"
+                placeholder="Chercher une créature…"
+                [value]="bestiaryFilter()"
+                (input)="bestiaryFilter.set($any($event.target).value)"
+              >
+              <ul class="cb-pick">
+                @for (creature of filteredBestiary(); track creature.slug) {
+                  <li>
+                    <button type="button" (click)="addCreature(creature)" [disabled]="loadingRoster()">
+                      @if (creature.icon) { <img [src]="creature.icon" alt=""> }
+                      <span>{{ creature.name }}<small>menace {{ creature.cr }} · taille {{ creature.size }}</small></span>
+                    </button>
+                  </li>
+                }
+              </ul>
+              @if (!filteredBestiary().length) {
+                <p class="cb-empty">Aucune créature ne porte ce nom.</p>
+              }
+            }
+
+            @if (savedList().length) {
+              <h3>Rencontres sauvegardées</h3>
+              <ul class="cb-saved">
+                @for (saved of savedList(); track saved.id) {
+                  <li>
+                    <button type="button" class="cb-saved__open" (click)="open(saved)">
+                      {{ saved.name }}
+                      <small>{{ saved.combatants }} combattants · round {{ saved.round }}</small>
+                    </button>
+                    <button type="button" class="cb-mini cb-mini--danger" (click)="discard(saved)" aria-label="Supprimer">×</button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        } @else {
+          <div class="cb-panel cb-panel--log">
+            @if (!recentLog().length) {
+              <p class="cb-empty">Le journal se remplira dès la première action.</p>
+            }
+            <ol class="cb-log">
+              @for (entry of recentLog(); track entry.id) {
+                <li class="cb-log__line" [attr.data-kind]="entry.kind">
+                  <span class="cb-log__round">R{{ entry.round }}</span>
+                  <span class="cb-log__text">{{ entry.text }}</span>
+                  @if (entry.details?.length) {
+                    <ul class="cb-log__details">
+                      @for (detail of entry.details; track $index) {
+                        <li>{{ detail }}</li>
+                      }
+                    </ul>
+                  }
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      </aside>
+    </div>
+  </main>
+</div>

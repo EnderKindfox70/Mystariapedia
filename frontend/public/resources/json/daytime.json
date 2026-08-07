@@ -1,0 +1,82 @@
+{
+    "daytimes": [
+        {
+            "id": 1,
+            "key": "aube",
+            "name": "Aube",
+            "icon": "",
+            "description": "La première lueur grise sur l'horizon. Le monde n'est encore ni tout à fait la nuit, ni tout à fait le jour.",
+            "damageModifiers": [
+                { "domain": "light", "factor": 1.15 },
+                { "domain": "darkness", "factor": 0.9 }
+            ],
+            "costModifiers": [
+                { "domain": "light", "factor": 0.9 }
+            ]
+        },
+        {
+            "id": 2,
+            "key": "matinee",
+            "name": "Matinée",
+            "icon": "",
+            "description": "Le jour est levé, franc et sans excès. L'heure où l'on voit clair et où rien ne pèse.",
+            "damageModifiers": [],
+            "costModifiers": []
+        },
+        {
+            "id": 3,
+            "key": "midi",
+            "name": "Midi",
+            "icon": "",
+            "description": "Le soleil au zénith écrase les ombres. La lumière est partout, et rien ne s'y dissimule.",
+            "damageModifiers": [
+                { "domain": "light", "factor": 1.3 },
+                { "domain": "darkness", "factor": 0.7 }
+            ],
+            "costModifiers": [
+                { "domain": "light", "factor": 0.75 },
+                { "domain": "darkness", "factor": 1.25 }
+            ]
+        },
+        {
+            "id": 4,
+            "key": "apres-midi",
+            "name": "Après-midi",
+            "icon": "",
+            "description": "La lumière décline lentement et s'allonge. Les ombres reprennent du terrain sans encore régner.",
+            "damageModifiers": [
+                { "domain": "light", "factor": 1.1 }
+            ],
+            "costModifiers": []
+        },
+        {
+            "id": 5,
+            "key": "soiree",
+            "name": "Soirée",
+            "icon": "",
+            "description": "Le crépuscule. Ce qui se cache commence à se sentir chez soi, et l'on ne distingue plus les silhouettes des arbres.",
+            "damageModifiers": [
+                { "domain": "darkness", "factor": 1.15 },
+                { "domain": "light", "factor": 0.9 }
+            ],
+            "costModifiers": [
+                { "domain": "darkness", "factor": 0.9 }
+            ]
+        },
+        {
+            "id": 6,
+            "key": "nuit",
+            "name": "Nuit",
+            "icon": "",
+            "description": "L'obscurité pleine. Les prédateurs nocturnes y sont chez eux, et la lumière qu'on y porte se voit de loin.",
+            "damageModifiers": [
+                { "domain": "darkness", "factor": 1.3 },
+                { "domain": "light", "factor": 0.7 }
+            ],
+            "costModifiers": [
+                { "domain": "darkness", "factor": 0.75 },
+                { "domain": "light", "factor": 1.25 }
+            ]
+        }
+    ]
+}

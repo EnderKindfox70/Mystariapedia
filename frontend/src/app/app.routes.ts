@@ -30,6 +30,7 @@ import { Login } from './views/auth/login/login';
 import { Register } from './views/auth/register/register';
 import { Characters } from './views/characters/characters';
 import { CharacterSheetEditor } from './views/character-sheet/character-sheet';
+import { CombatView } from './views/combat/combat';
 import { authGuard } from './services/auth.guard';
 
 export const routes: Routes =
@@ -79,5 +80,7 @@ export const routes: Routes =
     { path: 'characters', component: Characters, canActivate: [authGuard] },
     { path: 'characters/new', component: CharacterSheetEditor, canActivate: [authGuard] },
     { path: 'characters/:id', component: CharacterSheetEditor, canActivate: [authGuard] },
+    // Table de combat : les rencontres sont rattachées à leur MJ, donc au compte.
+    { path: 'combat', component: CombatView, canActivate: [authGuard] },
     { path: 'tests', component: Tests },
 ];

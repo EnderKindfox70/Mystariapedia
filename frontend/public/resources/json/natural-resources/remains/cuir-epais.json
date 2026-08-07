@@ -1,0 +1,45 @@
+{
+    "name": "Cuir épais",
+    "subtitle": "Dépouille de créature",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Pan de peau tannée prélevé sur le garrot et le dos d'une vache des vallons, là où le cuir est le plus dense. Brut, il est raide et presque impossible à coudre ; travaillé au tan et à l'huile, il devient la matière de base de la moitié de l'équipement d'un aventurier.",
+        "C'est la ressource la moins prestigieuse du catalogue et la plus utilisée : sacs, outres, courroies, semelles, gaines, et l'assise de toute armure légère qui prétend arrêter autre chose qu'une ronce."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "4 kg" },
+        { "key": "type",    "label": "Type",        "value": "Peau / cuir" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "source",  "label": "Provenance",  "value": "Vache des vallons" },
+        { "key": "usage",   "label": "Utilisation", "value": "Armures légères, sacs, courroies, outres" },
+        { "key": "value",   "label": "Valeur",      "value": "3 pièces d'or la pièce" }
+    ],
+    "properties": [
+        "Support de base de toute armure légère et de la sellerie.",
+        "Prend bien la teinture et le gaufrage : c'est sur lui que l'on marque les blasons et les sceaux de compagnie.",
+        "Huilé régulièrement, il résiste à la pluie une saison entière ; négligé, il craquèle en quelques semaines.",
+        "Tient mal l'enchantement : sa trame trop lâche laisse fuir le mana, ce qui le réserve aux usages profanes."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Récupéré à l'abattage dans toutes les fermes des vallées cultivées ; on n'a pratiquement jamais besoin d'aller le chercher soi-même.",
+            "Conseil : achetez le cuir déjà tanné. Le tannage demande six semaines, une fosse et un voisinage tolérant."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "vache-des-vallons", "collection": "bestiary", "label": "Vache des vallons" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "earth", "collection": "domains", "label": "Terre" }
+            ]
+        }
+    ]
+}

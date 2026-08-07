@@ -1,0 +1,134 @@
+{
+  "slug": "poule-des-chaumes",
+  "name": "Poule des chaumes",
+  "chapter": "communes",
+  "cr": 0,
+  "entityTypeId": 1,
+  "size": "TP",
+  "teaser": "Le système d'alarme le plus répandu de Mystaria, et le moins fiable.",
+  "quote": "« Une basse-cour qui crie ne dit pas ce qui arrive. Elle dit seulement qu'il faut regarder. »",
+  "quote-author": "Manuel du guet villageois",
+  "behaviour": "Omnivore, grégaire, diurne",
+  "description": [
+    "Volaille rustique à plumage roux et gris, élevée dans les cours de ferme et les hameaux depuis si longtemps qu'on ne lui connaît plus de forme sauvage. Elle gratte les chaumes après la moisson, mange les grains perdus, les vers, les insectes, et à peu près tout ce qui tient dans un bec.",
+    "Elle ne se défend pas et ne survit à rien. Ce qui la rend précieuse, c'est le bruit : une basse-cour perçoit une présence bien avant les chiens et le fait savoir à tout le village. Le défaut du procédé est connu de tous ceux qui ont dormi dans une grange — une poule crie pour un renard, pour une ombre, pour une porte qui claque, et pour rien du tout.",
+    "Les éleveurs sélectionnent moins la ponte que le tempérament, et une lignée réputée « bonne crieuse » se vend le triple. Les oiseaux d'une même cour se répondent en cascade : une seule alerte, et le hameau entier est debout en moins d'une minute."
+  ],
+  "traitIds": [
+    5
+  ],
+  "statBonuses": {
+    "hp": -12,
+    "physical_atk": -4,
+    "magical_atk": 0,
+    "mana": 0,
+    "speed": 4
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 2
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 12
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 8
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 2
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 9
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 6
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "plaine",
+      "collection": "locations",
+      "label": "Champs et chaumes"
+    },
+    {
+      "ref": "village",
+      "collection": "locations",
+      "label": "Fermes et hameaux"
+    }
+  ],
+  "frequency": "Omniprésente dans les terres habitées",
+  "loot": [
+    {
+      "ref": "oeuf-frais",
+      "collection": "natural-resources/remains",
+      "label": "Œuf frais",
+      "chance": 90,
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Coup de bec",
+      "description": "Elle pique ce qui bouge, sans grande conviction.",
+      "damageMin": 1,
+      "damageMax": 1,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.2
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 1
+    },
+    {
+      "name": "Caquètement d’alarme",
+      "description": "Le système d’alarme le plus répandu de Mystaria : tout le monde détale, y compris ceux qui n’avaient rien vu.",
+      "range": "Autour de soi",
+      "area": "Rayon 12 m",
+      "targets": [
+        "ally"
+      ],
+      "duration": 2,
+      "enduranceCost": 1,
+      "effects": [
+        {
+          "stat": "speed",
+          "value": 4
+        }
+      ]
+    }
+  ]
+}

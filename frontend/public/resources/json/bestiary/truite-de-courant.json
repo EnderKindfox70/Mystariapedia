@@ -1,0 +1,114 @@
+{
+  "slug": "truite-de-courant",
+  "name": "Truite de courant",
+  "chapter": "communes",
+  "cr": 0,
+  "entityTypeId": 1,
+  "size": "TP",
+  "teaser": "Quand la rivière se vide de ses truites, ce n'est pas la pêche qui est mauvaise : c'est l'eau.",
+  "quote": "« Elle part avant l'orage. Nous, nous partons pendant. »",
+  "quote-author": "Proverbe des pêcheurs de la Vive",
+  "behaviour": "Carnivore, solitaire, diurne",
+  "description": [
+    "Poisson de rivière au dos moucheté et au flanc d'argent, long d'une trentaine de centimètres, qui se tient tête au courant dans les eaux vives et froides. Il se nourrit d'insectes de surface, d'alevins et de tout ce que la crue emporte ; il ne descend jamais volontairement dans une eau stagnante.",
+    "C'est la prise ordinaire de toute expédition qui longe un cours d'eau, et le premier poisson qu'un enfant apprend à ferrer. Sa chair rose se conserve deux jours au frais, un mois au sel, et un groupe qui campe au bord d'une rivière poissonneuse ne touche pas à ses rations.",
+    "Sa véritable utilité est ailleurs. La truite de courant perçoit les variations de mana de l'eau et déserte une portion de rivière plusieurs heures avant qu'une saturation ne devienne visible. Les bateliers et les traqueurs ont appris à la lire : un bief où l'on ne ferre plus rien à l'aube, alors qu'on y prenait la veille, est un bief qu'il vaut mieux quitter."
+  ],
+  "traitIds": [
+    4
+  ],
+  "statBonuses": {
+    "hp": -14,
+    "physical_atk": -5,
+    "magical_atk": 0,
+    "mana": 2,
+    "speed": 12
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 3
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 16
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 8
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 1
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 13
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 6
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        7
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        6
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "riviere",
+      "collection": "locations",
+      "label": "Rivières et torrents"
+    },
+    {
+      "ref": "lac",
+      "collection": "locations",
+      "label": "Lacs d'altitude"
+    }
+  ],
+  "frequency": "Très commune en eau vive, absente des eaux dormantes",
+  "loot": [
+    {
+      "ref": "filet-de-truite",
+      "collection": "natural-resources/remains",
+      "label": "Filet de truite",
+      "chance": 100,
+      "min": 2
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Coup de queue",
+      "description": "Un battement vif qui surprend plus qu’il ne blesse.",
+      "damageMin": 1,
+      "damageMax": 1,
+      "damageType": "bludgeoning",
+      "range": "Contact",
+      "enduranceCost": 1
+    }
+  ]
+}

@@ -27,7 +27,15 @@ export class Navbar {
 
   readonly navItems: NavItem[] = [
     { key: 'accueil', label: 'Accueil', path: '/' },
-    { key: 'personnages', label: 'Personnages', path: '/characters' },
+    {
+      key: 'personnages',
+      label: 'Personnages',
+      path: '/characters',
+      children: [
+        { key: 'fiches', label: 'Mes fiches', path: '/characters' },
+        { key: 'combat', label: 'Table de combat', path: '/combat' },
+      ],
+    },
     {
       key: 'lore',
       label: 'Lore',

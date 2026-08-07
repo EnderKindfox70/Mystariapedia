@@ -80,5 +80,71 @@
       "kind": "absorptions",
       "damageTypeIds": []
     }
+  ],
+  "abilities": [
+    {
+      "name": "Crocs du vent",
+      "description": "Il frappe avant qu’on l’entende, et la plaie siffle.",
+      "damageMin": 2,
+      "damageMax": 4,
+      "damageType": "wind",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.4
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 2,
+      "reaction": [
+        "leave-reach"
+      ]
+    },
+    {
+      "name": "Embuscade silencieuse",
+      "description": "La proie ne remarque sa présence qu’une fois entre ses crocs. Le choc coupe le souffle.",
+      "damageMin": 4,
+      "damageMax": 8,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.6
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 5,
+      "inflicts": [
+        {
+          "status": "saignement",
+          "chance": 70
+        },
+        {
+          "status": "etourdissement",
+          "chance": 35
+        }
+      ]
+    },
+    {
+      "name": "Fondu au vent",
+      "description": "Il ne fait plus qu’un avec le vent : on ne sait plus où frapper.",
+      "range": "Personnel",
+      "area": "Soi-même",
+      "targets": [
+        "self"
+      ],
+      "duration": 2,
+      "manaCost": 3,
+      "evadeChance": 55,
+      "effects": [
+        {
+          "stat": "speed",
+          "value": 5
+        }
+      ],
+      "reaction": [
+        "incoming-attack"
+      ]
+    }
   ]
 }

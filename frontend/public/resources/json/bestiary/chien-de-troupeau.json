@@ -1,0 +1,130 @@
+{
+  "slug": "chien-de-troupeau",
+  "name": "Chien de troupeau",
+  "chapter": "communes",
+  "cr": 1,
+  "entityTypeId": 1,
+  "size": "P",
+  "teaser": "Il ne garde pas les bêtes contre les loups : il les garde contre elles-mêmes.",
+  "quote": "« Un berger sans chien est un homme qui court. »",
+  "quote-author": "Dicton des hauts pâturages",
+  "behaviour": "Carnivore, meute, domestique",
+  "description": [
+    "Chien de taille moyenne au poil dur, noir et blanc ou fauve, élevé depuis des générations pour conduire les troupeaux plutôt que pour les défendre. Il travaille au sifflet et à la houlette, à distance, et un bon sujet couvre trente kilomètres dans une journée d'estive sans qu'on ait à lui répéter un ordre.",
+    "Sa qualité n'est pas la force : c'est la lecture. Il perçoit qu'une bête va s'écarter avant qu'elle ne s'écarte, et se place pour l'en dissuader sans jamais la toucher. Face à un prédateur véritable il aboie, tient et rameute — il n'engage pas, et un berger qui compte sur son chien pour tuer un loup perd son chien.",
+    "De nuit, il vaut trois hommes de guet. Sa vision reste opérante dans l'obscurité des pâturages d'altitude et il distingue au son, à plusieurs centaines de pas, ce qui se déplace en meute de ce qui se déplace seul. Les traqueurs qui montent en montagne en louent volontiers un pour la saison, moins pour la chasse que pour dormir.",
+    "L'espèce ne figure ici que par commodité de classement. Aucun bestiaire sérieux ne la présente comme un adversaire, et les fiches de dépouille lui sont épargnées."
+  ],
+  "traitIds": [
+    2,
+    5
+  ],
+  "statBonuses": {
+    "hp": 2,
+    "physical_atk": 1,
+    "magical_atk": 0,
+    "mana": 0,
+    "speed": 8
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 10
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 14
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 12
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 6
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 15
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 12
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "montagne",
+      "collection": "locations",
+      "label": "Hauts pâturages"
+    },
+    {
+      "ref": "village",
+      "collection": "locations",
+      "label": "Fermes et hameaux"
+    }
+  ],
+  "frequency": "Commune partout où l'on garde du bétail",
+  "abilities": [
+    {
+      "name": "Morsure au jarret",
+      "description": "Il ne blesse pas : il oriente. Une pince au jarret suffit à faire dévier.",
+      "damageMin": 1,
+      "damageMax": 2,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.25
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 1,
+      "inflicts": [
+        {
+          "status": "ralentissement",
+          "chance": 55
+        }
+      ],
+      "reaction": [
+        "leave-reach"
+      ]
+    },
+    {
+      "name": "Aboiement de conduite",
+      "description": "Il jappe et coupe la route : la cible ne pense plus qu’à lui.",
+      "range": "9 m",
+      "enduranceCost": 2,
+      "inflicts": [
+        {
+          "status": "provocation",
+          "chance": 70
+        }
+      ]
+    }
+  ]
+}

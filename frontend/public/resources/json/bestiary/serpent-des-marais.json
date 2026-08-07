@@ -1,0 +1,143 @@
+{
+  "slug": "serpent-des-marais",
+  "name": "Serpent des marais",
+  "chapter": "communes",
+  "cr": 1,
+  "entityTypeId": 1,
+  "size": "TP",
+  "teaser": "Il ne vous cherche pas. Il dort sous la planche sur laquelle vous venez de poser le pied.",
+  "quote": "« Des gants épais, toujours. Une seule égratignure suffit à vous mettre à terre. »",
+  "quote-author": "Consigne des récolteurs de venin",
+  "behaviour": "Carnivore, solitaire, aquatique",
+  "description": [
+    "Serpent d'un mètre à écailles vert-brun, commun dans les marais, les roselières et les rives dormantes du sud de Mystaria. Il nage aussi bien qu'il rampe, chasse les grenouilles, les alevins et les nichées, et passe la moitié de sa vie immergé, seules les narines à l'air.",
+    "Il fuit systématiquement l'homme et ne mord que surpris ou acculé — ce qui, dans un marais, arrive plus souvent qu'on ne voudrait : la bête se tient sous les planches des pontons, dans les tas de roseaux coupés et sous les coques retournées. La plupart des morsures recensées sont le fait de gens qui se sont assis dessus.",
+    "Son venin verdâtre provoque fièvre et paralysie progressive, rarement mortelle chez un adulte en bonne santé, sérieuse chez un enfant. Les apothicaires le récoltent en pressant les glandes de bêtes vivantes : à faible dose, c'est la base des antidotes contre sa propre espèce et l'un des rares anesthésiants locaux disponibles en chirurgie de fortune."
+  ],
+  "traitIds": [
+    1
+  ],
+  "statBonuses": {
+    "hp": -6,
+    "physical_atk": 1,
+    "magical_atk": 0,
+    "mana": 0,
+    "speed": 5
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 5
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 15
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 10
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 1
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 11
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 3
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        7
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        5
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "marais",
+      "collection": "locations",
+      "label": "Marais et roselières"
+    },
+    {
+      "ref": "riviere",
+      "collection": "locations",
+      "label": "Rives dormantes"
+    }
+  ],
+  "frequency": "Commune au sud, absente au-dessus de la ligne des gels",
+  "loot": [
+    {
+      "ref": "venin-de-serpent",
+      "collection": "natural-resources/remains",
+      "chance": 70,
+      "min": 1
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Morsure venimeuse",
+      "description": "Une morsure brève, suivie d’un venin qui travaille lentement.",
+      "damageMin": 1,
+      "damageMax": 2,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.3
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 1,
+      "inflicts": [
+        {
+          "status": "poison",
+          "chance": 65
+        }
+      ],
+      "reaction": [
+        "leave-reach"
+      ]
+    },
+    {
+      "name": "Se tapir",
+      "description": "Il disparaît sous la planche, la vase ou les roseaux — on ne le trouve qu’en marchant dessus.",
+      "range": "Personnel",
+      "area": "Soi-même",
+      "targets": [
+        "self"
+      ],
+      "duration": 3,
+      "enduranceCost": 2,
+      "evadeChance": 45,
+      "reaction": [
+        "incoming-attack"
+      ]
+    }
+  ]
+}

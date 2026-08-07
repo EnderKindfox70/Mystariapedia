@@ -79,7 +79,54 @@
   "loot": [
     {
       "ref": "venin-de-serpent-fantome",
-      "collection": "natural-resources/remains"
+      "collection": "natural-resources/remains",
+      "chance": 55,
+      "min": 1
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Morsure neurotoxique",
+      "description": "Deux crocs, et un venin qui s’attaque aux nerfs avant qu’on ait compris ce qui mordait.",
+      "damageMin": 2,
+      "damageMax": 4,
+      "damageType": "piercing",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.4
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 2,
+      "inflicts": [
+        {
+          "status": "poison",
+          "chance": 70
+        },
+        {
+          "status": "paralysie",
+          "chance": 25
+        }
+      ],
+      "reaction": [
+        "leave-reach"
+      ]
+    },
+    {
+      "name": "Écailles translucides",
+      "description": "Ses écailles laissent passer la lumière : dans les sous-bois, il n’est qu’un reflet.",
+      "range": "Personnel",
+      "area": "Soi-même",
+      "targets": [
+        "self"
+      ],
+      "duration": 3,
+      "manaCost": 3,
+      "evadeChance": 50,
+      "reaction": [
+        "incoming-attack"
+      ]
     }
   ]
 }

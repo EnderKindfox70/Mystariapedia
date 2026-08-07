@@ -30,41 +30,41 @@
                         "id": "do1", "tier": 1, "branch": "trunk", "name": "Décharge d'ombre I",
                         "description": "Projette une masse d'ombre concentrée sur un ennemi.",
                         "next": ["do2"],
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 4, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
                     },
                     {
                         "id": "do2", "tier": 2, "branch": "trunk", "name": "Décharge d'ombre II",
                         "description": "L'ombre se densifie et frappe plus lourdement.",
                         "next": ["do3"],
-                        "stats": { "damageMin": 7, "damageMax": 11, "mana": 5, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 5, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "do3", "tier": 3, "branch": "trunk", "name": "Décharge d'ombre III",
                         "description": "Point de scission : l'ombre peut se durcir en éclat ou se faire corruption rongeante.",
                         "next": ["doe4", "doc4"],
-                        "stats": { "damageMin": 11, "damageMax": 16, "mana": 6, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 6, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "doe4", "tier": 4, "branch": "eclat", "name": "Éclat ténébreux",
                         "description": "Une lance d'ombre compacte qui perfore d'un coup net.",
                         "next": ["doe5"],
-                        "stats": { "damageMin": 20, "damageMax": 28, "mana": 8, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 8, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
                     },
                     {
                         "id": "doe5", "tier": 5, "branch": "eclat", "name": "Foudre d'ombre",
                         "description": "Un trait d'ombre pure qui traverse et anéantit la cible.",
-                        "stats": { "damageMin": 32, "damageMax": 44, "mana": 11, "range": "20 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 1.2 }] }
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 11, "range": "20 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
                     },
                     {
                         "id": "doc4", "tier": 4, "branch": "corruption", "name": "Corruption rampante",
                         "description": "Une ombre qui ronge les chairs et met à nu les défenses.",
                         "next": ["doc5"],
-                        "stats": { "damageMin": 10, "damageMax": 15, "mana": 6, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "vulnerabilite", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 6, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "vulnerabilite", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
                     },
                     {
                         "id": "doc5", "tier": 5, "branch": "corruption", "name": "Étreinte corruptrice",
                         "description": "Une gangrène d'ombre qui affaiblit et livre la cible à tous les coups.",
-                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 8, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "vulnerabilite", "chance": 60 }, { "status": "affaiblissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 8, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "vulnerabilite", "chance": 60 }, { "status": "affaiblissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
                     }
                 ]
             }
@@ -238,18 +238,18 @@
                         "id": "dn1", "tier": 1, "branch": "trunk", "name": "Morsure du néant I",
                         "description": "Une brèche de néant qui ronge la matière et éteint la magie effleurée.",
                         "next": ["dn2"],
-                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "dn2", "tier": 2, "branch": "trunk", "name": "Morsure du néant II",
                         "description": "La brèche s'élargit et dévore plus avidement chair et sortilèges.",
                         "next": ["dn3"],
-                        "stats": { "damageMin": 13, "damageMax": 20, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.7 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "dn3", "tier": 3, "branch": "trunk", "name": "Morsure du néant III",
                         "description": "Un gouffre de néant qui efface la matière et annule toute magie sur son passage.",
-                        "stats": { "damageMin": 20, "damageMax": 30, "mana": 11, "range": "14 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 80 }], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 11, "range": "14 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 80 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     }
                 ]
             }
@@ -273,18 +273,18 @@
                         "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame d'ombre I",
                         "description": "Votre arme se nimbe de ténèbres : chaque attaque au corps à corps inflige ces dégâts de ténèbres en plus, le temps de l'enchantement.",
                         "next": ["ra2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame d'ombre II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["ra3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame d'ombre III",
                         "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts de ténèbres durables.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -307,18 +307,19 @@
                         "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings d'ombre I",
                         "description": "Vos poings se nimbent de ténèbres : chaque coup à mains nues inflige ces dégâts de ténèbres en plus.",
                         "next": ["rp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "freeStrike": true,
+      "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
                     },
                     {
                         "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings d'ombre II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["rp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
                     },
                     {
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings d'ombre III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts de ténèbres.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
                     }
                 ]
             }

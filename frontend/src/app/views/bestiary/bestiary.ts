@@ -22,7 +22,13 @@ import traitCatalog from '../../../../public/resources/json/trait.json';
 import { abilityModifier, formatBonus } from '../../character/universe-data';
 import { Navbar } from '../../components/navbar/navbar';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
-import { BestiaryChapter, BestiaryEntry, BestiaryIndexEntry, BestiaryStatKey, CrossRef } from '../../wiki.types';
+import {
+  BestiaryChapter,
+  BestiaryEntry,
+  BestiaryIndexEntry,
+  BestiaryLoot,
+  BestiaryStatKey,
+} from '../../wiki.types';
 
 /** Durée du feuilletage. À garder synchro avec `--turn-duration` du CSS. */
 const TURN_MS = 720;
@@ -237,10 +243,43 @@ const LOOT_COLLECTIONS: Record<string, { route: string | null }> = {
   'artifacts/soul': { route: null },
 };
 
-/** Une ligne de butin prête à afficher : libellé résolu et lien éventuel. */
+/**
+ * Ce qu'un index de collection nous apprend d'un item cité par le butin. Les
+ * index n'ont pas tous les mêmes champs (les armures n'ont pas d'illustration,
+ * certaines fiches ont un `image` vide), d'où les champs optionnels.
+ */
+interface LootItem {
+  name: string;
+  image?: string;
+  icon?: string;
+}
+
+/** Une ligne de butin prête à afficher : libellé résolu, vignette et lien. */
 export interface LootRow {
+  /** Clé stable `collection/ref`, pour marquer une vignette cassée. */
+  key: string;
   label: string;
+  /** Illustration de l'item, ou `null` quand l'index n'en donne pas. */
+  image: string | null;
+  /** Quantité prélevée, ex. « ×1 » ou « ×1–3 ». */
+  amount: string;
+  /** Chance de prélèvement, ex. « 60 % ». */
+  chance: string;
   link: string[] | null;
+}
+
+/**
+ * Rendement affiché d'une ligne de butin. Les deux champs sont facultatifs en
+ * JSON — une fiche muette décrit un prélèvement systématique d'une unité, ce
+ * qui est le cas le plus courant et évite de l'écrire sur chaque entrée.
+ */
+function yieldOf(item: BestiaryLoot): { amount: string; chance: string } {
+  const min = item.min ?? 1;
+  const max = item.max ?? min;
+  return {
+    amount: max > min ? `×${min}–${max}` : `×${min}`,
+    chance: `${item.chance ?? 100} %`,
+  };
 }
 
 /** « croc-de-loup » → « Croc de loup » : repli quand l'item n'est pas résolu. */
@@ -266,15 +305,19 @@ export class Bestiary {
   readonly domainLabels = DOMAIN_LABELS;
   readonly affinityLabels = AFFINITY_LABELS;
 
-  /** Slugs dont l'illustration a échoué → repli sur le glyphe. */
+  /**
+   * Illustrations dont le chargement a échoué → repli sur le glyphe (vignettes
+   * d'index, clés = slug de créature) ou sur la ligne nue (butin, clés
+   * `collection/ref`, qui ne peuvent pas entrer en collision avec un slug).
+   */
   readonly broken = new Set<string>();
 
   /**
-   * Index d'items déjà chargés, par collection : `collection → (slug → nom)`.
+   * Index d'items déjà chargés, par collection : `collection → (slug → item)`.
    * Un `signal` pour que la résolution du butin se rafraîchisse quand un index
    * arrive après le premier rendu de la fiche.
    */
-  private readonly itemNames = signal<Record<string, Record<string, string>>>({});
+  private readonly itemIndex = signal<Record<string, Record<string, LootItem>>>({});
   /** Collections dont l'index est en cours de chargement (anti-doublon). */
   private readonly loadingItems = new Set<string>();
 
@@ -331,24 +374,40 @@ export class Bestiary {
    * Résout le butin d'une fiche en lignes affichables. Le libellé vient de
    * l'index de l'item (chargé à la demande), à défaut du `label` écrit sur la
    * fiche, à défaut du slug humanisé — donc le butin reste lisible même quand
-   * l'item n'existe pas encore. Le lien n'est posé que si le catalogue a une
-   * page de détail.
+   * l'item n'existe pas encore. La vignette suit la même logique : elle n'existe
+   * que si l'index en donne une, et la ligne reste correcte sans elle. Le
+   * rendement, lui, est toujours affiché : il se déduit de la fiche ou de ses
+   * valeurs par défaut. Le lien n'est posé que si le catalogue a une page de
+   * détail.
    */
-  lootRows(loot: CrossRef[] | undefined): LootRow[] {
-    const names = this.itemNames();
+  lootRows(loot: BestiaryLoot[] | undefined): LootRow[] {
+    const index = this.itemIndex();
     return (loot ?? []).map(item => {
       const known = LOOT_COLLECTIONS[item.collection];
-      const resolved = names[item.collection]?.[item.ref];
+      const resolved = index[item.collection]?.[item.ref];
       return {
-        label: resolved ?? item.label ?? humanizeSlug(item.ref),
+        key: `${item.collection}/${item.ref}`,
+        label: resolved?.name ?? item.label ?? humanizeSlug(item.ref),
+        // `||` et non `??` : les index portent des `image: ""` à traiter comme absents.
+        image: resolved?.image || resolved?.icon || null,
+        ...yieldOf(item),
         link: known?.route ? [known.route, item.ref] : null,
       };
     });
   }
 
   /**
+   * Vignette de butin introuvable : on la retire et on remesure, sans quoi la
+   * fiche resterait paginée sur une hauteur que l'image n'occupe plus.
+   */
+  onLootImageError(key: string): void {
+    this.broken.add(key);
+    this.remeasure();
+  }
+
+  /**
    * Charge, une seule fois par collection, l'index des items cités par le
-   * butin de l'entrée, et le range dans `itemNames`. Appelé quand une fiche
+   * butin de l'entrée, et le range dans `itemIndex`. Appelé quand une fiche
    * s'affiche ; les collections déjà chargées ou inconnues sont ignorées.
    */
   private loadLootIndexes(entry: BestiaryEntry | null): void {
@@ -356,19 +415,19 @@ export class Bestiary {
       const col = item.collection;
       if (
         !(col in LOOT_COLLECTIONS) ||
-        col in this.itemNames() ||
+        col in this.itemIndex() ||
         this.loadingItems.has(col)
       ) {
         continue;
       }
       this.loadingItems.add(col);
       this.loader
-        .loadAll<{ slug: string; name: string }>(col)
+        .loadAll<{ slug: string } & LootItem>(col)
         .pipe(catchError(() => of([])))
         .subscribe(list => {
-          const map: Record<string, string> = {};
-          for (const it of list) map[it.slug] = it.name;
-          this.itemNames.set({ ...this.itemNames(), [col]: map });
+          const map: Record<string, LootItem> = {};
+          for (const it of list) map[it.slug] = { name: it.name, image: it.image, icon: it.icon };
+          this.itemIndex.set({ ...this.itemIndex(), [col]: map });
           this.loadingItems.delete(col);
         });
     }

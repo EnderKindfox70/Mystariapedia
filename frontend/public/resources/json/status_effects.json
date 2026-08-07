@@ -9,7 +9,7 @@
             "damageType": "feu",
             "description": "Les flammes s'accrochent à la cible et la consument peu à peu.",
             "effect": "Subit des dégâts de feu à chaque début de tour, et les soins qu'elle reçoit sont réduits de moitié.",
-            "tick": { "damage": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] },
+            "tick": { "damage": 3, "scaling": [] },
             "healReduction": 0.5,
             "statEffects": [],
             "preventsAction": false,

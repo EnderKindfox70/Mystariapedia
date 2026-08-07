@@ -30,34 +30,34 @@
                         "description": "Un bond instantané jusqu'à un point visible à quelques pas de là.",
                         "usage": { "outOfCombat": "Jusqu'à 10 m : franchir un ravin étroit, atteindre une corniche ou passer de l'autre côté d'une grille." },
                         "next": ["sp2"],
-                        "stats": { "mana": 3, "range": "10 m", "area": "Soi-même", "targets": ["self"] }
+                        "stats": { "mana": 3, "range": "10 m", "area": "Soi-même", "targets": ["self"], "teleport": true, "reaction": ["incoming-attack"] }
                     },
                     {
                         "id": "sp2", "tier": 2, "branch": "trunk", "name": "Pas dimensionnel II",
                         "description": "L'espace se plie plus généreusement : le pas porte au-delà des obstacles courants.",
                         "usage": { "outOfCombat": "Jusqu'à 20 m : traverser une rivière, gagner un toit bas ou passer une palissade." },
                         "next": ["sp3"],
-                        "stats": { "mana": 4, "range": "20 m", "area": "Soi-même", "targets": ["self"] }
+                        "stats": { "mana": 4, "range": "20 m", "area": "Soi-même", "targets": ["self"], "teleport": true, "reaction": ["incoming-attack"] }
                     },
                     {
                         "id": "sp3", "tier": 3, "branch": "trunk", "name": "Pas dimensionnel III",
                         "description": "Le pli d'espace s'élargit : les remparts cessent d'être des barrières.",
                         "usage": { "outOfCombat": "Jusqu'à 35 m : franchir un mur d'enceinte ou rejoindre l'autre rive d'un large cours d'eau." },
                         "next": ["sp4"],
-                        "stats": { "mana": 5, "range": "35 m", "area": "Soi-même", "targets": ["self"] }
+                        "stats": { "mana": 5, "range": "35 m", "area": "Soi-même", "targets": ["self"], "teleport": true, "reaction": ["incoming-attack"] }
                     },
                     {
                         "id": "sp4", "tier": 4, "branch": "trunk", "name": "Pas dimensionnel IV",
                         "description": "Un pas qui avale des dizaines de mètres, pourvu que l'œil porte jusque-là.",
                         "usage": { "outOfCombat": "Jusqu'à 55 m : atteindre le sommet d'une tour ou traverser une cour fortifiée d'un seul pas." },
                         "next": ["sp5"],
-                        "stats": { "mana": 6, "range": "55 m", "area": "Soi-même", "targets": ["self"] }
+                        "stats": { "mana": 6, "range": "55 m", "area": "Soi-même", "targets": ["self"], "teleport": true, "reaction": ["incoming-attack"] }
                     },
                     {
                         "id": "sp5", "tier": 5, "branch": "trunk", "name": "Pas dimensionnel V",
                         "description": "Une maîtrise totale du pli : le regard suffit à définir la destination, aussi lointaine soit-elle.",
                         "usage": { "outOfCombat": "Jusqu'à 75 m : rejoindre l'autre versant d'une gorge ou le haut d'une falaise d'un seul pas." },
-                        "stats": { "mana": 7, "range": "75 m", "area": "Soi-même", "targets": ["self"] }
+                        "stats": { "mana": 7, "range": "75 m", "area": "Soi-même", "targets": ["self"], "teleport": true, "reaction": ["incoming-attack"] }
                     }
                 ]
             }
@@ -108,18 +108,18 @@
                         "id": "sr1", "tier": 1, "branch": "trunk", "name": "Repli lointain I",
                         "description": "Étire l'espace pour projeter une cible au loin et la désorienter.",
                         "next": ["sr2"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 4, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "sr2", "tier": 2, "branch": "trunk", "name": "Repli lointain II",
                         "description": "La projection est plus brutale et rejette la cible plus loin.",
                         "next": ["sr3"],
-                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
                     },
                     {
                         "id": "sr3", "tier": 3, "branch": "trunk", "name": "Repli lointain III",
                         "description": "Un rejet d'espace qui disperse et sonne tout un groupe au loin.",
-                        "stats": { "damageMin": 8, "damageMax": 12, "mana": 6, "range": "14 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 6, "range": "14 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     }
                 ]
             }
@@ -143,41 +143,41 @@
                         "id": "sd1", "tier": 1, "branch": "trunk", "name": "Distorsion gravitationnelle I",
                         "description": "Altère la gravité d'une zone, alourdissant et clouant les créatures au sol.",
                         "next": ["sd2"],
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 5, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }] }
                     },
                     {
                         "id": "sd2", "tier": 2, "branch": "trunk", "name": "Distorsion gravitationnelle II",
                         "description": "La pesanteur s'accroît et écrase plus durement une plus large zone.",
                         "next": ["sd3"],
-                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 6, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 6, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }] }
                     },
                     {
                         "id": "sd3", "tier": 3, "branch": "trunk", "name": "Distorsion gravitationnelle III",
                         "description": "Point de scission : la gravité peut écraser au sol ou renverser en apesanteur.",
                         "next": ["sde4", "sdl4"],
-                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 3, "damageMax": 4, "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     },
                     {
                         "id": "sde4", "tier": 4, "branch": "ecrasement", "name": "Écrasement",
                         "description": "Une pesanteur titanesque qui broie et plaque tout au sol.",
                         "next": ["sde5"],
-                        "stats": { "damageMin": 22, "damageMax": 32, "mana": 11, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 11, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "sde5", "tier": 5, "branch": "ecrasement", "name": "Singularité",
                         "description": "Un point de gravité infinie qui écrase et engloutit tout un rayon.",
-                        "stats": { "damageMin": 36, "damageMax": 50, "mana": 15, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 80 }], "scaling": [{ "source": "atk_mag", "ratio": 1.2 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 15, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 80 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "sdl4", "tier": 4, "branch": "levitation", "name": "Apesanteur",
                         "description": "Supprime la gravité d'une zone : les cibles flottent, désorientées et vulnérables.",
                         "next": ["sdl5"],
-                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 7, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 7, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
                     },
                     {
                         "id": "sdl5", "tier": 5, "branch": "levitation", "name": "Chute inversée",
                         "description": "Renverse la gravité d'un secteur, projetant et fracassant les cibles vers le ciel.",
-                        "stats": { "damageMin": 12, "damageMax": 18, "mana": 9, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 9, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     }
                 ]
             }
@@ -197,18 +197,18 @@
                         "id": "sf1", "tier": 1, "branch": "trunk", "name": "Faille dimensionnelle I",
                         "description": "Ouvre une faille qui happe une cible dans une poche dimensionnelle.",
                         "next": ["sf2"],
-                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 7, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 7, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "sf2", "tier": 2, "branch": "trunk", "name": "Faille dimensionnelle II",
                         "description": "La faille s'élargit et retient plus sûrement ce qu'elle engloutit.",
                         "next": ["sf3"],
-                        "stats": { "damageMin": 13, "damageMax": 20, "mana": 9, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.6 }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 9, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
                     },
                     {
                         "id": "sf3", "tier": 3, "branch": "trunk", "name": "Faille dimensionnelle III",
                         "description": "Un gouffre dimensionnel qui aspire et bannit tout un groupe hors du monde.",
-                        "stats": { "damageMin": 20, "damageMax": 30, "mana": 12, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 12, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
                     }
                 ]
             }
@@ -232,18 +232,18 @@
                         "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame dimensionnelle I",
                         "description": "Votre arme se nimbe de failles spatiales : chaque attaque au corps à corps inflige ces dégâts spatiaux en plus, le temps de l'enchantement.",
                         "next": ["ra2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame dimensionnelle II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["ra3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame dimensionnelle III",
                         "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts spatiaux durables.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -266,18 +266,18 @@
                         "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings dimensionnels I",
                         "description": "Vos poings se nimbent de failles spatiales : chaque coup à mains nues inflige ces dégâts spatiaux en plus.",
                         "next": ["rp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings dimensionnels II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["rp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings dimensionnels III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts spatiaux.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     }
                 ]
             }

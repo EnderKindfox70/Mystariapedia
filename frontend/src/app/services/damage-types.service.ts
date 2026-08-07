@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import damageData from '../../../public/resources/json/damage_type.json';
+import { DAMAGE_LABELS } from '../combat/damage-labels';
 
 /** Catégorie générale d'un type de dégâts, pour le style. */
 export type DamageGeneral = 'physical' | 'magical' | 'true';
@@ -16,24 +17,6 @@ export interface ResolvedDamageType {
 }
 
 /** Libellés FR des types spécifiques (clés = `name` de damage_type.json). */
-const LABELS: Record<string, string> = {
-  bludgeoning: 'Contondant',
-  piercing: 'Perforant',
-  slashing: 'Tranchant',
-  fire: 'Feu',
-  ice: 'Glace',
-  lightning: 'Foudre',
-  water: 'Eau',
-  earth: 'Terre',
-  wind: 'Vent',
-  plant: 'Végétal',
-  dark: 'Ténèbres',
-  light: 'Lumière',
-  life: 'Vie',
-  death: 'Mort',
-  space: 'Espace',
-  time: 'Temps',
-};
 
 const GENERAL_KEY: Record<string, DamageGeneral> = {
   Physical: 'physical',
@@ -64,7 +47,7 @@ export class DamageTypesService {
       const general = GENERAL_KEY[generalName] ?? 'magical';
       map.set(s.name, {
         key: s.name,
-        label: LABELS[s.name] ?? s.name,
+        label: DAMAGE_LABELS[s.name] ?? s.name,
         general,
         generalLabel: GENERAL_LABEL[general],
       });

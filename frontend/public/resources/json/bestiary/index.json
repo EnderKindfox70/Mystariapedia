@@ -1,5 +1,33 @@
 [
   {
+    "slug": "belier-des-cimes",
+    "name": "Bélier des cimes",
+    "chapter": "communes",
+    "cr": 1,
+    "entityTypeId": 1,
+    "size": "M",
+    "teaser": "Il ne chasse personne. Il tient un versant, et il le tient contre tout."
+  },
+  {
+    "slug": "chien-de-troupeau",
+    "name": "Chien de troupeau",
+    "chapter": "communes",
+    "cr": 1,
+    "entityTypeId": 1,
+    "size": "P",
+    "teaser": "Il ne garde pas les bêtes contre les loups : il les garde contre elles-mêmes."
+  },
+  {
+    "slug": "lezard-rocailleux",
+    "name": "Lézard rocailleux",
+    "chapter": "communes",
+    "cr": 1,
+    "entityTypeId": 1,
+    "size": "TP",
+    "icon": "/resources/media/pictures/bestiary/lezard_rocailleux.png",
+    "teaser": "Aucun oiseau ne le garde longtemps dans le bec."
+  },
+  {
     "slug": "loup-gris",
     "name": "Loup Gris",
     "chapter": "communes",
@@ -10,13 +38,58 @@
     "teaser": "Il chasse en meute, avec une coordination qui met à sa portée des proies plus grandes que lui."
   },
   {
+    "slug": "poule-des-chaumes",
+    "name": "Poule des chaumes",
+    "chapter": "communes",
+    "cr": 0,
+    "entityTypeId": 1,
+    "size": "TP",
+    "teaser": "Le système d'alarme le plus répandu de Mystaria, et le moins fiable."
+  },
+  {
+    "slug": "scarabee-pollinisateur-geant",
+    "name": "Scarabée pollinisateur géant",
+    "chapter": "communes",
+    "cr": 0,
+    "entityTypeId": 1,
+    "size": "TP",
+    "teaser": "Il ne pique pas, il ne mord pas. Il transporte ce qui réveille la vie endormie."
+  },
+  {
+    "slug": "serpent-des-marais",
+    "name": "Serpent des marais",
+    "chapter": "communes",
+    "cr": 1,
+    "entityTypeId": 1,
+    "size": "TP",
+    "teaser": "Il ne vous cherche pas. Il dort sous la planche sur laquelle vous venez de poser le pied."
+  },
+  {
+    "slug": "truite-de-courant",
+    "name": "Truite de courant",
+    "chapter": "communes",
+    "cr": 0,
+    "entityTypeId": 1,
+    "size": "TP",
+    "teaser": "Quand la rivière se vide de ses truites, ce n'est pas la pêche qui est mauvaise : c'est l'eau."
+  },
+  {
+    "slug": "vache-des-vallons",
+    "name": "Vache des vallons",
+    "chapter": "communes",
+    "cr": 0,
+    "entityTypeId": 1,
+    "size": "G",
+    "teaser": "Elle ne fuit pas et ne charge pas : elle vous regarde jusqu'à ce que vous partiez."
+  },
+  {
     "slug": "corneille_funeste",
     "name": "Corneille Funeste",
     "chapter": "rares",
     "cr": 2,
     "entityTypeId": 1,
     "size": "TP",
-    "icon": "/resources/media/pictures/bestiary/hurlevent.png",
+    "icon": "/resources/media/pictures/bestiary/corneille_funeste.png",
     "teaser": "Il emerge des cadavres pour apporter les mauvais presages."
   },
   {

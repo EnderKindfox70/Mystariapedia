@@ -1,90 +1,1072 @@
 [
-  {
-    "key": "warrior",
-    "name": "Guerrier",
-    "inspirationPerLevel": 2,
-    "stats": [{"key": "hp", "value": 10}, {"key": "endurance", "value": 7}, {"key": "atk_phy", "value": 8}, {"key": "atk_mag", "value": 2}, {"key": "mana", "value":3}, {"key": "speed", "value": 5}],
-    "skillChoices": 2,
-    "skillOptions": ["athletism", "intimidation", "perception", "survival", "animal-handling", "acrobatics"],
-    "spells": [
-      {"name": "Frappe puissante", "level": 1, "endurance": 5, "description": "Concentre la mana brute dans une attaque pour décupler les dégâts physiques d'un coup."},
-      {"name": "Cri de guerre", "level": 3, "endurance": 8, "description": "Un hurlement qui ébranle les ennemis proches et affaiblit leur résolve."},
-      {"name": "Garde inébranlable", "level": 5, "endurance": 12, "description": "Renforce sa défense physique durant plusieurs tours, encaissant les coups les plus lourds."},
-      {"name": "Maître d'armes", "level": 8, "endurance": 18, "description": "Enchaîne deux attaques en une seule action."},
-      {"name": "Brise-garde", "level": 11, "endurance": 20, "description": "Une frappe qui fracasse la défense adverse et ignore une partie de l'armure."},
-      {"name": "Second souffle", "level": 14, "endurance": 16, "description": "Puise dans sa volonté pour récupérer une partie de ses points de vie en plein combat."},
-      {"name": "Bastion", "level": 17, "endurance": 26, "description": "S'ancre au sol et devient quasi inébranlable, protégeant les alliés derrière lui."},
-      {"name": "Fureur du champion", "level": 20, "endurance": 35, "description": "Déchaîne une rafale d'attaques dévastatrices pendant un bref instant de furie."}
-    ]
-  },
-  {
-    "key": "mage",
-    "name": "Mage",
-    "inspirationPerLevel": 4,
-    "stats": [{"key": "hp", "value": 5}, {"key": "endurance", "value": 5}, {"key": "atk_phy", "value": 3}, {"key": "atk_mag", "value": 8}, {"key": "mana", "value":8}, {"key": "speed", "value": 6}],
-    "skillChoices": 2,
-    "skillOptions": ["arcana", "history", "religion", "investigation", "insight", "nature"],
-    "spells": [
-      {"name": "Trait élémentaire", "level": 1, "endurance": 4, "description": "Projette une décharge de mana teintée du domaine maîtrisé."},
-      {"name": "Meditation", "level": 3, "endurance": 10, "description": "Se concentre pour manipuler la mana ambiante et l'absorbe"},
-      {"name": "Incantation", "level": 5, "endurance": 10, "description": "Chante des incantations et noms honorifiques pour doubler les dégâts du prochain sort"},
-      {"name": "Mémoire arcanique", "level": 9, "endurance": 8, "description": "Garde en mémoire un sort lancé récemment et le relance sans nouvelle préparation."},
-      {"name": "Flux maîtrisé", "level": 14, "endurance": 6, "description": "Discipline son flux : réduit durablement le coût en mana de ses sorts."},
-      {"name": "Archimage", "level": 20, "endurance": 20, "description": "Maîtrise absolue de la canalisation : ses sorts s'enchaînent presque sans temps de préparation."}
-    ]
-  },
-  {
-    "key": "ranger",
-    "name": "Ranger",
-    "inspirationPerLevel": 2,
-    "stats": [{"key": "hp", "value": 6}, {"key": "endurance", "value": 5}, {"key": "atk_phy", "value": 6}, {"key": "atk_mag", "value": 6}, {"key": "mana", "value":6}, {"key": "speed", "value": 6}],
-    "skillChoices": 3,
-    "skillOptions": ["survival", "nature", "perception", "stealth", "animal-handling", "athletism", "acrobatics"],
-    "spells": [
-      {"name": "Tir précis", "level": 1, "endurance": 4, "description": "Vise un point faible pour un tir à distance d'une précision redoutable."},
-      {"name": "Pister", "level": 3, "endurance": 6, "description": "Lit les traces et la mana résiduelle pour suivre une cible sur de longues distances."},
-      {"name": "Flèche empoisonnée", "level": 5, "endurance": 9, "description": "Enduit son projectile d'un venin qui affaiblit la cible dans la durée."},
-      {"name": "Compagnon animal", "level": 8, "endurance": 14, "description": "Noue un lien avec une bête qui combat à ses côtés."},
-      {"name": "Tir multiple", "level": 11, "endurance": 16, "description": "Décoche plusieurs projectiles sur des cibles différentes en une action."},
-      {"name": "Camouflage", "level": 14, "endurance": 12, "description": "Se fond dans l'environnement naturel, devenant presque indétectable à l'arrêt."},
-      {"name": "Œil du faucon", "level": 17, "endurance": 18, "description": "Aiguise ses sens pour repérer les ennemis dissimulés à grande distance."},
-      {"name": "Maître chasseur", "level": 20, "endurance": 30, "description": "Marque une proie : dégâts massifs contre elle et impossible pour elle de le semer."}
-    ]
-  },
-  {
-    "key": "rogue",
-    "name": "Vagabond",
-    "inspirationPerLevel": 3,
-    "stats": [{"key": "hp", "value": 5}, {"key": "endurance", "value": 4}, {"key": "atk_phy", "value": 6}, {"key": "atk_mag", "value": 4}, {"key": "mana", "value":6}, {"key": "speed", "value": 10}],
-    "skillChoices": 4,
-    "skillOptions": ["stealth", "deception", "acrobatics", "sleight-of-hand", "perception", "persuasion", "investigation", "intimidation"],
-    "spells": [
-      {"name": "Attaque sournoise", "level": 1, "endurance": 5, "description": "Frappe un ennemi pris au dépourvu pour infliger des dégâts bonus."},
-      {"name": "Pas de l'ombre", "level": 3, "endurance": 7, "description": "Se fond dans les ombres pour se déplacer sans être vu."},
-      {"name": "Crochetage expert", "level": 5, "endurance": 6, "description": "Ouvre serrures et mécanismes les plus complexes en un instant."},
-      {"name": "Disparition", "level": 8, "endurance": 15, "description": "Devient brièvement intraçable, échappant à toute poursuite."},
-      {"name": "Lame empoisonnée", "level": 11, "endurance": 12, "description": "Applique un poison à ses armes, affaiblissant les cibles touchées."},
-      {"name": "Esquive surnaturelle", "level": 14, "endurance": 14, "description": "Réflexes affûtés à l'extrême : annule l'essentiel d'une attaque qui l'aurait touché."},
-      {"name": "Coup fatal", "level": 17, "endurance": 22, "description": "Vise un organe vital pour des dégâts dévastateurs sur une cible affaiblie."},
-      {"name": "Ombre parfaite", "level": 20, "endurance": 32, "description": "Se dédouble d'illusions d'ombre et frappe depuis un angle mort absolu."}
-    ]
-  },
-  {
-    "key": "pugilist",
-    "name": "Pugiliste",
-    "inspirationPerLevel": 1,
-    "stats": [{"key": "hp", "value": 8}, {"key": "endurance", "value": 6}, {"key": "atk_phy", "value": 10}, {"key": "atk_mag", "value": 2}, {"key": "mana", "value": 2}, {"key": "speed", "value": 7}],
-    "skillChoices": 2,
-    "skillOptions": ["athletism", "acrobatics", "intimidation", "insight", "perception"],
-    "spells": [
-      {"name": "Combo rapide", "level": 1, "endurance": 5, "description": "Enchaîne une série de coups rapides à mains nues."},
-      {"name": "Garde haute", "level": 3, "endurance": 7, "description": "Adopte une posture défensive qui réduit les dégâts encaissés."},
-      {"name": "Coup étourdissant", "level": 5, "endurance": 10, "description": "Frappe un point vital pour étourdir brièvement la cible."},
-      {"name": "Transe de combat", "level": 8, "endurance": 16, "description": "Entre dans un état second qui décuple vitesse et puissance des frappes."},
-      {"name": "Déferlante de coups", "level": 11, "endurance": 18, "description": "Submerge l'adversaire sous un torrent d'attaques ininterrompues."},
-      {"name": "Contre", "level": 14, "endurance": 12, "description": "Intercepte une attaque adverse et la retourne immédiatement."},
-      {"name": "Poing de fer", "level": 17, "endurance": 22, "description": "Durcit ses poings avec la mana brute, brisant gardes et armures."},
-      {"name": "Avatar du combat", "level": 20, "endurance": 35, "description": "Atteint la perfection martiale : chaque coup devient une frappe parfaite."}
-    ]
-  }
+    {
+        "key": "warrior",
+        "name": "Guerrier",
+        "inspirationPerLevel": 2,
+        "stats": [
+            {
+                "key": "hp",
+                "value": 10
+            },
+            {
+                "key": "endurance",
+                "value": 7
+            },
+            {
+                "key": "atk_phy",
+                "value": 8
+            },
+            {
+                "key": "atk_mag",
+                "value": 2
+            },
+            {
+                "key": "mana",
+                "value": 3
+            },
+            {
+                "key": "speed",
+                "value": 5
+            }
+        ],
+        "skillChoices": 2,
+        "skillOptions": [
+            "athletism",
+            "intimidation",
+            "perception",
+            "survival",
+            "animal-handling",
+            "acrobatics"
+        ],
+        "spells": [
+            {
+                "name": "Frappe puissante",
+                "level": 1,
+                "endurance": 5,
+                "description": "Concentre la mana brute dans une attaque pour décupler les dégâts physiques d'un coup.",
+                "combat": {
+                    "damageMin": 5,
+                    "damageMax": 9,
+                    "damageType": "slashing",
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.35
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Cri de guerre",
+                "level": 3,
+                "endurance": 8,
+                "description": "Un hurlement qui ébranle les ennemis proches et affaiblit leur résolve.",
+                "combat": {
+                    "range": "Autour de soi",
+                    "area": "Rayon 6 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "duration": 2,
+                    "effects": [
+                        {
+                            "stat": "atk_phy",
+                            "value": 4
+                        },
+                        {
+                            "stat": "def_phy",
+                            "value": 3
+                        }
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "peur",
+                            "chance": 50
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Garde inébranlable",
+                "level": 5,
+                "endurance": 12,
+                "description": "Renforce sa défense physique durant plusieurs tours, encaissant les coups les plus lourds.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "def_phy",
+                            "value": 9
+                        },
+                        {
+                            "stat": "def_mag",
+                            "value": 4
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Maître d'armes",
+                "level": 8,
+                "endurance": 18,
+                "description": "Enchaîne deux attaques en une seule action.",
+                "combat": {
+                    "damages": [
+                        {
+                            "min": 3,
+                            "max": 6,
+                            "type": "slashing"
+                        },
+                        {
+                            "min": 3,
+                            "max": 6,
+                            "type": "slashing"
+                        }
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.2
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Brise-garde",
+                "level": 11,
+                "endurance": 20,
+                "description": "Une frappe qui fracasse la défense adverse et ignore une partie de l'armure.",
+                "combat": {
+                    "damageMin": 6,
+                    "damageMax": 10,
+                    "damageType": "true",
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.12
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "def_phy",
+                            "value": 6
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Second souffle",
+                "level": 14,
+                "endurance": 16,
+                "description": "Puise dans sa volonté pour récupérer une partie de ses points de vie en plein combat.",
+                "combat": {
+                    "heal": 18,
+                    "scaling": [
+                        {
+                            "source": "constitution",
+                            "ratio": 0.6,
+                            "affects": "heal"
+                        }
+                    ],
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ]
+                }
+            },
+            {
+                "name": "Bastion",
+                "level": 17,
+                "endurance": 26,
+                "description": "S'ancre au sol et devient quasi inébranlable, protégeant les alliés derrière lui.",
+                "combat": {
+                    "range": "Autour de soi",
+                    "area": "Rayon 3 m",
+                    "targets": [
+                        "self",
+                        "ally"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "def_phy",
+                            "value": 13
+                        },
+                        {
+                            "stat": "def_mag",
+                            "value": 9
+                        }
+                    ],
+                    "recoil": {
+                        "effects": [
+                            {
+                                "stat": "speed",
+                                "value": 6
+                            }
+                        ],
+                        "note": "ancré au sol"
+                    }
+                }
+            },
+            {
+                "name": "Fureur du champion",
+                "level": 20,
+                "endurance": 35,
+                "description": "Déchaîne une rafale d'attaques dévastatrices pendant un bref instant de furie.",
+                "combat": {
+                    "damages": [
+                        {
+                            "min": 3,
+                            "max": 5,
+                            "type": "slashing"
+                        },
+                        {
+                            "min": 3,
+                            "max": 5,
+                            "type": "slashing"
+                        },
+                        {
+                            "min": 3,
+                            "max": 5,
+                            "type": "slashing"
+                        }
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.12
+                        }
+                    ],
+                    "range": "Autour de soi",
+                    "area": "Rayon 3 m",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "key": "mage",
+        "name": "Mage",
+        "inspirationPerLevel": 4,
+        "stats": [
+            {
+                "key": "hp",
+                "value": 5
+            },
+            {
+                "key": "endurance",
+                "value": 5
+            },
+            {
+                "key": "atk_phy",
+                "value": 3
+            },
+            {
+                "key": "atk_mag",
+                "value": 8
+            },
+            {
+                "key": "mana",
+                "value": 8
+            },
+            {
+                "key": "speed",
+                "value": 6
+            }
+        ],
+        "skillChoices": 2,
+        "skillOptions": [
+            "arcana",
+            "history",
+            "religion",
+            "investigation",
+            "insight",
+            "nature"
+        ],
+        "spells": [
+            {
+                "name": "Trait élémentaire",
+                "level": 1,
+                "endurance": 4,
+                "description": "Projette une décharge de mana teintée du domaine maîtrisé.",
+                "combat": {
+                    "damageMin": 4,
+                    "damageMax": 7,
+                    "damageType": "fire",
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.35
+                        }
+                    ],
+                    "range": "16 m",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Meditation",
+                "level": 3,
+                "endurance": 10,
+                "description": "Se concentre pour manipuler la mana ambiante et l'absorbe",
+                "combat": {
+                    "restoreMana": 22,
+                    "scaling": [
+                        {
+                            "source": "intelligence",
+                            "ratio": 1,
+                            "affects": "mana"
+                        }
+                    ],
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ]
+                }
+            },
+            {
+                "name": "Incantation",
+                "level": 5,
+                "endurance": 10,
+                "description": "Chante des incantations et noms honorifiques pour doubler les dégâts du prochain sort",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 2,
+                    "effects": [
+                        {
+                            "stat": "atk_mag",
+                            "value": 16
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Mémoire arcanique",
+                "level": 9,
+                "endurance": 8,
+                "description": "Garde en mémoire un sort lancé récemment et le relance sans nouvelle préparation.",
+                "combat": {
+                    "restoreMana": 18,
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ]
+                }
+            },
+            {
+                "name": "Flux maîtrisé",
+                "level": 14,
+                "endurance": 6,
+                "description": "Discipline son flux : réduit durablement le coût en mana de ses sorts.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 5,
+                    "effects": [
+                        {
+                            "stat": "mana",
+                            "value": 20
+                        },
+                        {
+                            "stat": "atk_mag",
+                            "value": 5
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Archimage",
+                "level": 20,
+                "endurance": 20,
+                "description": "Maîtrise absolue de la canalisation : ses sorts s'enchaînent presque sans temps de préparation.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "atk_mag",
+                            "value": 22
+                        },
+                        {
+                            "stat": "mana",
+                            "value": 30
+                        },
+                        {
+                            "stat": "speed",
+                            "value": 4
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "key": "ranger",
+        "name": "Ranger",
+        "inspirationPerLevel": 2,
+        "stats": [
+            {
+                "key": "hp",
+                "value": 6
+            },
+            {
+                "key": "endurance",
+                "value": 5
+            },
+            {
+                "key": "atk_phy",
+                "value": 6
+            },
+            {
+                "key": "atk_mag",
+                "value": 6
+            },
+            {
+                "key": "mana",
+                "value": 6
+            },
+            {
+                "key": "speed",
+                "value": 6
+            }
+        ],
+        "skillChoices": 3,
+        "skillOptions": [
+            "survival",
+            "nature",
+            "perception",
+            "stealth",
+            "animal-handling",
+            "athletism",
+            "acrobatics"
+        ],
+        "spells": [
+            {
+                "name": "Tir précis",
+                "level": 1,
+                "endurance": 4,
+                "description": "Vise un point faible pour un tir à distance d'une précision redoutable.",
+                "combat": {
+                    "damageMin": 5,
+                    "damageMax": 8,
+                    "damageType": "piercing",
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.35
+                        }
+                    ],
+                    "range": "24 m",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Pister",
+                "level": 3,
+                "endurance": 6,
+                "description": "Lit les traces et la mana résiduelle pour suivre une cible sur de longues distances."
+            },
+            {
+                "name": "Flèche empoisonnée",
+                "level": 5,
+                "endurance": 9,
+                "description": "Enduit son projectile d'un venin qui affaiblit la cible dans la durée.",
+                "combat": {
+                    "damageMin": 3,
+                    "damageMax": 6,
+                    "damageType": "piercing",
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.2
+                        }
+                    ],
+                    "range": "24 m",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "poison",
+                            "chance": 75
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Compagnon animal",
+                "level": 8,
+                "endurance": 14,
+                "description": "Noue un lien avec une bête qui combat à ses côtés.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 5,
+                    "retaliate": {
+                        "trigger": "melee",
+                        "damageMin": 3,
+                        "damageMax": 6,
+                        "damageType": "piercing"
+                    }
+                }
+            },
+            {
+                "name": "Tir multiple",
+                "level": 11,
+                "endurance": 16,
+                "description": "Décoche plusieurs projectiles sur des cibles différentes en une action.",
+                "combat": {
+                    "damageMin": 4,
+                    "damageMax": 7,
+                    "damageType": "piercing",
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.22
+                        }
+                    ],
+                    "range": "24 m",
+                    "area": "3 cibles",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Camouflage",
+                "level": 14,
+                "endurance": 12,
+                "description": "Se fond dans l'environnement naturel, devenant presque indétectable à l'arrêt.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "evadeChance": 40
+                }
+            },
+            {
+                "name": "Œil du faucon",
+                "level": 17,
+                "endurance": 18,
+                "description": "Aiguise ses sens pour repérer les ennemis dissimulés à grande distance.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 4,
+                    "effects": [
+                        {
+                            "stat": "dexterite",
+                            "value": 4
+                        },
+                        {
+                            "stat": "sagesse",
+                            "value": 4
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Maître chasseur",
+                "level": 20,
+                "endurance": 30,
+                "description": "Marque une proie : dégâts massifs contre elle et impossible pour elle de le semer.",
+                "combat": {
+                    "damageMin": 9,
+                    "damageMax": 13,
+                    "damageType": "piercing",
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.5
+                        }
+                    ],
+                    "range": "30 m",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "duration": 4,
+                    "inflicts": [
+                        {
+                            "status": "ralentissement",
+                            "chance": 100
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "key": "rogue",
+        "name": "Vagabond",
+        "inspirationPerLevel": 3,
+        "stats": [
+            {
+                "key": "hp",
+                "value": 5
+            },
+            {
+                "key": "endurance",
+                "value": 4
+            },
+            {
+                "key": "atk_phy",
+                "value": 6
+            },
+            {
+                "key": "atk_mag",
+                "value": 4
+            },
+            {
+                "key": "mana",
+                "value": 6
+            },
+            {
+                "key": "speed",
+                "value": 10
+            }
+        ],
+        "skillChoices": 4,
+        "skillOptions": [
+            "stealth",
+            "deception",
+            "acrobatics",
+            "sleight-of-hand",
+            "perception",
+            "persuasion",
+            "investigation",
+            "intimidation"
+        ],
+        "spells": [
+            {
+                "name": "Attaque sournoise",
+                "level": 1,
+                "endurance": 5,
+                "description": "Frappe un ennemi pris au dépourvu pour infliger des dégâts bonus.",
+                "combat": {
+                    "damageMin": 5,
+                    "damageMax": 9,
+                    "damageType": "piercing",
+                    "scaling": [
+                        {
+                            "source": "dexterite",
+                            "ratio": 0.5
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Pas de l'ombre",
+                "level": 3,
+                "endurance": 7,
+                "description": "Se fond dans les ombres pour se déplacer sans être vu.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 2,
+                    "evadeChance": 50,
+                    "effects": [
+                        {
+                            "stat": "speed",
+                            "value": 6
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Crochetage expert",
+                "level": 5,
+                "endurance": 6,
+                "description": "Ouvre serrures et mécanismes les plus complexes en un instant."
+            },
+            {
+                "name": "Disparition",
+                "level": 8,
+                "endurance": 15,
+                "description": "Devient brièvement intraçable, échappant à toute poursuite.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 2,
+                    "evadeChance": 75
+                }
+            },
+            {
+                "name": "Lame empoisonnée",
+                "level": 11,
+                "endurance": 12,
+                "description": "Applique un poison à ses armes, affaiblissant les cibles touchées.",
+                "combat": {
+                    "damageMin": 6,
+                    "damageMax": 10,
+                    "damageType": "piercing",
+                    "scaling": [
+                        {
+                            "source": "dexterite",
+                            "ratio": 0.3
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "poison",
+                            "chance": 90
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Esquive surnaturelle",
+                "level": 14,
+                "endurance": 14,
+                "description": "Réflexes affûtés à l'extrême : annule l'essentiel d'une attaque qui l'aurait touché.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "evadeChance": 60
+                }
+            },
+            {
+                "name": "Coup fatal",
+                "level": 17,
+                "endurance": 22,
+                "description": "Vise un organe vital pour des dégâts dévastateurs sur une cible affaiblie.",
+                "combat": {
+                    "damageMin": 10,
+                    "damageMax": 14,
+                    "damageType": "piercing",
+                    "scaling": [
+                        {
+                            "source": "dexterite",
+                            "ratio": 0.7
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Ombre parfaite",
+                "level": 20,
+                "endurance": 32,
+                "description": "Se dédouble d'illusions d'ombre et frappe depuis un angle mort absolu.",
+                "combat": {
+                    "damages": [
+                        {
+                            "min": 5,
+                            "max": 8,
+                            "type": "dark"
+                        },
+                        {
+                            "min": 5,
+                            "max": 8,
+                            "type": "dark"
+                        }
+                    ],
+                    "scaling": [
+                        {
+                            "source": "dexterite",
+                            "ratio": 0.4
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "duration": 2,
+                    "evadeChance": 50
+                }
+            }
+        ]
+    },
+    {
+        "key": "pugilist",
+        "name": "Pugiliste",
+        "inspirationPerLevel": 1,
+        "stats": [
+            {
+                "key": "hp",
+                "value": 8
+            },
+            {
+                "key": "endurance",
+                "value": 6
+            },
+            {
+                "key": "atk_phy",
+                "value": 10
+            },
+            {
+                "key": "atk_mag",
+                "value": 2
+            },
+            {
+                "key": "mana",
+                "value": 2
+            },
+            {
+                "key": "speed",
+                "value": 7
+            }
+        ],
+        "skillChoices": 2,
+        "skillOptions": [
+            "athletism",
+            "acrobatics",
+            "intimidation",
+            "insight",
+            "perception"
+        ],
+        "spells": [
+            {
+                "name": "Combo rapide",
+                "level": 1,
+                "endurance": 5,
+                "description": "Enchaîne une série de coups rapides à mains nues.",
+                "combat": {
+                    "unarmedStrikes": 3,
+                    "unarmedStrikeRatio": 0.24,
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Garde haute",
+                "level": 3,
+                "endurance": 7,
+                "description": "Adopte une posture défensive qui réduit les dégâts encaissés.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "def_phy",
+                            "value": 10
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Coup étourdissant",
+                "level": 5,
+                "endurance": 10,
+                "description": "Frappe un point vital pour étourdir brièvement la cible.",
+                "combat": {
+                    "damageMin": 4,
+                    "damageMax": 7,
+                    "damageType": "bludgeoning",
+                    "scaling": [
+                        {
+                            "source": "atk_phy",
+                            "ratio": 0.12
+                        }
+                    ],
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "etourdissement",
+                            "chance": 70
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Transe de combat",
+                "level": 8,
+                "endurance": 16,
+                "description": "Entre dans un état second qui décuple vitesse et puissance des frappes.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "speed",
+                            "value": 6
+                        }
+                    ],
+                    "enchant": {
+                        "target": "unarmed",
+                        "damageMin": 2,
+                        "damageMax": 4,
+                        "damageType": "bludgeoning"
+                    }
+                }
+            },
+            {
+                "name": "Déferlante de coups",
+                "level": 11,
+                "endurance": 18,
+                "description": "Submerge l'adversaire sous un torrent d'attaques ininterrompues.",
+                "combat": {
+                    "unarmedStrikes": 4,
+                    "unarmedStrikeRatio": 0.2,
+                    "range": "Contact",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ]
+                }
+            },
+            {
+                "name": "Contre",
+                "level": 14,
+                "endurance": 12,
+                "description": "Intercepte une attaque adverse et la retourne immédiatement.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 2,
+                    "retaliate": {
+                        "trigger": "melee",
+                        "damageMin": 6,
+                        "damageMax": 10,
+                        "damageType": "bludgeoning"
+                    }
+                }
+            },
+            {
+                "name": "Poing de fer",
+                "level": 17,
+                "endurance": 22,
+                "description": "Durcit ses poings avec la mana brute, brisant gardes et armures.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "enchant": {
+                        "target": "unarmed",
+                        "damageMin": 4,
+                        "damageMax": 7,
+                        "damageType": "bludgeoning"
+                    }
+                }
+            },
+            {
+                "name": "Avatar du combat",
+                "level": 20,
+                "endurance": 35,
+                "description": "Atteint la perfection martiale : chaque coup devient une frappe parfaite.",
+                "combat": {
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "speed",
+                            "value": 8
+                        },
+                        {
+                            "stat": "def_phy",
+                            "value": 8
+                        }
+                    ],
+                    "enchant": {
+                        "target": "unarmed",
+                        "damageMin": 5,
+                        "damageMax": 9,
+                        "damageType": "bludgeoning"
+                    }
+                }
+            }
+        ]
+    }
 ]

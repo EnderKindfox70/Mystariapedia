@@ -90,41 +90,41 @@
                         "id": "et1", "tier": 1, "branch": "trunk", "name": "Tremblement I",
                         "description": "Une secousse qui déséquilibre et fait chuter les créatures autour du lanceur.",
                         "next": ["et2"],
-                        "stats": { "damageMin": 4, "damageMax": 8, "mana": 5, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.3 }, { "source": "force", "ratio": 0.2 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 5, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }, { "source": "force", "ratio": 0.2 }] }
                     },
                     {
                         "id": "et2", "tier": 2, "branch": "trunk", "name": "Tremblement II",
                         "description": "Le sol ondule plus violemment sur une plus large surface.",
                         "next": ["et3"],
-                        "stats": { "damageMin": 7, "damageMax": 12, "mana": 6, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }, { "source": "force", "ratio": 0.25 }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 6, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }, { "source": "force", "ratio": 0.25 }] }
                     },
                     {
                         "id": "et3", "tier": 3, "branch": "trunk", "name": "Tremblement III",
                         "description": "Point de scission : la secousse peut devenir séisme ou onde continue.",
                         "next": ["ets4", "etc4"],
-                        "stats": { "damageMin": 11, "damageMax": 17, "mana": 8, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }, { "source": "force", "ratio": 0.3 }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 8, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }, { "source": "force", "ratio": 0.3 }] }
                     },
                     {
                         "id": "ets4", "tier": 4, "branch": "seisme", "name": "Séisme",
                         "description": "La terre se soulève et s'effondre en un cataclysme localisé.",
                         "next": ["ets5"],
-                        "stats": { "damageMin": 20, "damageMax": 30, "mana": 12, "range": "Autour de soi", "area": "Rayon 8 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.8 }, { "source": "force", "ratio": 0.5 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 12, "range": "Autour de soi", "area": "Rayon 8 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }, { "source": "force", "ratio": 0.5 }] }
                     },
                     {
                         "id": "ets5", "tier": 5, "branch": "seisme", "name": "Faille béante",
                         "description": "Le sol se déchire en un gouffre qui engloutit tout un champ.",
-                        "stats": { "damageMin": 32, "damageMax": 46, "mana": 17, "range": "Autour de soi", "area": "Rayon 10 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 1.1 }, { "source": "force", "ratio": 0.7 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 17, "range": "Autour de soi", "area": "Rayon 10 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }, { "source": "force", "ratio": 0.7 }] }
                     },
                     {
                         "id": "etc4", "tier": 4, "branch": "secousses", "name": "Réplique",
                         "description": "Des secousses répétées et bon marché qui empêchent l'ennemi de se relever.",
                         "next": ["etc5"],
-                        "stats": { "damageMin": 9, "damageMax": 14, "mana": 4, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }, { "source": "force", "ratio": 0.2 }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }, { "source": "force", "ratio": 0.2 }] }
                     },
                     {
                         "id": "etc5", "tier": 5, "branch": "secousses", "name": "Tremblement continu",
                         "description": "Une trépidation incessante et presque gratuite qui cloue les ennemis au sol.",
-                        "stats": { "damageMin": 10, "damageMax": 16, "mana": 3, "range": "Autour de soi", "area": "Rayon 7 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.4 }, { "source": "force", "ratio": 0.2 }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 3, "range": "Autour de soi", "area": "Rayon 7 m", "targets": ["enemy"], "inflicts": [{ "status": "etourdissement", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }, { "source": "force", "ratio": 0.2 }] }
                     }
                 ]
             }
@@ -179,18 +179,18 @@
                         "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame de pierre I",
                         "description": "Votre arme se nimbe d'une gangue de pierre : chaque attaque au corps à corps inflige ces dégâts de pierre en plus, le temps de l'enchantement.",
                         "next": ["ra2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.2 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de pierre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de pierre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame de pierre II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["ra3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.25 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de pierre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de pierre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame de pierre III",
                         "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts de pierre durables.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.3 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de pierre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "warrior", "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de pierre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
                     }
                 ]
             }
@@ -213,18 +213,18 @@
                         "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings de pierre I",
                         "description": "Vos poings se nimbent d'une gangue de pierre : chaque coup à mains nues inflige ces dégâts de pierre en plus.",
                         "next": ["rp2"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de pierre de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de pierre de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.3 }] }] }
                     },
                     {
                         "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings de pierre II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["rp3"],
-                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de pierre de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de pierre de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.35 }] }] }
                     },
                     {
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings de pierre III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts de pierre.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de pierre de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de pierre de chaque frappe est accru.", "scaling": [{ "source": "force", "ratio": 0.4 }] }] }
                     }
                 ]
             }

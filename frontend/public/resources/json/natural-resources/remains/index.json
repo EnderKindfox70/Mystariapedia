@@ -16,11 +16,32 @@
     "weight": 0.1
   },
   {
+    "slug": "cuir-epais",
+    "name": "Cuir épais",
+    "subtitle": "Dépouille de créature",
+    "rarity": "Commune",
+    "weight": 4
+  },
+  {
+    "slug": "filet-de-truite",
+    "name": "Filet de truite",
+    "subtitle": "Dépouille de créature",
+    "rarity": "Commune",
+    "weight": 0.4
+  },
+  {
     "slug": "glande-de-lezard-rocailleux",
     "name": "Glande de Lézard rocailleux",
     "subtitle": "Dépouille de créature",
     "rarity": "Peu commune",
     "weight": 0.05
+  },
+  {
+    "slug": "oeuf-frais",
+    "name": "Œuf frais",
+    "subtitle": "Produit de créature",
+    "rarity": "Commune",
+    "weight": 0.06
   },
   {
     "slug": "pollen-de-scarabee-pollinisateur",

@@ -1,0 +1,45 @@
+{
+    "name": "Filet de truite",
+    "subtitle": "Dépouille de créature",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Chair rose et ferme levée sur les flancs d'une truite de courant, la prise la plus banale et la plus fiable de toute expédition qui longe une rivière.",
+        "Elle n'a aucune vertu alchimique et personne n'a jamais prétendu le contraire. Sa valeur est ailleurs : deux filets nourrissent un homme pour la journée, et une journée nourrie au poisson est une journée de rations économisée."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.4 kg" },
+        { "key": "type",    "label": "Type",        "value": "Chair / vivre" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "source",  "label": "Provenance",  "value": "Truite de courant" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alimentation, appât, conserve au sel" },
+        { "key": "value",   "label": "Valeur",      "value": "1 pièce d'or les deux filets" }
+    ],
+    "properties": [
+        "Deux filets valent une ration de voyage pour un adulte.",
+        "Se conserve deux jours au frais, un mois au sel de conservation, indéfiniment fumé mais au prix du goût.",
+        "La peau et les arêtes font un appât recherché pour la pêche au gros et les pièges à charognards.",
+        "À rejeter sans hésiter si la chair est grise ou si elle sent la vase : une truite pêchée en eau saturée de mana est impropre à la consommation."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Levée sur les truites prises à la ligne dans les rivières vives et les lacs d'altitude de Mystaria.",
+            "Conseil : pêchez à l'aube ou au crépuscule. Le poisson de midi se fait attendre et fait perdre l'heure de marche."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "truite-de-courant", "collection": "bestiary", "label": "Truite de courant" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "water", "collection": "domains", "label": "Eau" }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,45 @@
+{
+    "name": "Œuf frais",
+    "subtitle": "Produit de créature",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Œuf de poule des chaumes, ramassé au poulailler le matin même. Coquille beige, jaune orangé, rien de remarquable — c'est précisément ce qu'on lui demande.",
+        "Les alchimistes le tiennent pourtant en estime : le blanc est le liant neutre par excellence. Il lie une préparation sans y apporter la moindre affinité propre, ce qui en fait la base des philtres où l'on ne veut aucune interférence."
+    ],
+    "info": [
+        { "key": "weight", "label": "Poids", "value": "0.06 kg" },
+        { "key": "type",    "label": "Type",        "value": "Œuf / matière organique" },
+        { "key": "rarity",  "label": "Rareté",      "value": "Commune" },
+        { "key": "source",  "label": "Provenance",  "value": "Poule des chaumes" },
+        { "key": "usage",   "label": "Utilisation", "value": "Alimentation, liant alchimique neutre, émulsions" },
+        { "key": "value",   "label": "Valeur",      "value": "1 pièce d'or la douzaine" }
+    ],
+    "properties": [
+        "Liant neutre : épaissit une préparation sans en modifier l'affinité magique.",
+        "Le jaune émulsionne les corps gras et les huiles, indispensable aux onguents qui doivent tenir sur la peau.",
+        "Trois œufs valent une ration de voyage.",
+        "Se garde trois semaines au frais, une seule fois passé sous la main d'un cuisinier — coquille fêlée, œuf perdu."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Ramassé chaque matin dans les basses-cours des fermes et des hameaux de Mystaria ; le plus facile à se procurer de tous les ingrédients.",
+            "Conseil : plongez l'œuf dans l'eau avant de l'acheter. Celui qui flotte est vieux, celui qui coule est bon."
+        ]
+    },
+    "references": [
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "poule-des-chaumes", "collection": "bestiary", "label": "Poule des chaumes" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "life", "collection": "domains", "label": "Vie" }
+            ]
+        }
+    ]
+}

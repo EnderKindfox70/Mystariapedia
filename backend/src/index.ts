@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { authRouter } from './auth/routes.js';
+import { encountersRouter } from './encounters/routes.js';
 import { sheetsRouter } from './sheets/routes.js';
 
 const app = express();
@@ -35,6 +36,9 @@ app.use('/api/auth', authRouter);
 
 // Fiches de personnage : CRUD réservé aux utilisateurs connectés.
 app.use('/api/sheets', sheetsRouter);
+
+// Rencontres de combat : une partie sauvegardée par le MJ qui l'a montée.
+app.use('/api/encounters', encountersRouter);
 
 app.listen(PORT, () => {
   console.log(`[backend] API à l'écoute sur http://localhost:${PORT}`);

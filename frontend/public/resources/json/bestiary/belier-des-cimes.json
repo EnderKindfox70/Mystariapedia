@@ -1,0 +1,168 @@
+{
+  "slug": "belier-des-cimes",
+  "name": "Bélier des cimes",
+  "chapter": "communes",
+  "cr": 1,
+  "entityTypeId": 1,
+  "size": "M",
+  "teaser": "Il ne chasse personne. Il tient un versant, et il le tient contre tout.",
+  "quote": "« Il ne vous en veut pas. Vous êtes simplement du mauvais côté de la ligne. »",
+  "quote-author": "Note d'un guide de haute route",
+  "behaviour": "Herbivore, grégaire, territorial",
+  "description": [
+    "Ovin sauvage des massifs, à toison épaisse et à cornes recourbées en spirale, capable de tenir un aplomb sur une vire large de deux mains. Les hardes montent avec la fonte et redescendent aux premières neiges ; leur passage trace dans les éboulis des sentes que les caravaniers empruntent depuis des siècles.",
+    "Ce n'est pas un prédateur, et il n'a aucun intérêt pour les voyageurs. Il défend en revanche son versant contre tout ce qui s'en approche pendant la saison du rut, et une charge de bélier adulte suffit à briser un genou ou à envoyer un homme dans une pente qu'il ne remontera pas. Les accidents en montagne lui sont plus souvent imputables qu'aux créatures qui figurent dans les chapitres suivants.",
+    "Ses cornes se strient d'un anneau par hiver passé. Cette kératine dense, façonnée par les charges répétées contre la roche, est l'un des supports runiques les plus recherchés pour les talismans de robustesse — les cornes des bêtes âgées, à la striure serrée, valent plusieurs fois celles des jeunes."
+  ],
+  "traitIds": [
+    3
+  ],
+  "statBonuses": {
+    "hp": 18,
+    "physical_atk": 3,
+    "magical_atk": 0,
+    "mana": 0,
+    "speed": 4
+  },
+  "attributes": [
+    {
+      "label": "Force",
+      "shortLabel": "FOR",
+      "value": 17
+    },
+    {
+      "label": "Dextérité",
+      "shortLabel": "DEX",
+      "value": 13
+    },
+    {
+      "label": "Constitution",
+      "shortLabel": "CON",
+      "value": 16
+    },
+    {
+      "label": "Intelligence",
+      "shortLabel": "INT",
+      "value": 3
+    },
+    {
+      "label": "Sagesse",
+      "shortLabel": "SAG",
+      "value": 12
+    },
+    {
+      "label": "Charisme",
+      "shortLabel": "CHA",
+      "value": 7
+    }
+  ],
+  "affinities": [
+    {
+      "kind": "immunities",
+      "damageTypeIds": []
+    },
+    {
+      "kind": "resistances",
+      "damageTypeIds": [
+        1,
+        5
+      ]
+    },
+    {
+      "kind": "weaknesses",
+      "damageTypeIds": [
+        2
+      ]
+    },
+    {
+      "kind": "absorptions",
+      "damageTypeIds": []
+    }
+  ],
+  "habitat": [
+    {
+      "ref": "montagne",
+      "collection": "locations",
+      "label": "Massifs et éboulis"
+    },
+    {
+      "ref": "haut-paturage",
+      "collection": "locations",
+      "label": "Hauts pâturages"
+    }
+  ],
+  "frequency": "Commune en altitude, de la fonte aux premières neiges",
+  "loot": [
+    {
+      "ref": "corne-de-belier",
+      "collection": "natural-resources/remains",
+      "chance": 100,
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Coup de cornes",
+      "description": "Un coup sec des cornes recourbées, pour écarter ce qui approche.",
+      "damageMin": 1,
+      "damageMax": 3,
+      "damageType": "bludgeoning",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.3
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 1,
+      "reaction": [
+        "leave-reach"
+      ]
+    },
+    {
+      "name": "Charge du versant",
+      "description": "Il prend son élan sur la pente et percute de tout son poids. Le choc ébranle.",
+      "damageMin": 3,
+      "damageMax": 6,
+      "damageType": "bludgeoning",
+      "scaling": [
+        {
+          "source": "atk_phy",
+          "ratio": 0.55
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 4,
+      "inflicts": [
+        {
+          "status": "etourdissement",
+          "chance": 40
+        }
+      ]
+    },
+    {
+      "name": "Tenir le versant",
+      "description": "Il s’ancre sur son territoire et refuse de céder un pas.",
+      "range": "Personnel",
+      "area": "Soi-même",
+      "targets": [
+        "self"
+      ],
+      "duration": 3,
+      "enduranceCost": 2,
+      "effects": [
+        {
+          "stat": "def_phy",
+          "value": 6
+        }
+      ],
+      "retaliate": {
+        "trigger": "melee",
+        "damageMin": 2,
+        "damageMax": 4,
+        "damageType": "bludgeoning"
+      }
+    }
+  ]
+}

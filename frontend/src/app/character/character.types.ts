@@ -216,6 +216,85 @@ export interface BackgroundDef {
   max_money?: number;
 }
 
+/**
+ * Bloc de combat d'une compétence de classe.
+ *
+ * Mêmes noms de champs que `SpellNodeStats` (cf. wiki.types) pour que les deux
+ * se convertissent de la même façon en capacité jouable. Les types y sont
+ * volontairement structurels plutôt qu'importés : ce module décrit le
+ * personnage et ne doit pas dépendre du wiki.
+ */
+export interface ClassSkillCombat {
+  /** Dégâts de base (forme simple, un seul type). */
+  damageMin?: number;
+  damageMax?: number;
+  /** Dégâts multi-coups : une entrée par frappe de l'enchaînement. */
+  damages?: { min: number; max: number; type?: string }[];
+  /** Type de dégâts (cf. damage_type.json). `true` = ignore les défenses. */
+  damageType?: string;
+  /** Contributions de scaling : ajoute `ratio × valeur(source)`. */
+  scaling?: { source: string; ratio: number; affects?: string }[];
+  heal?: number;
+  /** Mana rendu à la cible. */
+  restoreMana?: number;
+  /** Portée écrite comme sur une fiche de sort (« Contact », « 24 m »). */
+  range?: string;
+  /** Zone d'effet (« Cible unique », « Rayon 6 m », « 3 cibles »). */
+  area?: string;
+  targets?: ('enemy' | 'ally' | 'self' | 'everyone')[];
+  /** Durée en tours des effets posés. */
+  duration?: number;
+  /** Bonus/malus de stats (magnitude positive ; le sens vient de la cible). */
+  effects?: { stat: string; value: number }[];
+  /** Statuts infligés à l'impact, avec leur chance (0–100). */
+  inflicts?: { status: string; chance: number; duration?: number }[];
+  /** Statuts levés par la compétence. */
+  cleanses?: string[];
+  /** Chance d'annuler complètement une attaque subie, tant que l'effet dure. */
+  evadeChance?: number;
+  /**
+   * Enchaînement de coups de poing : la compétence répète l'attaque à mains
+   * nues autant de fois. Elle n'a alors pas de dégâts propres — sa puissance
+   * suit celle du poing, buffs de poing compris.
+   */
+  unarmedStrikes?: number;
+  /**
+   * Part d'attaque de CHAQUE coup de l'enchaînement, quand elle diffère du
+   * poing isolé.
+   *
+   * Indispensable parce que, dans cet univers, l'attaque physique dépasse les
+   * points de vie à niveau égal : trois poings pleins tuent mécaniquement un
+   * pair, quel que soit le réglage du poing. Ce champ règle donc la puissance
+   * de l'enchaînement sans toucher à celle du coup isolé — les deux ne peuvent
+   * pas partager le même curseur.
+   */
+  unarmedStrikeRatio?: number;
+  /**
+   * Enchantement posé pour la durée de l'effet : dégâts ajoutés à chaque coup
+   * porté avec les poings ou avec l'arme en main.
+   */
+  enchant?: {
+    target: 'unarmed' | 'weapon';
+    damageMin: number;
+    damageMax?: number;
+    damageType?: string;
+    scaling?: { source: string; ratio: number }[];
+  };
+  /** Riposte : ce que subit un attaquant tant que l'effet est actif. */
+  retaliate?: {
+    trigger?: 'melee' | 'any';
+    damageMin?: number;
+    damageMax?: number;
+    damageType?: string;
+    inflicts?: { status: string; chance: number }[];
+  };
+  /** Ce que le lanceur paie de sa personne. */
+  recoil?: {
+    effects?: { stat: string; value: number }[];
+    note?: string;
+  };
+}
+
 /** Sort/compétence lié à une classe, débloqué à un niveau donné. */
 export interface ClassSpell {
   name: string;
@@ -224,6 +303,12 @@ export interface ClassSpell {
   /** Coût en endurance à l'utilisation. */
   endurance: number;
   description: string;
+  /**
+   * Effet chiffré en combat. Absent pour une compétence hors combat (pister,
+   * crocheter) : elle reste déclarable, sa description tient lieu de règle et
+   * le MJ tranche.
+   */
+  combat?: ClassSkillCombat;
 }
 
 export interface ClassDef {

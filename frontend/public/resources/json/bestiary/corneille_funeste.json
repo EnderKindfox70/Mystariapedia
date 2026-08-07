@@ -5,24 +5,21 @@
   "cr": 2,
   "entityTypeId": 1,
   "size": "TP",
-  "icon": "/resources/media/pictures/bestiary/hurlevent.png",
-  "banner": "/resources/media/pictures/bestiary/hurlevent.png",
+  "icon": "/resources/media/pictures/bestiary/corneille_funeste.png",
+  "banner": "/resources/media/pictures/bestiary/corneille_funeste.png",
   "teaser": "Il emerge des cadavres pour apporter les mauvais presages.",
   "behaviour": "Charognard, Grégaire",
   "description": [
-    "Prédateur habitant les taigas du royaume perdu, l'hurle-vent est discret et mortel.\n Il chasse en meute et leur proie ne remarque que leur presence lorsqu'elle est deja entre ses crocs.",
-    "Ils possèdent la capacité de se transformer en vent et de se déplacer à grande vitesse, ce qui leur permet de surprendre leurs proies et de les attaquer avec une précision redoutable.",
-    "En etat de vent, ils sont presque invincibles et peuvent se déplacer à travers les obstacles et les murs. Cependant, cette capacité a un coût : elle épuise rapidement leur énergie et les rend vulnérables lorsqu'ils sont fatigués."
+    "Un oiseau dont on peut discerner son squelette à travers ses plumes noires. Il se nourrit de cadavres et de charognes, et est souvent considéré comme un mauvais présage. Il est très intelligent et peut communiquer avec d'autres corneilles.",
+    "Malgré sa réputation de mauvais présage, la Corneille Funeste est un animal très intelligent et social. Elle peut former des liens avec d'autres corneilles et même avec certains humains. Cependant, elle reste un prédateur opportuniste, se nourrissant principalement de charognes et de petits animaux.",
+    "Ils semblent avoir la capacité de percevoir les présences spectrales et les âmes errantes, ce qui les rend particulièrement sensibles aux événements surnaturels. Certains croient que la présence d'une Corneille Funeste peut annoncer la mort imminente ou la malchance."
   ],
-  "traitIds": [
-    2,
-    5
-  ],
+  "traitIds": [],
   "statBonuses": {
-    "hp": 15,
-    "physical_atk": 7,
+    "hp": -17,
+    "physical_atk": -3,
     "magical_atk": 6,
-    "mana": 6,
+    "mana": 11,
     "speed": 16
   },
   "attributes": [
@@ -60,9 +57,7 @@
   "affinities": [
     {
       "kind": "immunities",
-      "damageTypeIds": [
-
-      ]
+      "damageTypeIds": []
     },
     {
       "kind": "resistances",
@@ -78,6 +73,72 @@
       "kind": "absorptions",
       "damageTypeIds": [
         14
+      ]
+    }
+  ],
+  "abilities": [
+    {
+      "name": "Bec nécrotique",
+      "description": "Un coup de bec qui laisse dans la plaie un peu de ce dont elle se nourrit.",
+      "damageMin": 1,
+      "damageMax": 3,
+      "damageType": "death",
+      "scaling": [
+        {
+          "source": "atk_mag",
+          "ratio": 0.4
+        }
+      ],
+      "range": "Contact",
+      "enduranceCost": 1,
+      "inflicts": [
+        {
+          "status": "necrose",
+          "chance": 35
+        }
+      ]
+    },
+    {
+      "name": "Mauvais présage",
+      "description": "Elle se pose, elle regarde, elle attend. Ce qu’elle annonce pèse déjà sur les épaules.",
+      "range": "14 m",
+      "manaCost": 4,
+      "duration": 3,
+      "targets": [
+        "enemy"
+      ],
+      "effects": [
+        {
+          "stat": "atk_phy",
+          "value": 4
+        },
+        {
+          "stat": "def_mag",
+          "value": 3
+        }
+      ],
+      "inflicts": [
+        {
+          "status": "peur",
+          "chance": 55
+        }
+      ]
+    },
+    {
+      "name": "Appel des charognards",
+      "description": "Son cri porte loin : d’autres corneilles répondent et se rapprochent.",
+      "range": "Autour de soi",
+      "area": "Rayon 12 m",
+      "targets": [
+        "ally"
+      ],
+      "duration": 3,
+      "manaCost": 3,
+      "effects": [
+        {
+          "stat": "atk_mag",
+          "value": 4
+        }
       ]
     }
   ]

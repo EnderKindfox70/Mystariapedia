@@ -279,17 +279,33 @@
     </section>
   }
 
+  <!-- Le butin s'affiche en tuiles : l'illustration, le nom dessous, puis le
+       rendement d'une dépouille. La vignette est facultative de bout en bout —
+       une collection sans illustration, une fiche au champ vide ou une image
+       introuvable donnent une tuile de texte, qui se lit très bien seule. -->
   @if (entry.loot?.length) {
     <section class="folio__block">
       <h3 class="folio__section">Butin</h3>
-      <ul class="reflist">
-        @for (l of lootRows(entry.loot); track $index) {
-          <li>
-            @if (l.link) {
-              <a class="reflist__link" [routerLink]="l.link">{{ l.label }}</a>
-            } @else {
-              {{ l.label }}
+      <ul class="lootlist">
+        @for (l of lootRows(entry.loot); track l.key) {
+          <li class="lootlist__item">
+            @if (l.image && !broken.has(l.key)) {
+              <!-- Comme la bannière, la vignette n'occupe aucune hauteur tant
+                   qu'elle n'est pas chargée : sans la remesure, la fiche serait
+                   paginée comme si elle n'existait pas. -->
+              <span class="lootlist__plate">
+                <img [src]="l.image" [alt]="l.label"
+                     (load)="remeasure()" (error)="onLootImageError(l.key)">
+              </span>
             }
+            @if (l.link) {
+              <a class="lootlist__label reflist__link" [routerLink]="l.link">{{ l.label }}</a>
+            } @else {
+              <span class="lootlist__label">{{ l.label }}</span>
+            }
+            <span class="lootlist__yield">
+              <b>{{ l.amount }}</b> · {{ l.chance }}
+            </span>
           </li>
         }
       </ul>

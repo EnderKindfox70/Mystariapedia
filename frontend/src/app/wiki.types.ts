@@ -105,6 +105,13 @@ export interface SpellClassBonus {
    * (ex. 0.5 = coût divisé par deux).
    */
   manaFactor?: number;
+  /**
+   * Le lanceur porte AUSSITÔT une attaque gratuite avec ce que le sort vient
+   * d'enchanter (« le pugiliste porte aussitôt une attaque à mains nues »).
+   * Elle ne coûte ni action ni endurance, et profite de l'enchantement qui
+   * vient d'être posé.
+   */
+  freeStrike?: boolean;
 }
 
 /**
@@ -133,8 +140,16 @@ export interface SpellRecoil {
  * attaquant qui touche le lanceur subit un statut et/ou des dégâts en retour.
  */
 export interface SpellRetaliate {
-  /** Déclencheur : au corps-à-corps (`melee`, défaut) ou sur toute attaque (`any`). */
-  trigger?: 'melee' | 'any';
+  /**
+   * Ce que la riposte punit :
+   * - `melee` (défaut) — tout coup porté depuis une case adjacente, arme comprise ;
+   * - `unarmed` — seulement ce qui touche **à même la chair** : poings, crocs,
+   *   serres. Une lame ou une pique tenue à distance de bras n'y laisse rien.
+   *   C'est le déclencheur des défenses passives (épines, carapaces) : elles
+   *   blessent qui les saisit, pas qui les frappe avec du fer ;
+   * - `any` — n'importe quelle attaque, quelle qu'en soit la portée.
+   */
+  trigger?: 'melee' | 'unarmed' | 'any';
   /** Statut(s) renvoyé(s) à l'attaquant (avec % de chance). */
   inflicts?: SpellStatusApplication[];
   /** Dégâts renvoyés à l'attaquant (min). */
@@ -274,6 +289,22 @@ export interface SpellNodeStats {
   classBonuses?: SpellClassBonus[];
   /** Contributions de scaling (stats de combat / attributs). */
   scaling?: SpellScaling[];
+  /** Le sort téléporte son lanceur sur la case visée. */
+  teleport?: boolean;
+  /**
+   * Distance franchissable par la téléportation, quand elle diffère de `range`.
+   * Indispensable dès que le sort fait autre chose en arrivant : « Évasion
+   * enflammée » a une portée « Autour de soi » qui décrit son BRASIER, pas la
+   * longueur du saut. À défaut, `range` fait office de distance de saut.
+   */
+  teleportRange?: string;
+  /**
+   * Déclencheurs auxquels ce palier peut répondre HORS du tour de son lanceur.
+   * `incoming-attack` en fait une parade ou une dérobade (Pas dimensionnel),
+   * `leave-reach` une punition du désengagement. Absent = le sort ne se lance
+   * qu'à son tour.
+   */
+  reaction?: ('leave-reach' | 'incoming-attack')[];
 }
 
 /* ──────────────────────────────────────────
@@ -383,6 +414,29 @@ export interface WeatherCostModifier {
   domain: string;
   /** Facteur appliqué au coût (0.5 = coût réduit de moitié, 1.5 = +50 %). */
   factor: number;
+}
+
+/* ──────────────────────────────────────────
+   MOMENTS DE LA JOURNÉE
+   Source : public/resources/json/daytime.json
+─────────────────────────────────────────── */
+
+/**
+ * Un moment de la journée (aube, midi, nuit…). Il ne cause pas de dégâts par
+ * lui-même : il incline le monde, en rendant certains domaines plus ou moins
+ * puissants et plus ou moins coûteux. Même structure de modificateurs que la
+ * météo, avec laquelle il se cumule.
+ */
+export interface Daytime {
+  id: number;
+  key: string;
+  name: string;
+  icon: string;
+  description: string;
+  /** Modificateurs de dégâts des sorts, par domaine (facteur multiplicatif). */
+  damageModifiers?: WeatherCostModifier[];
+  /** Modificateurs de coût en mana, par domaine. */
+  costModifiers?: WeatherCostModifier[];
 }
 
 /** Une météo invocable, avec ses effets de zone. */
@@ -613,6 +667,82 @@ export interface BestiaryAttribute {
 }
 
 /**
+ * Une ligne de butin : l'item récupérable, et ce qu'une dépouille en rend.
+ * Le rendement appartient à la créature, pas à l'item — un même venin ne se
+ * prélève pas dans les mêmes quantités selon la bête dont il provient.
+ */
+export interface BestiaryLoot extends CrossRef {
+  /** Chance d'obtenir l'item en dépouillant (0–100). Absent = systématique. */
+  chance?: number;
+  /** Quantité prélevée quand l'item tombe. Absent = 1. */
+  min?: number;
+  /** Borne haute de la quantité, si elle diffère du `min`. */
+  max?: number;
+}
+
+/**
+ * Une capacité propre à une créature.
+ *
+ * Sans elle, toutes les bêtes se battraient de la même façon — une morsure
+ * générique dérivée de leur attaque. Ce bloc leur donne ce que leur fiche
+ * raconte : le bélier charge, le loup hurle pour sa meute, le serpent fantôme
+ * paralyse. Les champs reprennent le vocabulaire d'un nœud de sort, de sorte
+ * qu'une capacité de créature se lit exactement comme un palier de magie.
+ *
+ * Une créature sans `abilities` retombe sur la morsure et la prise au sol par
+ * défaut : le bestiaire reste jouable même à moitié rempli.
+ */
+export interface BestiaryAbility {
+  name: string;
+  /** Ce que fait la capacité, en clair. Affichée sur le bouton et au journal. */
+  description?: string;
+  /** Dégâts de base (forme simple, un seul type). */
+  damageMin?: number;
+  damageMax?: number;
+  damageType?: string;
+  /** Dégâts multi-composantes (rafale, morsure + venin). */
+  damages?: { min: number; max: number; type?: string }[];
+  /**
+   * Scaling. Sans lui, une créature de haut niveau frapperait comme une poule :
+   * l'essentiel de sa puissance doit venir de son attaque, pas d'un dé fixe.
+   */
+  scaling?: { source: string; ratio: number; affects?: string }[];
+  heal?: number;
+  /** Portée et zone, écrites comme sur une fiche de sort. */
+  range?: string;
+  area?: string;
+  targets?: ('enemy' | 'ally' | 'self' | 'everyone')[];
+  /** Coûts. Une bête n'a pas de mana à gaspiller : l'endurance suffit souvent. */
+  enduranceCost?: number;
+  manaCost?: number;
+  duration?: number;
+  effects?: { stat: string; value: number }[];
+  inflicts?: { status: string; chance: number; duration?: number }[];
+  cleanses?: string[];
+  evadeChance?: number;
+  retaliate?: {
+    trigger?: 'melee' | 'any';
+    damageMin?: number;
+    damageMax?: number;
+    damageType?: string;
+    inflicts?: { status: string; chance: number }[];
+  };
+  /**
+   * Ce que la créature paie de sa personne. `effects` porte une magnitude
+   * POSITIVE : le signe négatif est appliqué par le moteur — c'est ce qui
+   * permet à une posture défensive de coûter réellement sa mobilité.
+   */
+  recoil?: {
+    damageMin?: number;
+    damageMax?: number;
+    effects?: { stat: string; value: number }[];
+    note?: string;
+  };
+  /** Déclencheurs auxquels la capacité peut répondre hors du tour de la bête. */
+  reaction?: ('leave-reach' | 'incoming-attack')[];
+}
+
+/**
  * Fiche complète, chargée à la demande depuis `bestiary/<slug>.json` quand on
  * ouvre le chapitre d'une créature.
  */
@@ -633,8 +763,13 @@ export interface BestiaryEntry extends BestiaryIndexEntry {
    */
   statBonuses?: Partial<Record<BestiaryStatKey, number>>;
   attributes?: BestiaryAttribute[];
+  /**
+   * Capacités propres à la créature. Absent = elle se rabat sur la morsure et
+   * la prise au sol génériques.
+   */
+  abilities?: BestiaryAbility[];
   affinities?: BestiaryAffinityGroup[];
-  loot?: CrossRef[];
+  loot?: BestiaryLoot[];
   habitat?: CrossRef[];
   /** Fréquence de rencontre, ex. « Rare », « Commune en hiver ». */
   frequency?: string;

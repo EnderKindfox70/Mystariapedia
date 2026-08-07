@@ -1,0 +1,738 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   TABLE DE COMBAT
+
+   Trois colonnes : l'ordre d'initiative à gauche, le plateau au centre, le
+   montage et le journal à droite. Le plateau garde ses cases carrées quelle que
+   soit la taille de la grille (`aspect-ratio` sur la case, pas sur le plateau).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.cb {
+  --team-allies: #4b7a52;
+  --team-ennemis: #8b3a2f;
+  --team-neutres: #6b5a3a;
+
+  min-height: 100vh;
+  padding: 1.25rem 1.5rem 3rem;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(139, 107, 47, .1), transparent 55%),
+    var(--abyss);
+  color: var(--old-paper);
+  font-family: 'Spectral', serif;
+}
+
+/* ── Bandeau ─────────────────────────────────────────────────────────────── */
+
+.cb-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: .9rem;
+  border-bottom: 1px solid rgba(139, 107, 47, .35);
+}
+
+.cb-head__title { display: flex; align-items: baseline; gap: .9rem; }
+
+.cb-name {
+  min-width: 16rem;
+  padding: .25rem .1rem;
+  border: 0;
+  border-bottom: 1px dashed rgba(139, 107, 47, .5);
+  background: transparent;
+  color: var(--faded-ivory);
+  font-family: 'Cinzel', serif;
+  font-size: 1.35rem;
+  letter-spacing: .04em;
+}
+.cb-name:focus { outline: none; border-bottom-color: var(--ancient-gold); }
+
+.cb-round {
+  padding: .15rem .6rem;
+  border: 1px solid var(--ancient-gold);
+  border-radius: 999px;
+  color: var(--ancient-gold);
+  font-family: 'Cinzel', serif;
+  font-size: .78rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.cb-round--idle { border-color: rgba(217, 204, 184, .3); color: rgba(217, 204, 184, .6); }
+
+.cb-head__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.cb-btn {
+  padding: .45rem 1rem;
+  border: 1px solid rgba(139, 107, 47, .55);
+  border-radius: 2px;
+  background: rgba(28, 26, 24, .8);
+  color: var(--old-paper);
+  font-family: 'Cinzel', serif;
+  font-size: .8rem;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, color .18s;
+}
+.cb-btn:hover:not(:disabled) { background: rgba(139, 107, 47, .22); border-color: var(--ancient-gold); }
+.cb-btn:disabled { opacity: .4; cursor: not-allowed; }
+.cb-btn--primary { background: rgba(107, 31, 31, .55); border-color: var(--ritual-red); color: var(--faded-ivory); }
+.cb-btn--primary:hover:not(:disabled) { background: rgba(107, 31, 31, .8); border-color: #a33; }
+
+.cb-alert {
+  margin: .75rem 0 0;
+  padding: .5rem .8rem;
+  border-left: 3px solid var(--ritual-red);
+  background: rgba(107, 31, 31, .18);
+  font-size: .88rem;
+}
+.cb-alert--done { border-left-color: var(--ancient-gold); background: rgba(139, 107, 47, .16); }
+
+/* ── Corps en trois colonnes ─────────────────────────────────────────────── */
+
+.cb-body {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr) 20rem;
+  gap: 1.1rem;
+  margin-top: 1.1rem;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .cb-body { grid-template-columns: 1fr; }
+}
+
+.cb-order,
+.cb-side {
+  padding: .9rem;
+  border: 1px solid rgba(139, 107, 47, .28);
+  background: rgba(21, 19, 17, .72);
+  max-height: calc(100vh - 9rem);
+  overflow-y: auto;
+}
+
+.cb h2,
+.cb h3 {
+  margin: 0 0 .6rem;
+  color: var(--ancient-gold);
+  font-family: 'Cinzel', serif;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.cb h3 { margin-top: 1.1rem; font-size: .75rem; }
+.cb h3:first-of-type { margin-top: 0; }
+
+.cb-empty { margin: .4rem 0; color: rgba(217, 204, 184, .55); font-size: .85rem; font-style: italic; }
+.cb-empty a { color: var(--ancient-gold); }
+
+/* ── Ordre d'initiative ──────────────────────────────────────────────────── */
+
+.cb-order__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
+
+.cb-unit {
+  padding: .45rem .5rem;
+  border: 1px solid rgba(139, 107, 47, .22);
+  border-left: 3px solid var(--team-neutres);
+  background: rgba(11, 9, 8, .55);
+}
+.cb-unit[data-team='allies'] { border-left-color: var(--team-allies); }
+.cb-unit[data-team='ennemis'] { border-left-color: var(--team-ennemis); }
+.cb-unit.is-active { border-color: var(--ancient-gold); box-shadow: 0 0 0 1px rgba(139, 107, 47, .35); }
+.cb-unit.is-selected { background: rgba(139, 107, 47, .14); }
+.cb-unit.is-down { opacity: .45; }
+
+.cb-unit__main {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cb-unit__face {
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid rgba(139, 107, 47, .4);
+  border-radius: 50%;
+  object-fit: cover;
+}
+.cb-unit__face--glyph {
+  display: grid;
+  place-items: center;
+  background: rgba(139, 107, 47, .16);
+  font-family: 'Cinzel', serif;
+  color: var(--ancient-gold);
+}
+
+.cb-unit__id { display: flex; flex-direction: column; min-width: 0; }
+.cb-unit__id strong { font-size: .92rem; color: var(--faded-ivory); }
+.cb-unit__id small { font-size: .74rem; color: rgba(217, 204, 184, .6); }
+/* Classe du personnage (ou type de la créature) et son niveau : ce à quoi on a
+   affaire, et combien ça pèse. */
+.cb-unit__role {
+  display: flex;
+  gap: .35rem;
+  align-items: baseline;
+  font-family: 'Cinzel', serif;
+  font-size: .66rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ancient-gold);
+}
+.cb-unit__role b {
+  font-weight: 400;
+  color: rgba(217, 204, 184, .55);
+}
+
+/* Trois jauges empilées : les PV, le souffle, la réserve de mana. Toutes se
+   lisent sur la valeur courante et non sur un maximum figé — un buff qui
+   élargit la réserve doit se voir sur la barre. */
+.cb-bars { display: flex; flex-direction: column; gap: 2px; margin-top: .35rem; }
+
+.cb-bar { height: 3px; background: rgba(11, 9, 8, .8); }
+.cb-bar span { display: block; height: 100%; transition: width .25s; }
+.cb-bar--hp { background: rgba(107, 31, 31, .45); }
+.cb-bar--hp span { background: var(--team-allies); }
+.cb-bar--end { background: rgba(94, 70, 50, .4); }
+.cb-bar--end span { background: var(--ancient-gold); }
+.cb-bar--mana { background: rgba(75, 46, 89, .45); }
+.cb-bar--mana span { background: var(--domain-water-secondary); }
+
+.cb-tags { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .4rem; }
+
+.cb-tag {
+  padding: .08rem .35rem;
+  border: 1px solid rgba(139, 107, 47, .35);
+  border-radius: 2px;
+  background: rgba(28, 26, 24, .8);
+  color: rgba(217, 204, 184, .85);
+  font-size: .68rem;
+  cursor: default;
+}
+.cb-tag--status { cursor: pointer; border-color: rgba(107, 31, 31, .6); }
+.cb-tag--status:hover { background: rgba(107, 31, 31, .35); }
+.cb-tag--effect { border-color: rgba(75, 122, 82, .55); }
+.cb-tag em { font-style: normal; opacity: .65; margin-left: .2rem; }
+
+.cb-unit__tools { margin-top: .5rem; padding-top: .5rem; border-top: 1px dotted rgba(139, 107, 47, .3); }
+
+.cb-stats { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .4rem; }
+.cb-stats span {
+  padding: .08rem .3rem;
+  background: rgba(139, 107, 47, .12);
+  font-size: .68rem;
+  letter-spacing: .03em;
+}
+
+.cb-row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: end; }
+.cb-row label { display: flex; flex-direction: column; gap: .15rem; font-size: .72rem; color: rgba(217, 204, 184, .7); }
+.cb-row input[type='number'] {
+  width: 4.5rem;
+  padding: .2rem .35rem;
+  border: 1px solid rgba(139, 107, 47, .4);
+  background: rgba(11, 9, 8, .8);
+  color: var(--old-paper);
+}
+.cb-row--teams { margin-bottom: .3rem; }
+
+.cb-mini {
+  padding: .18rem .45rem;
+  border: 1px solid rgba(139, 107, 47, .4);
+  border-radius: 2px;
+  background: rgba(28, 26, 24, .85);
+  color: var(--old-paper);
+  font-size: .72rem;
+  cursor: pointer;
+}
+.cb-mini:hover { background: rgba(139, 107, 47, .22); }
+.cb-mini.is-on { background: rgba(139, 107, 47, .4); border-color: var(--ancient-gold); color: var(--faded-ivory); }
+.cb-mini--danger { border-color: rgba(107, 31, 31, .7); }
+.cb-mini--danger:hover { background: rgba(107, 31, 31, .45); }
+
+.cb-select {
+  width: 100%;
+  margin-top: .4rem;
+  padding: .25rem .35rem;
+  border: 1px solid rgba(139, 107, 47, .4);
+  background: rgba(11, 9, 8, .85);
+  color: var(--old-paper);
+  font-size: .75rem;
+}
+.cb-select--slim { width: auto; margin-top: 0; }
+
+.cb-subhead {
+  margin: .6rem 0 .25rem;
+  color: rgba(217, 204, 184, .55);
+  font-family: 'Cinzel', serif;
+  font-size: .66rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.cb-bag { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .12rem; }
+.cb-bag li {
+  display: flex;
+  justify-content: space-between;
+  gap: .4rem;
+  padding: .1rem .3rem;
+  border-left: 2px solid rgba(139, 107, 47, .3);
+  background: rgba(11, 9, 8, .5);
+  font-size: .72rem;
+}
+.cb-bag li[data-kind='ammunition'] { border-left-color: var(--team-ennemis); }
+.cb-bag li[data-kind='consumable'] { border-left-color: var(--team-allies); }
+/* Un stock épuisé reste affiché, barré : il dit qu'il faut refaire le plein. */
+.cb-bag li.is-empty { opacity: .45; text-decoration: line-through; }
+.cb-bag em { font-style: normal; color: var(--ancient-gold); }
+
+.cb-notes {
+  margin: .45rem 0 .3rem;
+  font-size: .72rem;
+  line-height: 1.4;
+  color: rgba(217, 204, 184, .6);
+  white-space: pre-line;
+}
+
+/* ── Plateau ─────────────────────────────────────────────────────────────── */
+
+.cb-arena { min-width: 0; }
+
+.cb-arena__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .6rem;
+  font-size: .8rem;
+}
+.cb-scale { color: rgba(217, 204, 184, .5); letter-spacing: .05em; }
+.cb-turn { color: var(--faded-ivory); }
+.cb-turn strong { color: var(--ancient-gold); }
+.cb-turn__end { color: var(--ancient-gold); cursor: help; }
+.cb-modes { display: flex; gap: .35rem; align-items: center; }
+
+.cb-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  border: 1px solid rgba(139, 107, 47, .35);
+  background: rgba(139, 107, 47, .18);
+  /* Les cases étant carrées, la hauteur du plateau suit sa largeur. On borne
+     donc la LARGEUR pour que la hauteur tienne dans l'écran — sans quoi une
+     grande grille repousse le panneau d'actions sous la ligne de flottaison et
+     il faut faire défiler pour jouer son tour. */
+  max-width: calc((100vh - 21rem) * var(--cols) / var(--rows));
+  margin: 0 auto;
+}
+
+.cb-cell {
+  position: relative;
+  /* Le carré vient de la CASE : la grille garde ses proportions quelle que
+     soit la largeur disponible, sans calcul de hauteur en JS. */
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: rgba(21, 19, 17, .9);
+  cursor: pointer;
+  transition: background .12s;
+}
+.cb-cell:hover { background: rgba(139, 107, 47, .16); }
+/* Décor : la teinte vient du catalogue (`terrain.ts`), pas d'une classe par
+   type — ajouter un décor ne demande donc aucune règle CSS de plus. */
+.cb-cell.is-terrain { background: var(--terrain); }
+.cb-cell.is-terrain::before {
+  content: attr(data-glyph);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: .7rem;
+  color: rgba(11, 9, 8, .5);
+  pointer-events: none;
+}
+.cb-cell.is-reachable { background: rgba(75, 122, 82, .28); }
+.cb-cell.is-reachable:hover { background: rgba(75, 122, 82, .5); }
+/* Portée de la capacité armée : ce qui est atteignable, avant même de viser. */
+.cb-cell.is-range { background: rgba(61, 121, 168, .26); }
+.cb-cell.is-range:hover { background: rgba(61, 121, 168, .45); }
+/* Zone effectivement touchée sous le curseur — prime sur la portée. */
+.cb-cell.is-area { background: rgba(184, 72, 43, .45); box-shadow: inset 0 0 0 1px rgba(224, 107, 45, .6); }
+/* Zone de gêne d'une arme à distance : y tirer coûte la moitié des dégâts. */
+.cb-cell.is-close { background: rgba(107, 31, 31, .3); }
+.cb-cell.is-close::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0 3px,
+    rgba(224, 107, 45, .22) 3px 6px
+  );
+  pointer-events: none;
+}
+/* Cible possible d'une frappe gratuite. */
+.cb-cell.is-strike { background: rgba(214, 167, 54, .4); box-shadow: inset 0 0 0 2px var(--ancient-gold); }
+/* Pion sélectionné pendant la préparation. */
+.cb-cell.is-picked { box-shadow: inset 0 0 0 2px var(--ancient-gold); }
+
+/* ── Palette de décor ────────────────────────────────────────────────────── */
+
+.cb-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  align-items: center;
+  margin-bottom: .5rem;
+  padding: .45rem .5rem;
+  border: 1px solid rgba(139, 107, 47, .3);
+  background: rgba(21, 19, 17, .7);
+}
+
+.cb-brush {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .2rem .5rem;
+  border: 1px solid rgba(139, 107, 47, .35);
+  border-left: 4px solid var(--tint);
+  background: rgba(11, 9, 8, .6);
+  color: var(--old-paper);
+  font-size: .72rem;
+  cursor: pointer;
+}
+.cb-brush:hover { background: rgba(139, 107, 47, .18); }
+.cb-brush.is-on { background: var(--tint); border-color: var(--ancient-gold); color: var(--faded-ivory); }
+.cb-brush__glyph { font-size: .85rem; opacity: .8; }
+
+.cb-palette__hint {
+  margin-left: auto;
+  font-size: .7rem;
+  font-style: italic;
+  color: rgba(217, 204, 184, .45);
+}
+
+/* ── Onglets d'action ────────────────────────────────────────────────────── */
+
+.cb-actiontabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  margin-bottom: .6rem;
+}
+.cb-actiontabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .28rem .7rem;
+  border: 1px solid rgba(139, 107, 47, .3);
+  border-bottom-width: 2px;
+  background: rgba(11, 9, 8, .5);
+  color: rgba(217, 204, 184, .7);
+  font-family: 'Cinzel', serif;
+  font-size: .72rem;
+  letter-spacing: .05em;
+  cursor: pointer;
+}
+.cb-actiontabs button:hover { background: rgba(139, 107, 47, .16); }
+.cb-actiontabs button.is-on {
+  background: rgba(139, 107, 47, .26);
+  border-bottom-color: var(--ancient-gold);
+  color: var(--faded-ivory);
+}
+.cb-actiontabs em {
+  padding: 0 .25rem;
+  border-radius: 999px;
+  background: rgba(139, 107, 47, .3);
+  font-size: .62rem;
+  font-style: normal;
+}
+
+.cb-cost {
+  position: absolute;
+  inset: auto .12rem .05rem auto;
+  font-size: .5rem;
+  color: rgba(217, 204, 184, .5);
+  pointer-events: none;
+}
+
+.cb-token {
+  position: absolute;
+  inset: 8%;
+  /* Une créature de 2×2 déborde sur ses cases voisines : la largeur suit son
+     empreinte, gouttières comprises. */
+  width: calc(var(--span, 1) * 100% + (var(--span, 1) - 1) * 1px);
+  height: calc(var(--span, 1) * 100% + (var(--span, 1) - 1) * 1px);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--team-neutres);
+  border-radius: 50%;
+  background: rgba(11, 9, 8, .95);
+  overflow: hidden;
+  pointer-events: none;
+}
+.cb-token[data-team='allies'] { border-color: var(--team-allies); }
+.cb-token[data-team='ennemis'] { border-color: var(--team-ennemis); }
+.cb-token.is-active { box-shadow: 0 0 0 2px var(--ancient-gold), 0 0 12px rgba(139, 107, 47, .55); }
+.cb-token.is-down { filter: grayscale(1); opacity: .4; }
+.cb-token img { width: 100%; height: 100%; object-fit: cover; }
+.cb-token__glyph { font-family: 'Cinzel', serif; font-size: .8rem; color: var(--faded-ivory); }
+.cb-token__hp {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--team-allies);
+}
+
+/* ── Capacités ───────────────────────────────────────────────────────────── */
+
+/* Frappe gratuite en attente : elle bloque la suite, elle doit se voir. */
+.cb-strike {
+  margin-top: .9rem;
+  padding: .7rem .8rem;
+  border: 1px solid var(--ancient-gold);
+  background: rgba(214, 167, 54, .14);
+}
+.cb-strike p { margin: 0 0 .5rem; font-size: .86rem; }
+/* Une réaction se joue hors de son tour : couleur distincte pour qu'on ne la
+   confonde pas avec une action ordinaire. */
+.cb-strike--reaction { border-color: var(--domain-space); background: rgba(104, 169, 179, .14); }
+.cb-strike--reaction strong { color: var(--domain-space-secondary); }
+.cb-strike strong { color: var(--ancient-gold); }
+.cb-strike__choices { display: flex; flex-wrap: wrap; gap: .35rem; }
+.cb-strike__choices em { font-style: normal; opacity: .6; margin-left: .25rem; }
+
+.cb-abilities {
+  margin-top: .9rem;
+  padding: .8rem;
+  border: 1px solid rgba(139, 107, 47, .28);
+  background: rgba(21, 19, 17, .72);
+}
+
+.cb-hint {
+  margin: 0 0 .6rem;
+  padding: .4rem .6rem;
+  border-left: 3px solid var(--ancient-gold);
+  background: rgba(139, 107, 47, .14);
+  font-size: .82rem;
+}
+.cb-hint .cb-mini { margin-left: .5rem; }
+
+.cb-ability__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: .45rem;
+}
+
+.cb-ability {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  width: 100%;
+  padding: .45rem .6rem;
+  border: 1px solid rgba(139, 107, 47, .3);
+  border-left: 3px solid rgba(139, 107, 47, .5);
+  background: rgba(11, 9, 8, .6);
+  color: var(--old-paper);
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.cb-ability:hover:not(:disabled) { background: rgba(139, 107, 47, .18); }
+.cb-ability:disabled { opacity: .35; cursor: not-allowed; }
+.cb-ability.is-armed { border-color: var(--ancient-gold); background: rgba(139, 107, 47, .3); }
+.cb-ability[data-kind='spell'] { border-left-color: var(--cosmic-violet); }
+.cb-ability[data-kind='natural'] { border-left-color: var(--team-ennemis); }
+
+.cb-ability__name { font-family: 'Cinzel', serif; font-size: .85rem; color: var(--faded-ivory); }
+.cb-ability__meta { display: flex; flex-wrap: wrap; gap: .3rem; }
+.cb-ability__meta em {
+  padding: 0 .25rem;
+  background: rgba(139, 107, 47, .14);
+  font-size: .68rem;
+  font-style: normal;
+  color: rgba(217, 204, 184, .8);
+}
+.cb-ability__sub { font-size: .7rem; color: rgba(217, 204, 184, .5); }
+/* Les dégâts sont l'information qu'on cherche en premier sur un bouton d'action. */
+.cb-ability__dmg { background: rgba(107, 31, 31, .35) !important; color: #e8c9c0 !important; }
+/* La chance de toucher se lit à côté des dégâts sans leur voler l'œil : c'est
+   une probabilité, pas une promesse. */
+.cb-ability__hit { background: rgba(31, 62, 107, .35) !important; color: #c0d4e8 !important; }
+/* L'essoufflement se signale comme un danger : c'est un combattant qui devient
+   une proie, pas un simple malus de plus. */
+.cb-tag--winded { background: rgba(120, 66, 18, .45); color: #f0c98a; border-color: rgba(200, 130, 40, .5); }
+.cb-ability__heal { background: rgba(75, 122, 82, .3) !important; color: #cfe3cf !important; }
+.cb-ability[data-kind='class'] { border-left-color: var(--domain-lightning); }
+.cb-ability[data-kind='item'] { border-left-color: var(--team-allies); }
+
+.cb-stock { background: rgba(139, 107, 47, .28) !important; }
+.cb-stock.is-out { background: rgba(107, 31, 31, .45) !important; color: #e5b4b4; }
+
+/* Effet non chiffré : le moteur ne sait pas le résoudre, il le montre. */
+.cb-ability__manual {
+  font-size: .68rem;
+  font-style: italic;
+  line-height: 1.3;
+  color: rgba(217, 204, 184, .5);
+}
+
+/* ── Panneau latéral ─────────────────────────────────────────────────────── */
+
+.cb-tabs { display: flex; gap: .3rem; margin-bottom: .8rem; }
+.cb-tabs button {
+  flex: 1;
+  padding: .35rem;
+  border: 1px solid rgba(139, 107, 47, .35);
+  background: rgba(11, 9, 8, .6);
+  color: rgba(217, 204, 184, .7);
+  font-family: 'Cinzel', serif;
+  font-size: .74rem;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+.cb-tabs button.is-on { background: rgba(139, 107, 47, .28); color: var(--faded-ivory); border-color: var(--ancient-gold); }
+
+/* Onglets du catalogue : un seul des deux à l'écran à la fois. Même grammaire
+   que les onglets d'action, pour que l'interface se lise d'une seule façon. */
+.cb-rostertabs {
+  display: flex;
+  gap: .25rem;
+  margin-bottom: .5rem;
+}
+.cb-rostertabs button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  padding: .3rem;
+  border: 1px solid rgba(139, 107, 47, .3);
+  border-bottom-width: 2px;
+  background: rgba(11, 9, 8, .5);
+  color: rgba(217, 204, 184, .7);
+  font-family: 'Cinzel', serif;
+  font-size: .72rem;
+  letter-spacing: .05em;
+  cursor: pointer;
+}
+.cb-rostertabs button:hover { background: rgba(139, 107, 47, .16); }
+.cb-rostertabs button.is-on {
+  background: rgba(139, 107, 47, .26);
+  border-bottom-color: var(--ancient-gold);
+  color: var(--faded-ivory);
+}
+.cb-rostertabs em {
+  padding: 0 .25rem;
+  border-radius: 999px;
+  background: rgba(139, 107, 47, .3);
+  font-size: .62rem;
+  font-style: normal;
+}
+
+.cb-search {
+  width: 100%;
+  padding: .3rem .45rem;
+  margin-bottom: .4rem;
+  border: 1px solid rgba(139, 107, 47, .4);
+  background: rgba(11, 9, 8, .8);
+  color: var(--old-paper);
+  font-size: .8rem;
+}
+
+/* Deux colonnes de vignettes compactes : le catalogue tient à l'écran au lieu
+   de s'étirer sur une colonne qu'il faut faire défiler. */
+.cb-pick {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .25rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.cb-pick button {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  padding: .3rem .4rem;
+  border: 1px solid transparent;
+  background: rgba(11, 9, 8, .5);
+  color: var(--old-paper);
+  text-align: left;
+  cursor: pointer;
+}
+.cb-pick button:hover:not(:disabled) { border-color: rgba(139, 107, 47, .5); background: rgba(139, 107, 47, .14); }
+.cb-pick button:disabled { opacity: .4; cursor: progress; }
+.cb-pick img { width: 1.7rem; height: 1.7rem; object-fit: cover; border-radius: 2px; }
+.cb-pick span { display: flex; flex-direction: column; min-width: 0; font-size: .76rem; }
+.cb-pick span > :first-child,
+.cb-pick button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cb-pick small { font-size: .64rem; color: rgba(217, 204, 184, .5); }
+.cb-pick img { width: 1.4rem; height: 1.4rem; }
+
+.cb-saved { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
+.cb-saved li { display: flex; gap: .3rem; align-items: stretch; }
+.cb-saved__open {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: .3rem .45rem;
+  border: 1px solid rgba(139, 107, 47, .3);
+  background: rgba(11, 9, 8, .5);
+  color: var(--old-paper);
+  text-align: left;
+  font-size: .82rem;
+  cursor: pointer;
+}
+.cb-saved__open:hover { background: rgba(139, 107, 47, .16); }
+.cb-saved__open small { font-size: .68rem; color: rgba(217, 204, 184, .5); }
+
+/* ── Journal ─────────────────────────────────────────────────────────────── */
+
+.cb-panel--log { font-size: .82rem; }
+.cb-log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+
+.cb-log__line {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: .35rem;
+  padding: .3rem .4rem;
+  border-left: 2px solid rgba(139, 107, 47, .35);
+  background: rgba(11, 9, 8, .45);
+}
+.cb-log__line[data-kind='damage'] { border-left-color: var(--ritual-red); }
+.cb-log__line[data-kind='heal'] { border-left-color: var(--team-allies); }
+.cb-log__line[data-kind='status'] { border-left-color: var(--cosmic-violet); }
+.cb-log__line[data-kind='death'] { border-left-color: #a33; background: rgba(107, 31, 31, .2); }
+.cb-log__line[data-kind='turn'] { border-left-color: var(--ancient-gold); }
+.cb-log__line[data-kind='save'] { border-left-color: #6aa8c8; }
+
+.cb-log__round { font-size: .68rem; color: rgba(217, 204, 184, .4); }
+.cb-log__text { line-height: 1.35; }
+
+.cb-log__details {
+  grid-column: 2;
+  list-style: none;
+  margin: .2rem 0 0;
+  padding: 0 0 0 .5rem;
+  border-left: 1px dotted rgba(139, 107, 47, .35);
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: .68rem;
+  line-height: 1.5;
+  color: rgba(217, 204, 184, .58);
+}
