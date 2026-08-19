@@ -63,6 +63,219 @@
             }
         },
         {
+            "key": "space-marque-spatiale",
+            "name": "Marque spatiale",
+            "description": "Appose **au contact** sur une créature une ancre d'espace qui la relie au lanceur : il faut la toucher, donc l'approcher. Sur soi ou sur un allié, le sceau ne rate jamais ; l'imposer à un ennemi demande de viser très juste, car l'espace se dérobe à qui ne veut pas être tenu. La marque ne s'efface pas avec le temps : elle tient indéfiniment tant que son porteur reste dans la laisse d'espace du lanceur, et se rompt à l'instant où il en sort. Chaque palier allonge cette laisse.",
+            "usage": {
+                "combat": "Il faut être au contact pour marquer. Sur soi ou sur un allié c'est automatique ; sur un ennemi, il faut le toucher d'un jet de précision relevé. La marque n'inflige rien par elle-même : elle prépare les sorts qui s'y accrochent, à commencer par Change-place.",
+                "outOfCombat": "Une balise vivante : garder un compagnon à la trace, savoir à l'instant où il quitte la portée d'ancrage, ou sceller un éclaireur avant de le laisser partir devant."
+            },
+            "mana": 2,
+            "level": 3,
+            "subdomains": ["Distance & éloignement"],
+            "requires": ["space-pas-dimensionnel"],
+            "progression": {
+                "root": "smq1",
+                "nodes": [
+                    {
+                        "id": "smq1", "tier": 1, "branch": "trunk", "name": "Marque spatiale I",
+                        "description": "Une ancre d'espace posée au contact sur soi, sur un allié, ou arrachée à un ennemi par un jet de précision très relevé. Elle tient indéfiniment dans un rayon de 15 m autour du lanceur.",
+                        "usage": { "outOfCombat": "Laisse de 15 m : suivre un compagnon dans une foule ou une ruelle sans le perdre de vue." },
+                        "next": ["smq2"],
+                        "stats": { "mana": 2, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "requiresHit": true, "precisionPenalty": 25, "tetherRange": "15 m", "inflicts": [{ "status": "marque-spatiale", "chance": 100, "duration": -1 }] }
+                    },
+                    {
+                        "id": "smq2", "tier": 2, "branch": "trunk", "name": "Marque spatiale II",
+                        "description": "L'ancre se stabilise : le porteur peut s'écarter jusqu'à 25 m sans que le sceau cède.",
+                        "usage": { "outOfCombat": "Laisse de 25 m : couvrir un éclaireur qui prend un peu d'avance." },
+                        "next": ["smq3"],
+                        "stats": { "mana": 2, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "requiresHit": true, "precisionPenalty": 25, "tetherRange": "25 m", "inflicts": [{ "status": "marque-spatiale", "chance": 100, "duration": -1 }] }
+                    },
+                    {
+                        "id": "smq3", "tier": 3, "branch": "trunk", "name": "Marque spatiale III",
+                        "description": "Le fil d'espace s'étire : 40 m de laisse, et le sceau s'imprime plus vite sur un ennemi qui se débat.",
+                        "usage": { "outOfCombat": "Laisse de 40 m : tenir un compagnon parti fouiller la salle voisine." },
+                        "next": ["smq4"],
+                        "stats": { "mana": 2, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "requiresHit": true, "precisionPenalty": 20, "tetherRange": "40 m", "inflicts": [{ "status": "marque-spatiale", "chance": 100, "duration": -1 }] }
+                    },
+                    {
+                        "id": "smq4", "tier": 4, "branch": "trunk", "name": "Marque spatiale IV",
+                        "description": "Une ancre profonde qui tient à 60 m, hors de vue comme à travers un mur.",
+                        "usage": { "outOfCombat": "Laisse de 60 m : garder le lien avec un guetteur posté au sommet d'une tour." },
+                        "next": ["smq5"],
+                        "stats": { "mana": 3, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "requiresHit": true, "precisionPenalty": 20, "tetherRange": "60 m", "inflicts": [{ "status": "marque-spatiale", "chance": 100, "duration": -1 }] }
+                    },
+                    {
+                        "id": "smq5", "tier": 5, "branch": "trunk", "name": "Marque spatiale V",
+                        "description": "Maîtrise du sceau : 90 m de laisse, et le lanceur entretient autant de marques qu'il a de mains pour les nouer.",
+                        "usage": { "outOfCombat": "Laisse de 90 m : des compagnons suivis à la trace d'un bout à l'autre d'un village." },
+                        "stats": { "mana": 3, "range": "Contact", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "requiresHit": true, "precisionPenalty": 15, "tetherRange": "90 m", "inflicts": [{ "status": "marque-spatiale", "chance": 100, "duration": -1 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "space-change-place",
+            "name": "Change-place",
+            "description": "Le sort échange la place de **deux porteurs de la Marque spatiale** — le lanceur et sa cible. Il faut donc s'être marqué soi-même : on ne tire pas sur un fil dont on ne tient pas l'autre bout. Ce n'est pas une téléportation : on ne vise pas un point, on tire sur un lien, et **aucune ligne de vue n'est nécessaire** — un mur ne l'arrête pas. Le sort se joue à son tour comme en réaction : glisser à la place d'un allié pour prendre le coup à sa place, l'arracher d'une mêlée, ou jeter un ennemi marqué là où le coup allait tomber — c'est alors lui qui le reçoit. Chaque palier n'ajoute pas de puissance : il rend l'échange moins cher.",
+            "usage": {
+                "combat": "Le lanceur — marqué lui aussi — et un porteur de SA marque permutent instantanément, sans ligne de vue. En réaction à une attaque : prenez le coup à la place d'un allié marqué, tirez l'attaquant marqué hors de son élan (privé de cible, son coup se perd), ou faites atterrir un ennemi marqué sous le coup qui vous était destiné — il l'encaisse à votre place, même de la main des siens.",
+                "outOfCombat": "Franchir une grille, un gouffre ou un cordon de gardes en permutant avec un allié marqué déjà passé de l'autre côté."
+            },
+            "mana": 9,
+            "level": 5,
+            "subdomains": ["Portail & teleportation"],
+            "requires": ["space-marque-spatiale"],
+            "progression": {
+                "root": "scp1",
+                "nodes": [
+                    {
+                        "id": "scp1", "tier": 1, "branch": "trunk", "name": "Change-place I",
+                        "description": "À son tour, le lanceur — porteur de sa propre marque — échange sa position avec celle d'un allié qu'il a marqué. Ni ligne de vue ni case libre : le lien suffit.",
+                        "usage": { "outOfCombat": "Permuter avec un compagnon marqué déjà passé de l'autre côté d'un obstacle." },
+                        "next": ["scp2"],
+                        "stats": { "mana": 9, "range": "30 m", "area": "Cible unique", "targets": ["self", "ally"], "swap": true, "swapMark": "marque-spatiale" }
+                    },
+                    {
+                        "id": "scp2", "tier": 2, "branch": "trunk", "name": "Change-place II",
+                        "description": "L'échange devient assez prompt pour se jouer en réaction : le lanceur prend à sa place le coup destiné à un allié marqué, ou l'arrache à la mêlée.",
+                        "next": ["scp3"],
+                        "stats": { "mana": 8, "range": "30 m", "area": "Cible unique", "targets": ["self", "ally"], "swap": true, "swapMark": "marque-spatiale", "reaction": ["incoming-attack"] }
+                    },
+                    {
+                        "id": "scp3", "tier": 3, "branch": "trunk", "name": "Change-place III",
+                        "description": "Le sceau ennemi devient une poignée : le lanceur peut désormais permuter avec un ennemi marqué et le jeter là où il se tenait lui-même — y compris sous le coup qui lui était destiné.",
+                        "next": ["scp4"],
+                        "stats": { "mana": 7, "range": "30 m", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "swap": true, "swapMark": "marque-spatiale", "reaction": ["incoming-attack"] }
+                    },
+                    {
+                        "id": "scp4", "tier": 4, "branch": "trunk", "name": "Change-place IV",
+                        "description": "Le lien porte plus loin — 35 m — et l'échange s'exécute même en pleine action adverse : tirer l'attaquant marqué hors de son élan fait manquer son coup.",
+                        "next": ["scp5"],
+                        "stats": { "mana": 6, "range": "35 m", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "swap": true, "swapMark": "marque-spatiale", "reaction": ["incoming-attack"] }
+                    },
+                    {
+                        "id": "scp5", "tier": 5, "branch": "trunk", "name": "Change-place V",
+                        "description": "L'échange ne coûte presque plus rien et porte à 40 m : la permutation est devenue un réflexe, aussi naturelle qu'un pas de côté.",
+                        "stats": { "mana": 5, "range": "40 m", "area": "Cible unique", "targets": ["self", "ally", "enemy"], "swap": true, "swapMark": "marque-spatiale", "reaction": ["incoming-attack"] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "space-rayon-chercheur",
+            "name": "Rayon à tête chercheuse",
+            "description": "Un trait d'espace comprimé, lancé sur une cible unique. Tiré à l'aveugle, c'est un rayon comme un autre : il faut viser, et il peut se perdre. Mais sur un porteur de votre **Marque spatiale**, il cesse de viser — il suit le lien. Il contourne alors ce qui le gêne, se passe de ligne de vue et **ne manque jamais**. Le seul abri qui vaille contre lui est l'absence de chemin : mur plein de tous les côtés, et le trait n'a plus rien à suivre.",
+            "usage": {
+                "combat": "Sans marque : un rayon ordinaire, à viser. Sur un marqué : touche à coup sûr, même hors de vue, tant qu'un chemin — même détourné — mène jusqu'à lui. Une cible totalement emmurée est hors d'atteinte.",
+                "outOfCombat": "Frapper à travers une porte entrebâillée, ou derrière un angle, ce qu'on a pris soin de marquer avant."
+            },
+            "mana": 2,
+            "level": 4,
+            "subdomains": ["Distance & éloignement"],
+            "requires": ["space-marque-spatiale"],
+            "damageType": "space",
+            "progression": {
+                "root": "src1",
+                "nodes": [
+                    {
+                        "id": "src1", "tier": 1, "branch": "trunk", "name": "Rayon à tête chercheuse I",
+                        "description": "Un trait d'espace qui suit la marque du lanceur : contre un marqué joignable, il touche à coup sûr et sans ligne de vue.",
+                        "usage": { "outOfCombat": "14 m : atteindre un marqué de l'autre côté d'une cloison, pourvu qu'une ouverture subsiste." },
+                        "next": ["src2"],
+                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 2, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "homingMark": "marque-spatiale", "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
+                    },
+                    {
+                        "id": "src2", "tier": 2, "branch": "trunk", "name": "Rayon à tête chercheuse II",
+                        "description": "Le trait se densifie et porte plus loin ; sa course reste aussi sûre.",
+                        "usage": { "outOfCombat": "16 m : le lien tient d'une pièce à l'autre." },
+                        "next": ["src3"],
+                        "stats": { "damageMin": 3, "damageMax": 7, "mana": 3, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "homingMark": "marque-spatiale", "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
+                    },
+                    {
+                        "id": "src3", "tier": 3, "branch": "trunk", "name": "Rayon à tête chercheuse III",
+                        "description": "Un trait qui prend tous les détours qu'il faut : rien de ce qui est marqué et joignable ne lui échappe.",
+                        "usage": { "outOfCombat": "18 m : la marque suffit, le chemin fait le reste." },
+                        "stats": { "damageMin": 4, "damageMax": 9, "mana": 4, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "homingMark": "marque-spatiale", "scaling": [{ "source": "atk_mag", "ratio": 0.10 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "space-effondrement-de-marque",
+            "name": "Effondrement de marque",
+            "description": "Le lanceur lâche d'un coup toutes les ancres qu'il tient. Chaque **Marque spatiale** posée de sa main s'effondre sur elle-même, et l'espace qu'elle pinçait se referme en broyant ce qu'il touche. Le sort ne se vise pas : il n'a ni portée ni ligne de vue, il frappe tous les porteurs à la fois, où qu'ils soient. Et il ne se répète pas — chaque marque se consume dans son éclat, il faut retourner les poser.",
+            "usage": {
+                "combat": "Toutes vos marques éclatent en même temps, sans rien viser. **Attention : toutes**, y compris celles posées sur vos alliés et sur vous-même. C'est le prix d'un sort qui ne peut pas manquer et que rien n'arrête.",
+                "outOfCombat": "Faire céder d'un mot ce qu'on avait pris soin d'ancrer — une serrure, une poutre, une porte marquée la veille."
+            },
+            "mana": 5,
+            "level": 5,
+            "power": "majeur",
+            "subdomains": ["Frontière & limite"],
+            "requires": ["space-marque-spatiale"],
+            "damageType": "space",
+            "progression": {
+                "root": "sef1",
+                "nodes": [
+                    {
+                        "id": "sef1", "tier": 1, "branch": "trunk", "name": "Effondrement de marque I",
+                        "description": "Chaque marque du lanceur s'effondre et broie son porteur. Rien à viser, rien à esquiver — mais les marques sont consumées.",
+                        "usage": { "outOfCombat": "Faire céder d'un coup tout ce qu'on avait marqué." },
+                        "next": ["sef2"],
+                        "stats": { "damageMin": 3, "damageMax": 6, "mana": 5, "range": "Toutes vos marques", "area": "Tous les marqués", "targets": ["everyone"], "marksTargets": "marque-spatiale", "consumesMark": true, "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
+                    },
+                    {
+                        "id": "sef2", "tier": 2, "branch": "trunk", "name": "Effondrement de marque II",
+                        "description": "L'implosion se resserre davantage : ce qui cède au centre entraîne le reste.",
+                        "next": ["sef3"],
+                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 7, "range": "Toutes vos marques", "area": "Tous les marqués", "targets": ["everyone"], "marksTargets": "marque-spatiale", "consumesMark": true, "inflicts": [{ "status": "etourdissement", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.10 }] }
+                    },
+                    {
+                        "id": "sef3", "tier": 3, "branch": "trunk", "name": "Effondrement de marque III",
+                        "description": "L'espace se referme d'un seul claquement sur tous les porteurs à la fois, et les laisse sonnés.",
+                        "stats": { "damageMin": 6, "damageMax": 12, "mana": 9, "range": "Toutes vos marques", "area": "Tous les marqués", "targets": ["everyone"], "marksTargets": "marque-spatiale", "consumesMark": true, "inflicts": [{ "status": "etourdissement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.11 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "space-piege-d-ancrage",
+            "name": "Piège d'ancrage",
+            "description": "Le lanceur tend un champ et le tient. Tant qu'il le tient, **tous les porteurs de sa Marque spatiale** — ennemis, alliés, et lui-même s'il s'est marqué — ne peuvent plus venir à moins de l'écart imposé les uns des autres. C'est la **marque** qui commande, pas une empreinte prise à l'incantation : marquez un renfort en pleine bataille, et il tombe aussitôt sous la règle. Ils vont où bon leur semble, se rapprochent même à se frôler, mais ne se touchent plus — on ne se couvre pas, on ne se relève pas, on ne se passe rien à une case d'écart. Le prix est double : une **concentration** entière, qu'un coup encaissé peut rompre, et **du mana à chaque tour** pour tenir le champ ouvert. À sec, il se referme.",
+            "usage": {
+                "combat": "Sans rien viser, **tous** vos marqués — présents et à venir — sont tenus à l'écart les uns des autres. Ceux qui se touchent quand le champ les prend **sont écartés aussitôt**, d'un pas et sans provoquer d'attaque d'opportunité. Ils se déplacent normalement partout ailleurs. Deux choses à surveiller : votre concentration, qu'un coup peut rompre, et votre mana, prélevé à chaque tour.",
+                "outOfCombat": "Empêcher deux marqués de se rejoindre — le temps d'une négociation, d'une fuite, ou d'un vol qu'on veut sans témoin. Tant que le mana suit."
+            },
+            "mana": 4,
+            "level": 6,
+            "subdomains": ["Frontière & limite", "Distance & éloignement"],
+            "requires": ["space-marque-spatiale"],
+            "progression": {
+                "root": "spa1",
+                "nodes": [
+                    {
+                        "id": "spa1", "tier": 1, "branch": "trunk", "name": "Piège d'ancrage I",
+                        "description": "Le champ tient les marqués à 1,5 m les uns des autres, et écarte sur-le-champ ceux qu'il surprend au contact.",
+                        "usage": { "outOfCombat": "Deux marqués ne peuvent plus se toucher tant que la concentration et le mana tiennent." },
+                        "next": ["spa2"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "anchorGap": "1,5 m", "inflicts": [{ "status": "ancrage", "chance": 100, "duration": -1 }] }
+                    },
+                    {
+                        "id": "spa2", "tier": 2, "branch": "trunk", "name": "Piège d'ancrage II",
+                        "description": "Le champ s'élargit : trois mètres, désormais, entre deux marqués. Une ligne de front s'y disloque.",
+                        "next": ["spa3"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "anchorGap": "3 m", "inflicts": [{ "status": "ancrage", "chance": 100, "duration": -1 }] }
+                    },
+                    {
+                        "id": "spa3", "tier": 3, "branch": "trunk", "name": "Piège d'ancrage III",
+                        "description": "Quatre mètres et demi d'espace intraitable entre chaque marqué : plus personne ne se prête main-forte.",
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "anchorGap": "4,5 m", "inflicts": [{ "status": "ancrage", "chance": 100, "duration": -1 }] }
+                    }
+                ]
+            }
+        },
+        {
             "key": "space-barriere-spatiale",
             "name": "Barrière spatiale",
             "description": "Dresse une frontière invisible que rien ne peut franchir sans en payer le prix.",
@@ -232,18 +445,18 @@
                         "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame dimensionnelle I",
                         "description": "Votre arme se nimbe de failles spatiales : chaque attaque au corps à corps inflige ces dégâts spatiaux en plus, le temps de l'enchantement.",
                         "next": ["ra2"],
-                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.3 }] }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.02 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.01 }] }] }
                     },
                     {
                         "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame dimensionnelle II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["ra3"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.35 }] }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.03 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.02 }] }] }
                     },
                     {
                         "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame dimensionnelle III",
                         "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts spatiaux durables.",
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.4 }] }] }
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.03 }], "classBonuses": [{ "class": "rogue", "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.02 }] }] }
                     }
                 ]
             }
@@ -266,18 +479,18 @@
                         "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings dimensionnels I",
                         "description": "Vos poings se nimbent de failles spatiales : chaque coup à mains nues inflige ces dégâts spatiaux en plus.",
                         "next": ["rp2"],
-                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings dimensionnels II",
                         "description": "L'enchantement s'intensifie et dure plus longtemps.",
                         "next": ["rp3"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     },
                     {
                         "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings dimensionnels III",
                         "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts spatiaux.",
-                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
                     }
                 ]
             }

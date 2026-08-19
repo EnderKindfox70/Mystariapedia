@@ -6,11 +6,20 @@
     "Méprisée des chevaliers, elle reste l'arme du berger et du milicien — celle qui, dit-on, abattit jadis un géant."
   ],
   "weaponCategory": "sling",
+  "material": "cuir",
   "minDamage": 2,
   "maxDamage": 6,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "0,3 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,3 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Très légère et bon marché",

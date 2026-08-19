@@ -1,53 +1,86 @@
 {
-    "name": "Trousse de chirurgien",
-    "subtitle": "Outillage de soin",
-    "category": "soins",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Un rouleau de cuir bouilli qui se déplie en atelier portatif : pinces, ciseaux courbes, aiguilles à suture, fil de lin bouilli, sonde, écarteur, lancette, et un flacon d'eau-de-vie pour tout ce qui doit être propre. Deux kilos de matériel et des années d'apprentissage pour s'en servir.",
-        "C'est la limite haute de ce qu'un mortel peut faire sans magie. La trousse ne rivalise pas avec une potion de soin supérieure — elle fait autre chose : elle recoud proprement, elle retire ce qui est fiché dans la chair, et elle empêche un compagnon à terre de mourir pendant qu'on cherche mieux."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "2 kg" },
-        { "key": "type",   "label": "Type",        "value": "Outil — soin réutilisable" },
-        { "key": "rarity", "label": "Rareté",      "value": "Peu commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Réutilisable ; exige de la lumière et les deux mains" },
-        { "key": "value",  "label": "Valeur",      "value": "70 pièces d'or" }
-    ],
-    "properties": [
-        "Un bandage posé avec la trousse soigne 1d4 + 2 + modificateur de Constitution du blessé, au lieu de 1d4 + modificateur.",
-        "Autorise un second bandage sur un même blessé au cours d'un même repos court : la plaie est nettoyée et recousue, pas seulement couverte.",
-        "Stabilise un allié tombé à 0 point de vie : une minute de soins hors combat, et il cesse de décliner. Il ne se relève pas pour autant.",
-        "Retire proprement une pointe, une flèche ou un croc fiché dans la chair. Arraché sans trousse, un projectile inflige 1d4 dégâts supplémentaires.",
-        "Exige de la lumière, les deux mains libres et un blessé qui ne se débat pas.",
-        "Ne fait rien contre la Nécrose : les chairs mortes relèvent d'un soin purifiant ou d'une régénération vitale, pas d'une lancette.",
-        "Le fil et les aiguilles s'épuisent : compter un réassort de 10 pièces d'or après une dizaine d'interventions."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les chirurgiens-barbiers des cités, les monastères hospitaliers et les intendants des grandes compagnies ; les trousses de guerre d'occasion se négocient à moitié prix et racontent leur histoire.",
-            "La trousse ne remplace pas la formation. Entre les mains de qui n'a jamais recousu personne, elle vaut un rouleau de bandages et quelques regrets."
-        ]
+  "name": "Trousse de chirurgien",
+  "subtitle": "Outillage de soin",
+  "material": "acier",
+  "category": "soins",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Un rouleau de cuir bouilli qui se déplie en atelier portatif : pinces, ciseaux courbes, aiguilles à suture, fil de lin bouilli, sonde, écarteur, lancette, et un flacon d'eau-de-vie pour tout ce qui doit être propre. Deux kilos de matériel et des années d'apprentissage pour s'en servir.",
+    "C'est la limite haute de ce qu'un mortel peut faire sans magie. La trousse ne rivalise pas avec une potion de soin supérieure — elle fait autre chose : elle recoud proprement, elle retire ce qui est fiché dans la chair, et elle empêche un compagnon à terre de mourir pendant qu'on cherche mieux."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "2 kg"
     },
-    "notes": [
-        "Faire bouillir le fil et les aiguilles après chaque usage. Les chirurgiens qui négligent ce point perdent plus de patients que ceux qui recousent mal.",
-        "Les guérisseurs de campagne préfèrent souvent la trousse aux potions : elle ne s'épuise pas, elle ne coûte rien à l'usage, et elle ne demande aucune affinité magique."
-    ],
-    "references": [
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Outil — soin réutilisable"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Réutilisable ; exige de la lumière et les deux mains"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "70 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Un bandage posé avec la trousse soigne 1d4 + 2 + modificateur de Constitution du blessé, au lieu de 1d4 + modificateur.",
+    "Autorise un second bandage sur un même blessé au cours d'un même repos court : la plaie est nettoyée et recousue, pas seulement couverte.",
+    "Stabilise un allié tombé à 0 point de vie : une minute de soins hors combat, et il cesse de décliner. Il ne se relève pas pour autant.",
+    "Retire proprement une pointe, une flèche ou un croc fiché dans la chair. Arraché sans trousse, un projectile inflige 1d4 dégâts supplémentaires.",
+    "Exige de la lumière, les deux mains libres et un blessé qui ne se débat pas.",
+    "Ne fait rien contre la Nécrose : les chairs mortes relèvent d'un soin purifiant ou d'une régénération vitale, pas d'une lancette.",
+    "Le fil et les aiguilles s'épuisent : compter un réassort de 10 pièces d'or après une dizaine d'interventions."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les chirurgiens-barbiers des cités, les monastères hospitaliers et les intendants des grandes compagnies ; les trousses de guerre d'occasion se négocient à moitié prix et racontent leur histoire.",
+      "La trousse ne remplace pas la formation. Entre les mains de qui n'a jamais recousu personne, elle vaut un rouleau de bandages et quelques regrets."
+    ]
+  },
+  "notes": [
+    "Faire bouillir le fil et les aiguilles après chaque usage. Les chirurgiens qui négligent ce point perdent plus de patients que ceux qui recousent mal.",
+    "Les guérisseurs de campagne préfèrent souvent la trousse aux potions : elle ne s'épuise pas, elle ne coûte rien à l'usage, et elle ne demande aucune affinité magique."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
         {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "bandages", "collection": "equipment", "label": "Bandages" },
-                { "ref": "garrot", "collection": "equipment", "label": "Garrot" }
-            ]
+          "ref": "bandages",
+          "collection": "equipment",
+          "label": "Bandages"
         },
         {
-            "label": "Composants",
-            "items": [
-                { "ref": "herbes-medicinales", "collection": "resources/flora", "label": "Herbes médicinales" }
-            ]
+          "ref": "garrot",
+          "collection": "equipment",
+          "label": "Garrot"
         }
-    ]
+      ]
+    },
+    {
+      "label": "Composants",
+      "items": [
+        {
+          "ref": "herbes-medicinales",
+          "collection": "resources/flora",
+          "label": "Herbes médicinales"
+        }
+      ]
+    }
+  ]
 }

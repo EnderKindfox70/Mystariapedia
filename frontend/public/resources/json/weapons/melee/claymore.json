@@ -1,5 +1,6 @@
 {
   "name": "Claymore",
+  "material": "acier",
   "subtitle": "Grande épée des highlands",
   "image": "/resources/media/pictures/weapons/claymore.png",
   "description": [
@@ -10,8 +11,16 @@
   "minDamage": 7,
   "maxDamage": 14,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "3,2 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Rare" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "3,2 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Rare"
+    }
   ],
   "properties": [
     "Allonge et balayage exceptionnels",

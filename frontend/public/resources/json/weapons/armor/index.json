@@ -4,6 +4,7 @@
     "name": "Armure de plaques",
     "subtitle": "Protection lourde des chevaliers",
     "rarity": "Rare",
+    "material": "acier",
     "weight": 0
   },
   {
@@ -11,6 +12,7 @@
     "name": "Cotte de mailles",
     "subtitle": "Armure souple d'anneaux entrelacés",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 0
   },
   {
@@ -18,6 +20,7 @@
     "name": "Robe d'astronome",
     "subtitle": "Manteau étoilé et capuche du veilleur",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -25,6 +28,7 @@
     "name": "Robe d'érudit",
     "subtitle": "Toge et coiffe des bibliothèques",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -32,6 +36,7 @@
     "name": "Robe de runiste",
     "subtitle": "Étoffe gravée de runes mineures",
     "rarity": "Peu commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -39,6 +44,7 @@
     "name": "Tenue d'alchimiste",
     "subtitle": "Tablier de cuir et gants tachés de réactifs",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -46,6 +52,7 @@
     "name": "Tenue d'aventurier",
     "subtitle": "Habits robustes du baroudeur",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -53,6 +60,7 @@
     "name": "Tenue d'espion",
     "subtitle": "Habits passe-partout du renseignement",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -60,6 +68,7 @@
     "name": "Tenue d'héritier",
     "subtitle": "Habits fins brodés aux armes de la maison",
     "rarity": "Peu commune",
+    "material": "soie",
     "weight": 0
   },
   {
@@ -67,6 +76,7 @@
     "name": "Tenue de berger",
     "subtitle": "Cape de laine contre le vent des pâtures",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -74,6 +84,7 @@
     "name": "Tenue de bûcheron",
     "subtitle": "Grosse chemise et bottes ferrées",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -81,6 +92,7 @@
     "name": "Tenue de chevalier aspirant",
     "subtitle": "Gambison et tabard de l'écuyer",
     "rarity": "Peu commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -88,6 +100,7 @@
     "name": "Tenue de fantassin",
     "subtitle": "Gambison rembourré du soldat de rang",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -95,6 +108,7 @@
     "name": "Tenue de fermier",
     "subtitle": "Chemise de toile et tablier de travail",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -102,6 +116,7 @@
     "name": "Tenue de forgeron",
     "subtitle": "Tablier de cuir épais contre les étincelles",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -109,6 +124,7 @@
     "name": "Tenue de marchand ambulant",
     "subtitle": "Habits pratiques aux multiples poches",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -116,6 +132,7 @@
     "name": "Tenue de marchand aristocratique",
     "subtitle": "Soieries et fourrures du négociant fortuné",
     "rarity": "Peu commune",
+    "material": "soie",
     "weight": 0
   },
   {
@@ -123,6 +140,7 @@
     "name": "Tenue de matelot",
     "subtitle": "Toile imperméable et bonnet du pont",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -130,6 +148,7 @@
     "name": "Tenue de médecin d'armée",
     "subtitle": "Tablier et brassard du soigneur",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -137,6 +156,7 @@
     "name": "Tenue de navigateur",
     "subtitle": "Manteau ciré et tricorne du timonier",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -144,6 +164,7 @@
     "name": "Tenue de pêcheur des côtes",
     "subtitle": "Ciré et bottes contre les embruns",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -151,6 +172,7 @@
     "name": "Tenue de pêcheur des eaux douces",
     "subtitle": "Veste de toile et cuissardes",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0
   },
   {
@@ -158,6 +180,7 @@
     "name": "Tenue de pirate",
     "subtitle": "Chemise large, foulard et bottes de cuir",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -165,6 +188,7 @@
     "name": "Tenue de récolteur-vagabond",
     "subtitle": "Vêtements rapiécés et besace de cueilleur",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -172,6 +196,7 @@
     "name": "Tenue de tireur",
     "subtitle": "Cuir léger pour ne pas gêner la visée",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 0
   },
   {
@@ -179,6 +204,7 @@
     "name": "Tenue de trappeur",
     "subtitle": "Fourrures et cuir des bois profonds",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -186,6 +212,7 @@
     "name": "Tenue de traqueur",
     "subtitle": "Cuir et capuche de camouflage",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -193,6 +220,7 @@
     "name": "Tenue de tueur à gages",
     "subtitle": "Sombre, sobre, silencieuse",
     "rarity": "Peu commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -200,6 +228,7 @@
     "name": "Tenue de vigilante",
     "subtitle": "Masque et cape du justicier nocturne",
     "rarity": "Peu commune",
+    "material": "cuir",
     "weight": 0
   },
   {
@@ -207,6 +236,7 @@
     "name": "Tenue de voleur",
     "subtitle": "Cuir souple et capuche, pour passer inaperçu",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 0
   }
 ]

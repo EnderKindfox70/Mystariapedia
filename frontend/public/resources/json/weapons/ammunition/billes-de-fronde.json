@@ -7,10 +7,20 @@
   ],
   "damageType": "bludgeoning",
   "damageBonus": 1,
-  "compatibleWith": ["sling"],
+  "compatibleWith": [
+    "sling"
+  ],
   "info": [
-    { "key": "weight", "label": "Poids unitaire", "value": "0,04 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids unitaire",
+      "value": "0,04 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Bon marché, voire gratuites (pierres)",
@@ -19,5 +29,6 @@
   ],
   "notes": [
     "Les frondeurs aguerris coulent leurs billes de plomb et y gravent parfois une insulte pour leur cible."
-  ]
+  ],
+  "material": "plomb"
 }

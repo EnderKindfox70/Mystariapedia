@@ -1,5 +1,6 @@
 {
   "name": "Hache de bataille",
+  "material": "acier",
   "subtitle": "Fendoir à deux mains",
   "image": "/resources/media/pictures/weapons/battle_axe.png",
   "description": [
@@ -10,8 +11,16 @@
   "minDamage": 6,
   "maxDamage": 13,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "3,5 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "3,5 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
   ],
   "properties": [
     "Dégâts massifs en arc de cercle",

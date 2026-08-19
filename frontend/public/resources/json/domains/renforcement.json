@@ -7,6 +7,118 @@
     "usage-quote": "Ne demande pas à la mana de faire. Demande-lui de tenir.",
     "description": "Le Renforcement est le premier des deux usages de la magie non polarisée : la mana brute canalisée vers l'intérieur, versée dans une matière pour en resserrer la trame. Elle ne crée rien, ne transforme rien — elle densifie. Un corps devient plus dur à entamer, un os plus difficile à rompre, une lame plus mordante, une armure plus tenace. L'effet dure tant que la mana l'alimente et s'efface quand elle se retire, sans laisser de trace. C'est une discipline sans éveil ni affinité : elle ne demande que la capacité de percevoir sa propre mana et la patience de la retenir avant qu'elle ne glisse vers un domaine.",
     "subdomains": [],
+    "spells": [
+        {
+            "key": "renforcement-corps",
+            "name": "Corps renforcé",
+            "description": "Verse sa mana dans ses muscles, ses os et ses tendons : on frappe un peu plus fort, on bouge un peu plus vite, et l'on encaisse ce qui aurait dû entamer.",
+            "usage": {
+                "combat": "Un renfort modeste mais complet : attaque physique, vitesse et armure montent ensemble le temps de quelques échanges.",
+                "outOfCombat": "Soulever une poutre, tenir une prise en escalade, marcher un jour de plus sans flancher : le corps ne fatigue pas moins, il cède plus tard."
+            },
+            "mana": 3,
+            "level": 1,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "progression": {
+                "root": "rc1",
+                "nodes": [
+                    {
+                        "id": "rc1", "tier": 1, "branch": "trunk", "name": "Corps renforcé I",
+                        "description": "La mana imprègne la chair : un peu plus de force au coup, de vitesse au pas, de tenue à l'impact.",
+                        "next": ["rc2"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "atk_phy", "value": 1, "scaling": [{ "source": "force", "ratio": 0.2 }] }, { "stat": "def_phy", "value": 1, "scaling": [{ "source": "constitution", "ratio": 0.2 }] }, { "stat": "speed", "value": 1 }] }
+                    },
+                    {
+                        "id": "rc2", "tier": 2, "branch": "trunk", "name": "Corps renforcé II",
+                        "description": "La trame se resserre : le renfort tient mieux et se sent sur chaque geste.",
+                        "next": ["rc3"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "atk_phy", "value": 2, "scaling": [{ "source": "force", "ratio": 0.25 }] }, { "stat": "def_phy", "value": 2, "scaling": [{ "source": "constitution", "ratio": 0.25 }] }, { "stat": "speed", "value": 2 }] }
+                    },
+                    {
+                        "id": "rc3", "tier": 3, "branch": "trunk", "name": "Corps renforcé III",
+                        "description": "Le corps entier devient difficile à entamer, sans rien perdre de sa vivacité.",
+                        "usage": { "outOfCombat": "Une journée de portage, une chute de deux étages, une nuit dans le froid : le renfort tient assez longtemps pour changer une expédition." },
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "atk_phy", "value": 3, "scaling": [{ "source": "force", "ratio": 0.3 }] }, { "stat": "def_phy", "value": 3, "scaling": [{ "source": "constitution", "ratio": 0.3 }] }, { "stat": "speed", "value": 2 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "renforcement-revetement-arme",
+            "requires": ["renforcement-corps"],
+            "name": "Arme renforcée",
+            "description": "Verse sa mana dans l'acier plutôt que dans la chair. Le revêtement n'ajoute aucun élément : il densifie la trame de l'arme, et chaque coup frappe plus fort DU TYPE DE L'ARME — une lame tranche davantage, une masse écrase davantage.",
+            "usage": {
+                "combat": "Tant que l'enchantement dure, chaque coup porté avec l'arme inflige ces dégâts en plus, de la nature même de l'arme.",
+                "outOfCombat": "Une hache qui abat un arbre en trois coups, un couteau qui entame la pierre, une pioche qui ne s'ébrèche pas : l'outil renforcé fait le travail de l'outil d'exception."
+            },
+            "mana": 3,
+            "level": 2,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "damageType": "weapon",
+            "progression": {
+                "root": "ra1",
+                "nodes": [
+                    {
+                        "id": "ra1", "tier": 1, "branch": "trunk", "name": "Arme renforcée I",
+                        "description": "La lame se densifie : elle mord là où elle glissait. Chaque coup porté avec elle inflige ces dégâts en plus, du type de l'arme.",
+                        "next": ["ra2"],
+                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.03 }] }
+                    },
+                    {
+                        "id": "ra2", "tier": 2, "branch": "trunk", "name": "Arme renforcée II",
+                        "description": "Le fil tient sans s'émousser : l'arme frappe comme une pièce de maître, et plus longtemps.",
+                        "next": ["ra3"],
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.03 }] }
+                    },
+                    {
+                        "id": "ra3", "tier": 3, "branch": "trunk", "name": "Arme renforcée III",
+                        "description": "Une arme ordinaire portée au-delà de ce que sa forge permettait.",
+                        "stats": { "damageMin": 3, "damageMax": 4, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.03 }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "renforcement-frappe-assuree",
+            "requires": ["renforcement-revetement-arme"],
+            "name": "Frappe assurée",
+            "description": "Toute la mana retenue passe dans l'instant de l'impact. Le coup n'est pas plus sûr d'atteindre sa cible — le jet de toucher reste entier — mais s'il porte, il porte comme un coup critique.",
+            "usage": {
+                "combat": "Frappe unique : on la manque comme n'importe quelle attaque, mais tout ce qui touche est compté en dégâts critiques.",
+                "outOfCombat": "Briser une serrure, fendre une porte barrée, ouvrir une carapace : quand un seul coup doit suffire, c'est celui-là."
+            },
+            "mana": 2,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "damageType": "bludgeoning",
+            "progression": {
+                "root": "fa1",
+                "nodes": [
+                    {
+                        "id": "fa1", "tier": 1, "branch": "trunk", "name": "Frappe assurée I",
+                        "description": "Un coup ordinaire à viser, critique à encaisser. Les chiffres ci-dessous sont ceux d'une frappe normale : le facteur critique s'applique par-dessus.",
+                        "next": ["fa2"],
+                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 2, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "alwaysCritical": true, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }] }
+                    },
+                    {
+                        "id": "fa2", "tier": 2, "branch": "trunk", "name": "Frappe assurée II",
+                        "description": "La mana suit le geste jusqu'au bout : le défaut cède plus large.",
+                        "next": ["fa3"],
+                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 3, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "alwaysCritical": true, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }] }
+                    },
+                    {
+                        "id": "fa3", "tier": 3, "branch": "trunk", "name": "Frappe assurée III",
+                        "description": "Chaque impact trouve le défaut : ce qui touche ne fait plus jamais moins qu'un critique.",
+                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 4, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "alwaysCritical": true, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }] }
+                    }
+                ]
+            }
+        }
+    ],
     "manifestations": [
         {
             "name": "Corps renforcé",

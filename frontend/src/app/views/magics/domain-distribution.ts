@@ -41,6 +41,58 @@ export function buildSlices(
   });
 }
 
+/**
+ * Combien de domaines un individu porte à l'éveil. Source unique : la page
+ * Magie l'affiche en camembert, et le tirage d'affinité des fiches de
+ * personnage en tire ses poids (cf. character/magic-affinity.ts).
+ */
+export const AFFINITY_CHART: PieChart = {
+  key: 'affinity',
+  title: 'Répartition naturelle des affinités magiques',
+  center: 'Affinités natives',
+  slices: buildSlices([
+    {
+      key: 'single',
+      label: 'Affinité unique',
+      value: 76,
+      details: "Un seul domaine, accessible à l'éveil",
+      color: '#8b6b2f',
+    },
+    {
+      key: 'dual',
+      label: 'Deux affinités',
+      value: 11,
+      details: 'Rares, souvent instables dans leur pratique initiale',
+      color: '#6b1f1f',
+    },
+    {
+      key: 'many',
+      label: 'Trois affinités ou plus',
+      value: 4,
+      details: "Exceptionnels, parfois soupçonnés d'ascendance divine non documentée",
+      color: '#4b2e59',
+    },
+    {
+      key: 'sealed',
+      label: 'Mana impossible à réguler',
+      value: 9,
+      details: 'Ni affinité, ni éveil possible par voie ordinaire',
+      color: '#1c1a18',
+    },
+  ]),
+};
+
+/**
+ * Nombre d'affinités porté par chaque tranche du camembert ci-dessus. « Trois
+ * ou plus » compte pour 3 : c'est le plafond d'une fiche de personnage.
+ */
+export const AFFINITY_SLICE_COUNT: Record<string, number> = {
+  sealed: 0,
+  single: 1,
+  dual: 2,
+  many: 3,
+};
+
 function domainSlices(
   slices: Array<[key: string, label: string, value: number]>
 ): PieSlice[] {

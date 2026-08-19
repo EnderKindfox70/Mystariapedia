@@ -8,6 +8,8 @@ import { StatusEffectsService } from '../../services/status-effects.service';
 import { DamageTypesService } from '../../services/damage-types.service';
 import { WeathersService } from '../../services/weathers.service';
 import {
+  MaterialFamilyKey,
+  Material,
   SpellClassBonus,
   SpellChoice,
   SpellNode,
@@ -20,6 +22,13 @@ import {
   StatusSave,
   StatusTick,
 } from '../../wiki.types';
+import {
+  MATERIAL_FAMILIES,
+  MATERIAL_REGIONS,
+  materialsOfFamily,
+} from '../../combat/materials';
+import { enchantTargetOf } from '../../combat/abilities';
+import { ENCHANT_SHARE, WALL_THICKNESS } from '../../combat/rules';
 import {
   domainColor as colorOf,
   domainIcon as iconOf,
@@ -432,6 +441,13 @@ export class SpellEntryComponent {
         .map((sc) => ({ label: this.sourceLabel(sc.source), ratio: sc.ratio })),
       type: this.damageTypes.resolve(type ?? p.spell.damageType ?? domainType),
     });
+    // Domaine de la Terre : c'est la MATIÈRE qui donne les chiffres et le type,
+    // pas le palier. Sans ça la fiche annonçait « 1–2 Terre » quelle que soit
+    // la pierre choisie — un reliquat de l'ancien modèle en pourcentages.
+    const matiere = this.materialValues();
+    if (matiere && s.damageMin !== undefined) {
+      return [build(matiere.damageMin, matiere.damageMax, matiere.material.damageType, s.scaling)];
+    }
     if (s.damages?.length) return s.damages.map((d) => build(d.min, d.max, d.type, d.scaling));
     if (s.damageMin !== undefined) return [build(s.damageMin, s.damageMax ?? s.damageMin, s.damageType, s.scaling)];
     return [];
@@ -490,7 +506,12 @@ export class SpellEntryComponent {
       /** Malus de stats du contre-coup, en magnitude positive (le « − » est ajouté au rendu). */
       effects: (r.effects ?? []).map((e) => ({
         label: this.statNoun(e.stat),
-        value: Math.abs(e.value ?? 0),
+        // La vitesse perdue vient de la DENSITÉ de la matière, pas du palier :
+        // une armure d'or écrase là où l'ardoise suit le corps.
+        value:
+          e.stat === 'speed' && this.materialValues()
+            ? this.materialValues()!.speedPenalty
+            : Math.abs(e.value ?? 0),
       })),
       note: r.note,
     };
@@ -622,6 +643,123 @@ export class SpellEntryComponent {
     return list.length > 0 && list.every((s) => s.chance >= 100);
   });
 
+  /* ── Matériaux de Terre : le comparatif ───────────────────────────────────
+     Un sort qui façonne de la matière ne porte pas ses chiffres, il porte une
+     famille. Sans ce tableau, sa fiche ne dit rien de ce qu'il vaut : c'est
+     ici, et nulle part ailleurs, qu'on voit qu'une même lame taille à
+     l'obsidienne et écrase au basalte.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /** La famille façonnée par ce sort, s'il en façonne une. */
+  shapedFamily = computed<MaterialFamilyKey | undefined>(
+    () => this.selectedNode()?.stats.shapesMaterial ?? this.page()?.spell.shapesMaterial,
+  );
+
+  /** Le nom de la famille, pour le titre du bloc. */
+  shapedFamilyName = computed<string>(() => {
+    const key = this.shapedFamily();
+    return MATERIAL_FAMILIES.find((f) => f.key === key)?.name ?? '';
+  });
+
+  /**
+   * Ce que chaque matière de la famille donne AU PALIER AFFICHÉ.
+   *
+   * Les trois coûts sont montrés côte à côte parce que c'est exactement la
+   * décision du joueur : façonner ce qui est sous ses pieds, conjurer ce qu'il
+   * a étudié, ou improviser. Le même sort n'a pas le même prix selon l'endroit,
+   * et la fiche doit le dire avant la table, pas pendant.
+   */
+  /**
+   * Matière retenue pour LIRE la fiche.
+   *
+   * Un tableau comparatif ne suffisait pas : la description du sort continuait
+   * d'annoncer les chiffres bruts du palier (« Inflige 1–2 … Terre »), qui ne
+   * veulent plus rien dire depuis que c'est la matière qui les dicte. En faire
+   * un choix qui pilote TOUTE la fiche règle les deux à la fois.
+   */
+  readonly sheetMaterial = signal<string | null>(null);
+
+  /** Les matières que ce sort peut façonner, pour le sélecteur. */
+  readonly materialChoices = computed<Material[]>(() => {
+    const family = this.shapedFamily();
+    return family ? materialsOfFamily(family) : [];
+  });
+
+  /** La matière lue : celle qu'on a choisie, sinon la première de la famille. */
+  readonly activeMaterial = computed<Material | undefined>(() => {
+    const choix = this.materialChoices();
+    const voulu = this.sheetMaterial();
+    return choix.find((m) => m.key === voulu) ?? choix[0];
+  });
+
+  setSheetMaterial(key: string): void {
+    this.sheetMaterial.set(key);
+  }
+
+  /**
+   * Combien de matière le palier façonne, part d'enchantement comprise.
+   *
+   * Un revêtement nimbe : il n'ajoute qu'une fraction de la matière, à chaque
+   * coup. La fiche doit annoncer cette fraction, pas une frappe entière.
+   */
+  readonly materialScale = computed<number>(() => {
+    const stats = this.selectedNode()?.stats;
+    const nimbe = !!enchantTargetOf(this.page()?.spell.key ?? '');
+    return (stats?.materialScale ?? 1) * (nimbe ? ENCHANT_SHARE : 1);
+  });
+
+  /**
+   * Les effets de stats du palier, relus à travers la matière.
+   *
+   * La défense d'une armure de pierre ne s'écrit plus sur le nœud : elle vient
+   * de la dureté de la matière. Sans ce passage, la phrase « Confère défense
+   * physique de +18 » restait figée quelle que soit la pierre choisie.
+   */
+  readonly effectRows = computed(() => {
+    const stats = this.selectedNode()?.stats;
+    const v = this.materialValues();
+    return (stats?.effects ?? [])
+      .map((e) => {
+        if (!v) return { ...e, value: e.value ?? 0 };
+        if (e.stat === 'def_phy') return { ...e, value: v.defense };
+        // Une matière sans résonance n'accorde AUCUNE défense magique : la
+        // ligne disparaît au lieu d'afficher la valeur de sa dureté.
+        if (e.stat === 'def_mag') {
+          return v.magicDefense ? { ...e, value: v.magicDefense } : null;
+        }
+        return { ...e, value: e.value ?? 0 };
+      })
+      .filter((e): e is NonNullable<typeof e> => e !== null);
+  });
+
+  /** Ce que la matière donne à ce palier : dégâts, défense, mur. */
+  readonly materialValues = computed(() => {
+    const m = this.activeMaterial();
+    const stats = this.selectedNode()?.stats;
+    if (!m || !stats) return null;
+    const taille = (base: number) => Math.max(1, Math.round(base * this.materialScale()));
+    return {
+      material: m,
+      damageMin: taille(m.damage.min),
+      damageMax: taille(m.damage.max),
+      defense: Math.max(1, Math.round(m.defense * (stats.materialScale ?? 1))),
+      wallHp: stats.raisesWall
+        ? Math.max(1, Math.round(m.defense * WALL_THICKNESS * (stats.materialScale ?? 1)))
+        : 0,
+      /** Ce que la matière coûte en vitesse à qui la porte. */
+      speedPenalty: Math.max(1, Math.round(m.speedPenalty * this.materialScale())),
+      /** Ce qu'elle oppose à la magie — souvent rien, pour une pierre. */
+      magicDefense: m.magicDefense
+        ? Math.max(1, Math.round(m.magicDefense * (stats.materialScale ?? 1)))
+        : 0,
+      /** Ces dégâts s'ajoutent-ils à chaque coup, ou sont-ils la frappe ? */
+      perHit: !!enchantTargetOf(this.page()?.spell.key ?? ''),
+      where: m.native.length
+        ? m.native.map((k) => MATERIAL_REGIONS.find((r) => r.key === k)?.name ?? k).join(', ')
+        : 'Nulle part — alliage à conjurer',
+    };
+  });
+
   /** Bonus de classe du nœud sélectionné. */
   classBonuses = computed<SpellClassBonus[]>(() => this.selectedNode()?.stats.classBonuses ?? []);
 
@@ -630,6 +768,15 @@ export class SpellEntryComponent {
 
   /** Libellé FR d'un type de dégâts (pour faiblesses/résistances). */
   dmgTypeLabel = (key: string): string => this.damageTypes.resolve(key)?.label ?? key;
+
+  /** Une liste de types de dégâts en clair. */
+  materialTypes(keys: string[] | undefined): string {
+    return (keys ?? []).map((k) => this.dmgTypeLabel(k)).join(', ');
+  }
+
+  /** Statuts qu'une matière tient à distance, en clair. */
+  materialCleanses = (m: Material): string =>
+    (m.cleanses ?? []).map((k) => this.statusService.byKey(k)?.name ?? k).join(', ');
 
   /** Météo invoquée par le nœud sélectionné, résolue avec ses effets. */
   weatherInfo = computed(() => {

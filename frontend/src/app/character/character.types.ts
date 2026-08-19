@@ -83,8 +83,19 @@ export type StatKey =
   | 'def_phy'
   | 'def_mag';
 
+/**
+ * Réserves qui fluctuent en jeu (cf. POOL_GAUGES).
+ *
+ * Sous-ensemble de `StatKey` : ce sont les trois statistiques dont on ne
+ * consulte pas seulement le maximum, mais le niveau du moment.
+ */
+export type PoolKey = 'hp' | 'endurance' | 'mana';
+
 /** Mode de calcul des stats issues de la montée de niveau de la classe. */
 export type StatMode = 'random' | 'mean';
+
+/** Jauges de survie tenues à la table (cf. SURVIVAL_GAUGES). */
+export type SurvivalKey = 'hunger' | 'thirst' | 'rest';
 
 /** Modèle complet d'une fiche de personnage (le champ `data` côté backend).
  *  Les statistiques ne sont PAS stockées : elles sont recalculées à partir de
@@ -116,6 +127,28 @@ export interface CharacterSheet {
   attributeRolls?: number[];
   /** Affectation mode 'roll' : attribut → index dans `attributeRolls` (-1 = non affecté). */
   attributeAssign?: Record<AttributeKey, number>;
+  /**
+   * Crans restants des jauges de survie (faim, soif). Contrairement aux
+   * statistiques, ces valeurs ne se recalculent pas : elles suivent le voyage,
+   * donc la fiche les stocke. Optionnel — une fiche antérieure à ce champ
+   * repart d'une jauge pleine (cf. SURVIVAL_GAUGES).
+   */
+  survival?: Record<SurvivalKey, number>;
+  /**
+   * Creux des réserves : ce qui MANQUE aux points de vie, à l'endurance et au
+   * mana, en points. 0 partout = à plein.
+   *
+   * Le maximum, lui, reste calculé (race, classe, niveau, équipement) : c'est
+   * pourquoi on stocke le creux et non le niveau courant. Un personnage qui
+   * monte de niveau garde sa blessure au lieu de la voir effacée par les points
+   * gagnés, une fiche à plein n'a rien à retenir, et une fiche antérieure à ce
+   * champ repart naturellement à plein.
+   *
+   * Contrairement aux statistiques, ces valeurs ne se déduisent de rien : une
+   * blessure, un souffle court, un mana dépensé suivent la partie. C'est aussi
+   * ce que la table redescend sur la fiche en fin de séance (cf. sheet-report).
+   */
+  poolLoss?: Record<PoolKey, number>;
   /** Mode de calcul des stats : tirage aléatoire ou moyenne. */
   statMode: StatMode;
   /** Graine du tirage aléatoire — garde les stats stables entre les rendus. */
@@ -126,6 +159,28 @@ export interface CharacterSheet {
   skills: string[];
   /** Sorts débloqués (appris) et équipés (loadout de combat) — cf. CharacterSpells. */
   spells: CharacterSpells;
+  /**
+   * Matériaux de Terre : ce que le personnage sait façonner, et avec quoi il
+   * marche aujourd'hui.
+   *
+   * Absent sur une fiche qui n'a jamais touché au domaine — un personnage sans
+   * magie de Terre n'a rien à y ranger.
+   */
+  earthMaterials?: EarthMaterialTraining;
+  /**
+   * Maîtrises d'armes AJOUTÉES à la main, en plus de celles que la classe
+   * accorde (cf. `ClassDef.weaponProficiencies`). Un guerrier qui a passé
+   * l'hiver chez un maître de hache l'apprend sans changer de classe : la
+   * table le décide, la fiche l'enregistre.
+   *
+   * On ne stocke que l'écart — jamais la liste complète — pour que retoucher
+   * `classes.json` continue de profiter aux fiches déjà écrites. Contient des
+   * clés de `weapon_category.json` quand la saisie correspond à une catégorie
+   * connue, sinon le texte libre tel qu'écrit.
+   */
+  extraWeaponProficiencies?: string[];
+  /** Maîtrises d'armures ajoutées à la main (clés de `armor_category.json` ou texte libre). */
+  extraArmorProficiencies?: string[];
   /**
    * Écart de bourse par rapport au tirage du background. L'or de départ reste
    * dérivé du background et de la graine (cf. `computeGold`) ; ce champ porte
@@ -151,6 +206,33 @@ export interface StoredSheet {
 }
 
 /** Vue allégée pour la liste des fiches. */
+/**
+ * Ce qu'un personnage sait des matériaux de Terre.
+ *
+ * Trois degrés, du plus fort au plus faible : ÉTUDIÉ (on le conjure n'importe
+ * où, stable), CONNU (vu et touché une fois — on peut l'improviser, cher et
+ * fragile), et le reste, hors d'atteinte. Ce qui se trouve sous les pieds
+ * n'entre dans aucun des trois : le sol se manipule sans rien avoir appris.
+ */
+export interface EarthMaterialTraining {
+  /**
+   * Matériaux étudiés. Une place par palier de maîtrise seulement (niveaux
+   * 1, 5, 9, 13, 17), donc cinq au maximum sur une carrière : l'étude est une
+   * activité de repos long face à un échantillon, pas un point à dépenser.
+   */
+  studied: string[];
+  /**
+   * Matériaux VUS ET TOUCHÉS sans avoir été étudiés. Un simple contact visuel
+   * ne suffit pas. C'est le filet de secours, pas une seconde liste d'étude.
+   */
+  known?: string[];
+  /**
+   * Le matériau que le lanceur porte en tête aujourd'hui. Se change au repos ;
+   * en changer en plein combat coûte une action bonus et du mana.
+   */
+  equipped?: string;
+}
+
 export interface CharacterSheetSummary {
   id: string;
   name: string;
@@ -321,6 +403,23 @@ export interface ClassDef {
    * (le plus bas), Mage 4 (le plus haut).
    */
   inspirationPerLevel?: number;
+  /**
+   * Catégories d'armes que la classe sait manier (clés de
+   * `weapon_category.json`). Le bonus de maîtrise ne s'applique qu'à
+   * celles-là : un mage qui empoigne une claymore la tient, mais il ne la
+   * MAÎTRISE pas, et son entraînement ne lui sert à rien.
+   *
+   * Le pugiliste n'en a aucune : son arme, ce sont ses poings.
+   */
+  weaponProficiencies?: string[];
+  /**
+   * Catégories d'armure que la classe sait porter (clés de
+   * `armor_category.json`). Une armure qu'on ne maîtrise pas se porte quand
+   * même — mal : c'est un poids sur le dos, pas un entraînement.
+   *
+   * Le pugiliste n'en a aucune : il combat sans rien sur la peau.
+   */
+  armorProficiencies?: string[];
   /** Nombre de compétences à choisir pour cette classe. */
   skillChoices?: number;
   /** Clés des compétences sélectionnables pour cette classe. */

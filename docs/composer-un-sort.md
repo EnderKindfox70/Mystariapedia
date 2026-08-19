@@ -225,7 +225,7 @@ Modifie une stat/attribut. `SpellStatEffect` :
 |------------|----------|-------------|
 | `status`   | `string` | Clé du statut (voir §8.3). |
 | `chance`   | `number` | Chance d'infliger à l'impact, 0–100 %. |
-| `duration` | `number` | Durée en tours si différente de la durée par défaut du statut. |
+| `duration` | `number` | Durée en tours si différente de la durée par défaut du statut. **Négative = illimitée.** |
 
 ```json
 "inflicts": [{ "status": "brulure", "chance": 50, "duration": 3 }]
@@ -298,11 +298,24 @@ Bonus accordé selon la classe du personnage. `SpellClassBonus` :
 | `effects`     | `SpellStatEffect[]` | Modificateurs chiffrés éventuels (puce `+N Stat`). |
 | `scaling`     | `SpellScaling[]`    | Scaling additionnel (puce `+ratio × source (dégâts/soin)`). |
 | `manaFactor`  | `number`            | Facteur sur le coût en mana (`0.5` = mana ÷2 → puce `Mana −50 %`). |
+| `bonusAction` | `boolean`           | Le sort se lance en **action bonus** au lieu de coûter l'action du tour. |
+| `freeStrike`  | `boolean`           | Le lanceur porte aussitôt une attaque gratuite avec ce que le sort vient d'enchanter. |
 
-Ces trois formes sont rendues en puces distinctes, en plus de la description.
-Exemple d'usage : le bonus Pugiliste des sorts « Poings » varie entre une attaque
-directe (description seule), un mana divisé par deux (`manaFactor`) et un ratio de
-dégâts accru (`scaling`).
+Ces formes sont rendues en puces distinctes, en plus de la description.
+
+**Le bonus Pugiliste des sorts « Poings »** prend l'une de trois formes, et une
+seule à la fois :
+
+| Forme | Domaines | Ce qu'elle donne |
+|-------|----------|------------------|
+| `bonusAction` | air, ténèbres, mort, feu, eau | Le sort se lance en **action bonus** : nimber ses poings ne coûte plus le tour, il reste l'action pour frapper. |
+| `manaFactor` | électricité, espace, temps, eau (Brume) | Mana divisé par deux. |
+| `scaling` | terre, vie, lumière, plante, eau (Glace) | Ratio de dégâts accru à chaque frappe. |
+
+> Le créneau a remplacé l'ancienne « attaque directe », qui n'était qu'une
+> phrase que le moteur ne résolvait pas — ou, dans un seul domaine, une frappe
+> gratuite (`freeStrike`). Rendre le TOUR disponible se lit mieux qu'un coup
+> offert une fois, et correspond mieux à ce qu'est un réflexe.
 
 ```json
 "classBonuses": [
@@ -318,6 +331,293 @@ Clé de météo (voir §8.4), surcharge celle du sort. Les effets de la météo
 automatiquement depuis `weathers.json`.
 ```json
 "weather": "heatwave"
+```
+
+### 7.12 Déplacements instantanés — `teleport`, `swap`
+Deux mécaniques distinctes, à ne pas confondre.
+
+`teleport` emmène le lanceur sur une **case libre** ; il exige une ligne de vue,
+et `teleportRange` chiffre le saut quand il diffère de la portée de l'effet.
+Ce que le sort FAIT se produit à l'arrivée : l'effet suit son lanceur.
+
+**Un piège à éviter** : `teleport` et `teleportRange` se déclarent sur CHAQUE
+palier. Les oublier au palier II fait *perdre* la téléportation à qui améliore
+son sort, alors que la fiche continue de la promettre.
+
+`swap` **permute** le lanceur avec un **combattant**. Il ne vise donc pas un
+point : ni ligne de vue, ni case libre à trouver. `swapMark` nomme le statut qui
+donne prise, et il en faut **deux** : la cible doit le porter **et le lanceur
+aussi**, l'un comme l'autre posés de sa main. `range` borne la distance.
+
+```json
+"stats": { "mana": 7, "range": "30 m", "area": "Cible unique",
+           "targets": ["self", "ally", "enemy"],
+           "swap": true, "swapMark": "marque-spatiale",
+           "reaction": ["incoming-attack"] }
+```
+
+### 7.13 Sort qui s'impose — `requiresHit`, `precisionPenalty`
+Un sort sans dégâts porte d'office. `requiresHit` lui rend un jet de toucher —
+**contre les cibles hostiles seulement** : sur soi ou sur un allié, rien à viser.
+`precisionPenalty` retranche des points de précision au jet (5 points = un cran
+de dé) : c'est ce qui rend un sceau ou une emprise difficile à placer.
+
+```json
+"stats": { "mana": 10, "range": "Contact", "requiresHit": true, "precisionPenalty": 25 }
+```
+
+### 7.14 Trait guidé — `homingMark`
+Nomme le statut qui GUIDE le projectile. Contre une cible qui le porte — posé par
+le lanceur lui-même — la capacité touche **à coup sûr** et se passe de ligne de
+vue. Il lui faut en revanche un **chemin** : une cible scellée derrière du plein
+(mur, rocher, arbre, porte close) sur tous ses côtés est hors d'atteinte. Sans
+marque, le sort redevient un tir ordinaire.
+
+```json
+"stats": { "damageMin": 2, "damageMax": 4, "mana": 2, "range": "14 m",
+           "area": "Cible unique", "targets": ["enemy"],
+           "homingMark": "marque-spatiale" }
+```
+
+### 7.15 Cibler par la marque — `marksTargets`, `consumesMark`
+Le sort agit sur **tous les porteurs** du statut nommé — posé par le lanceur —,
+où qu'ils soient. À déclarer avec `area: "Tous les marqués"`, qui donne la forme
+`marked` : ni portée, ni ligne de vue, ni jet de toucher, et aucune case à viser.
+Refusé quand rien n'est marqué.
+
+`consumesMark: true` dépense la marque après l'effet. À réserver à ce qui la
+DÉTRUIT : un piège qui doit durer la laisse en place.
+
+```json
+"stats": { "damageMin": 3, "damageMax": 6, "mana": 5,
+           "range": "Toutes vos marques", "area": "Tous les marqués",
+           "targets": ["everyone"],
+           "marksTargets": "marque-spatiale", "consumesMark": true }
+```
+
+`targets` fait le tri : `["everyone"]` emporte aussi vos alliés marqués et
+vous-même, `["enemy"]` épargnerait votre camp.
+
+### 7.16 Écart d'un champ d'ancrage — `anchorGap`
+Distance que le champ posé par ce palier impose entre les porteurs qu'il
+gouverne (« 1,5 m », « 3 m »…). C'est ce qui fait progresser un piège : plus
+l'écart est large, plus la ligne adverse se disloque. À défaut : 1,5 m.
+
+Le palier ne dit que la **distance**. Qui le champ gouverne, et depuis quoi
+l'écart se compte, se déclare sur le `sustain` du **statut** que le palier
+inflige (`status_effects.json`) :
+
+| Champ du `sustain` | Effet |
+|--------------------|-------|
+| `governs: "<clé>"`   | Ne gouverne que les porteurs de cette marque, posée par le même lanceur. |
+| `governsMetal: true` | Gouverne quiconque **porte du métal** — armure, arme, ferraille au sac. Rien à marquer au préalable. |
+| `repelsFromHolder: true` | L'écart se compte depuis **le porteur du statut**, et non entre les gouvernés. |
+
+Ces deux dernières lignes séparent un **piège** d'un **bouclier**. Le piège
+(`ancrage`) interdit à ses marqués de se toucher **entre eux** — c'est ainsi
+qu'une ligne se disloque. Le bouclier (`repulsion-magnetique`) ne protège que
+celui qui le tend : les autres restent libres de se serrer, mais aucun d'eux ne
+l'approche. Un champ `repelsFromHolder` ne repousse jamais son propre porteur.
+
+### 7.17 Saisir du métal — `pullsMetal`, `pullDc`
+
+Le sort **arrache** un objet ferreux à sa cible et le verse au sac du lanceur.
+Il ne se vise pas comme un trait : on désigne quelqu'un, le moteur regarde ce
+qu'il porte réellement, et le joueur choisit sa prise dans la liste.
+
+Viser une case **libre de tout corps** aimante le **sol** : la ferraille qui y
+traîne vient au sac sans un pas. Une seule prise par incantation dans tous les
+cas — désigner quelqu'un debout sur un tas de débris ne rapporte pas double.
+
+Ce qui dort dans un **sac** vient sans que personne s'en aperçoive. Ce qui est
+**tenu au poing** se dispute : la cible jette sa Force contre `pullDc` et garde
+son arme si elle réussit. La perdre, c'est être désarmé — la capacité d'arme
+quitte la cible pour de bon. Sans `pullDc`, rien ne se dispute.
+
+L'arme volée reste une **arme** : elle atterrit au sac du lanceur, prête à être
+empoignée. Et si sa main principale est **vide**, elle s'y loge d'office et
+gratuitement — le champ l'amène jusqu'au poing, il serait absurde de demander un
+second geste pour refermer les doigts dessus. La maîtrise est alors rejugée
+contre ce que le VOLEUR a appris, jamais contre ce que savait le volé.
+
+> ⚠️ **L'armure n'est jamais une prise.** Une cotte de mailles se lace et se
+> sangle : un champ tire son homme avec, il ne la lui retire pas. Elle rend en
+> revanche son porteur sensible aux champs (voir §7.18).
+
+```json
+"stats": { "mana": 3, "range": "10 m", "area": "Cible unique",
+           "targets": ["enemy", "ally", "self"],
+           "pullsMetal": true, "pullDc": 12 }
+```
+
+### 7.18 Projeter du métal — `throwsMetal`
+
+Le sort **lance** un objet ferreux que le lanceur porte. N'écris **ni**
+`damageMin` **ni** `damageType` : ils viennent de l'objet. Une lame arrachée
+taille, une enclume écrase, une flèche perfore. Le `scaling` du nœud, lui,
+s'ajoute normalement — c'est la poussée du lanceur, et elle appartient au sort.
+
+L'objet **ne revient pas** dans le sac : il quitte l'inventaire, et une arme
+projetée quitte la main. Sans rien de ferreux sur soi, le sort est indisponible
+(le bouton est grisé, l'action n'est pas dépensée).
+
+**Il ne disparaît pas pour autant — il tombe.** Si le coup porte, il retombe
+aux pieds de la cible ; s'il manque, il file une à trois cases au-delà, dans le
+prolongement du tir. Rater coûte donc deux fois : le coup, puis la marche pour
+aller le reprendre. Un mur l'arrête à son pied plutôt que de l'avaler, et il ne
+sort jamais du plateau. Il garde sa matière en tombant : un champ peut le
+reprendre, et qui le ramasse peut le relancer.
+
+N'importe qui peut ramasser ce qui traîne sur sa case ou une case voisine — un
+geste qui coûte l'**action bonus** en combat, et rien hors combat.
+
+```json
+"stats": { "mana": 5, "range": "12 m", "area": "Cible unique",
+           "targets": ["enemy"], "throwsMetal": true,
+           "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
+```
+
+Un `inflicts` posé sur le nœud s'applique quel que soit le projectile : c'est
+ainsi que Projette-métal III survolte ce qu'il lance.
+
+**De quoi un objet est fait** se déclare au catalogue par une clé `material`
+(fiche d'arme, set d'armure, munition, ou entrée d'`equipment/index.json`), qui
+pointe sur `materials.json`. Le magnétisme s'en **déduit** : seuls le fer
+et l'acier sont ferromagnétiques. Le plomb d'une bille de fronde, le bronze d'un
+astrolabe et l'or d'une chevalière sont des métaux sans être saisissables — la
+physique le dit, on ne l'écrit plus objet par objet.
+
+### 7.19 Façonner de la matière — `shapesMaterial` (domaine de la Terre)
+
+Le domaine de la Terre n'a **pas un sort par pierre** : il a un sort par
+**famille**, dont la saveur vient de ce qu'on façonne réellement. `shapesMaterial`
+nomme la famille — `stone`, `metal` ou `crystal` — et se déclare sur le **sort**,
+pas sur chaque palier : une lame de pierre reste de la pierre en montant en
+puissance.
+
+N'écris **ni** le matériau, **ni** ses chiffres : ils viennent du catalogue
+[`materials.json`](../frontend/public/resources/json/materials.json)
+et se résolvent au lancer. Le même « Mur de pierre » est du granite bon marché
+aux Dorsales, de l'obsidienne tranchante à l'Archipel, et une improvisation
+coûteuse en pleine mer.
+
+```json
+{ "key": "earth-mur-de-pierre", "shapesMaterial": "stone", … }
+```
+
+**Trois paliers**, essayés dans cet ordre :
+
+| Palier | Condition | Prix et qualité |
+|--------|-----------|-----------------|
+| **Manipulation** | La matière est là, sous les pieds (géologie de la scène) | Mana ×0,6. Stable. Aucune étude requise — mais on ne choisit pas, le sol impose. |
+| **Ex-nihilo étudié** | La matière est **étudiée** | Prix plein. Universel, mais la forme se décompose sans soutien. |
+| **Improvisation** | Ni là, ni étudiée, mais **vue ET touchée** | Mana ×1,5, effet ÷2, −2 crans de précision. Un filet de secours. |
+
+Rien des trois → le sort est **refusé** (bouton grisé, aucune action dépensée).
+
+> **Le sol l'emporte sur ce qu'on porte en tête.** En zone native d'un matériau
+> de la bonne famille, c'est lui qui sort. Forcer son matériau équipé reste
+> possible et coûte un surcoût fixe de mana.
+
+> ⚠️ **Spécificité du domaine : c'est la MATIÈRE qui dit les chiffres.**
+> Un sort de Terre n'écrit ni ses dégâts, ni sa défense, ni son type. Il écrit
+> seulement `materialScale` — **combien** de matière le palier façonne — et le
+> catalogue fournit le reste (`damage`, `defense`, `damageType`).
+>
+> Ailleurs, le palier donne un nombre que le contexte module de quelques points.
+> Ici, changer de pierre change vraiment d'arme : une lame d'obsidienne fait
+> 16–27 **tranchants** là où le granite fait 12–20 **contondants**. C'était la
+> seule façon de rendre le choix de matière lisible — en pourcentage, l'arrondi
+> écrasait tout écart sur les petites valeurs.
+
+`manaFactor` reste un multiplicateur et entre dans la même chaîne que la météo
+et le moment de la journée. La matière transmet aussi ses faiblesses, ses
+résistances et ses purges (améthyste → peur, charme).
+
+Ce que la matière fournit, selon la forme que le sort lui donne :
+
+| Le sort… | prend de la matière | à l'échelle |
+|----------|---------------------|-------------|
+| inflige (`damageMin`) | `damage` + `damageType` | `materialScale` |
+| protège physiquement (`effects` def_phy) | `defense` | `materialScale` |
+| protège magiquement (`effects` def_mag) | `magicDefense` — **facultatif** | `materialScale` |
+| nimbe (revêtement poings/arme) | `damage` × `ENCHANT_SHARE` | `materialScale` |
+| dresse un mur (`raisesWall`) | `defense` × `WALL_THICKNESS` | `materialScale` |
+| **alourdit** (`recoil` sur `speed`) | `speedPenalty` | `materialScale` |
+
+**Les deux défenses sont distinctes.** La dureté arrête les coups, la
+résonance arrête les sorts — et `magicDefense` est **facultatif** : la plupart
+des pierres ne l'ont pas. Un sort qui accorde `def_mag` n'en accorde donc
+**aucune** s'il est taillé dans du grès ; la ligne disparaît, au lieu de prêter
+silencieusement à la paroi la valeur de sa dureté. Cela donne à chaque famille
+son identité : la **pierre** encaisse, le **métal** encaisse et blinde un peu,
+le **cristal** résonne.
+
+Le **malus de vitesse** est le contrepoids de la défense : sans lui, on
+prendrait toujours la pierre la plus dure. Le sort dit seulement « ceci
+alourdit » ; la matière dit de combien. Une armure de basalte protège mieux
+qu'une d'ardoise mais pèse trois fois plus, et une armure d'**or** protège mal
+tout en écrasant son porteur — un mauvais choix assumé, pas un oubli.
+
+`ENCHANT_SHARE` et `WALL_THICKNESS` sont exportées par `rules.ts` : la fiche de
+sort les importe au lieu de les recopier, pour que l'affichage ne puisse pas
+diverger du moteur.
+
+**Côté personnage** : l'étude s'ouvre une fois par palier de maîtrise (niveaux
+1, 5, 9, 13, 17), soit cinq matériaux au maximum sur une carrière. Un alliage
+exige ses composants — le bronze demande le cuivre **et** l'étain.
+
+**Côté scène** : la géologie se règle dans le simulateur (bandeau d'ambiance,
+bouton △), par préréglage régional ou matériau par matériau.
+
+### 7.20 Dresser un mur — `raisesWall` (domaine de la Terre)
+
+Le sort **dresse un obstacle réel** sur la case visée, au lieu de frapper ou
+d'accorder une défense abstraite.
+
+```json
+"stats": { "mana": 5, "range": "14 m", "area": "Ligne 4 cases",
+           "targets": ["everyone"], "duration": 3,
+           "raisesWall": { "length": 4, "hp": 20 } }
+```
+
+`length` en cases, `hp` la santé de base. Le mur se pose **perpendiculairement
+à la visée** du lanceur — on ne dresse pas une barricade dans son propre axe de
+tir — et il n'occupe jamais une case où quelqu'un se tient.
+
+Il **arrête les pas et les regards** comme n'importe quel mur (il entre dans le
+décor effectif, donc déplacement, calcul de chemin et ligne de vue le
+respectent), et il **s'attaque** : viser sa case lui inflige les dégâts, il
+n'esquive pas et ne pare pas. À zéro, il s'effondre.
+
+**Le palier de façonnage décide de sa vie**, ce qui est la première conséquence
+vraiment visible du système de matériaux (§7.19) :
+
+| Palier | Solidité | Durée |
+|--------|----------|-------|
+| Manipulation (matière sur place) | `hp` × facteur de la matière | **Permanent** |
+| Ex-nihilo (matière étudiée) | idem | `duration` tours |
+| Improvisation (matière connue) | moitié | moitié, minimum 1 tour |
+
+**Toute paroi cède au contondant** : un mur ne se tranche pas et ne brûle pas,
+il se brise. Le contondant compte donc double contre n'importe quel mur — c'est
+ce qui empêche un mage de Terre de bloquer indéfiniment une escouade d'épéistes.
+La matière ajoute ses propres failles (le poison contre le calcaire, la foudre
+contre le cuivre), mais **les deux ne se cumulent pas** : c'est la meilleure des
+deux qui compte, pas leur produit.
+
+Sur le plateau, le mur porte la **teinte de sa matière** (`color` au catalogue)
+et se clique pour lire sa santé, sa tenue et ses failles.
+
+### 7.21 Ancrage d'un statut — `tetherRange`
+Donne une **laisse** aux statuts que le palier pose : au-delà de cette distance
+de celui qui les a posés, ils se rompent d'eux-mêmes (et se rompent aussi si
+l'ancre tombe). C'est ce qui permet une marque de durée illimitée sans qu'elle
+suive son porteur au bout du monde.
+
+```json
+"stats": { "mana": 2, "range": "Contact", "tetherRange": "15 m",
+           "inflicts": [{ "status": "marque-spatiale", "chance": 100, "duration": -1 }] }
 ```
 
 ---
@@ -349,13 +649,18 @@ Attributs : `force`, `dexterite`, `constitution`, `intelligence`, `sagesse`,
 `brulure`, `poison`, `necrose`, `saignement`, `paralysie`, `sommeil`,
 `etourdissement`, `gel`, `enracinement`, `silence`, `aveuglement`,
 `ralentissement`, `affaiblissement`, `vulnerabilite`, `rage`, `berserk`, `peur`,
-`charme`, `confusion`, `provocation`, `regeneration`, `hate`, `wet`.
+`ancrage`, `charme`, `confusion`, `controle`, `marque-spatiale`,
+`provocation`, `regeneration`, `hate`, `wet`, `repulsion-magnetique`.
 
 ### 8.4 Météos (`weathers.json`)
 `storm`, `blizzard`, `rain`, `drought`, `heatwave`, `fog`, `gale`,
 `magical-night`, `radiant-sky`, `hail`, `sandstorm`.
 
-### 8.5 Cibles — `SpellTarget`
+### 8.5 Zones — `area`
+`"Soi-même"` · `"Cible unique"` · `"N cibles"` · `"Rayon N m"` · `"Cône N m"` ·
+`"Ligne N m"` · `"Tous les marqués"` (voir §7.15).
+
+### 8.6 Cibles — `SpellTarget`
 `enemy` (Ennemis) · `ally` (Alliés) · `self` (Soi-même) · `everyone` (Tout le monde).
 
 ### 8.6 Classes
@@ -470,4 +775,8 @@ l'enchantement.
 - [ ] Noms des paliers conformes à la convention (§9).
 - [ ] Sort hors-combat uniquement : texte par palier dans `node.usage.outOfCombat`, pas dans `description` (§3).
 - [ ] Clés de `status` / `weather` / `damageType` / `class` valides (§8).
+- [ ] Sort qui saisit ou projette du métal : les objets visés portent bien
+      `metallic: true` au catalogue (§7.18) — sans quoi le sort n'a aucune prise.
+- [ ] Sort de Terre qui produit de la matière : `shapesMaterial` déclaré, et
+      AUCUN chiffre de matériau écrit sur les paliers (§7.19).
 - [ ] JSON valide : `node -e "require('./domaine.json')"` puis un `ng build`.

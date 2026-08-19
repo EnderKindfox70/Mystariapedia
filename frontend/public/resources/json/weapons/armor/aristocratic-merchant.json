@@ -1,15 +1,50 @@
 {
   "name": "Tenue de marchand aristocratique",
   "subtitle": "Soieries et fourrures du négociant fortuné",
+  "armorCategory": "clothing",
+  "material": "soie",
   "description": [
     "Soie, velours et fourrure : la tenue du marchand qui a réussi, taillée pour impressionner les salons autant que les comptoirs."
   ],
   "pieces": [
-    { "slot": "head", "label": "Toque de fourrure",   "physicalArmor": 0, "magicalProtection": 0, "weight": 0.4 },
-    { "slot": "body", "label": "Manteau de velours",   "physicalArmor": 1, "magicalProtection": 0, "weight": 2.4 },
-    { "slot": "legs", "label": "Chausses de soie",     "physicalArmor": 0, "magicalProtection": 0, "weight": 1 },
-    { "slot": "feet", "label": "Bottes fines",         "physicalArmor": 1, "magicalProtection": 0, "weight": 1 }
+    {
+      "slot": "head",
+      "label": "Toque de fourrure",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 0.4
+    },
+    {
+      "slot": "body",
+      "label": "Manteau de velours",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 2.4
+    },
+    {
+      "slot": "legs",
+      "label": "Chausses de soie",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 1
+    },
+    {
+      "slot": "feet",
+      "label": "Bottes fines",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Peu commune" }],
-  "properties": ["Affiche la réussite et la richesse", "Bourses cousues dans la doublure"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
+  ],
+  "properties": [
+    "Affiche la réussite et la richesse",
+    "Bourses cousues dans la doublure"
+  ]
 }

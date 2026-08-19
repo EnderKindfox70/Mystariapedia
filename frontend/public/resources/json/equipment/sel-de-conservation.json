@@ -1,52 +1,89 @@
 {
-    "name": "Sel de conservation",
-    "subtitle": "Consommable de récolte",
-    "category": "recolte",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Un sachet de toile épaisse contenant un gros sel gris, mêlé de cendre de hêtre et d'une pointe de sel cristallin broyé. On le presse à pleines mains dans la chair prélevée, jusqu'à ce qu'elle cesse de rendre du liquide.",
-        "C'est l'objet qui décide si la chasse a servi à quelque chose. Une glande, un venin, un organe chargé de mana se dégradent en quelques heures à l'air libre : ce qui n'a pas été salé sur place n'arrive jamais chez l'alchimiste, et la créature a été tuée pour rien."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "0,5 kg" },
-        { "key": "type",   "label": "Type",        "value": "Consommable — conservation (5 usages)" },
-        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Un usage par dépouille ; à appliquer dans l'heure" },
-        { "key": "value",  "label": "Valeur",      "value": "12 pièces d'or le sachet" }
-    ],
-    "properties": [
-        "Une dépouille prélevée non salée perd sa valeur alchimique en 4 heures : elle reste vendable comme matière brute, mais ne peut plus entrer dans une préparation.",
-        "Salée dans l'heure qui suit le prélèvement, elle se conserve un mois entier.",
-        "Un sachet contient cinq usages, un par dépouille — glande, venin, corne, croc, organe.",
-        "Sans effet sur la flore et les minéraux : les plantes se sèchent, les éclats ne se dégradent pas.",
-        "Sert aussi à préparer des rations de voyage, à raison d'un usage pour deux jours de vivres."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les bouchers, les saleurs de poisson et tous les comptoirs de chasse ; les guildes de dépeçage en imposent le port à leurs membres.",
-            "Le sachet doit rester au sec. Un sel qui a pris l'eau s'agglomère en bloc et ne pénètre plus la chair."
-        ]
+  "name": "Sel de conservation",
+  "subtitle": "Consommable de récolte",
+  "material": "toile",
+  "category": "recolte",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Un sachet de toile épaisse contenant un gros sel gris, mêlé de cendre de hêtre et d'une pointe de sel cristallin broyé. On le presse à pleines mains dans la chair prélevée, jusqu'à ce qu'elle cesse de rendre du liquide.",
+    "C'est l'objet qui décide si la chasse a servi à quelque chose. Une glande, un venin, un organe chargé de mana se dégradent en quelques heures à l'air libre : ce qui n'a pas été salé sur place n'arrive jamais chez l'alchimiste, et la créature a été tuée pour rien."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,5 kg"
     },
-    "notes": [
-        "Saler d'abord, discuter du partage ensuite. Beaucoup de groupes font l'inverse et rentrent les mains vides.",
-        "Le venin se conserve en fiole, pas au sel : le saler le neutralise. Emporter les deux."
-    ],
-    "references": [
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Consommable — conservation (5 usages)"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Un usage par dépouille ; à appliquer dans l'heure"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "12 pièces d'or le sachet"
+    }
+  ],
+  "properties": [
+    "Une dépouille prélevée non salée perd sa valeur alchimique en 4 heures : elle reste vendable comme matière brute, mais ne peut plus entrer dans une préparation.",
+    "Salée dans l'heure qui suit le prélèvement, elle se conserve un mois entier.",
+    "Un sachet contient cinq usages, un par dépouille — glande, venin, corne, croc, organe.",
+    "Sans effet sur la flore et les minéraux : les plantes se sèchent, les éclats ne se dégradent pas.",
+    "Sert aussi à préparer des rations de voyage, à raison d'un usage pour deux jours de vivres."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les bouchers, les saleurs de poisson et tous les comptoirs de chasse ; les guildes de dépeçage en imposent le port à leurs membres.",
+      "Le sachet doit rester au sec. Un sel qui a pris l'eau s'agglomère en bloc et ne pénètre plus la chair."
+    ]
+  },
+  "notes": [
+    "Saler d'abord, discuter du partage ensuite. Beaucoup de groupes font l'inverse et rentrent les mains vides.",
+    "Le venin se conserve en fiole, pas au sel : le saler le neutralise. Emporter les deux."
+  ],
+  "references": [
+    {
+      "label": "Dépouilles concernées",
+      "items": [
         {
-            "label": "Dépouilles concernées",
-            "items": [
-                { "ref": "glande-de-lezard-rocailleux", "collection": "resources/remains", "label": "Glande de Lezard rocailleux" },
-                { "ref": "corne-de-belier", "collection": "resources/remains", "label": "Corne de bélier" },
-                { "ref": "croc-de-loup", "collection": "resources/remains", "label": "Croc de loup" }
-            ]
+          "ref": "glande-de-lezard-rocailleux",
+          "collection": "resources/remains",
+          "label": "Glande de Lezard rocailleux"
         },
         {
-            "label": "Composants",
-            "items": [
-                { "ref": "sel_cristallin", "collection": "resources/minerals", "label": "Sel cristallin" }
-            ]
+          "ref": "corne-de-belier",
+          "collection": "resources/remains",
+          "label": "Corne de bélier"
+        },
+        {
+          "ref": "croc-de-loup",
+          "collection": "resources/remains",
+          "label": "Croc de loup"
         }
-    ]
+      ]
+    },
+    {
+      "label": "Composants",
+      "items": [
+        {
+          "ref": "sel_cristallin",
+          "collection": "resources/minerals",
+          "label": "Sel cristallin"
+        }
+      ]
+    }
+  ]
 }

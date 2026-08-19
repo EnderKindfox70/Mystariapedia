@@ -1,5 +1,6 @@
 {
   "name": "Marteau de guerre",
+  "material": "fer",
   "subtitle": "Masse à deux mains, briseur d'acier",
   "description": [
     "Là où la masse écrase, le marteau de guerre démolit. Sa tête massive, parfois munie d'un bec perforant, transmet une force colossale à travers les plaques les plus épaisses.",
@@ -9,8 +10,16 @@
   "minDamage": 6,
   "maxDamage": 13,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "4 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "4 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
   ],
   "properties": [
     "Dévastateur contre les armures de plaques",

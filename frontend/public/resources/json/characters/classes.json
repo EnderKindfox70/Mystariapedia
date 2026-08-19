@@ -1,6 +1,6 @@
 [
     {
-        "key": "warrior",
+        "key": "warrior", "weaponProficiencies": ["longsword","spear","greatsword","claymore"], "armorProficiencies": ["light","medium","heavy","shield"],
         "name": "Guerrier",
         "inspirationPerLevel": 2,
         "stats": [
@@ -269,7 +269,7 @@
         ]
     },
     {
-        "key": "mage",
+        "key": "mage", "weaponProficiencies": ["staff"], "armorProficiencies": ["light"],
         "name": "Mage",
         "inspirationPerLevel": 4,
         "stats": [
@@ -440,7 +440,7 @@
         ]
     },
     {
-        "key": "ranger",
+        "key": "ranger", "weaponProficiencies": ["shortBow","longBow","crossbow","handCrossbow","dagger"], "armorProficiencies": ["light","medium"],
         "name": "Ranger",
         "inspirationPerLevel": 2,
         "stats": [
@@ -649,7 +649,7 @@
         ]
     },
     {
-        "key": "rogue",
+        "key": "rogue", "weaponProficiencies": ["dagger","rapier","crossbow","handCrossbow"], "armorProficiencies": ["light"],
         "name": "Vagabond",
         "inspirationPerLevel": 3,
         "stats": [
@@ -855,7 +855,7 @@
         ]
     },
     {
-        "key": "pugilist",
+        "key": "pugilist", "weaponProficiencies": [], "armorProficiencies": [],
         "name": "Pugiliste",
         "inspirationPerLevel": 1,
         "stats": [

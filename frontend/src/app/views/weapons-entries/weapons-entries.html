@@ -120,8 +120,21 @@
       <section class="re-section">
         <div class="re-divider"><span>Protection</span></div>
 
-        @if (resistances().length || weaknesses().length) {
+        @if (armorCategory() || resistances().length || weaknesses().length) {
           <ul class="re-info-grid">
+            @if (armorCategory(); as ac) {
+              <li class="re-info" [title]="ac.description">
+                <span class="re-info__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M12 3l7 2.5V11c0 4.4-2.9 7.7-7 9-4.1-1.3-7-4.6-7-9V5.5L12 3Z" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="re-info__label">Catégorie</span>
+                <span class="re-info__value">
+                  {{ ac.name }}@if (!ac.requiresProficiency) { <em> — ne se maîtrise pas</em> }
+                </span>
+              </li>
+            }
             @if (resistances().length) {
               <li class="re-info">
                 <span class="re-info__icon" aria-hidden="true">
@@ -218,14 +231,20 @@
     }
 
     <!-- ── Caractéristiques ── -->
-    @if (entry().info?.length) {
+    @if (infoFields().length) {
       <section class="re-section">
         <div class="re-divider"><span>Caractéristiques</span></div>
         <ul class="re-info-grid">
-          @for (field of entry().info!; track field.label) {
+          @for (field of infoFields(); track field.label) {
             <li class="re-info">
               <span class="re-info__icon" aria-hidden="true">
                 @switch (field.key) {
+                  @case ('material') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M4 9l4-3h8l4 3-4 3H8L4 9Z" stroke-linejoin="round"/>
+                      <path d="M4 15l4-3M20 15l-4-3M8 18h8l4-3-4-3M8 18l-4-3" stroke-linejoin="round"/>
+                    </svg>
+                  }
                   @case ('type') {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
                       <path d="M5 19c0-7 5-13 14-14 0 9-6 14-14 14Z" stroke-linejoin="round"/>

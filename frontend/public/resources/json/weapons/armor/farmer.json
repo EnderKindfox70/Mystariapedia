@@ -1,15 +1,50 @@
 {
   "name": "Tenue de fermier",
   "subtitle": "Chemise de toile et tablier de travail",
+  "armorCategory": "clothing",
+  "material": "toile",
   "description": [
     "La tenue simple et solide du travailleur de la terre : toile rêche, tablier épais et sabots, faits pour durer et non pour briller."
   ],
   "pieces": [
-    { "slot": "head", "label": "Chapeau de paille",  "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
-    { "slot": "body", "label": "Chemise et tablier",  "physicalArmor": 1, "magicalProtection": 0, "weight": 1.9 },
-    { "slot": "legs", "label": "Pantalon de toile",   "physicalArmor": 1, "magicalProtection": 0, "weight": 1 },
-    { "slot": "feet", "label": "Sabots de bois",      "physicalArmor": 0, "magicalProtection": 0, "weight": 0.8 }
+    {
+      "slot": "head",
+      "label": "Chapeau de paille",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 0.3
+    },
+    {
+      "slot": "body",
+      "label": "Chemise et tablier",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1.9
+    },
+    {
+      "slot": "legs",
+      "label": "Pantalon de toile",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1
+    },
+    {
+      "slot": "feet",
+      "label": "Sabots de bois",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 0.8
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
-  "properties": ["Solide pour le travail des champs", "Chapeau contre le soleil"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
+  ],
+  "properties": [
+    "Solide pour le travail des champs",
+    "Chapeau contre le soleil"
+  ]
 }

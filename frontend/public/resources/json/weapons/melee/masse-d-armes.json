@@ -1,5 +1,6 @@
 {
   "name": "Masse d'armes",
+  "material": "fer",
   "subtitle": "Tête de métal pour broyer les armures",
   "description": [
     "Là où la lame glisse sur l'acier, la masse écrase. Sa tête de métal massif transmet toute la force du porteur à travers les plaques les plus épaisses.",
@@ -9,8 +10,16 @@
   "minDamage": 5,
   "maxDamage": 11,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "2 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "2 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
   ],
   "properties": [
     "Efficace contre les armures de plaques",

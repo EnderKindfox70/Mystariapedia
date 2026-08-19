@@ -4,6 +4,7 @@
     "name": "Bouclier rond",
     "subtitle": "Garde polyvalente de bois cerclé",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 0
   }
 ]

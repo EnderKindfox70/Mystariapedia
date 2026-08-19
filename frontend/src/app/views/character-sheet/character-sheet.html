@@ -245,6 +245,87 @@
           </div>
         </fieldset>
 
+        <!-- Réserves : le maximum est calculé, le niveau du moment ne l'est
+             pas. D'où la barre partiellement remplie et les pas de ±1 / ±5 —
+             on encaisse un coup, on souffle, on lance un sort. Ce qui est
+             stocké, c'est le creux (cf. poolLoss). -->
+        <fieldset class="cs-fieldset">
+          <legend>Réserves</legend>
+          @let poolsForm = poolRows;
+          <div class="cs-pools">
+            @for (p of poolsForm; track p.gauge.key) {
+              <div class="cs-pool">
+                <svg class="cs-pool__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="p.gauge.icon" /></svg>
+                <span class="cs-pool__label">{{ p.gauge.label }}</span>
+                <div class="cs-pool__track" [attr.aria-label]="p.gauge.label + ' : ' + p.current + ' sur ' + p.max">
+                  <div class="cs-pool__fill" [class]="'is-' + p.gauge.key" [style.width.%]="p.pct"></div>
+                </div>
+                <label class="cs-pool__value">
+                  <span class="cs-sr-only">{{ p.gauge.label }} restants</span>
+                  <input
+                    type="number"
+                    min="0"
+                    [max]="p.max"
+                    [ngModel]="p.current"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="setPool(p.gauge.key, $event, p.max)"
+                  />
+                  <span class="cs-pool__max">/ {{ p.max }}</span>
+                </label>
+                <div class="cs-pool__steps">
+                  @for (step of [-5, -1]; track step) {
+                    <button type="button" class="cs-xp__chip cs-xp__chip--minus" [disabled]="p.current <= 0" (click)="adjustPool(p, step)">{{ step }}</button>
+                  }
+                  @for (step of [1, 5]; track step) {
+                    <button type="button" class="cs-xp__chip" [disabled]="p.current >= p.max" (click)="adjustPool(p, step)">+{{ step }}</button>
+                  }
+                </div>
+                <span class="cs-pool__state" [class.is-empty]="p.current === 0">{{ p.stage }}</span>
+              </div>
+            }
+          </div>
+          <div class="cs-roll-bar">
+            <button type="button" class="cs-add" [disabled]="!poolsDrained" (click)="refillPools()">⟳ Pleine forme</button>
+          </div>
+          <p class="cs-stats-note">
+            Le maximum se recalcule (race, classe, niveau, équipement) ; seul le creux est
+            enregistré. Le report d’une séance de combat écrit ici ce que la table a laissé.
+          </p>
+        </fieldset>
+
+        <!-- Survie : compteurs tenus à la table, pas des stats calculées. D'où
+             les crans cliquables — on raye un jour de réserve, on n'estime pas
+             un pourcentage. -->
+        <fieldset class="cs-fieldset">
+          <legend>Survie</legend>
+          <div class="cs-survivals">
+            @for (g of survivalGauges; track g.key) {
+              <div class="cs-survival">
+                <svg class="cs-survival__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="g.icon" /></svg>
+                <span class="cs-survival__label">{{ g.label }}</span>
+                <div class="cs-survival__segments" role="group" [attr.aria-label]="g.label">
+                  @for (seg of survivalSegments(g); track seg) {
+                    <button
+                      type="button"
+                      class="cs-survival__seg"
+                      [class.is-filled]="seg <= survivalValue(g)"
+                      [attr.aria-label]="g.label + ' : ' + seg + ' sur ' + g.segments"
+                      (click)="setSurvival(g, seg)"
+                    ></button>
+                  }
+                </div>
+                <span class="cs-survival__state" [class.is-empty]="survivalValue(g) === 0">
+                  {{ survivalStage(g) }} ({{ survivalValue(g) }}/{{ g.segments }})
+                </span>
+              </div>
+            }
+          </div>
+          <div class="cs-roll-bar">
+            <button type="button" class="cs-add" (click)="refillSurvival()">⟳ Repas, gourde pleine et nuit complète</button>
+          </div>
+          <p class="cs-stats-note">Un cran = un jour de réserve. Clique un cran pour fixer le niveau ; recliquer le dernier cran plein le vide.</p>
+        </fieldset>
+
         <fieldset class="cs-fieldset">
           <legend>Traits (selon race / sous-race)</legend>
           @if (traits.length === 0) {
@@ -266,6 +347,17 @@
 
         <fieldset class="cs-fieldset">
           <legend>Domaines de magie ({{ model.domains.length }}/3)</legend>
+
+          <div class="cs-roll-bar">
+            <button type="button" class="cs-add" (click)="rollMagicDomains()">🎲 Tirer les affinités</button>
+            @if (magicRoll(); as roll) {
+              <span class="cs-magic-roll" [class.is-sealed]="roll.count === 0">
+                {{ roll.label }}@if (roll.domains.length) { — {{ rolledDomainNames }} }
+              </span>
+            }
+          </div>
+          <p class="cs-stats-note">Éveil tiré selon le lore ({{ affinityOdds }}), puis domaines tirés selon les affinités du peuple — table : {{ affinitySourceLabel }}. Le tirage remplace la sélection en cours.</p>
+
           <div class="cs-domains">
             @for (d of domains; track d.key) {
               <button
@@ -392,6 +484,127 @@
             <p class="cs-stats-note">Choisis une classe pour sélectionner des compétences.</p>
           }
         </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Maîtrises — armes & armures</legend>
+          <p class="cs-stats-note">
+            La classe donne les maîtrises de départ ; ajoute les autres à la main (entraînement en
+            partie, don d'un maître d'armes…). Seule une arme maîtrisée profite du bonus de maîtrise
+            au toucher.
+          </p>
+
+          <datalist id="weaponCategoryList">
+            @for (c of weaponCategories; track c.key) { <option [value]="c.name"></option> }
+          </datalist>
+          <datalist id="armorCategoryList">
+            @for (c of armorCategories; track c.key) { <option [value]="c.name"></option> }
+          </datalist>
+
+          <div class="cs-mastery">
+            <span class="cs-mastery__label">Armes maîtrisées</span>
+            <div class="cs-mastery__chips">
+              @for (p of masteredWeapons; track p.key) {
+                <span class="cs-mastery__chip" [class.is-manual]="p.source === 'manual'"
+                      [title]="weaponProficiencyHint(p.key)">
+                  {{ p.label }}
+                  @if (p.source === 'manual') {
+                    <button type="button" class="cs-mastery__del" title="Retirer cette maîtrise"
+                            (click)="removeWeaponProficiency(p.key)">✕</button>
+                  }
+                </span>
+              } @empty {
+                <span class="cs-mastery__none">Aucune — le combat à mains nues, ou rien</span>
+              }
+            </div>
+            <div class="cs-mastery__add">
+              <input type="text" name="weaponProficiencyDraft" list="weaponCategoryList"
+                     [(ngModel)]="weaponProficiencyDraft"
+                     (keydown.enter)="$event.preventDefault(); addWeaponProficiency()"
+                     placeholder="Catégorie d'arme (liste ou libre)" />
+              <button type="button" class="cs-add" (click)="addWeaponProficiency()">＋ Ajouter</button>
+            </div>
+          </div>
+
+          <div class="cs-mastery">
+            <span class="cs-mastery__label">Armures maîtrisées</span>
+            <div class="cs-mastery__chips">
+              @for (p of masteredArmors; track p.key) {
+                <span class="cs-mastery__chip" [class.is-manual]="p.source === 'manual'"
+                      [title]="armorProficiencyHint(p.key)">
+                  {{ p.label }}
+                  @if (p.source === 'manual') {
+                    <button type="button" class="cs-mastery__del" title="Retirer cette maîtrise"
+                            (click)="removeArmorProficiency(p.key)">✕</button>
+                  }
+                </span>
+              } @empty {
+                <span class="cs-mastery__none">Aucune — il se bat sans rien sur la peau</span>
+              }
+            </div>
+            <div class="cs-mastery__add">
+              <input type="text" name="armorProficiencyDraft" list="armorCategoryList"
+                     [(ngModel)]="armorProficiencyDraft"
+                     (keydown.enter)="$event.preventDefault(); addArmorProficiency()"
+                     placeholder="Catégorie d'armure (liste ou libre)" />
+              <button type="button" class="cs-add" (click)="addArmorProficiency()">＋ Ajouter</button>
+            </div>
+          </div>
+        </fieldset>
+
+        @if (hasEarthDomain) {
+          <fieldset class="cs-fieldset">
+            <legend>Matériaux de Terre — étude</legend>
+            <p class="cs-stats-note">
+              La Terre n'a pas un sort par pierre : elle a un sort par famille, et sa
+              saveur vient de ce que vous façonnez. <b>Étudier</b> permet de conjurer
+              une matière n'importe où ; <b>connaître</b> (l'avoir vue ET touchée)
+              permet seulement de l'improviser, cher et à moitié. Ce que le sol offre
+              se façonne sans rien avoir appris.
+            </p>
+            <p class="cs-spell-cap">
+              Étudiés :
+              <b [class.is-full]="studySlotsUsed >= studySlotsTotal">{{ studySlotsUsed }} / {{ studySlotsTotal }}</b>
+              <span class="cs-spell-cap__hint">une place par palier de maîtrise (niv. 1, 5, 9, 13, 17)</span>
+            </p>
+
+            @for (famille of earthFamilies; track famille.key) {
+              <div class="cs-earth__family">
+                <span class="cs-earth__title" [title]="famille.description">{{ famille.name }}</span>
+                <ul class="cs-earth__list">
+                  @for (m of materialsIn(famille.key); track m.key) {
+                    <li class="cs-earth__item"
+                        [class.is-studied]="studiedMaterials.includes(m.key)"
+                        [class.is-known]="knownMaterials.includes(m.key)">
+                      <span class="cs-earth__name" [title]="materialHint(m)">
+                        {{ m.name }}
+                        @if (studiedMaterials.includes(m.key)) {
+                          <button type="button" class="cs-earth__equip"
+                                  [class.is-on]="equippedMaterial === m.key"
+                                  [title]="equippedMaterial === m.key
+                                    ? 'Matériau porté en tête — cliquez pour le retirer'
+                                    : 'Porter ce matériau en tête (se change au repos)'"
+                                  (click)="setEquipped(m.key)">✦</button>
+                        }
+                      </span>
+                      <span class="cs-earth__where" [title]="materialRegions(m)">{{ materialRegions(m) }}</span>
+                      <span class="cs-earth__acts">
+                        <button type="button" class="cs-earth__btn"
+                                [class.is-on]="studiedMaterials.includes(m.key)"
+                                [disabled]="!!studyBlocker(m.key)"
+                                [title]="studyBlocker(m.key) ?? 'Étudier — une place par palier de maîtrise'"
+                                (click)="toggleStudied(m.key)">étudié</button>
+                        <button type="button" class="cs-earth__btn"
+                                [class.is-on]="knownMaterials.includes(m.key)"
+                                title="Vu ET touché, sans étude : permet l'improvisation"
+                                (click)="toggleKnown(m.key)">connu</button>
+                      </span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </fieldset>
+        }
 
         <fieldset class="cs-fieldset">
           <legend>Sorts — Déblocage & équipement</legend>
@@ -533,11 +746,23 @@
           >⚔ Équiper le matériel de départ</button>
           <div class="cs-equip-grid">
             @for (slot of equipmentSlots; track slot.key) {
-              <label class="cs-equip">
+              <!-- Une arme à deux mains condamne la main faible : l'emplacement
+                   se ferme à la saisie plutôt que d'accepter ce qui ne pourrait
+                   ni se porter, ni se jouer. -->
+              <label class="cs-equip" [class.is-blocked]="slotBlocked(slot.key)">
                 <span>{{ slot.label }}</span>
-                <input type="text" [name]="'eq-' + slot.key" [(ngModel)]="model.equipment[slot.key]" [attr.list]="'equip-' + slot.key" placeholder="—" />
+                <input
+                  type="text"
+                  [name]="'eq-' + slot.key"
+                  [(ngModel)]="model.equipment[slot.key]"
+                  (ngModelChange)="onEquipmentChange()"
+                  [attr.list]="'equip-' + slot.key"
+                  [disabled]="slotBlocked(slot.key)"
+                  [title]="slotBlocked(slot.key) ? 'Les deux mains tiennent déjà l’arme principale' : ''"
+                  [placeholder]="slotBlocked(slot.key) ? 'Les deux mains sont prises' : '—'"
+                />
                 <datalist [id]="'equip-' + slot.key">
-                  @for (opt of equipmentOptions()[slot.key] || []; track opt) {
+                  @for (opt of optionsFor(slot.key); track opt) {
                     <option [value]="opt"></option>
                   }
                 </datalist>
@@ -631,6 +856,53 @@
                   <span class="sheet-attr__name">{{ a.label }}</span>
                   <span class="sheet-attr__score">{{ fa[a.key] }}</span>
                   <span class="sheet-attr__mod">{{ formatBonus(modifier(a.key)) }}</span>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <!-- RÉSERVES & SURVIE : côte à côte, comme dans le PDF. Deux façons
+               de dire l'état du personnage à l'instant T — l'une en points
+               (barres continues), l'autre en jours de réserve (crans). L'ordre
+               du DOM suit celui des colonnes. -->
+          @let sheetPools = poolRows;
+          <section class="sheet-block sheet-pools">
+            <h2 class="sheet-banner">Réserves</h2>
+            <ul class="sheet-pools__list">
+              @for (p of sheetPools; track p.gauge.key) {
+                <li class="sheet-pool">
+                  <div class="sheet-pool__head">
+                    <svg class="sheet-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path [attr.d]="p.gauge.icon" />
+                    </svg>
+                    <span class="sheet-pool__label">{{ p.gauge.label }}</span>
+                    <span class="sheet-pool__state">{{ p.stage }} ({{ p.current }}/{{ p.max }})</span>
+                  </div>
+                  <div class="sheet-pool__track">
+                    <div class="sheet-pool__fill" [class]="'is-' + p.gauge.key" [style.width.%]="p.pct"></div>
+                  </div>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <section class="sheet-block sheet-survival">
+            <h2 class="sheet-banner">Survie</h2>
+            <ul class="sheet-gauges">
+              @for (g of survivalGauges; track g.key) {
+                <li class="sheet-gauge">
+                  <div class="sheet-gauge__head">
+                    <svg class="sheet-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path [attr.d]="g.icon" />
+                    </svg>
+                    <span class="sheet-gauge__label">{{ g.label }}</span>
+                    <span class="sheet-gauge__state">{{ survivalStage(g) }} ({{ survivalValue(g) }}/{{ g.segments }})</span>
+                  </div>
+                  <div class="sheet-gauge__segments">
+                    @for (seg of survivalSegments(g); track seg) {
+                      <span class="sheet-gauge__seg" [class.is-filled]="seg <= survivalValue(g)"></span>
+                    }
+                  </div>
                 </li>
               }
             </ul>
@@ -771,6 +1043,39 @@
             }
           </section>
 
+          <!-- MATÉRIAUX DE TERRE (lecture seule : ceci part au PDF) -->
+          @if (hasEarthDomain && (studiedMaterials.length || knownMaterials.length)) {
+            <section class="sheet-block sheet-earth">
+              <h2 class="sheet-banner">
+                Matériaux de Terre
+                <span class="sheet-spells__cap">{{ studySlotsUsed }}/{{ studySlotsTotal }} étudiés</span>
+              </h2>
+              <div class="sheet-mastery__group">
+                <span class="sheet-mastery__label">Étudiés</span>
+                <div class="sheet-mastery__chips">
+                  @for (key of studiedMaterials; track key) {
+                    <span class="sheet-mastery__chip" [class.is-manual]="equippedMaterial === key"
+                          [title]="materialTitle(key)">
+                      {{ materialName(key) }}@if (equippedMaterial === key) { ✦ }
+                    </span>
+                  } @empty {
+                    <span class="sheet-empty">Aucun</span>
+                  }
+                </div>
+              </div>
+              @if (knownMaterials.length) {
+                <div class="sheet-mastery__group">
+                  <span class="sheet-mastery__label">Connus</span>
+                  <div class="sheet-mastery__chips">
+                    @for (key of knownMaterials; track key) {
+                      <span class="sheet-mastery__chip" [title]="materialTitle(key)">{{ materialName(key) }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </section>
+          }
+
           <!-- COMPÉTENCES DE CLASSE -->
           <section class="sheet-block sheet-classpells">
             <h2 class="sheet-banner">Compétences</h2>
@@ -790,6 +1095,33 @@
             </ul>
           </section>
 
+          <!-- MAÎTRISES -->
+          <section class="sheet-block sheet-mastery">
+            <h2 class="sheet-banner">Maîtrises</h2>
+            <div class="sheet-mastery__group">
+              <span class="sheet-mastery__label">Armes</span>
+              <div class="sheet-mastery__chips">
+                @for (p of masteredWeapons; track p.key) {
+                  <span class="sheet-mastery__chip" [class.is-manual]="p.source === 'manual'"
+                        [title]="weaponProficiencyHint(p.key)">{{ p.label }}</span>
+                } @empty {
+                  <span class="sheet-empty">Aucune — mains nues</span>
+                }
+              </div>
+            </div>
+            <div class="sheet-mastery__group">
+              <span class="sheet-mastery__label">Armures</span>
+              <div class="sheet-mastery__chips">
+                @for (p of masteredArmors; track p.key) {
+                  <span class="sheet-mastery__chip" [class.is-manual]="p.source === 'manual'"
+                        [title]="armorProficiencyHint(p.key)">{{ p.label }}</span>
+                } @empty {
+                  <span class="sheet-empty">Aucune — sans armure</span>
+                }
+              </div>
+            </div>
+          </section>
+
           <!-- ÉQUIPEMENT -->
           <section class="sheet-block sheet-equipment">
             <h2 class="sheet-banner">Équipement</h2>
@@ -801,6 +1133,10 @@
                     <span class="sheet-slot__item">{{ model.equipment[slot.key] || '—' }}</span>
                     @if (armorForSlot(slot.key); as a) {
                       <span class="sheet-slot__dmg">Arm. {{ a.physicalArmor }} · Mag. {{ a.magicalProtection }}</span>
+                      @if (armorNote(a); as note) {
+                        <span class="sheet-slot__prof" [class.is-off]="a.mastery === 'unmastered'"
+                              [title]="armorNoteHint(a)">{{ note }}</span>
+                      }
                     }
                   </div>
                 }
@@ -816,17 +1152,35 @@
               </div>
               <div class="sheet-slots">
                 @for (slot of rightSlots; track slot.key) {
-                  <div class="sheet-slot" [class.is-empty]="!model.equipment[slot.key]">
+                  <div
+                    class="sheet-slot"
+                    [class.is-empty]="!itemIn(slot.key)"
+                    [class.is-blocked]="slotBlocked(slot.key)"
+                  >
                     <span class="sheet-slot__label">{{ slot.label }}</span>
-                    <span class="sheet-slot__item">{{ model.equipment[slot.key] || '—' }}</span>
+                    <!-- Emplacement condamné : on dit POURQUOI il est vide,
+                         sinon la fiche donne l'air d'avoir oublié une main. -->
+                    <span class="sheet-slot__item">
+                      {{ slotBlocked(slot.key) ? '— arme à deux mains —' : (itemIn(slot.key) || '—') }}
+                    </span>
                     @if (weaponForSlot(slot.key); as w) {
                       <span class="sheet-slot__dmg" [title]="'Dégâts de base (avec modificateur de ' + w.attributeDamage + ')'">
                         {{ w.minDamage }}–{{ w.maxDamage }} ({{ w.modMin }}–{{ w.modMax }}) · {{ w.damageType }}
                       </span>
                       <span class="sheet-slot__meta">{{ w.attributeDamage }} · {{ w.enduranceCost }} end.</span>
+                      <span class="sheet-slot__prof" [class.is-off]="!w.proficient"
+                            [title]="w.proficient
+                              ? w.category + ' — maîtrisée : le bonus de maîtrise compte au toucher'
+                              : w.category + ' — non maîtrisée : aucun bonus de maîtrise au toucher'">
+                        {{ w.proficient ? '✦ maîtrisée' : '⚠ non maîtrisée' }}
+                      </span>
                     }
                     @if (armorForSlot(slot.key); as a) {
                       <span class="sheet-slot__dmg">Arm. {{ a.physicalArmor }} · Mag. {{ a.magicalProtection }}</span>
+                      @if (armorNote(a); as note) {
+                        <span class="sheet-slot__prof" [class.is-off]="a.mastery === 'unmastered'"
+                              [title]="armorNoteHint(a)">{{ note }}</span>
+                      }
                     }
                   </div>
                 }

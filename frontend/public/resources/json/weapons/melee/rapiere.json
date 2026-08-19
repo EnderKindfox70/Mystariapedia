@@ -1,5 +1,6 @@
 {
   "name": "Rapière",
+  "material": "acier",
   "subtitle": "Lame fine pour l'estoc",
   "description": [
     "Longue et effilée, la rapière est l'arme du duel et de l'escrime fine. Elle néglige la taille au profit de l'estoc, frappant vite et juste là où l'armure faiblit.",
@@ -9,8 +10,16 @@
   "minDamage": 3,
   "maxDamage": 8,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "1 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
   ],
   "properties": [
     "Estocs rapides et précis",

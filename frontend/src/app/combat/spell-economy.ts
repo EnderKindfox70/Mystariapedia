@@ -1,6 +1,6 @@
 import { SpellNodeStats, StatusCategory } from '../wiki.types';
 import { enchantTargetOf } from './abilities';
-import { statusByKey } from './rules';
+import { CRIT_FACTOR, statusByKey } from './rules';
 
 /* ──────────────────────────────────────────────────────────────────────────
    L'ÉCONOMIE DES SORTS
@@ -103,6 +103,16 @@ const EVADE_POINT_WEIGHT = 0.5;
  * d'un combat sur grille, et jouée en réaction elle annule purement l'attaque.
  */
 const TELEPORT_BASE = 25;
+
+/**
+ * Ce qu'un échange de place vaut EN PLUS d'une téléportation.
+ *
+ * Il déplace deux corps au lieu d'un, et le second n'a pas son mot à dire :
+ * arracher un allié d'une mêlée ou y jeter un ennemi à sa place vaut mieux que
+ * de s'y rendre soi-même. Le prix reste modeste — l'échange ne blesse pas et
+ * demande une marque préalable, donc un tour et un sort de plus.
+ */
+const SWAP_PREMIUM = 15;
 
 /**
  * Nombre de coups qu'un enchantement d'arme ou de poing accompagne réellement.
@@ -240,6 +250,10 @@ export function spellPower(stats: SpellNodeStats, ctx: SpellContext = {}): Power
     damage += (stats.damageMax ?? stats.damageMin) + bonus;
   }
   damage *= hits;
+  // Un coup dont les dégâts sont acquis comme critiques vaut ce que vaut le
+  // critique. Sans cette ligne, une frappe assurée se paierait au prix d'une
+  // frappe ordinaire tout en frappant moitié plus fort.
+  if (stats.alwaysCritical) damage *= CRIT_FACTOR;
   // Les dégâts proportionnels ignorent la défense : ils valent plein pot.
   const pct = (spec: { min: number; max?: number } | undefined) =>
     spec ? ((spec.max ?? spec.min) / 100) * REFERENCE_HP * PERCENT_DAMAGE_PREMIUM : 0;
@@ -307,10 +321,11 @@ export function spellPower(stats: SpellNodeStats, ctx: SpellContext = {}): Power
   // La météo est souvent déclarée sur le SORT et non sur le palier : un
   // Blizzard n'écrit `weather` qu'une fois, pour ses trois paliers.
   if (stats.weather ?? ctx.weather) utility += WEATHER_WEIGHT;
-  // Se déplacer instantanément : d'autant plus précieux qu'on va loin.
-  if (stats.teleport) {
+  // Se déplacer instantanément : d'autant plus précieux qu'on va loin. Un
+  // échange en est une forme, qui emmène quelqu'un d'autre avec elle.
+  if (stats.teleport || stats.swap) {
     const saut = Number(asText(stats.teleportRange ?? stats.range).match(/\d+/)?.[0] ?? 0);
-    utility += TELEPORT_BASE + saut;
+    utility += TELEPORT_BASE + saut + (stats.swap ? SWAP_PREMIUM : 0);
   }
 
   const areaFactor = areaMultiplier(stats.area);

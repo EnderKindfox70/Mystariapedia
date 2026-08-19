@@ -8,7 +8,7 @@
     ],
     
     "effects": [
-        "Restaure une grande quantité de mana",
+        "Restaure 5 points de mana, plus 30 % de la réserve maximale du buveur.",
         "permet d'absorber passivement la mana ambiante pendant 10 minutes"
     ],
     "secondary-effects": [

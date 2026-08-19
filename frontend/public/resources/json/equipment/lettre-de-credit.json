@@ -1,45 +1,70 @@
 {
-    "name": "Lettre de crédit",
-    "subtitle": "Papier de maison de change",
-    "category": "insignes",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Une feuille de parchemin fin, pliée en quatre et scellée à la cire, portant une somme, un nom, la marque d'une maison de change et une contremarque qu'aucun faussaire n'a encore reproduite proprement. Elle pèse ce que pèse du papier et vaut ce qu'une charrette d'or vaudrait.",
-        "L'or a un défaut que personne n'aime rappeler : il pèse. Mille pièces, c'est près de vingt kilos au fond d'un sac, et vingt kilos que l'on ne porte pas en potions, en cordes et en vivres. La lettre de crédit résout ce problème depuis que les maisons de change se font confiance entre elles — et elle en crée un autre, car un papier se vole plus discrètement qu'un coffre."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "0,05 kg" },
-        { "key": "type",   "label": "Type",        "value": "Papier — valeur déposée" },
-        { "key": "rarity", "label": "Rareté",      "value": "Peu commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Encaissable dans les comptoirs affiliés" },
-        { "key": "value",  "label": "Valeur",      "value": "Le montant déposé, moins 5 % de commission" }
-    ],
-    "properties": [
-        "Transporte une somme sans en porter le poids : l'or pèse environ 1 kg pour 50 pièces, la lettre ne pèse rien.",
-        "S'encaisse dans tout comptoir affilié à la maison émettrice, contre 5 % de commission et une pièce d'identité — chevalière, sceau ou témoin connu.",
-        "Loin des grandes routes, aucun comptoir : dans les villages, les ruines et les terres reculées, elle ne vaut littéralement rien.",
-        "Volée, elle reste encaissable par le voleur tant que l'opposition n'a pas été signalée au comptoir — ce qui exige d'y arriver le premier.",
-        "Une lettre brûlée, trempée ou déchirée est perdue : les maisons de change ne remboursent que sur présentation du papier.",
-        "Se fait opposer en une journée dans la cité émettrice, en plusieurs semaines à l'autre bout du royaume."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Dans les maisons de change des grandes cités et des ports marchands, contre dépôt de la somme et vérification de l'identité du déposant.",
-            "Les maisons refusent les dépôts anonymes et les sommes dont l'origine paraît douteuse — ce qui n'empêche pas certaines succursales de très mal regarder."
-        ]
+  "name": "Lettre de crédit",
+  "subtitle": "Papier de maison de change",
+  "material": "toile",
+  "category": "insignes",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Une feuille de parchemin fin, pliée en quatre et scellée à la cire, portant une somme, un nom, la marque d'une maison de change et une contremarque qu'aucun faussaire n'a encore reproduite proprement. Elle pèse ce que pèse du papier et vaut ce qu'une charrette d'or vaudrait.",
+    "L'or a un défaut que personne n'aime rappeler : il pèse. Mille pièces, c'est près de vingt kilos au fond d'un sac, et vingt kilos que l'on ne porte pas en potions, en cordes et en vivres. La lettre de crédit résout ce problème depuis que les maisons de change se font confiance entre elles — et elle en crée un autre, car un papier se vole plus discrètement qu'un coffre."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,05 kg"
     },
-    "notes": [
-        "La ranger dans du cuir huilé, avec les parchemins. C'est l'objet le plus fragile qu'un aventurier puisse porter.",
-        "Les marchands aristocratiques en portent plusieurs de faible montant plutôt qu'une seule grosse. Perdre un quart de sa fortune vaut mieux que la perdre entière."
-    ],
-    "references": [
-        {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "chevaliere-armoriee", "collection": "equipment", "label": "Chevalière armoriée" }
-            ]
-        }
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Papier — valeur déposée"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Encaissable dans les comptoirs affiliés"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "Le montant déposé, moins 5 % de commission"
+    }
+  ],
+  "properties": [
+    "Transporte une somme sans en porter le poids : l'or pèse environ 1 kg pour 50 pièces, la lettre ne pèse rien.",
+    "S'encaisse dans tout comptoir affilié à la maison émettrice, contre 5 % de commission et une pièce d'identité — chevalière, sceau ou témoin connu.",
+    "Loin des grandes routes, aucun comptoir : dans les villages, les ruines et les terres reculées, elle ne vaut littéralement rien.",
+    "Volée, elle reste encaissable par le voleur tant que l'opposition n'a pas été signalée au comptoir — ce qui exige d'y arriver le premier.",
+    "Une lettre brûlée, trempée ou déchirée est perdue : les maisons de change ne remboursent que sur présentation du papier.",
+    "Se fait opposer en une journée dans la cité émettrice, en plusieurs semaines à l'autre bout du royaume."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Dans les maisons de change des grandes cités et des ports marchands, contre dépôt de la somme et vérification de l'identité du déposant.",
+      "Les maisons refusent les dépôts anonymes et les sommes dont l'origine paraît douteuse — ce qui n'empêche pas certaines succursales de très mal regarder."
     ]
+  },
+  "notes": [
+    "La ranger dans du cuir huilé, avec les parchemins. C'est l'objet le plus fragile qu'un aventurier puisse porter.",
+    "Les marchands aristocratiques en portent plusieurs de faible montant plutôt qu'une seule grosse. Perdre un quart de sa fortune vaut mieux que la perdre entière."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "chevaliere-armoriee",
+          "collection": "equipment",
+          "label": "Chevalière armoriée"
+        }
+      ]
+    }
+  ]
 }

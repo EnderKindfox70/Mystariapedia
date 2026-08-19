@@ -1,45 +1,70 @@
 {
-    "name": "Chausse-trappes",
-    "subtitle": "Matériel de contention",
-    "category": "chasse",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Un sachet de toile contenant une vingtaine de pointes de fer soudées en croix : quelle que soit la face sur laquelle elles retombent, une pointe reste dressée. On les répand d'un geste, à la volée, en reculant.",
-        "C'est l'arme du groupe qui bat en retraite et de celui qui tient une porte. Elles ne tuent personne : elles font boiter, elles ralentissent, elles forcent l'ennemi à regarder ses pieds au moment précis où il aurait dû regarder devant lui."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "1,5 kg" },
-        { "key": "type",   "label": "Type",        "value": "Consommable réutilisable — contention de zone" },
-        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Couvre une zone de 3 m ; une action pour répandre" },
-        { "key": "value",  "label": "Valeur",      "value": "10 pièces d'or le sachet" }
-    ],
-    "properties": [
-        "Une action pour couvrir une zone de 3 mètres de diamètre. La zone reste dangereuse jusqu'à ce que quelqu'un ramasse les pointes.",
-        "Toute créature qui traverse la zone subit Ralentissement pour 2 tours.",
-        "Pieds nus, bottes souples ou pattes non protégées : la créature subit en plus Saignement.",
-        "Sans effet sur les créatures volantes, sur celles de taille TG et sur ce qui n'a pas de pieds.",
-        "Une créature qui avance prudemment traverse sans dommage, mais à vitesse réduite : les pointes se voient.",
-        "Récupérables en dix minutes de ramassage, à condition de ne pas être pressé et de compter ses doigts."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les forgerons et les marchands de matériel de siège ; les cités en interdisent la vente libre en période de troubles.",
-            "Se fabriquent aisément à la forge : deux clous tordus et soudés font une pointe correcte, en moins bien trempé."
-        ]
+  "name": "Chausse-trappes",
+  "subtitle": "Matériel de contention",
+  "material": "fer",
+  "category": "chasse",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Un sachet de toile contenant une vingtaine de pointes de fer soudées en croix : quelle que soit la face sur laquelle elles retombent, une pointe reste dressée. On les répand d'un geste, à la volée, en reculant.",
+    "C'est l'arme du groupe qui bat en retraite et de celui qui tient une porte. Elles ne tuent personne : elles font boiter, elles ralentissent, elles forcent l'ennemi à regarder ses pieds au moment précis où il aurait dû regarder devant lui."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,5 kg"
     },
-    "notes": [
-        "Prévenir le groupe avant de les répandre. La moitié des blessures causées par des chausse-trappes le sont chez les alliés.",
-        "Semées devant une porte que l'on referme, elles valent trois tours de répit. Semées au hasard, elles ne valent rien."
-    ],
-    "references": [
-        {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "filet-leste", "collection": "equipment", "label": "Filet lesté" }
-            ]
-        }
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Consommable réutilisable — contention de zone"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Couvre une zone de 3 m ; une action pour répandre"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "10 pièces d'or le sachet"
+    }
+  ],
+  "properties": [
+    "Une action pour couvrir une zone de 3 mètres de diamètre. La zone reste dangereuse jusqu'à ce que quelqu'un ramasse les pointes.",
+    "Toute créature qui traverse la zone subit Ralentissement pour 2 tours.",
+    "Pieds nus, bottes souples ou pattes non protégées : la créature subit en plus Saignement.",
+    "Sans effet sur les créatures volantes, sur celles de taille TG et sur ce qui n'a pas de pieds.",
+    "Une créature qui avance prudemment traverse sans dommage, mais à vitesse réduite : les pointes se voient.",
+    "Récupérables en dix minutes de ramassage, à condition de ne pas être pressé et de compter ses doigts."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les forgerons et les marchands de matériel de siège ; les cités en interdisent la vente libre en période de troubles.",
+      "Se fabriquent aisément à la forge : deux clous tordus et soudés font une pointe correcte, en moins bien trempé."
     ]
+  },
+  "notes": [
+    "Prévenir le groupe avant de les répandre. La moitié des blessures causées par des chausse-trappes le sont chez les alliés.",
+    "Semées devant une porte que l'on referme, elles valent trois tours de répit. Semées au hasard, elles ne valent rien."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "filet-leste",
+          "collection": "equipment",
+          "label": "Filet lesté"
+        }
+      ]
+    }
+  ]
 }

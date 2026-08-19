@@ -1,5 +1,6 @@
 {
   "name": "Dague",
+  "material": "acier",
   "subtitle": "Lame courte, rapide et discrète",
   "image": "/resources/media/pictures/weapons/dagger.png",
   "description": [
@@ -10,8 +11,16 @@
   "minDamage": 2,
   "maxDamage": 5,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "0,5 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,5 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Légère et dissimulable",

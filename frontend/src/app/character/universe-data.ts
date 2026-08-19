@@ -7,6 +7,8 @@ import {
   ClassDef,
   BackgroundDef,
   TraitDef,
+  PoolKey,
+  SurvivalKey,
 } from './character.types';
 import fireDomain from '../../../public/resources/json/domains/fire.json';
 import waterDomain from '../../../public/resources/json/domains/water.json';
@@ -21,6 +23,9 @@ import deathDomain from '../../../public/resources/json/domains/death.json';
 import timeDomain from '../../../public/resources/json/domains/time.json';
 import spaceDomain from '../../../public/resources/json/domains/space.json';
 import combinationsCatalog from '../../../public/resources/json/domains/combinations.json';
+import weaponCategoryCatalog from '../../../public/resources/json/weapon_category.json';
+import armorCategoryCatalog from '../../../public/resources/json/armor_category.json';
+import { ArmorCategoryDef, WeaponCategoryDef } from '../wiki.types';
 
 /** Les 12 domaines de magie de Mystaria — servent d'« écoles » sur la fiche.
  *  sigils & slugs repris de views/magics/magics.html. */
@@ -212,6 +217,152 @@ export const SKILLS: { key: string; label: string; attribute: AttributeKey }[] =
 const SKILL_BY_KEY = new Map(SKILLS.map((s) => [s.key, s]));
 export const skillLabel = (key: string): string => SKILL_BY_KEY.get(key)?.label ?? key;
 
+/* ── Maîtrises (armes & armures) ──────────────────────────────────────────── */
+
+/** Catégories d'armes du jeu, dans l'ordre du dataset. */
+export const WEAPON_CATEGORIES = weaponCategoryCatalog.weapon_categories as WeaponCategoryDef[];
+
+/** Catégories d'armures du jeu, dans l'ordre du dataset. */
+export const ARMOR_CATEGORIES = armorCategoryCatalog.armor_categories as ArmorCategoryDef[];
+
+/**
+ * Catégories d'armure qui s'apprennent — les seules qu'on propose à la saisie.
+ * Les vêtements en sont exclus : ils se portent, ils ne se maîtrisent pas.
+ */
+export const LEARNABLE_ARMOR_CATEGORIES = ARMOR_CATEGORIES.filter((c) => c.requiresProficiency);
+
+const WEAPON_CATEGORY_BY_KEY = new Map(WEAPON_CATEGORIES.map((c) => [c.key as string, c]));
+const ARMOR_CATEGORY_BY_KEY = new Map(ARMOR_CATEGORIES.map((c) => [c.key as string, c]));
+
+/** Libellé d'une catégorie d'arme — la clé telle quelle si elle est inconnue
+ *  (une maîtrise ajoutée à la main peut être du texte libre). */
+export const weaponCategoryName = (key: string): string =>
+  WEAPON_CATEGORY_BY_KEY.get(key)?.name ?? key;
+
+/** Libellé d'une catégorie d'armure, même repli que `weaponCategoryName`. */
+export const armorCategoryName = (key: string): string =>
+  ARMOR_CATEGORY_BY_KEY.get(key)?.name ?? key;
+
+/** Détail d'une catégorie d'armure, pour l'infobulle (absent si texte libre). */
+export const armorCategory = (key: string): ArmorCategoryDef | undefined =>
+  ARMOR_CATEGORY_BY_KEY.get(key);
+
+/** Détail d'une catégorie d'arme, pour l'infobulle (absent si texte libre). */
+export const weaponCategory = (key: string): WeaponCategoryDef | undefined =>
+  WEAPON_CATEGORY_BY_KEY.get(key);
+
+/**
+ * Mains que réclame une catégorie d'arme. Une par défaut : une arme inconnue
+ * (maîtrise saisie à la main, fiche sans catégorie) ne doit pas confisquer une
+ * main qu'on ne lui a jamais donnée.
+ */
+export const weaponHandling = (key: string | undefined): number =>
+  (key ? WEAPON_CATEGORY_BY_KEY.get(key)?.handling : undefined) ?? 1;
+
+/**
+ * L'arme prend-elle les DEUX mains ?
+ *
+ * Une seule définition, parce que trois endroits en dépendent et qu'ils doivent
+ * répondre pareil : la fiche (qui interdit d'équiper une main faible), la
+ * fabrique de combattants (qui ne lui fabrique pas de capacité) et le moteur
+ * (qui la refuse). Une claymore ne laisse pas de main pour un bouclier.
+ */
+export const isTwoHanded = (key: string | undefined): boolean => weaponHandling(key) === 2;
+
+/**
+ * Une maîtrise affichée sur la fiche, avec sa provenance : la classe l'accorde
+ * d'office, ou la table l'a ajoutée à la main. La distinction n'est pas
+ * décorative — changer de classe redistribue les premières et laisse les
+ * secondes en place.
+ */
+export interface Proficiency {
+  key: string;
+  label: string;
+  source: 'class' | 'manual';
+}
+
+/** Fusionne accordé-par-la-classe et ajouté-à-la-main, sans doublon, la classe d'abord. */
+function mergeProficiencies(
+  fromClass: string[] | undefined,
+  extra: string[] | undefined,
+  label: (key: string) => string,
+): Proficiency[] {
+  const out: Proficiency[] = [];
+  const seen = new Set<string>();
+  for (const key of fromClass ?? []) {
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ key, label: label(key), source: 'class' });
+  }
+  for (const key of extra ?? []) {
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ key, label: label(key), source: 'manual' });
+  }
+  return out;
+}
+
+/** Armes maîtrisées par le personnage : celles de sa classe, plus les siennes. */
+export const weaponProficiencies = (
+  klass: ClassDef | undefined,
+  sheet: CharacterSheet,
+): Proficiency[] =>
+  mergeProficiencies(klass?.weaponProficiencies, sheet.extraWeaponProficiencies, weaponCategoryName);
+
+/** Armures maîtrisées par le personnage : celles de sa classe, plus les siennes. */
+export const armorProficiencies = (
+  klass: ClassDef | undefined,
+  sheet: CharacterSheet,
+): Proficiency[] =>
+  mergeProficiencies(klass?.armorProficiencies, sheet.extraArmorProficiencies, armorCategoryName);
+
+/**
+ * Résout une saisie libre en clé de catégorie : « Hache », « hache », « axe »
+ * donnent tous `axe`. Rend le texte nettoyé quand rien ne correspond — une
+ * table qui invente sa catégorie doit pouvoir l'écrire.
+ */
+function resolveCategory(input: string, catalog: { key: string; name: string }[]): string {
+  const raw = input.trim();
+  if (!raw) return '';
+  const target = foldCase(raw);
+  const hit = catalog.find((c) => foldCase(c.key) === target || foldCase(c.name) === target);
+  return hit ? hit.key : raw;
+}
+
+/** Minuscules sans accents : « Épée longue » et « epee longue » se valent. */
+const foldCase = (s: string): string =>
+  s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+/** Saisie libre → clé de catégorie d'arme (ou texte nettoyé). */
+export const resolveWeaponCategory = (input: string): string =>
+  resolveCategory(input, WEAPON_CATEGORIES);
+
+/** Saisie libre → clé de catégorie d'armure (ou texte nettoyé). On ne résout
+ *  que sur les catégories qui s'apprennent : « maîtriser les vêtements » n'a
+ *  pas de sens, et laisser la saisie y tomber en donnerait l'illusion. */
+export const resolveArmorCategory = (input: string): string =>
+  resolveCategory(input, LEARNABLE_ARMOR_CATEGORIES);
+
+/**
+ * Verdict porté sur une pièce portée : le personnage sait-il s'en servir ?
+ *
+ * - `clothing` : ce n'est pas une armure, la question ne se pose pas ;
+ * - `unknown` : la fiche du set n'annonce pas sa catégorie (donnée manquante),
+ *   et on préfère se taire plutôt qu'accuser à tort ;
+ * - sinon, la catégorie figure ou non parmi les maîtrises du porteur.
+ */
+export type ArmorMastery = 'mastered' | 'unmastered' | 'clothing' | 'unknown';
+
+export function armorMastery(
+  categoryKey: string | undefined,
+  mastered: Proficiency[],
+): ArmorMastery {
+  if (!categoryKey) return 'unknown';
+  const def = ARMOR_CATEGORY_BY_KEY.get(categoryKey);
+  if (def && !def.requiresProficiency) return 'clothing';
+  return mastered.some((p) => p.key === categoryKey) ? 'mastered' : 'unmastered';
+}
+
 /** Une statistique : libellé + chemin SVG (viewBox 0 0 24 24, tracé « stroke »). */
 export interface StatDef {
   key: StatKey;
@@ -270,6 +421,165 @@ export const BAR_STATS = STATS.filter((s) => s.key !== 'def_phy' && s.key !== 'd
 /** Les deux défenses, affichées en deux icônes empilées (pas de barre). */
 export const DEFENSE_STATS = STATS.filter((s) => s.key === 'def_phy' || s.key === 'def_mag');
 
+/* ── Survie : faim & soif ─────────────────────────────────────────────────── */
+
+/**
+ * Une jauge de survie.
+ *
+ * Faim et soif ne se calculent pas comme les statistiques : ce sont des
+ * compteurs que la table coche au fil des jours de voyage. D'où l'affichage en
+ * CRANS (un cran = un jour de réserve) et non en barre continue — personne
+ * n'estime « 43 % de soif », on raye un cran le soir venu.
+ */
+export interface SurvivalGauge {
+  key: SurvivalKey;
+  label: string;
+  icon: string;
+  /** Nombre de crans, soit la réserve maximale en jours. */
+  segments: number;
+  /** Verdicts du plus vide au plus plein ; le dernier vaut « jauge pleine ». */
+  stages: string[];
+}
+
+/**
+ * Les trois jauges, de la plus longue laisse à la plus courte. On tient bien
+ * plus longtemps le ventre vide que les yeux ouverts, et les yeux ouverts plus
+ * longtemps que la gorge sèche : c'est ce que disent leurs nombres de crans.
+ */
+export const SURVIVAL_GAUGES: SurvivalGauge[] = [
+  {
+    key: 'hunger',
+    label: 'Faim',
+    // Écuelle fumante.
+    icon: 'M3 12h18a9 9 0 0 1-18 0zM9 3v2M12 2v3M15 3v2',
+    segments: 6,
+    stages: ['Affamé', 'Le ventre creux', 'Sur sa faim', 'Rassasié'],
+  },
+  {
+    key: 'rest',
+    label: 'Sommeil',
+    // Croissant de lune.
+    icon: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',
+    segments: 5,
+    stages: ['Épuisé', 'Harassé', 'Fatigué', 'Frais et dispos'],
+  },
+  {
+    key: 'thirst',
+    label: 'Soif',
+    // Gobelet et son niveau d'eau.
+    icon: 'M6 4h12l-1.2 15.1A2 2 0 0 1 14.8 21H9.2a2 2 0 0 1-2-1.9zM6.6 9h10.8',
+    segments: 4,
+    stages: ['Déshydraté', 'Assoiffé', 'La gorge sèche', 'Désaltéré'],
+  },
+];
+
+/** Ramène une valeur reçue dans les bornes de la jauge (entier, 0 → segments). */
+export const clampSurvival = (gauge: SurvivalGauge, value: unknown): number =>
+  Math.max(0, Math.min(gauge.segments, Math.round(Number(value) || 0)));
+
+/** Jauges pleines — état de départ d'une fiche neuve. */
+export const fullSurvival = (): Record<SurvivalKey, number> =>
+  Object.fromEntries(SURVIVAL_GAUGES.map((g) => [g.key, g.segments])) as Record<
+    SurvivalKey,
+    number
+  >;
+
+/**
+ * Verdict correspondant au nombre de crans restants. Les crans intermédiaires
+ * se répartissent sur les verdicts situés entre « vide » et « plein », pour que
+ * la même liste serve des jauges de longueurs différentes.
+ */
+export function survivalStage(gauge: SurvivalGauge, value: number): string {
+  const filled = clampSurvival(gauge, value);
+  if (filled <= 0) return gauge.stages[0];
+  if (filled >= gauge.segments) return gauge.stages[gauge.stages.length - 1];
+  const inner = gauge.stages.length - 2; // verdicts disponibles entre les deux extrêmes
+  const ratio = (filled - 1) / Math.max(1, gauge.segments - 1);
+  return gauge.stages[Math.min(inner, 1 + Math.floor(ratio * inner))];
+}
+
+/* ── Réserves : points de vie, endurance, mana ────────────────────────────── */
+
+/**
+ * Une réserve qui fluctue en jeu.
+ *
+ * Points de vie, endurance et mana ne sont pas des statistiques comme les
+ * autres. Leur MAXIMUM se calcule (race, classe, niveau, équipement) et se
+ * relit à chaque affichage ; leur NIVEAU du moment, lui, ne se déduit de rien —
+ * une blessure, un souffle coupé, un sort lancé appartiennent à la partie. La
+ * fiche les affiche donc en barre partiellement remplie, et n'en garde que le
+ * creux (cf. `CharacterSheet.poolLoss`).
+ */
+export interface PoolGauge {
+  key: PoolKey;
+  label: string;
+  /** Nom court, pour les résumés d'une ligne (« pv », « endurance »…). */
+  short: string;
+  icon: string;
+  /** Verdicts du plus vide au plus plein, comme pour les jauges de survie. */
+  stages: string[];
+}
+
+const STAT_ICON = (key: StatKey): string => STATS.find((s) => s.key === key)?.icon ?? '';
+
+/**
+ * Les trois réserves, dans l'ordre où on les regarde à la table : ce qui tue
+ * d'abord, ce qui s'épuise ensuite, ce qui se dépense enfin.
+ */
+export const POOL_GAUGES: PoolGauge[] = [
+  {
+    key: 'hp',
+    label: 'Points de vie',
+    short: 'pv',
+    icon: STAT_ICON('hp'),
+    stages: ['À terre', 'Au plus mal', 'Blessé', 'Éraflé', 'Indemne'],
+  },
+  {
+    key: 'endurance',
+    label: 'Endurance',
+    short: 'endurance',
+    icon: STAT_ICON('endurance'),
+    stages: ['À bout de souffle', 'Essoufflé', 'Le souffle court', 'D’attaque'],
+  },
+  {
+    key: 'mana',
+    label: 'Mana',
+    short: 'mana',
+    icon: STAT_ICON('mana'),
+    stages: ['À sec', 'Presque à sec', 'Entamé', 'Plein'],
+  },
+];
+
+/**
+ * Ramène un creux dans les bornes de la réserve : entier, entre 0 (à plein) et
+ * le maximum (à zéro). Un maximum qui aurait baissé depuis la dernière séance
+ * rogne le creux d'autant, plutôt que de rendre un niveau négatif.
+ */
+export const clampPoolLoss = (max: number, value: unknown): number =>
+  Math.max(0, Math.min(Math.max(0, Math.round(max)), Math.round(Number(value) || 0)));
+
+/** Aucun creux : les trois réserves à plein (fiche neuve, ou pleine forme). */
+export const noPoolLoss = (): Record<PoolKey, number> =>
+  Object.fromEntries(POOL_GAUGES.map((g) => [g.key, 0])) as Record<PoolKey, number>;
+
+/** Niveau courant d'une réserve, creux stocké déduit du maximum calculé. */
+export const poolCurrent = (max: number, loss: unknown): number =>
+  Math.max(0, Math.round(max)) - clampPoolLoss(max, loss);
+
+/**
+ * Verdict correspondant au niveau courant. Même répartition que
+ * `survivalStage` : les verdicts intermédiaires se partagent tout ce qui n'est
+ * ni le plein ni le zéro, pour que la liste serve des réserves de toutes
+ * tailles.
+ */
+export function poolStage(gauge: PoolGauge, current: number, max: number): string {
+  if (current <= 0 || max <= 0) return gauge.stages[0];
+  if (current >= max) return gauge.stages[gauge.stages.length - 1];
+  const inner = gauge.stages.length - 2;
+  const ratio = (current - 1) / Math.max(1, max - 1);
+  return gauge.stages[Math.min(inner, 1 + Math.floor(ratio * inner))];
+}
+
 /** Petite étoile décorative ajoutée à l'icône de défense magique. */
 export const MAGIC_DEFENSE_SPARK = 'M12 8.2l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z';
 
@@ -306,6 +616,22 @@ export const purseDelta = (base: number, total: number): number =>
 /* ── Expérience et niveaux ────────────────────────────────────────────────── */
 
 /** Niveau maximal atteignable. */
+/**
+ * Bonus de maîtrise à un niveau donné : `2 + ⌊(niveau − 1) / 4⌋`.
+ *
+ * C'est la SEULE progression de précision du jeu, et elle est conditionnelle :
+ * elle ne s'applique qu'aux armes que le personnage sait manier — celles de sa
+ * classe (`ClassDef.weaponProficiencies`) et celles apprises en partie
+ * (`CharacterSheet.extraWeaponProficiencies`). Un vétéran est meilleur que le
+ * débutant avec l'épée qu'il a passé vingt ans à porter — pas avec l'arc qu'il
+ * ramasse.
+ *
+ * Même forme que celle du bestiaire (`2 + ⌊FP / 4⌋`), pour qu'un héros de
+ * niveau 20 vise aussi bien qu'un monstre de son rang.
+ */
+export const proficiencyForLevel = (level: number): number =>
+  2 + Math.floor((Math.max(1, level) - 1) / 4);
+
 export const MAX_LEVEL = 20;
 /** Coût en XP du tout premier palier (niveau 1 → 2). */
 export const XP_FIRST_STEP = 250;
@@ -465,11 +791,15 @@ export function emptySheet(): CharacterSheet {
       sagesse: -1,
       charisme: -1,
     },
+    survival: fullSurvival(),
+    poolLoss: noPoolLoss(),
     statMode: 'random',
     statSeed: randomSeed(),
     proficiencyBonus: 2,
     skills: [],
     spells: { unlocked: [], equipped: [], nodes: {} },
+    extraWeaponProficiencies: [],
+    extraArmorProficiencies: [],
     goldDelta: 0,
     inventory: [],
     equipment: Object.fromEntries(EQUIPMENT_SLOTS.map((s) => [s.key, ''])),

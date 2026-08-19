@@ -13,11 +13,21 @@ import {
 } from '../character/character.types';
 import {
   abilityModifier,
+  backgroundSkillBonuses,
   computeAttributes,
+  computeGold,
   computeStats,
   EQUIPMENT_SLOTS,
+  isTwoHanded,
+  poolCurrent,
   grantedTraits,
+  proficiencyForLevel,
+  purseTotal,
+  SKILLS,
 } from '../character/universe-data';
+import { LootDrop } from './loot';
+import { survivalFromNotches } from './survival';
+import { isProficientWith } from './rules';
 import { SpellsService } from '../services/spells.service';
 import { StatusEffectsService } from '../services/status-effects.service';
 import { WikiLoaderService } from '../services/wiki-loader-service';
@@ -45,6 +55,7 @@ import {
   weaponAbility,
   WeaponSource,
 } from './abilities';
+import { isFerromagnetic } from './materials';
 import {
   Affinities,
   CarriedItem,
@@ -70,6 +81,12 @@ const WEAPON_COLLECTIONS = ['weapons/melee', 'weapons/ranged'];
 const ARMOR_COLLECTIONS = ['weapons/armor', 'weapons/shield'];
 const AMMUNITION_COLLECTION = 'weapons/ammunition';
 const POTION_COLLECTION = 'potions';
+/**
+ * Objets courants. Chargé pour une seule raison : savoir ce qui, dans un sac,
+ * est en fer — donc ce qu'un champ magnétique peut arracher ou projeter.
+ * L'index suffit, il porte le poids et le drapeau ; inutile d'ouvrir 46 fiches.
+ */
+const GEAR_COLLECTION = 'equipment';
 
 /**
  * Munitions accordées d'office quand la fiche n'en porte pas au sac.
@@ -78,6 +95,11 @@ const POTION_COLLECTION = 'potions';
  * tirer, on part d'un carquois plein — et le décompte, lui, est bien réel.
  */
 const DEFAULT_AMMO_QTY = 20;
+
+/** Les deux emplacements que la fiche tient EN MAIN, dans l'ordre de lecture. */
+const MAIN_HAND_SLOT = 'weapon';
+const OFFHAND_SLOT = 'offhand';
+const HAND_SLOTS = [MAIN_HAND_SLOT, OFFHAND_SLOT];
 
 /** Emplacement d'une pièce d'armure → emplacement d'équipement de la fiche. */
 const PIECE_TO_EQUIP_SLOT: Record<string, string> = {
@@ -138,6 +160,14 @@ interface EquipmentStat {
   /** Résistances/faiblesses accordées par le set dont la pièce provient. */
   resistances: string[];
   weaknesses: string[];
+  /** Matière du set (clé de `materials.json`), s'il en a une. */
+  material?: string;
+}
+
+/** Ce que le catalogue des objets courants apporte au sac. */
+interface GearStat {
+  material?: string;
+  weightKg?: number;
 }
 
 let counter = 0;
@@ -163,6 +193,8 @@ export class CombatantFactory {
   );
   /** Pièces d'équipement (défenses + affinités), indexées par nom. */
   private readonly equipmentByName = new Map<string, EquipmentStat>();
+  /** Objets courants (métal, poids), indexés par nom, pour lire les sacs. */
+  private readonly gearByName = new Map<string, GearStat>();
 
   private readonly races = signal<RaceDef[]>([]);
   private readonly classes = signal<ClassDef[]>([]);
@@ -193,6 +225,7 @@ export class CombatantFactory {
                         minDamage: w.minDamage ?? e.minDamage ?? 1,
                         maxDamage: w.maxDamage ?? e.maxDamage ?? 3,
                         weaponCategory: w.weaponCategory ?? e.weaponCategory,
+                        material: w.material ?? e.material,
                       })),
                       catchError(() => of(null)),
                     ),
@@ -257,16 +290,21 @@ export class CombatantFactory {
       map((list) => list.filter((p): p is ConsumableSource => !!p)),
     );
 
+    const gear$ = this.wiki
+      .loadAll<ResourceIndexEntry>(GEAR_COLLECTION)
+      .pipe(catchError(() => of([] as ResourceIndexEntry[])));
+
     return forkJoin([
       weapons$,
       armor$,
       ammunition$,
       potions$,
+      gear$,
       this.wiki.load<RaceDef[]>('characters', 'races').pipe(catchError(() => of([]))),
       this.wiki.load<ClassDef[]>('characters', 'classes').pipe(catchError(() => of([]))),
       this.wiki.load<BackgroundDef[]>('characters', 'backgrounds').pipe(catchError(() => of([]))),
     ]).pipe(
-      tap(([weapons, armors, ammunition, potions, races, classes, backgrounds]) => {
+      tap(([weapons, armors, ammunition, potions, gear, races, classes, backgrounds]) => {
         for (const potion of potions) this.consumablesByName.set(potion.name, potion);
         for (const weapon of weapons) this.weaponsByName.set(weapon.name, weapon);
         this.ammunition.length = 0;
@@ -286,8 +324,21 @@ export class CombatantFactory {
               magicalProtection: piece.magicalProtection ?? 0,
               resistances: set.resistances ?? [],
               weaknesses: set.weaknesses ?? [],
+              // La matière se déclare sur le SET, pas sur la pièce : une cotte
+              // de mailles est de fer de la coiffe aux solerets.
+              material: set.material,
             });
           }
+        }
+        for (const item of gear) {
+          this.gearByName.set(item.name, { material: item.material, weightKg: item.weight });
+        }
+        // Les munitions viennent de leur propre catalogue : une flèche est en
+        // fer, une bille de fronde en plomb — donc hors catalogue, donc hors de
+        // portée d'un aimant. Sans poids déclaré : un projectile se lance à
+        // l'unité, sa masse ne décide de rien.
+        for (const ammo of ammunition) {
+          this.gearByName.set(ammo.name, { material: ammo.material });
         }
         this.races.set(races);
         this.classes.set(classes);
@@ -316,12 +367,18 @@ export class CombatantFactory {
     const stats = computeStats(sheet, race, klass, traits, attributes);
 
     // Les défenses ne viennent que du porté : on ajoute l'armure équipée, comme
-    // le fait la fiche.
+    // le fait la fiche. Une arme à deux mains fait sauter tout l'emplacement de
+    // la main faible — bouclier compris : on ne pare pas avec un poing qui
+    // tient déjà un manche.
     const affinities = EMPTY_AFFINITIES();
+    const bothHands = this.bothHandsTaken(sheet);
+    let metallicArmor = false;
     for (const slot of EQUIPMENT_SLOTS) {
+      if (bothHands && slot.key === OFFHAND_SLOT) continue;
       const name = sheet.equipment[slot.key];
       const piece = name ? this.equipmentByName.get(name) : undefined;
       if (!piece) continue;
+      if (isFerromagnetic(piece.material)) metallicArmor = true;
       stats.def_phy += piece.physicalArmor;
       stats.def_mag += piece.magicalProtection;
       for (const r of piece.resistances) if (!affinities.resistances.includes(r)) affinities.resistances.push(r);
@@ -342,19 +399,59 @@ export class CombatantFactory {
       pos,
       base: stats,
       attributes,
-      proficiency: sheet.proficiencyBonus ?? 2,
-      hp: stats.hp,
-      mana: stats.mana,
-      endurance: stats.endurance,
+      // Dérivée du niveau, pas relue de la fiche : le champ stocké valait 2
+      // pour tout le monde, du niveau 1 au niveau 20, et gelait la seule
+      // progression de précision du jeu.
+      proficiency: proficiencyForLevel(sheet.level),
+      skills: skillBonuses(sheet, background, attributes, proficiencyForLevel(sheet.level)),
+      // Nager s'apprend : on retient l'Athlétisme, la compétence qui porte déjà
+      // grimper, sauter et se hisser. Le MJ rectifie d'un clic si sa table en
+      // décide autrement.
+      canSwim: (sheet.skills ?? []).includes('athletism'),
+      // Les réserves reprennent là où la fiche les a laissées : un personnage
+      // blessé arrive blessé, un mage à sec arrive à sec. La fiche n'en stocke
+      // que le creux (cf. `poolLoss`), le maximum est celui qu'on vient de
+      // recalculer.
+      //
+      // Les PV ne descendent pas sous 1 : on pose sur la table un personnage
+      // qui joue, pas un corps. Un pion tombé au combat sort de la séance à 0
+      // et sa fiche le dit ; c'est au MJ de trancher ce qu'il en advient avant
+      // la suivante.
+      hp: Math.max(1, poolCurrent(stats.hp, sheet.poolLoss?.hp)),
+      mana: poolCurrent(stats.mana, sheet.poolLoss?.mana),
+      endurance: poolCurrent(stats.endurance, sheet.poolLoss?.endurance),
       winded: false,
       moved: 0,
       actionUsed: false,
+      bonusActionUsed: false,
       reactionUsed: false,
       statuses: [],
       effects: [],
       abilities: this.sheetAbilities(sheet, klass, inventory),
       inventory,
       affinities,
+      metallicArmor,
+      // Ce que le personnage a APPRIS à manier : sa classe, plus ses maîtrises
+      // supplémentaires. C'est ce qui permet de rejuger la maîtrise quand une
+      // arme change de main en plein combat.
+      weaponProficiencies: [
+        ...(klass?.weaponProficiencies ?? []),
+        ...(sheet.extraWeaponProficiencies ?? []),
+      ],
+      // Ce que le personnage sait façonner. Figé à l'ajout comme le reste : une
+      // étude menée entre deux séances ne change pas un combat en cours.
+      earthMaterials: sheet.earthMaterials
+        ? {
+            studied: [...(sheet.earthMaterials.studied ?? [])],
+            known: [...(sheet.earthMaterials.known ?? [])],
+            equipped: sheet.earthMaterials.equipped,
+          }
+        : undefined,
+      // Les jauges suivent le voyage, elles : la fiche les stocke en crans, la
+      // table les reprend là où la dernière séance les avait laissées.
+      survival: survivalFromNotches(sheet.survival),
+      purse: purseTotal(computeGold(sheet, background), sheet.goldDelta ?? 0),
+      purseBase: computeGold(sheet, background),
       initiative: 0,
       down: false,
     };
@@ -365,24 +462,59 @@ export class CombatantFactory {
    * classée selon ce que le wiki en dit (munition, consommable, bagage). Un
    * carquois est ajouté d'office pour une arme à projectile qui n'en a pas.
    */
+  /**
+   * L'arme de main principale de la fiche prend-elle les deux mains ?
+   *
+   * Quand elle les prend, TOUT l'emplacement de la main faible est ignoré :
+   * l'arme secondaire ne devient pas une capacité, le bouclier ne protège pas,
+   * son carquois n'est pas fourni. Une vieille fiche peut très bien porter les
+   * deux — l'éditeur ne l'interdisait pas — et il vaut mieux ignorer ce qui ne
+   * peut pas être tenu que de le laisser jouer.
+   */
+  private bothHandsTaken(sheet: CharacterSheet): boolean {
+    const name = sheet.equipment[MAIN_HAND_SLOT];
+    const weapon = name ? this.weaponsByName.get(name) : undefined;
+    return isTwoHanded(weapon?.weaponCategory);
+  }
+
   private carriedFrom(sheet: CharacterSheet): CarriedItem[] {
     const carried: CarriedItem[] = (sheet.inventory ?? []).map((line) => {
       const ammo = this.ammunition.find((a) => a.name === line.name);
       const potion = this.consumablesByName.get(line.name);
+      const gear = this.gearByName.get(line.name);
+      // Une arme rangée au sac reste une arme : on lui prépare sa capacité pour
+      // qu'elle puisse être prise en main sans que le moteur ait à retrouver un
+      // catalogue qui, lui, arrive par le réseau.
+      const arme = this.weaponsByName.get(line.name);
       return {
         name: line.name,
         qty: Math.max(0, Math.round(line.qty ?? 0)),
         slug: potion?.slug,
         kind: ammo ? 'ammunition' : potion ? 'consumable' : 'other',
+        weapon: arme ? { source: arme, ammo: this.ammunitionFor(arme) } : undefined,
+        // Ce que le catalogue en dit. Une ligne de sac écrite à la main et
+        // reconnue par personne n'a pas de matière : on ne la devine pas
+        // d'après un nom libre.
+        material: gear?.material,
+        metallic: isFerromagnetic(gear?.material),
+        weightKg: gear?.weightKg,
       };
     });
 
-    for (const slot of ['weapon', 'offhand']) {
+    const bothHands = this.bothHandsTaken(sheet);
+    for (const slot of HAND_SLOTS) {
+      if (bothHands && slot === OFFHAND_SLOT) continue;
       const name = sheet.equipment[slot];
       const weapon = name ? this.weaponsByName.get(name) : undefined;
       const ammo = weapon ? this.ammunitionFor(weapon) : undefined;
       if (!ammo || carried.some((c) => c.name === ammo.name)) continue;
-      carried.push({ name: ammo.name, qty: DEFAULT_AMMO_QTY, kind: 'ammunition' });
+      carried.push({
+        name: ammo.name,
+        qty: DEFAULT_AMMO_QTY,
+        kind: 'ammunition',
+        material: this.gearByName.get(ammo.name)?.material,
+        metallic: isFerromagnetic(this.gearByName.get(ammo.name)?.material),
+      });
     }
     return carried;
   }
@@ -400,21 +532,34 @@ export class CombatantFactory {
   ): CombatAbility[] {
     const abilities: CombatAbility[] = [];
 
-    for (const slot of ['weapon', 'offhand']) {
+    // Une arme à deux mains ne laisse rien à la main faible : elle n'a pas de
+    // capacité, donc rien à jouer en action bonus.
+    const bothHands = this.bothHandsTaken(sheet);
+    for (const slot of HAND_SLOTS) {
+      if (bothHands && slot === OFFHAND_SLOT) continue;
       const name = sheet.equipment[slot];
       const weapon = name ? this.weaponsByName.get(name) : undefined;
       if (!weapon) continue;
       const ammo = this.ammunitionFor(weapon);
-      const ability = weaponAbility(weapon, slot, ammo);
-      // Une arme à projectile puise dans le carquois : c'est ce qui rend le
-      // décompte des munitions effectif plutôt qu'informatif.
-      if (ammo) ability.consumes = { item: ammo.name, qty: 1 };
+      // La maîtrise ne vaut que pour ce que la classe sait manier : ramasser
+      // l'arc d'un mort ne donne pas vingt ans d'entraînement à l'arc.
+      const ability = weaponAbility(
+        weapon,
+        slot,
+        ammo,
+        isProficientWith(klass, weapon.weaponCategory, sheet.extraWeaponProficiencies),
+      );
+      // Le décompte des munitions est posé par `weaponAbility` : il doit valoir
+      // pour toute arme qui arrive en main, pas seulement pour celles que cette
+      // fabrique équipe.
       abilities.push(ability);
     }
     // Le poing est toujours là : armé ou non, on peut frapper. C'est aussi le
     // recours quand le carquois est vide ou l'arme hors de portée. Sa puissance
     // dépend de la classe — le pugiliste en fait son arme.
-    abilities.push(unarmedAbility(unarmedRatioFor(klass?.key)));
+    // Le pugiliste maîtrise ses poings — c'est son arme, et la seule que sa
+    // classe revendique. Pour les autres, frapper de la main reste un pis-aller.
+    abilities.push(unarmedAbility(unarmedRatioFor(klass?.key), klass?.key === 'pugilist'));
     // Se couvrir est toujours une option : c'est ce qui rend un mauvais tour
     // jouable au lieu d'être perdu.
     abilities.push(guardAbility());
@@ -546,6 +691,7 @@ export class CombatantFactory {
       winded: false,
       moved: 0,
       actionUsed: false,
+      bonusActionUsed: false,
       reactionUsed: false,
       statuses: [],
       effects: [],
@@ -553,6 +699,13 @@ export class CombatantFactory {
       // Une bête ne porte pas de sac : ce qu'elle rend se ramasse après coup
       // (cf. `loot` de la fiche), ça ne se consomme pas en combat.
       inventory: [],
+      // Sa table de butin voyage avec elle, non jetée. Le moteur est du
+      // TypeScript pur : il ne peut pas aller relire le bestiaire au moment où
+      // le groupe fouille le corps.
+      lootTable: lootTableOf(entry),
+      // Ce qui vit dans l'eau y nage. Faute d'un champ dédié au bestiaire, on
+      // lit son habitat : c'est déjà ce qui dit où on la rencontre.
+      canSwim: (entry.habitat ?? []).some((h) => AQUATIC_HABITATS.has(h.ref)),
       affinities,
       initiative: 0,
       down: false,
@@ -561,4 +714,56 @@ export class CombatantFactory {
       notes: traits.map((t) => `${t.name} — ${t.description}`).join('\n') || undefined,
     };
   }
+}
+
+/**
+ * Lieux dont on ne sort pas sans savoir nager. Une créature qui y vit sait donc
+ * traverser une eau profonde.
+ */
+const AQUATIC_HABITATS = new Set(['lac', 'riviere', 'marais']);
+
+/**
+ * Bonus de compétence d'un personnage, résolus une fois pour toutes.
+ *
+ * Même règle que la fiche — modificateur d'attribut, apport du background,
+ * maîtrise si la compétence est choisie — pour que la table et l'éditeur ne
+ * puissent pas diverger. La maîtrise vient du NIVEAU, comme partout ailleurs en
+ * combat, et non du champ figé à 2 que portaient les fiches anciennes.
+ */
+function skillBonuses(
+  sheet: CharacterSheet,
+  background: BackgroundDef | undefined,
+  attributes: Record<AttributeKey, number>,
+  proficiency: number,
+): Record<string, number> {
+  const fromBackground = backgroundSkillBonuses(background);
+  const chosen = new Set(sheet.skills ?? []);
+  const out: Record<string, number> = {};
+
+  for (const skill of SKILLS) {
+    out[skill.key] =
+      abilityModifier(attributes[skill.attribute]) +
+      (fromBackground.get(skill.key) ?? 0) +
+      (chosen.has(skill.key) ? proficiency : 0);
+  }
+  return out;
+}
+
+/**
+ * Table de butin d'une créature, recopiée du bestiaire vers le combattant.
+ *
+ * Le `label` d'une référence croisée est le nom affichable de la ressource ;
+ * quand il manque, le slug fait l'affaire — mieux vaut « croc-de-loup » dans le
+ * sac qu'une ligne sans nom.
+ */
+function lootTableOf(entry: BestiaryEntry): LootDrop[] | undefined {
+  const drops = (entry.loot ?? []).map((l) => ({
+    name: l.label || l.ref,
+    slug: l.ref,
+    collection: l.collection,
+    chance: l.chance,
+    min: l.min,
+    max: l.max,
+  }));
+  return drops.length ? drops : undefined;
 }

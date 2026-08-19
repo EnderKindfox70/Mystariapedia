@@ -5,6 +5,13 @@ chaque règle est ce qu'elle est. Il double la documentation qui vit dans le cod
 si les deux divergent, c'est le code qui fait foi — les constantes citées ici
 sont exportées et testées.
 
+Il ne couvre **que le combat** : la grille, le tour, les dégâts, les statuts. Ce
+qui se passe entre les bagarres — le temps qui s'écoule, la faim et la soif, la
+fouille des corps, le report sur les fiches — vit dans
+[`hors-combat.md`](hors-combat.md). On ne consulte pas les deux au même moment :
+au milieu d'un round on cherche une portée, au camp on cherche ce que coûte une
+nuit de marche.
+
 Le moteur vit dans [`frontend/src/app/combat/`](../frontend/src/app/combat/).
 Il est en TypeScript pur : ni Angular, ni réseau, ni horloge. La vue
 ([`views/combat/`](../frontend/src/app/views/combat/)) n'est qu'un pilote.
@@ -65,10 +72,60 @@ traverse mais cache, un gouffre se franchit du regard mais pas des pieds.
 | Mur, Rocher, Arbre | bloqué | bloquée | — |
 | Gouffre | bloqué | **libre** | — |
 | Fourré | **libre** | bloquée | ×2 |
-| Point d'eau, Boue, Ruines | libre | libre | ×2 |
+| Eau peu profonde, Boue, Ruines | libre | libre | ×2 |
+| **Eau profonde** | bloqué *sauf nageur* | libre | ×2 |
+| **Porte** | selon son état | selon son état | — |
 
 Les combattants bloquent le passage mais pas la vue — on ne surcharge pas la
 table de règles de couvert.
+
+### L'eau profonde et la nage
+
+« Infranchissable » et « infranchissable **pour toi** » sont deux choses
+différentes, et la seconde est ce qui rend une rivière intéressante à placer. Une
+quatrième propriété — `swimmable` — dit que le décor se franchit à la nage : il
+barre la route à tout le monde, sauf à qui sait nager, pour qui il redevient une
+simple gêne (×2, comme une flaque).
+
+**Qui sait nager ?** Un personnage entraîné en **Athlétisme** — la compétence qui
+porte déjà grimper, sauter et se hisser. Une créature dont l'habitat est un lac,
+une rivière ou un marais. Et quiconque le MJ désigne : la case se coche sur le
+combattant, parce que le moteur ne sait pas si ce marin d'eau douce se jetterait
+à l'eau.
+
+### Les portes
+
+Une porte n'est pas un mur : elle a un **état**, et cet état change en cours de
+partie. Fermée, elle barre la route et la vue ; ouverte ou enfoncée, la case
+redevient nue.
+
+L'état vit dans `features` (case → porte), **à côté** du décor et non dedans : le
+décor dit ce qu'*est* la case, l'état dit dans quelle position elle se trouve. Une
+carte reste ainsi une simple liste de cases, et un décor sans état ne coûte rien.
+
+Cliquer une porte **hors préparation** ouvre ses actions, là où un corps ouvrirait
+sa dépouille — c'est le même geste, appliqué au décor. Toutes exigent d'être **à
+portée du battant** (une case).
+
+| Action | Jet | Note |
+|---|---|---|
+| **Ouvrir / Refermer** | — | Refusé si verrouillée |
+| **Crocheter** | d20 + Escamotage contre 12 | **Exige des outils de crocheteur** dans le sac |
+| **Enfoncer** | d20 + Athlétisme contre 15 | La porte est **définitivement** ouverte |
+| **(Dé)verrouiller** | — | La main du MJ : sans jet ni distance |
+
+Les deux jets passent par le d20 et le `Rng` de la rencontre : une partie
+rechargée rejoue la même serrure. Les outils de crocheteur étaient jusqu'ici une
+ligne d'inventaire sans usage — les exiger est ce qui leur donne une valeur.
+
+Une porte **enfoncée** ne se referme plus et ne se verrouille plus jamais. C'est
+ce qui distingue le crochetage, discret et réversible, de l'épaule dans le
+battant.
+
+Le calcul de chemin n'a pas eu à apprendre tout cela : on lui présente une carte
+**déjà résolue** (`effectiveTerrain`), où les portes ouvertes ont disparu et où
+l'eau profonde est devenue une flaque pour le nageur qui avance. Une seule
+fonction à relire quand un décor gagne un état.
 
 Le catalogue vit dans [`terrain.ts`](../frontend/src/app/combat/terrain.ts) :
 ajouter un décor y tient en une entrée, sans toucher au moteur ni au CSS. Les
@@ -95,6 +152,38 @@ Le chemin est calculé par Dijkstra : on contourne les murs et les corps, on pai
 le terrain difficile. Le budget se décompte entre plusieurs déplacements d'un
 même tour.
 
+**Le trajet se voit, avant et pendant.** `reachableCells` retient la case d'où
+l'on arrive au meilleur prix (`from`), et `pathTo` la remonte pour rendre la
+route complète — `movementPath(enc, unit, to)` en est le raccourci.
+
+À l'écran, deux usages de la même route :
+
+- **au survol**, les cases du trajet s'allument, numérotées dans l'ordre de
+  marche. Une case verte disait qu'on pouvait aller là, pas par où — or c'est le
+  détour qui coûte, et on ne le découvrait qu'après avoir cliqué ;
+- **au déplacement**, le pion la parcourt case par case (110 ms le pas). Le vrai
+  pion est déjà à l'arrivée — l'état ne ment jamais — et c'est un calque qui
+  voyage à sa place.
+
+L'animation se déclenche en observant l'état plutôt que le clic : un pion bouge
+aussi quand le tacticien joue ou qu'une réaction le déplace.
+
+**C'est le moteur qui dit ce qui a marché**, via `Encounter.walked` — le trajet
+relevé par `resolveMove`, et par lui seul. Une téléportation ou un échange de
+place n'y laissent rien, donc pas de glissement : le pion paraît à l'arrivée.
+
+Le déduire d'un changement de case ne marchait pas, et l'erreur vaut d'être
+retenue : la case d'arrivée d'un pas dimensionnel est le plus souvent joignable
+à pied, donc « existe-t-il une route ? » répondait oui, et l'on voyait le pion
+**marcher** jusqu'à une case où il aurait dû sauter. Seule l'action sait ce
+qu'elle a fait ; la géométrie ne le devine pas.
+
+`walked` est effacé à l'ouverture de chaque action : le trajet appartient à
+l'action qui le produit.
+
+`prefers-reduced-motion: reduce` désactive le glissement, pas le trajet au
+survol.
+
 ---
 
 ## 3. Le tour
@@ -110,7 +199,7 @@ Les buffs de vitesse comptent : une hâte peut faire passer devant.
 
 ### Ce qui se passe à l'ouverture d'un tour
 
-1. Déplacement et action remis à neuf, **réaction rechargée**
+1. Déplacement, action et **action bonus** remis à neuf, **réaction rechargée**
 2. Récupération d'endurance
 3. Effets par tour des statuts (dégâts, soins)
 4. Jets de sauvegarde périodiques
@@ -125,7 +214,65 @@ redéclenche la météo.
 |---|---|
 | **Déplacement** | budget en mètres, décompté au fur et à mesure |
 | **Action** | une par tour |
+| **Action bonus** | une par tour, **réservée à l'arme secondaire et aux objets** |
 | **Réaction** | une par round, hors de son tour |
+
+### L'action bonus
+
+Le second créneau du tour. Il ne sert qu'à ce que la main principale ne fait
+pas : **frapper de la main faible** (l'arme du slot `offhand`) et **utiliser un
+objet du sac** (potions, fioles). Tout le reste — armes en main principale,
+sorts, compétences de classe, garde — se paie en action.
+
+**Les deux créneaux sont étanches.** L'action bonus non dépensée ne paie pas une
+attaque de plus, et l'action restante ne rachète pas un second usage d'objet.
+Sans cette étanchéité, porter une dague en main gauche reviendrait simplement à
+jouer deux fois par tour.
+
+Ce que la règle débloque, et qui n'existait pas :
+
+- **La double arme devient un choix.** Jusqu'ici la main faible n'était qu'une
+  arme de rechange : elle coûtait la même action que la main principale, donc on
+  ne la jouait jamais. Elle frappe maintenant *en plus*, ce qui est exactement ce
+  qu'on attend de deux armes.
+- **On boit ses potions.** Une fiole coûtait l'attaque du tour ; le calcul était
+  vite fait et l'inventaire ne servait à rien. Se soigner ne fait plus renoncer à
+  frapper.
+
+C'est la même arme qui décide : une dague vaut une **action** en main
+principale et une **action bonus** en main faible. Le moteur lit l'emplacement,
+pas la nature de l'arme.
+
+### Le maniement décide de ce qui reste
+
+Une arme **à deux mains** (`handling: 2` du catalogue de catégories : claymore,
+hache de bataille, arc long, arbalète…) prend les deux. Il ne reste donc **rien**
+pour la main faible : ni arme secondaire, ni bouclier, ni action bonus d'arme.
+
+La règle tient à trois endroits, qui disent tous la même chose :
+
+| Où | Ce qui se passe |
+|---|---|
+| **Fiche** | l'emplacement « Arme secondaire » est grisé, vidé, et ne propose plus rien |
+| **Fabrique** | aucune capacité de main faible n'est construite, le bouclier ne protège pas, son carquois n'est pas fourni |
+| **Moteur** | la capacité `weapon:offhand` est refusée : « tient X à deux mains » |
+
+Les trois sont nécessaires : une fiche enregistrée **avant** la règle peut porter
+les deux, et une rencontre se retouche à la main. On ignore alors ce qui ne peut
+pas être tenu plutôt que de le laisser jouer.
+
+> Une catégorie inconnue (arme sans catégorie, maîtrise saisie librement) compte
+> pour **une main** : on ne confisque pas une main qu'on n'a jamais donnée.
+
+**Le coup en plus se paie sur les dégâts.** Une arme jouée en main faible frappe
+**sans les 25 % d'attaque physique** : elle ne vaut que ses dés + le modificateur
+de l'attribut qui blesse (cf. § 6). Une arbalète de poing en main gauche fait
+donc 4–8 + mod. de Dextérité. Sans cette retenue, s'armer des deux mains
+reviendrait à doubler les dégâts du tour pour le seul prix d'une ligne
+d'équipement.
+
+Le tacticien la joue aussi : après son attaque, il fait parler la main gauche ou
+boit s'il en a besoin — mais il ne repart pas en approche pour autant.
 
 ### Les cinq familles d'action
 
@@ -247,10 +394,95 @@ l'écart entre deux niveaux se compterait deux fois.
 ```
 seuil = 8 − précision / 5                    borné 3 à 18
 précision = modificateur d'attribut × 4
-          + maîtrise × 2
           − esquive naturelle de la cible
           − gêne de tir
+
+seuil = 8 − précision / 5 − crans de maîtrise      borné 3 à 18
 ```
+
+### La maîtrise
+
+```
+maîtrise = 2 + ⌊(niveau − 1) / 4⌋
+```
+
+| Niveau | 1-4 | 5-8 | 9-12 | 13-16 | 17-20 |
+|---|---|---|---|---|---|
+| Maîtrise | 2 | 3 | 4 | 5 | 6 |
+
+**Un palier de maîtrise vaut UN CRAN de dé** — cinq points de pourcentage — et
+il s'ajoute au seuil **directement, sans passer par l'échelle fine**. C'est la
+seule contribution du jeu qui échappe à la conversion, et c'est délibéré :
+convertie comme le reste, elle ne valait que 0,4 cran par palier, l'arrondi
+avalait le reste, et monter de la maîtrise 2 à la maîtrise 4 **ne déplaçait pas
+le seuil d'un iota**. Une progression qu'on ne voit pas n'existe pas.
+
+**C'est la seule chose qui croît avec le niveau**, et elle est **conditionnelle** :
+elle ne s'applique qu'aux armes que la classe sait manier. Ramasser l'arc d'un
+mort ne donne pas vingt ans d'entraînement à l'arc — un guerrier de niveau 20
+vise donc à l'épée comme un vétéran, et à l'arc comme un débutant.
+
+Ce que ça donne pour un duelliste à la rapière (Dextérité 13) :
+
+| Niveau | 1-4 | 5-8 | 9-12 | 13-16 | 17-20 |
+|---|---|---|---|---|---|
+| Maîtrise | 2 | 3 | 4 | 5 | 6 |
+| Seuil | 7+ | 6+ | 5+ | 4+ | **3+** |
+
+Quatre crans entre le premier et le dernier niveau : vingt points de
+pourcentage, et ça se sent.
+
+| Classe | Sait manier | Sait porter |
+|---|---|---|
+| Guerrier | Épée longue, Lance, Épée à deux mains, Claymore | Légère, intermédiaire, lourde, bouclier |
+| Ranger | Arc court, Arc long, Arbalète, Arbalète de poing, Dague | Légère, intermédiaire |
+| Vagabond | Dague, Rapière, Arbalète, Arbalète de poing | Légère |
+| Mage | Bâton | Légère |
+| Pugiliste | **ses poings** — c'est son arme | aucune — il se bat sans rien sur la peau |
+
+Les listes vivent dans `classes.json` (`weaponProficiencies`, `armorProficiencies`) :
+ajouter une arme ou une armure à une classe est une ligne de données, pas une
+ligne de code. Les catégories d'armure sont décrites dans `armor_category.json`,
+comme les catégories d'armes le sont dans `weapon_category.json`, et **chaque set
+d'armure déclare la sienne** (`armorCategory`) — c'est ce qui permet à la fiche
+de dire, sous la pièce portée, si son porteur sait s'en servir.
+
+| Catégorie | Ce que ça recouvre | S'apprend ? |
+|---|---|---|
+| Vêtements | Toile, laine, soie — robes, tenues de métier | non |
+| Armure légère | Cuir souple, cuir bouilli, fourrure | oui |
+| Armure intermédiaire | Gambison rembourré, cuir clouté, écailles | oui |
+| Armure lourde | Cotte de mailles, plaques d'acier | oui |
+| Bouclier | Rondache, écu, pavois | oui |
+
+**Les vêtements ne se maîtrisent pas**, et c'est une catégorie à part entière
+plutôt qu'un cas particulier du code. La grande majorité des tenues du dépôt sont
+des habits de métier — robe d'érudit, tenue de fermier, habits d'héritier : les
+ranger en « armure légère » aurait fait dire à la fiche qu'un mage porte mal sa
+propre robe. La ligne passe à la matière : cuir et fourrure protègent et
+s'apprennent, l'étoffe habille.
+
+**Ce qui s'ajoute à la main.** La classe donne les maîtrises de départ, pas les
+seules possibles : la fiche porte deux listes d'appoint
+(`extraWeaponProficiencies`, `extraArmorProficiencies`) que la table remplit
+elle-même — un hiver passé chez un maître de hache, un entraînement gagné en
+partie. Une arme ainsi apprise compte au toucher exactement comme celle de la
+classe (cf. `isProficientWith`). On ne stocke que l'écart : retoucher
+`classes.json` continue donc de profiter aux fiches déjà écrites.
+
+La maîtrise d'armure, elle, ne pèse encore sur aucun jet — elle se lit sur la
+fiche et se tranche à la table.
+
+Sont maîtrisés d'office, sans figurer dans aucune liste : **ses propres sorts**,
+**ses compétences de classe** et **les attaques naturelles** d'une créature. On
+ne ramasse pas ses crocs par terre.
+
+La maîtrise sert aussi aux **jets de sauvegarde**, où elle s'applique toujours.
+
+La même courbe vaut pour le bestiaire, à ceci près qu'elle y suit l'indice de
+menace : `2 + ⌊FP / 4⌋`. Un héros de niveau 20 vise donc aussi bien qu'un monstre
+de son rang — ce qui n'était pas le cas tant que la maîtrise des personnages
+restait figée à 2.
 
 **Un d20 à seuil mobile.** Le dé se lance dans la main, ses vingt cases se
 lisent d'un coup d'œil, et le 1 comme le 20 sont des repères que personne n'a
@@ -459,12 +691,24 @@ ajustements manuels du MJ.
 ### Armes
 
 ```
-dégâts = dégâts de l'arme + 25 % de l'attaque physique (+ projectile)
+main principale : dégâts de l'arme + 25 % de l'attaque physique (+ projectile)
+main faible     : dégâts de l'arme + modificateur d'attribut  (+ projectile)
 ```
 
 Les armes du wiki sont chiffrées bas (3–7 pour un bâton) parce qu'elles décrivent
 l'outil, pas le bras. Sans la part d'attaque, une arme resterait aussi mortelle
 au niveau 1 qu'au 20.
+
+**La main faible ne touche pas à l'attaque physique.** Elle ne vaut que l'arme et
+le modificateur de l'attribut qui blesse (`attributeDamage` du catalogue de
+catégories) — c'est le prix du coup en plus, et c'est ce qui empêche l'action
+bonus de doubler purement et simplement les dégâts du tour.
+
+> **Arbalète de poing en main gauche** : 4–8 + le modificateur de Dextérité
+> (+3 à 16 de Dex, donc 7–11), et non 4–8 + 25 % de l'attaque physique.
+
+C'est aussi le calcul que la fiche de personnage affiche depuis toujours pour
+ses armes équipées : le combat ne dit plus autre chose que la fiche.
 
 Le **projectile** forme une composante *séparée*, avec son propre type : les
 résistances s'appliquent correctement à chacun, et le journal montre les deux
@@ -568,9 +812,295 @@ Un enchaînement en profite à chaque coup : Combo rapide sous Poings d'ombre fa
 ### Téléportation
 
 `teleport` déplace le lanceur sur la case visée, sans se soucier du terrain ni
-des corps. La distance du saut est `teleportRange` quand elle diffère de la
-portée de l'effet — indispensable dès que le sort agit à l'arrivée (l'Évasion
-enflammée a une portée « Autour de soi » qui décrit son *brasier*, pas son bond).
+des corps *entre les deux*. La distance du saut est `teleportRange` quand elle
+diffère de la portée de l'effet — indispensable dès que le sort agit à l'arrivée
+(l'Évasion enflammée a une portée « Autour de soi » qui décrit son *brasier*, pas
+son bond).
+
+Trois conditions, toutes portées par `cannotUse` : la case est **dans la
+distance de saut**, **en vue** (on ne saute pas où l'on ne voit pas), et
+**libre** — on n'atterrit pas sur quelqu'un.
+
+Les trois au même endroit, ce qui n'allait pas de soi : la place libre n'était
+vérifiée qu'au moment de résoudre, et la vue en gardait sa propre version pour
+dessiner la portée. Deux copies d'une même règle finissent toujours par
+diverger, et celle-là proposait des cases occupées. La vue interroge désormais
+`cannotUse` case par case : ce qui est surligné est ce que le clic réussira.
+
+**Attention à la zone.** `area: "Soi-même"` est correct pour un saut — le sort
+n'affecte que son lanceur — mais il ne dit rien de l'endroit où l'on se rend. Un
+calque de portée qui renonce devant une zone `self` laisse donc le joueur
+cliquer à l'aveugle : la téléportation se traite avant la zone, pas après.
+
+**Où le sort agit-il ?** À l'ARRIVÉE : l'effet suit son lanceur. L'Évasion
+enflammée frappe donc autour de la case où elle atterrit.
+
+> À noter : la fiche de ce sort dit le contraire — « laissant un brasier qui
+> brûle ses poursuivants », « le brasier **de départ** s'élargit », « laissant
+> **derrière soi** une déflagration ». Le texte et la mécanique se contredisent,
+> et c'est le texte qu'il faudrait reprendre si l'on garde le comportement
+> actuel.
+
+### Échange de place
+
+`swap` est l'autre déplacement instantané, et il ne se confond pas avec le
+précédent : au lieu d'emmener le lanceur sur une case **libre**, il **permute**
+sa place avec celle d'un **corps**. Trois conséquences :
+
+| | `teleport` | `swap` |
+|---|---|---|
+| Ce qu'on vise | une case vide | un combattant |
+| Ligne de vue | exigée | **non** — le lien est déjà noué, un mur ne l'arrête pas |
+| Qui bouge | le lanceur | **les deux**, en un seul geste |
+
+`swapMark` nomme le statut qui donne prise, et il en faut **deux** : la cible
+doit le porter, **et le lanceur aussi**. Dans les deux cas c'est lui qui doit
+l'avoir posé — la marque d'un autre n'est pas une poignée qu'on emprunte. On ne
+tire pas sur un fil dont on ne tient pas l'autre bout, et c'est ce qui empêche
+Change-place d'être une téléportation offerte à tout venant.
+
+L'échange réussit ou échoue **en bloc** : si l'un des deux ne tient pas là où
+l'autre se tenait (gabarits différents, bord de grille), personne ne bouge.
+
+**Joué en réaction**, il fait trois choses qu'aucune dérobade ne sait faire :
+
+| Ce qu'on permute | Ce qui se passe |
+| --- | --- |
+| un allié marqué | le lanceur prend le coup **à sa place** |
+| l'assaillant lui-même | son attaque visait une case où il se tient désormais seul : elle se perd |
+| un autre ennemi marqué | **il encaisse le coup**, de la main des siens |
+
+Ce dernier cas demande une exception, portée par `inTheWay` : un coup part vers
+une CASE, et l'allégeance interdirait normalement de blesser un allié. Les deux
+corps qui viennent de permuter y sont inscrits le temps que l'action suspendue
+reprenne, ce qui autorise l'attaquant à toucher son propre camp — parce qu'il ne
+l'a pas choisi. La liste est effacée dès que l'action a fini de se résoudre :
+c'est une exception d'un coup, pas une porte ouverte au tir fratricide.
+
+**Le passe-droit ne s'applique jamais au lanceur lui-même.** Il lève la question
+du CAMP, pas celle de savoir qui frappe : sans cette réserve, un assaillant
+permuté avec sa proie atterrissait sur la case qu'il visait et s'y assommait tout
+seul. Se viser reste gouverné par `targets`, comme pour tout le monde — donc le
+coup ne trouve personne, et se perd.
+
+### Le trait guidé — `homingMark`
+
+Un projectile qui suit un lien au lieu de viser. Sur une cible portant le statut
+nommé — et que le **lanceur** lui a posé —, la capacité :
+
+- **touche à coup sûr** : aucun jet de toucher ;
+- **se passe de ligne de vue** : elle contourne.
+
+Ce qui l'arrête n'est donc pas le mur, mais l'**absence de chemin**. Le moteur
+cherche un cheminement de case en case (`hasPathThrough`) et ne considère
+comme plein que ce qui arrête **à la fois** le pas et le regard : mur, rocher,
+arbre, porte close. Un gouffre se survole, un fourré se traverse — ni l'un ni
+l'autre n'emmure personne. Une cible scellée derrière du plein sur ses huit
+côtés est hors d'atteinte, et c'est le seul abri qui vaille contre ce sort.
+
+Sans marque, la capacité redevient ordinaire : ligne de vue et jet de toucher.
+
+L'esquive (`evadeChance`) continue de s'appliquer : elle ne rend pas difficile à
+viser, elle fait qu'il n'y a plus rien à atteindre — et aucune tête chercheuse
+ne corrige cela.
+
+### Cibler par la marque — `marksTargets`
+
+La seule forme de ciblage qui ne décrit **aucune géométrie**. `area: "Tous les
+marqués"` donne à la capacité la forme `marked` : elle ne part pas du lanceur,
+ne couvre pas de surface, et ne se vise pas — ses cibles ont été désignées au
+tour où on les a marquées.
+
+Conséquences, toutes voulues :
+
+| | |
+| --- | --- |
+| Portée | aucune — un porteur à l'autre bout du plateau saute avec les autres |
+| Ligne de vue | aucune |
+| Jet de toucher | aucun (`aims` est faux pour cette forme) |
+| Refus | seulement quand il ne reste rien à faire éclater |
+
+`marksTargets` nomme le statut qui désigne, et `consumesMark` dit s'il est
+**dépensé** — les deux sont séparés parce qu'ils ne vont pas ensemble :
+
+| Sort | `consumesMark` | Pourquoi |
+| --- | --- | --- |
+| Effondrement de marque | oui | sans quoi on répéterait les dégâts sans jamais retourner marquer personne |
+| Piège d'ancrage | non | c'est la marque qui fait durer le piège |
+
+Seules les marques **du lanceur** répondent : agir sur ses propres ancres ne
+touche pas à celles d'un autre.
+
+La laisse de la marque (`tetherRange`) est la vraie borne de ces sorts : ce qui
+est sorti de la portée d'ancrage n'est déjà plus marqué.
+
+### Tenir deux corps à l'écart — le champ `ancrage`
+
+Ce statut ne se subit pas : il se **tient**. Il vit sur son lanceur, et il
+gouverne quiconque porte la marque nommée par `sustain.governs` — posée de sa
+main.
+
+C'est ce qui le distingue d'une photographie prise à l'incantation : marquer un
+renfort en pleine bataille le fait entrer sous la règle **sans relancer le
+sort**. La marque commande, le champ ne fait que la lire.
+
+Sa règle : deux gouvernés ne peuvent jamais venir à moins de `gapMeters` l'un de
+l'autre — 1,5 m par défaut, chiffré par palier via `anchorGap`. Ils se
+rapprochent librement jusque-là ; ce n'est pas une entrave, c'est une bulle
+entre deux corps.
+
+Trois points que `anchorBlocker` tranche, et qui méritent d'être sus :
+
+- un porteur **seul** n'est gêné par rien — la règle est une relation, pas un
+  état ;
+- deux champs de **lanceurs différents** ne se croisent pas : chacun ne
+  gouverne que ses propres marques ;
+- ceux que le champ surprend déjà collés ne sont pas figés : ils peuvent bouger
+  tant qu'ils ne se serrent pas davantage. Sans cette clause, deux porteurs pris
+  au contact dans un couloir n'auraient plus aucun pas légal.
+
+`movementOverlay` applique le même test, donc une case refusée n'est jamais
+peinte en vert.
+
+**Le champ se fait respecter après CHAQUE action**, pas seulement à
+l'incantation : celle qui vient de le tendre, mais aussi celle qui vient de
+marquer un renfort. Ceux qui se touchent sont ÉCARTÉS, d'autant qu'il faut et
+pas d'un pas de plus (case conforme la moins chère, dans trois cases).
+
+**Qui recule ?** Celui qui est le plus **près du lanceur**. Écarter le premier
+dispense le second, donc l'ordre décide — et le sens du sort veut que le champ
+bouscule ce qui s'approche de son maître plutôt que d'aller déranger au loin
+quelqu'un qui n'y est pour rien. Le classement se fait sur l'état d'avant, une
+fois pour toutes, pour que la rencontre reste rejouable.
+
+Cela ne décide **que du reculant** : une fois désigné, il prend le chemin le
+plus court pour se dégager, quitte à venir vers le lanceur si c'est de ce côté
+que la place se trouve.
+
+Ce recul est **subi** : ni endurance, ni budget de mouvement, et surtout **aucune
+attaque d'opportunité**. On ne punit pas quelqu'un d'avoir été poussé — c'est
+pourquoi il ne passe pas par `resolveMove`, qui ouvrirait la fenêtre. Quand la
+place manque vraiment, le moteur le DIT plutôt que de déménager quelqu'un.
+
+### Ce que coûte un sort qu'on garde ouvert — `sustain.upkeep`
+
+Mana prélevé au lanceur **à l'ouverture de chacun de ses tours**, tant qu'il
+tient le sort. Plus doux que l'incantation : on paie pour tenir, pas pour
+lancer.
+
+Sans lui, rien n'inciterait jamais à relâcher un sort de durée illimitée, et une
+réserve pleine au premier tour financerait le reste du combat. À sec, le lien se
+rompt de lui-même — le lanceur ne choisit pas, il ne peut simplement plus
+suivre, et on ne lui prélève pas ce qu'il n'a pas.
+
+Un lanceur qui tient plusieurs sorts paie la somme, et les perd tous ensemble.
+
+L'entretien se compte **par lien tenu**, pas par sort : deux marionnettes
+coûtent deux fois 3 mana au marionnettiste. C'est ce qui donne enfin un prix au
+fait d'en mener deux, là où seules les mains le limitaient — et à sec, la main
+s'ouvre et les deux tombent d'un coup.
+
+| Sort | Lancement | Entretien / tour |
+| --- | --- | --- |
+| Piège d'ancrage | 4 / 5 / 6 | 2 |
+| Fils du marionnettiste | 10 / 12 / 15 | 3 **par pantin** |
+
+### Ancrage des statuts
+
+`tetherRange` donne une **laisse** aux statuts qu'un palier pose : au-delà de
+cette distance de celui qui l'a posé, le statut se rompt de lui-même. Il se
+rompt aussi si l'ancre tombe.
+
+C'est ce qui rend tenable une marque de durée illimitée : elle ne s'use pas avec
+le temps, mais elle tient à **quelqu'un**. Le moteur la vérifie après tout
+déplacement — marche, téléportation, échange — et à l'ouverture de chaque tour,
+pour qu'une proie ne puisse pas s'échapper entre deux tours du lanceur.
+
+### Sorts qui s'imposent — `requiresHit`
+
+Un sort sans dégâts porte d'office : un soin, une bénédiction ne se ratent pas.
+Mais certains s'IMPOSENT à qui n'en veut pas — un sceau, des fils. `requiresHit`
+leur rend un jet de toucher, et **uniquement contre une cible hostile** : sur soi
+ou sur un allié, il n'y a rien à viser. `precisionPenalty` dit ensuite combien le
+geste est exigeant, en points de précision (5 points = un cran de dé, comme
+partout).
+
+### Tenir un sort — `sustain`
+
+Déclaré sur le STATUT (`status_effects.json`), pas sur le sort : il décrit ce que
+le lien coûte à **celui qui le tient**, et non à qui le subit.
+
+| Champ | Effet |
+| --- | --- |
+| `bindsHands` | mains du lanceur immobilisées **par porteur** |
+| `commands` | le porteur se bat dans le camp de son maître |
+| `concentrationDc` | un coup encaissé par le maître peut rompre le lien |
+
+**Les mains plafonnent tout.** Un lanceur en a deux. Un statut à `bindsHands: 1`
+en autorise donc deux d'un coup, sans qu'aucune fiche n'écrive « deux au
+maximum » — le plafond tombe de l'anatomie. Le prix se lit immédiatement :
+
+| Mains prises | Ce qu'il peut encore faire |
+| --- | --- |
+| 0 | tout |
+| 1 | tout sauf sa **main faible** (`weapon:offhand`) |
+| 2 | **se déplacer, et rien d'autre** |
+
+Le maniement de l'arme suit le même plafond, par un autre chemin : une arme à
+deux mains n'immobilise aucun fil, mais elle occupe bien les deux mains — donc
+pas de main faible non plus (cf. § 3).
+
+**`commands` retourne le porteur.** Il ne change pas de `team` — la victoire
+continue de se compter sur son camp d'origine, sinon contrôler le dernier
+adversaire finirait le combat — mais son **allégeance** bascule. Deux
+conséquences : il prend ses anciens compagnons pour cibles (`isValidTarget` lit
+l'allégeance), et c'est le camp de son maître qui **joue son tour** (`isDriven`
+la lit aussi, donc la résolution autonome rend la main au bon côté).
+
+**Un pantin n'est le compagnon de personne**, et l'exception est asymétrique :
+
+| | Peut viser le pantin | Le pantin peut le viser |
+| --- | --- | --- |
+| Son ancien camp | oui (allégeance opposée) | oui |
+| Le camp qui le tient | **oui** — on coupe les fils en abattant ce qui pend au bout | non |
+
+Sans le côté gauche de ce tableau, un combat où ne restaient que le
+marionnettiste et sa marionnette ne pouvait plus finir : plus personne n'avait le
+droit de la viser. Sans le côté droit, « asservi » ne se distinguerait plus de
+« devenu fou ».
+
+Le tacticien, lui, ne choisit pas de son propre chef de frapper le pantin que
+son camp tient : la règle l'autorise, `enemiesOf` s'en abstient tant qu'un vrai
+adversaire tient debout. Le MJ garde la main pour le faire.
+
+**La concentration** se joue quand le maître ENCAISSE UN COUP — pas sur un
+poison, pas sur la grêle : on tient ses fils en saignant, pas en prenant une
+masse dans les côtes. Jet de Sagesse contre `concentrationDc` + 1 par tranche de
+5 points de vie perdus. L'échec rompt d'un coup **tout** ce qu'il tenait.
+
+Un lien tenu tombe aussi avec son maître : plus besoin de laisse pour ça.
+
+### Refuser un ordre — `onSuccess: 'refuse'`
+
+Le troisième mode du jet de statut, et le miroir exact d'`act` :
+
+| `onSuccess` | Réussite | Échec |
+| --- | --- | --- |
+| `act` (la peur) | la cible agit | elle perd son tour |
+| `refuse` (les fils) | **l'ordre se perd** | elle obéit |
+
+`onCritical: 'clear'` s'ajoute aux deux : un 20 naturel rompt le statut pour de
+bon, quel que soit le DD. C'est ce qui laisse toujours une porte de sortie à un
+contrôle de durée illimitée.
+
+**Marcher est un ordre aussi.** Le jet se tente donc sur une capacité comme sur
+un déplacement — mais au PREMIER pas du tour seulement, sinon il suffirait de
+recliquer jusqu'à ce que le pantin cède. Un refus coûte le tour entier : le
+mouvement est consommé, l'action aussi.
+
+Chaque jet part au journal (`save`), avec le dé, les modificateurs, le DD et la
+formulation de la fiche du statut — comme la vérification de concentration du
+maître. Un contrôle qui ne se voit pas dans le journal ne se joue pas.
 
 ### Bonus de classe
 
@@ -810,6 +1340,10 @@ nuit penche deux fois dans le même sens.
 Aube · Matinée · Midi · Après-midi · Soirée · Nuit
 ([`daytime.json`](../frontend/public/resources/json/daytime.json))
 
+Le moment courant est **déduit de l'horloge** de la rencontre, sauf verrou
+explicite du MJ (cf. [`hors-combat.md`](hors-combat.md)). Ce n'est donc plus un réglage
+indépendant : le jour tourne pendant qu'on marche, et la magie suit.
+
 | | Ténèbres | Lumière |
 |---|---|---|
 | Midi | ×0,7 dégâts, ×1,25 coût | ×1,3 dégâts, ×0,75 coût |
@@ -832,7 +1366,9 @@ nuit au lieu de `10`.
 Le sac est décompté pour de vrai. Une capacité déclare ce qu'elle retire, et le
 moteur **refuse l'action quand le stock est vide**.
 
-Les **potions** reconnues dans le sac deviennent des actions au contact. Leurs
+Les **potions** reconnues dans le sac deviennent des **actions bonus** au
+contact — porter la main au sac est un geste bref, et le faire payer l'attaque
+du tour revenait à ne jamais rien boire (cf. § 3). Leurs
 fiches décrivent leurs effets en français : le moteur lit ce qui est régulier —
 l'expression de dés (`2d4 + 2` → 7, une moyenne fiable plutôt qu'un second
 tirage), la cible (`points de vie` vs `mana`), les purges (`Met fin au statut
@@ -949,6 +1485,9 @@ trancher :
   temporelle, Voile du secret, Écho de la pierre, Contact spectral, Relève les
   morts. Hors combat par nature ; la loi économique les ignore volontairement.
 
+Ce qui relève du camp — vivres, eau, temps de battue — est listé dans
+[`hors-combat.md`](hors-combat.md).
+
 ---
 
 ## 15. Où régler quoi
@@ -956,7 +1495,8 @@ trancher :
 | Réglage | Fichier |
 |---|---|
 | Taille de case, déplacement | [`grid.ts`](../frontend/src/app/combat/grid.ts) |
-| Décors (passage, vue, coût) | [`terrain.ts`](../frontend/src/app/combat/terrain.ts) |
+| Décors (passage, vue, coût, nage) | [`terrain.ts`](../frontend/src/app/combat/terrain.ts) |
+| Portes : seuils de crochetage et d'enfoncement | [`terrain.ts`](../frontend/src/app/combat/terrain.ts) |
 | Défense, affinités, endurance, esquive, désavantage | [`rules.ts`](../frontend/src/app/combat/rules.ts) |
 | Ratios d'attaque, portées d'armes, zones de gêne | [`abilities.ts`](../frontend/src/app/combat/abilities.ts) |
 | Loi économique, poids, plafonds | [`spell-economy.ts`](../frontend/src/app/combat/spell-economy.ts) |
@@ -965,6 +1505,9 @@ trancher :
 | Moments de la journée | `daytime.json` |
 | Météos | `weathers.json` |
 | Statuts | `status_effects.json` |
+
+Pour l'horloge, les jauges de survie, le butin et le report sur les fiches, voir
+[`hors-combat.md`](hors-combat.md).
 
 ---
 
@@ -981,10 +1524,10 @@ Dans l'ordre où je les recommanderais :
    de vie, tout se jouera en deux échanges. Doubler les PV coûte une colonne ;
    rééquilibrer toutes les attaques coûte le jeu entier.
 
-2. **Action rapide.** Un troisième créneau pour les objets, l'arme secondaire, se
-   relever, viser. Aujourd'hui boire une potion coûte ton attaque, donc on ne
-   boit jamais. La **garde** occupe déjà le créneau « je n'ai rien de mieux à
-   faire » ; l'action rapide, elle, débloquerait le reste.
+2. **Élargir l'action bonus.** Le créneau existe (objets, arme secondaire, cf.
+   § 3) mais il ne couvre pas encore tout ce qu'on attendrait de lui : se
+   relever, viser, recharger. Chacun de ces gestes est une ligne de moteur, pas
+   une règle nouvelle — le créneau, lui, est déjà là.
 
 3. **Endurance comme monnaie universelle.** Le mana ne limite plus grand-chose
    une fois les prix corrigés ; l'endurance, elle, est serrée et a déjà sa règle
@@ -997,7 +1540,117 @@ Dans l'ordre où je les recommanderais :
 
 ---
 
-## 17. Le banc d'essai
+## 17. Jouer contre le tacticien
+
+Un camp peut être confié à la machine. La barre **« Joué par l'IA »** en haut de
+la table coche `Adversaires`, `Groupe` ou `Neutres` ; tout ce qui n'est pas
+coché reste entre les mains du MJ.
+
+| Commande | Ce qu'elle fait |
+|---|---|
+| **Laisser jouer** | Déroule jusqu'à ce que la main te revienne, une action à la fois |
+| **Pas à pas** | Joue une seule action, puis s'arrête |
+| **Rythme** | Le temps d'arrêt entre deux actions (0,15 à 2 s) |
+
+**Une action à la fois, jamais le tour d'un bloc.** C'est la contrainte qui
+gouverne tout : dérouler le tour entier serait plus simple à écrire et ne
+laisserait qu'un journal à lire après coup — on ne verrait ni qui se déplace, ni
+qui riposte, ni pourquoi un coup a manqué.
+
+La résolution s'arrête d'elle-même dès que la main revient à un camp humain, y
+compris **au milieu du tour d'un autre** : une fenêtre de réaction ouverte sur
+un de tes combattants te rend la décision.
+
+### Un seul cerveau
+
+Le tacticien ([`tactician.ts`](../frontend/src/app/combat/tactician.ts)) pilote
+les adversaires à la table **et** les combattants du banc d'essai. C'est
+délibéré : si les deux divergeaient, le rapport d'équilibrage décrirait un
+adversaire qui n'existe pas, et ses chiffres ne diraient rien de ce qui se passe
+en partie. Un test l'exige explicitement.
+
+Il ne connaît que `applyAction` : il regarde une rencontre et répond une action.
+Le moteur reste seul juge de ce qui est légal — le tacticien peut proposer
+l'impossible sans rien casser.
+
+**Ce qu'il n'est pas** : un joueur. Il vise le plus rentable à l'instant, sans
+plan, sans feinte, sans économiser ses réserves au-delà de ce que le tour exige.
+Un adversaire honnête, pas un adversaire retors.
+
+### Ce qui l'empêche de figer l'écran
+
+Une action que le moteur refuse laisse la rencontre exactement telle quelle. La
+résolution compare donc une **empreinte de progression** avant et après chaque
+coup — positions, points de vie, réserves, tour — et passe la main plutôt que
+d'insister. Le journal en est exclu à dessein : une action refusée y écrit
+quand même sa ligne d'explication, et c'est justement ce cas qu'il faut
+reconnaître.
+
+Un second garde-fou borne le nombre d'actions consécutives sans que le tour
+change de main.
+
+---
+
+## 18. Rafraîchir les fiches
+
+Un combattant posé sur le plateau est un **instantané** : ses stats *et ses
+capacités* sont figées au moment où on l'ajoute. C'est voulu — monter de niveau
+en pleine bagarre n'a pas de sens, et une fiche modifiée entre deux séances ne
+doit pas changer un combat en cours sous les pieds du MJ.
+
+Mais l'instantané vieillit. Une règle qui change — la maîtrise, un coût, un type
+de dégâts — **ne touche pas les pions déjà posés**, et l'on croit alors que le
+changement n'a pas pris. C'est le piège classique de ce moteur, et il est
+invisible : rien ne signale qu'un pion date d'avant.
+
+Le bouton **Rafraîchir les fiches** remonte tout le monde depuis sa source
+(fiche de personnage ou entrée du bestiaire).
+
+| Conservé | Repris de la source |
+|---|---|
+| Place, identité, initiative | Niveau, stats, attributs |
+| Blessures **en proportion** | Armes, sorts, compétences |
+| Action et réaction du tour | Maîtrise, affinités, inventaire |
+| Statuts en cours | |
+| Jauges de survie, bourse, dépouille fouillée | |
+
+Les réserves sont conservées **en proportion**, jamais en valeur absolue : si la
+fiche a gagné des points de vie, un blessé à moitié reste à moitié. Les garder en
+absolu soignerait — ou tuerait — au rafraîchissement.
+
+L'**état du voyage** ne se remonte jamais depuis la source : les jauges de
+survie, la bourse et les corps déjà fouillés sont ce qui s'est passé à table. Les
+reprendre de la fiche rassasierait un affamé et ferait repousser un butin déjà
+ramassé.
+
+Les **effets temporaires sautent** : ils référencent des capacités de l'ancien
+instantané, et les traîner poserait des buffs orphelins.
+
+Le geste inverse — écrire la séance sur les fiches — est décrit dans
+[`hors-combat.md`](hors-combat.md).
+
+---
+
+## 19. Décors prêts à jouer
+
+Huit cartes dans le mode **Décor** : Le pont, La clairière, Le gué, Le défilé,
+Les ruines, La cour à piliers, Le marais, L'embuscade. Une carte **remplace** le
+décor en place — deux cartes mêlées ne donnent pas un terrain, elles donnent un
+labyrinthe dont personne n'a dessiné les couloirs.
+
+Elles sont écrites en ASCII dans
+[`layouts.ts`](../frontend/src/app/combat/layouts.ts), à dessein : une liste de
+coordonnées ne se relit pas — on ne voit pas qu'un pont a deux entrées, ni
+qu'une carte avantage un camp. Un dessin, si. En contrepartie, une ligne à
+laquelle il manque un caractère ne se voit pas non plus : les tests comptent, et
+vérifient en plus que chaque carte tient la promesse de son nom.
+
+Une carte plus petite que la grille est **centrée** puis rognée : une rencontre
+réduite garde le cœur du dessin plutôt que son coin supérieur gauche.
+
+---
+
+## 20. Le banc d'essai
 
 L'équilibrage ne se lit pas sur les fiches : il se mesure. `frontend/src/app/combat/sim/`
 monte les **vraies** fiches sauvegardées et les **vraies** bêtes du bestiaire, les fait

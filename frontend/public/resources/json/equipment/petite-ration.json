@@ -1,0 +1,73 @@
+{
+  "name": "Petite ration",
+  "subtitle": "Matériel de camp",
+  "material": "toile",
+  "category": "camp",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Une poignée de fruits secs, une lanière de viande boucanée, un quignon dur. De quoi tenir un tiers de journée sans s'arrêter — pas un repas, une halte.",
+    "C'est la monnaie de la survie : ce qu'on tire d'un collet relevé au matin, d'un buisson de baies au bord du sentier, d'un nid trouvé par hasard. On n'en fait pas un dîner, on en fait la différence entre marcher et traîner."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,2 kg"
+    },
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Consommable — vivres"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Un tiers de journée de nourriture ; se conserve deux semaines"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "1 pièce d'or"
+    }
+  ],
+  "properties": [
+    "Comble un cran de faim. Il en faut trois pour valoir une ration de voyage.",
+    "Se garde deux semaines seulement : ce qui vient de la cueillette ne se fume pas, et le petit gibier tourne vite.",
+    "Ce que rendent la chasse au collet et la cueillette d'un après-midi, quand le terrain s'y prête.",
+    "Assez légère pour qu'on n'hésite jamais à en emporter : trois petites rations pèsent moins qu'une gourde pleine."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Ne s'achète guère : c'est le fond de sac qu'on se constitue en chemin, ou ce qu'une ferme donne au voyageur contre un coup de main.",
+      "Les auberges d'étape en vendent parfois aux départs pressés, à prix de convenance — on paie l'heure gagnée, pas la nourriture."
+    ]
+  },
+  "notes": [
+    "Compter trois petites rations pour une journée pleine. Un groupe qui ne vit que de cueillette passe ses après-midis à ramasser.",
+    "Ne pas les mêler aux rations de voyage dans le même sac : les petites moisissent les premières et gâtent le reste."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "rations-de-voyage",
+          "collection": "equipment",
+          "label": "Rations de voyage"
+        },
+        {
+          "ref": "grande-ration",
+          "collection": "equipment",
+          "label": "Grande ration"
+        }
+      ]
+    }
+  ]
+}

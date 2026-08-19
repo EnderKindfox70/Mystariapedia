@@ -1,45 +1,70 @@
 {
-    "name": "Sac sans fond",
-    "subtitle": "Sac enchanté",
-    "category": "sacs",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Un sac de cuir noir cousu d'un seul tenant, sans couture apparente, dont l'intérieur ne renvoie aucune lumière : on y plonge la main sans jamais voir où elle va. Le nom est trompeur — il a un fond, on le touche — mais ce qu'on y range n'y pèse que la moitié de son poids, et personne n'a jamais expliqué convenablement pourquoi.",
-        "Les enchanteurs qui savent encore les faire se comptent sur les doigts d'une main, et aucun ne travaille sans acompte. Deux mille cinq cents pièces d'or : c'est le prix d'une petite maison, et pourtant chaque compagnie qui en possède un le considère comme son bien le plus utile, avant les armes et avant les artefacts."
-    ],
-    "info": [
-        { "key": "weight",     "label": "Poids",      "value": "2 kg" },
-        { "key": "type",       "label": "Type",       "value": "Sac à dos enchanté" },
-        { "key": "rarity",     "label": "Rareté",     "value": "Très rare" },
-        { "key": "lightening", "label": "Allègement", "value": "50 %" },
-        { "key": "value",      "label": "Valeur",     "value": "2500 pièces d'or" }
-    ],
-    "properties": [
-        "Allège de 50 % le poids de tout ce qu'il contient. Il n'augmente pas la capacité de charge : il divise par deux ce que la charge pèse.",
-        "L'allègement cesse dès qu'un objet en sort. Rien n'en ressort durablement allégé.",
-        "Le volume intérieur reste celui d'un grand sac : ce qui ne rentre pas ne rentre pas, quoi qu'en dise son nom.",
-        "L'enchantement est passif, permanent, et ne consomme aucune mana.",
-        "L'intérieur ne renvoie pas la lumière : on y cherche toujours à tâtons, ce qui coûte du temps au mauvais moment.",
-        "Un éclat primordial rangé dedans continue d'agir : le sac allège, il n'isole pas. C'est le rôle de l'étui."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Auprès des rares maîtres enchanteurs des capitales, sur commande, avec acompte et délai de plusieurs mois ; les autres exemplaires circulent par héritage, par butin ou par vol.",
-            "Chaque sac authentique est connu et souvent nommé. En présenter un à la vente attire immanquablement des questions sur la façon dont on l'a obtenu."
-        ]
+  "name": "Sac sans fond",
+  "subtitle": "Sac enchanté",
+  "material": "toile",
+  "category": "sacs",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Un sac de cuir noir cousu d'un seul tenant, sans couture apparente, dont l'intérieur ne renvoie aucune lumière : on y plonge la main sans jamais voir où elle va. Le nom est trompeur — il a un fond, on le touche — mais ce qu'on y range n'y pèse que la moitié de son poids, et personne n'a jamais expliqué convenablement pourquoi.",
+    "Les enchanteurs qui savent encore les faire se comptent sur les doigts d'une main, et aucun ne travaille sans acompte. Deux mille cinq cents pièces d'or : c'est le prix d'une petite maison, et pourtant chaque compagnie qui en possède un le considère comme son bien le plus utile, avant les armes et avant les artefacts."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "2 kg"
     },
-    "notes": [
-        "Ne jamais y ranger une créature vivante, même petite. Ce qui ressort n'est pas toujours ce qui est entré.",
-        "Le sac le plus volé de Mystaria, et le plus facile à identifier : le revendre demande plus de talent que le prendre."
-    ],
-    "references": [
-        {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "etui-isolant", "collection": "equipment", "label": "Étui isolant" }
-            ]
-        }
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Sac à dos enchanté"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Très rare"
+    },
+    {
+      "key": "lightening",
+      "label": "Allègement",
+      "value": "50 %"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "2500 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Allège de 50 % le poids de tout ce qu'il contient. Il n'augmente pas la capacité de charge : il divise par deux ce que la charge pèse.",
+    "L'allègement cesse dès qu'un objet en sort. Rien n'en ressort durablement allégé.",
+    "Le volume intérieur reste celui d'un grand sac : ce qui ne rentre pas ne rentre pas, quoi qu'en dise son nom.",
+    "L'enchantement est passif, permanent, et ne consomme aucune mana.",
+    "L'intérieur ne renvoie pas la lumière : on y cherche toujours à tâtons, ce qui coûte du temps au mauvais moment.",
+    "Un éclat primordial rangé dedans continue d'agir : le sac allège, il n'isole pas. C'est le rôle de l'étui."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Auprès des rares maîtres enchanteurs des capitales, sur commande, avec acompte et délai de plusieurs mois ; les autres exemplaires circulent par héritage, par butin ou par vol.",
+      "Chaque sac authentique est connu et souvent nommé. En présenter un à la vente attire immanquablement des questions sur la façon dont on l'a obtenu."
     ]
+  },
+  "notes": [
+    "Ne jamais y ranger une créature vivante, même petite. Ce qui ressort n'est pas toujours ce qui est entré.",
+    "Le sac le plus volé de Mystaria, et le plus facile à identifier : le revendre demande plus de talent que le prendre."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "etui-isolant",
+          "collection": "equipment",
+          "label": "Étui isolant"
+        }
+      ]
+    }
+  ]
 }

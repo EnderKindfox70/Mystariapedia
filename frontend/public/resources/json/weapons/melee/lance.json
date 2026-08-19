@@ -1,5 +1,6 @@
 {
   "name": "Lance",
+  "material": "fer",
   "subtitle": "Hampe à pointe, allonge redoutable",
   "description": [
     "Simple et ancienne, la lance reste l'une des armes les plus efficaces : elle frappe avant que l'ennemi n'arrive au contact, et tient les bêtes à distance.",
@@ -9,8 +10,16 @@
   "minDamage": 5,
   "maxDamage": 10,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "2,2 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "2,2 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Allonge supérieure",

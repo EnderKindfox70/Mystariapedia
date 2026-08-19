@@ -112,6 +112,16 @@ export interface SpellClassBonus {
    * vient d'être posé.
    */
   freeStrike?: boolean;
+  /**
+   * Le sort se lance en **action bonus** au lieu de coûter l'action du tour.
+   *
+   * C'est le bonus de celui pour qui le geste est un réflexe : le pugiliste
+   * n'a pas à choisir entre nimber ses poings et s'en servir, il fait les deux
+   * dans le même tour. Une frappe gratuite donnait un coup de plus une fois ;
+   * ceci rend le tour entier disponible, ce qui est à la fois plus simple à
+   * lire et plus fidèle à ce qu'est un réflexe.
+   */
+  bonusAction?: boolean;
 }
 
 /**
@@ -252,6 +262,14 @@ export interface SpellNodeStats {
   damageType?: string;
   /** Contre-coup : dégâts que le lanceur s'inflige en lançant le sort. */
   recoil?: SpellRecoil;
+  /**
+   * Le coup, **s'il porte**, inflige les dégâts d'un COUP CRITIQUE.
+   *
+   * La garantie ne porte que sur les dégâts : le jet de toucher reste ordinaire
+   * et la frappe peut se manquer. Les chiffres écrits sur la fiche sont donc
+   * ceux d'un coup ORDINAIRE — le moteur applique le facteur critique par-dessus.
+   */
+  alwaysCritical?: boolean;
   /** Coût en mana pour lancer le sort à ce palier. */
   mana: number;
   /** Portée d'atteinte, ex. « 8 m », « Contact ». */
@@ -299,6 +317,124 @@ export interface SpellNodeStats {
    */
   teleportRange?: string;
   /**
+   * Le sort demande un JET DE TOUCHER même s'il n'inflige aucun dégât.
+   *
+   * Sans lui, tout ce qui ne blesse pas porte d'office : une marque s'imprimait
+   * sur un ennemi aussi sûrement que sur un allié consentant. Le jet ne
+   * concerne QUE les cibles hostiles — sur soi ou sur un allié, rien à viser.
+   */
+  requiresHit?: boolean;
+  /**
+   * Points de précision retranchés au jet de ce sort : il est difficile à
+   * placer. Compté sur l'échelle fine de la précision, comme le reste.
+   */
+  precisionPenalty?: number;
+  /**
+   * Statut qui GUIDE le trait : contre une cible qui le porte — et que le
+   * lanceur lui a posé —, le sort ne se vise plus, il suit le lien. Il touche à
+   * coup sûr et se passe de ligne de vue, mais il lui faut un CHEMIN : scellée
+   * derrière des murs pleins, la cible redevient hors d'atteinte.
+   */
+  homingMark?: string;
+  /**
+   * Statut qui DÉSIGNE les cibles du sort : il frappe tous ceux qui le portent
+   * de la main du lanceur, où qu'ils soient.
+   *
+   * À déclarer avec `area: "Tous les marqués"` : le sort ne vise alors plus rien
+   * — ni portée, ni ligne de vue, ni case — puisque ses cibles ont été désignées
+   * au tour où on les a marquées.
+   */
+  marksTargets?: string;
+  /**
+   * La marque est CONSUMÉE après l'effet.
+   *
+   * Séparé de `marksTargets` parce que les deux ne vont pas toujours ensemble :
+   * un effondrement dépense ses ancres, un piège les garde en place — c'est même
+   * ce qui lui permet de durer.
+   */
+  consumesMark?: boolean;
+  /**
+   * Écart que le champ d'ancrage de ce palier impose entre les porteurs qu'il
+   * gouverne (« 1,5 m », « 3 m »…). C'est ce qui fait progresser un piège :
+   * plus l'écart est large, plus la ligne adverse se disloque.
+   */
+  anchorGap?: string;
+  /**
+   * Le sort ÉCHANGE la place du lanceur avec celle de sa cible, au lieu de
+   * l'emmener sur une case libre. Deux conséquences qui le distinguent d'une
+   * `teleport` : il vise un CORPS et non un point vide, et il ne demande pas de
+   * ligne de vue — on ne vise pas, on tire sur un lien déjà noué.
+   */
+  swap?: boolean;
+  /**
+   * Statut qui rend l'échange possible. La cible doit le porter, et c'est le
+   * lanceur qui doit le lui avoir posé : sans cette prise, il n'y a rien à
+   * tirer. Absent = n'importe qui peut être permuté.
+   */
+  swapMark?: string;
+  /**
+   * Portée d'ANCRAGE des statuts que ce palier pose : au-delà de cette distance
+   * de son lanceur, le statut se rompt de lui-même. C'est ce qui permet à une
+   * marque de tenir indéfiniment sans tenir pour autant à travers le monde —
+   * elle tient à quelqu'un, et à une longueur de laisse.
+   */
+  tetherRange?: string;
+  /**
+   * Le sort ARRACHE un objet métallique à sa cible et le fait passer dans le
+   * sac du lanceur.
+   *
+   * Il ne se vise pas comme un trait : on désigne quelqu'un, le moteur regarde
+   * ce qu'il porte de ferreux — arme au poing, ferraille au sac — et le joueur
+   * choisit sa prise. Une armure ne se déshabille pas : elle rend son porteur
+   * sensible aux champs, elle ne s'arrache pas pièce à pièce.
+   *
+   * Ce qui est libre vient sans résistance. Ce qui est TENU se dispute : la
+   * cible jette sa Force contre `pullDc`, et le garde si elle réussit.
+   */
+  /**
+   * Le sort FAÇONNE de la matière : sa saveur vient du matériau employé, pas
+   * du palier. Nomme la famille dans laquelle il puise.
+   *
+   * Ce qui décide du matériau et de son prix, c'est la géologie de la scène et
+   * ce que le lanceur a étudié (cf. `materials.ts`) — jamais le sort
+   * lui-même. C'est ce qui évite d'écrire un sort par pierre.
+   */
+  shapesMaterial?: MaterialFamilyKey;
+  /**
+   * Le sort DRESSE UN MUR sur la case visée, au lieu de frapper.
+   *
+   * `length` en cases, `hp` la santé de base — que la matière module : un mur
+   * de basalte encaisse mieux qu'un mur de grès. Sa durée de vie suit le palier
+   * de façonnage : **façonné sur place, il est permanent** ; conjuré, il tient
+   * le nombre de tours de `duration` ; improvisé, moitié moins.
+   */
+  raisesWall?: { length: number; hp: number };
+  /**
+   * Combien de matière ce palier façonne, sur l'échelle du catalogue.
+   *
+   * Le palier ne dit PLUS les dégâts ni la défense — la matière les dit. Il ne
+   * dit que l'ampleur : 1 pour la quantité de référence, 2 pour le double.
+   * C'est ce qui fait qu'un mage qui change de pierre change vraiment d'arme,
+   * au lieu de voir le même chiffre légèrement modulé.
+   */
+  materialScale?: number;
+  pullsMetal?: boolean;
+  /**
+   * Score que la cible doit atteindre en Force pour GARDER ce qu'on lui
+   * arrache. Sans lui, la prise ne se dispute pas. Ne joue que sur ce qui est
+   * tenu en main : rien dans un sac ne se défend tout seul.
+   */
+  pullDc?: number;
+  /**
+   * Le sort PROJETTE un objet métallique que le lanceur porte, et l'objet ne
+   * survit pas au voyage : il quitte le sac.
+   *
+   * Ses dégâts et leur type ne sont pas écrits sur le palier — ils viennent de
+   * ce qu'on lance. Une lame arrachée taille, une enclume écrase. Le `scaling`
+   * du nœud, lui, s'ajoute normalement : c'est la poussée du lanceur.
+   */
+  throwsMetal?: boolean;
+  /**
    * Déclencheurs auxquels ce palier peut répondre HORS du tour de son lanceur.
    * `incoming-attack` en fait une parade ou une dérobade (Pas dimensionnel),
    * `leave-reach` une punition du désengagement. Absent = le sort ne se lance
@@ -333,8 +469,69 @@ export type StatusSaveAttribute =
   | 'intelligence' | 'sagesse' | 'charisme';
 
 /**
- * Jet d'attribut imposé par un statut. Sa réussite lève le statut (`clear`)
- * ou permet à la cible d'agir malgré lui (`act`).
+ * Ce qu'un statut coûte à **celui qui le tient**, et non à qui le subit.
+ *
+ * La plupart des statuts sont posés puis oubliés : une brûlure brûle toute
+ * seule. Certains, non — le marionnettiste tient ses fils, et les tenir
+ * l'occupe. Ce bloc décrit ce prix-là, du côté du lanceur.
+ */
+export interface StatusSustain {
+  /**
+   * Mains du lanceur immobilisées par CHAQUE porteur. Avec deux mains, un coût
+   * de 1 dit à la fois « un pantin par main » et « deux au maximum » : le
+   * plafond n'a pas à être écrit ailleurs, il tombe de l'anatomie.
+   *
+   * Une main prise coûte l'usage de la main faible ; les deux prises ne
+   * laissent que le déplacement.
+   */
+  bindsHands?: number;
+  /**
+   * Le lanceur **dirige** le porteur : celui-ci agit dans le camp de son
+   * maître, prend ses anciens alliés pour cibles, et c'est le camp du lanceur
+   * qui joue son tour.
+   */
+  commands?: boolean;
+  /**
+   * Concentration : un coup encaissé par le LANCEUR peut rompre le lien. Il
+   * jette alors sa Sagesse contre ce DD, relevé par la violence du coup.
+   * Absent = le statut tient quoi qu'il arrive à celui qui l'a posé.
+   */
+  concentrationDc?: number;
+  /**
+   * Mana que TENIR ce statut coûte au lanceur **à chaque tour**.
+   *
+   * Le prix du maintien, distinct de celui de l'incantation : un sort qu'on
+   * garde ouvert doit se payer tant qu'il dure, sinon rien n'incite jamais à le
+   * relâcher. Faute de pouvoir payer, le lien se rompt de lui-même.
+   */
+  upkeep?: number;
+  /**
+   * Le champ ne gouverne que les porteurs de CE statut, posés par le même
+   * lanceur — et il les gouverne en continu : marquer quelqu'un après coup le
+   * fait entrer dans le champ.
+   */
+  governs?: string;
+  /**
+   * Le champ gouverne quiconque PORTE DU MÉTAL — armure de fer, arme d'acier,
+   * ferraille au sac. Rien à marquer au préalable : c'est l'équipement qui
+   * désigne, et il désigne en continu. Qui vient les mains nues n'est pas tenu.
+   */
+  governsMetal?: boolean;
+  /**
+   * L'écart se compte depuis LE PORTEUR du statut, et non entre les gouvernés.
+   *
+   * C'est ce qui sépare un bouclier d'un piège : le piège disloque une ligne
+   * adverse en interdisant à ses marqués de se toucher **entre eux** ; le
+   * bouclier ne protège que celui qui le tend, et laisse les autres se serrer
+   * comme ils veulent.
+   */
+  repelsFromHolder?: boolean;
+}
+
+/**
+ * Jet d'attribut imposé par un statut. Sa réussite lève le statut (`clear`),
+ * permet à la cible d'agir malgré lui (`act`), ou lui permet de refuser
+ * l'ordre qu'on lui donne (`refuse`).
  */
 export interface StatusSave {
   /** Attribut testé (constitution, sagesse…). */
@@ -352,8 +549,21 @@ export interface StatusSave {
   trigger: 'turn' | 'action';
   /** Périodicité du jet en tours quand `trigger` vaut `turn` (1 = chaque tour). */
   interval?: number;
-  /** Conséquence d'une réussite : `clear` lève le statut, `act` autorise l'action. */
-  onSuccess: 'clear' | 'act';
+  /**
+   * Conséquence d'une réussite :
+   * - `clear` — le statut est levé ;
+   * - `act` — la cible agit malgré lui (la peur qu'on surmonte) ;
+   * - `refuse` — la cible **refuse l'ordre** qu'on lui donne : l'action voulue
+   *   par son maître n'a pas lieu. C'est l'exact miroir d'`act` — ici l'échec
+   *   laisse l'action se faire, et c'est la réussite qui l'annule.
+   */
+  onSuccess: 'clear' | 'act' | 'refuse';
+  /**
+   * Ce qu'un 20 naturel accorde en plus, quel que soit le DD. `clear` fait de
+   * chaque jet une chance de rupture définitive : on ne se libère pas des fils
+   * en tirant dessus, mais un sursaut peut les casser net.
+   */
+  onCritical?: 'clear';
   /** Formulation lisible du jet et de son effet. */
   description: string;
 }
@@ -379,6 +589,11 @@ export interface StatusEffect {
   healReduction?: number;
   /** Jet d'attribut imposé par le statut (purge ou action), ou absent. */
   save?: StatusSave;
+  /**
+   * Ce que TENIR ce statut coûte à celui qui l'a posé. Absent = rien : le
+   * statut vit sa vie une fois lancé.
+   */
+  sustain?: StatusSustain;
   /** Modificateurs de stats appliqués tant que le statut est actif. */
   statEffects: SpellStatEffect[];
   preventsAction: boolean;
@@ -526,6 +741,16 @@ export interface DomainSpellEntry {
   mana: number;
   /** Niveau requis pour débloquer le sort. */
   level: number;
+  /**
+   * Rôle du sort dans l'arsenal, et donc la puissance attendue de lui (cf.
+   * `spell-damage-law.ts`). Un Inferno ne se juge pas à l'aune d'un trait de
+   * feu : sans cette déclaration, la loi nivelle et l'on obtient un sort à 70
+   * mana qui frappe moins fort qu'un sort à 1.
+   *
+   * `majeur` et `signature` doivent PAYER leur puissance — en mana, en
+   * contre-coup, ou en danger pour ses propres alliés.
+   */
+  power?: 'standard' | 'majeur' | 'signature';
   /** Icône du sort (généralement celle de son sous-domaine). */
   icon?: string;
   /** Sous-domaines auxquels le sort appartient. */
@@ -533,8 +758,18 @@ export interface DomainSpellEntry {
   /**
    * Type de dégâts par défaut du sort (cf. damage_type.json : fire, ice, dark…).
    * À défaut, dérivé du domaine ; surchargeable par nœud.
+   *
+   * Valeur spéciale `weapon` (revêtements uniquement) : le bonus prend le type
+   * de l'arme qu'il nimbe au lieu d'y ajouter une nature propre — c'est le cas
+   * du Renforcement, qui densifie sans rien changer à ce qu'il touche.
    */
   damageType?: string;
+  /**
+   * Famille de matériau que ce sort façonne (Terre). Déclarée sur le SORT et
+   * non sur chaque palier : une lame de pierre reste de la pierre en montant
+   * en puissance. Surchargeable par nœud si un palier changeait de famille.
+   */
+  shapesMaterial?: MaterialFamilyKey;
   /** Météo invoquée par le sort (cf. weathers.json) ; surchargeable par nœud. */
   weather?: string;
   /**
@@ -900,6 +1135,18 @@ export interface ResourceIndexEntry {
   category?: string;
   /** Poids unitaire (pour l'inventaire des fiches de personnage). */
   weight?: number;
+  /**
+   * Matière dont l'objet est fait (clé de `materials.json`).
+   *
+   * C'est elle qui décide si un champ magnétique a prise dessus : seuls le fer
+   * et l'acier sont ferromagnétiques. Une chevalière d'or et un astrolabe de
+   * bronze sont donc en métal sans être saisissables — la physique le dit, on
+   * n'a plus à l'écrire objet par objet.
+   *
+   * Absente pour ce qui n'est pas fait d'une matière du catalogue (bois, cuir,
+   * plomb) : ces objets ne sont simplement pas concernés.
+   */
+  material?: string;
   /** Catégorie d'arme (armes uniquement) : pilote le maniement et les emplacements. */
   weaponCategory?: WeaponCategoryKey;
   /** Dégâts minimum / maximum (armes uniquement). */
@@ -948,6 +1195,14 @@ export interface ResourceEntry {
   name: string;
   /** Sous-titre sous le nom, ex. « Ingrédient de base ». */
   subtitle?: string;
+  /**
+   * Matière dont l'objet est fait (clé de `materials.json`).
+   *
+   * Source UNIQUE : la bande « Caractéristiques » la rend à la volée, on ne la
+   * recopie pas dans `info` — deux écritures de la même chose finiraient par
+   * diverger.
+   */
+  material?: string;
   /**
    * Section de la page d'index où la fiche est rangée, pour les collections
    * plates dont les catégories ne sont pas des dossiers (équipement :
@@ -1015,6 +1270,30 @@ export interface WeaponCategoryDef {
   enduranceCost: number;
 }
 
+/** Clés de catégorie d'armure (alignées sur armor_category.json). */
+export type ArmorCategoryKey = 'clothing' | 'light' | 'medium' | 'heavy' | 'shield';
+
+/**
+ * Une catégorie d'armure. Pendant de `WeaponCategoryDef` : ce qu'une classe
+ * apprend à porter s'énonce par catégorie, jamais set par set.
+ */
+export interface ArmorCategoryDef {
+  id: number;
+  key: ArmorCategoryKey;
+  /** Libellé affiché (FR). */
+  name: string;
+  /**
+   * La catégorie s'apprend-elle ? Faux pour les vêtements : une robe d'érudit
+   * n'est pas une armure, et exiger de la « maîtriser » ferait dire à la fiche
+   * qu'un mage porte mal sa propre robe.
+   */
+  requiresProficiency: boolean;
+  /** Ce que la catégorie recouvre, en une phrase. */
+  description: string;
+  /** Quelques pièces représentatives, pour situer la catégorie à la table. */
+  examples: string[];
+}
+
 /** Emplacement d'une pièce d'armure dans un set. */
 export type ArmorSlot = 'head' | 'body' | 'legs' | 'feet' | 'shield';
 
@@ -1038,6 +1317,24 @@ export interface ArmorPiece {
 export interface ArmorEntry {
   name: string;
   subtitle?: string;
+  /**
+   * Catégorie du set (cf. armor_category.json). C'est elle, et non les valeurs
+   * de protection, qui décide si le porteur sait ce qu'il fait : les classes
+   * énoncent leurs maîtrises par catégorie (`ClassDef.armorProficiencies`).
+   */
+  armorCategory?: ArmorCategoryKey;
+  /**
+   * Matière dont l'objet est fait (clé de `materials.json`).
+   *
+   * C'est elle qui décide si un champ magnétique a prise dessus : seuls le fer
+   * et l'acier sont ferromagnétiques. Une chevalière d'or et un astrolabe de
+   * bronze sont donc en métal sans être saisissables — la physique le dit, on
+   * n'a plus à l'écrire objet par objet.
+   *
+   * Absente pour ce qui n'est pas fait d'une matière du catalogue (bois, cuir,
+   * plomb) : ces objets ne sont simplement pas concernés.
+   */
+  material?: string;
   image?: string;
   icon?: string;
   description: string[];
@@ -1072,6 +1369,18 @@ export interface WeaponEntry {
   minDamage?: number;
   /** Dégâts maximum infligés par l'arme. */
   maxDamage?: number;
+  /**
+   * Matière dont l'objet est fait (clé de `materials.json`).
+   *
+   * C'est elle qui décide si un champ magnétique a prise dessus : seuls le fer
+   * et l'acier sont ferromagnétiques. Une chevalière d'or et un astrolabe de
+   * bronze sont donc en métal sans être saisissables — la physique le dit, on
+   * n'a plus à l'écrire objet par objet.
+   *
+   * Absente pour ce qui n'est pas fait d'une matière du catalogue (bois, cuir,
+   * plomb) : ces objets ne sont simplement pas concernés.
+   */
+  material?: string;
   /** Bande « Caractéristiques » : 1 à 4 champs affichés en colonnes. */
   info: ResourceInfoField[];
   /** Liste à puces « Propriétés ». */
@@ -1094,12 +1403,135 @@ export interface AmmunitionEntry {
   damageType?: string;
   /** Bonus de dégâts ajouté à l'arme. */
   damageBonus?: number;
+  /**
+   * Matière du projectile (clé de `materials.json`). C'est elle qui dit
+   * si un champ le saisit : les billes de fronde sont en plomb, donc hors
+   * catalogue et hors de portée d'un aimant.
+   */
+  material?: string;
   /** Catégories d'armes capables de tirer cette munition. */
   compatibleWith?: WeaponCategoryKey[];
   /** Bande « Caractéristiques » : champs libres (lot, rareté…). */
   info?: ResourceInfoField[];
   properties?: string[];
   notes?: string[];
+}
+
+/* ──────────────────────────────────────────
+   MATÉRIAUX DE TERRE
+   Source : public/resources/json/materials.json
+
+   Le domaine de la Terre n'a pas un sort par matériau : il a un sort par
+   FAMILLE, dont la saveur vient de ce qu'on façonne réellement. Ce qui décide,
+   c'est la géologie sous les pieds et ce que le lanceur a étudié.
+─────────────────────────────────────────── */
+
+/** Famille de matériau : un sort de Terre puise dans une seule d'entre elles. */
+export type MaterialFamilyKey =
+  /** Façonnables par le domaine de la Terre. */
+  | 'stone' | 'metal' | 'crystal' | 'sand'
+  /** Matières du monde qu'aucun sort ne conjure : elles nomment les objets. */
+  | 'wood' | 'leather' | 'fibre' | 'glass';
+
+export interface MaterialFamily {
+  key: MaterialFamilyKey;
+  name: string;
+  description: string;
+}
+
+/** Un matériau du catalogue, avec ce qu'il vaut une fois façonné. */
+export interface Material {
+  key: string;
+  name: string;
+  family: MaterialFamilyKey;
+  /** Comment la matière se forme, pour la fiche. */
+  formation: string;
+  /** Sa propriété physique réelle, en une ligne. */
+  property: string;
+  /** Ce qu'elle donne en jeu, en toutes lettres. */
+  effect: string;
+  /**
+   * Facteurs multiplicatifs, dans la même chaîne que la météo et le moment de
+   * la journée (cf. `ambienceDamageFactor`) : une pierre tendre coûte moins et
+   * protège moins, l'obsidienne tranche mieux et casse plus vite.
+   */
+  defenseFactor: number;
+  damageFactor: number;
+  manaFactor: number;
+  /**
+   * Type de dégâts imposé par la matière. Dans ce domaine, ce n'est jamais le
+   * sort qui décide : l'obsidienne tranche, le granite écrase, le rubis brûle.
+   */
+  damageType: string;
+  /** Faiblesses et résistances que la matière transmet à ce qu'elle protège. */
+  weaknesses?: string[];
+  resistances?: string[];
+  /** Statuts que la matière tient à distance (améthyste → peur, charme). */
+  cleanses?: string[];
+  /**
+   * Teinte de la matière, pour la dessiner sur le plateau.
+   *
+   * C'est ce qui rend le choix de matériau lisible d'un coup d'œil : un mur
+   * d'obsidienne ne ressemble pas à un mur de marbre, et le joueur d'en face
+   * doit pouvoir le voir sans survoler la case.
+   */
+  color: string;
+  /**
+   * Ce que la matière VAUT, en absolu — pas en pourcentage d'un chiffre écrit
+   * sur le sort.
+   *
+   * C'est la spécificité du domaine de la Terre : ailleurs, le palier dit les
+   * dégâts et le reste module ; ici, c'est la MATIÈRE qui les dit, et le palier
+   * ne fait que dire combien on en façonne (`materialScale`). Un mage qui
+   * change de pierre change vraiment d'arme.
+   */
+  damage: { min: number; max: number };
+  /** Ce qu'elle protège, en absolu, sur la même échelle. */
+  defense: number;
+  /**
+   * Ce qu'elle oppose à la MAGIE, quand elle y oppose quelque chose.
+   *
+   * **Absent pour la plupart des pierres** : une paroi arrête les coups, pas
+   * les sorts. Les métaux en ont un peu, les cristaux beaucoup — ce sont eux
+   * qui entrent en résonance. Un sort qui accorde de la défense magique n'en
+   * accorde donc AUCUNE s'il est façonné dans une matière qui n'en a pas.
+   */
+  magicDefense?: number;
+  /**
+   * Ce qu'elle coûte en VITESSE à qui la porte — sa densité, en somme.
+   *
+   * C'est le contrepoids de la défense : l'or est le plus lourd des métaux
+   * courants et protège mal, ce qui en fait délibérément une mauvaise armure.
+   * L'ardoise, qui se clive en plaques minces, suit le corps.
+   */
+  speedPenalty: number;
+  /**
+   * Un aimant a-t-il prise dessus ?
+   *
+   * **Fer et acier seulement.** Le bronze, le cuivre, l'étain, l'or, l'argent
+   * et le tungstène sont des métaux, mais aucun champ magnétique ne les tient —
+   * c'est de la physique, pas une convenance. C'est cette propriété, et non un
+   * drapeau posé à la main sur chaque objet, qui décide de ce qu'Attire-métal
+   * peut arracher.
+   */
+  ferromagnetic: boolean;
+  /** Rareté de l'étude : 1 courant, 2 rare, 3 précieux. */
+  studyCost: number;
+  /**
+   * Matériaux à avoir étudiés AVANT celui-ci. Un alliage n'existe pas dans le
+   * sol : le bronze demande le cuivre et l'étain.
+   */
+  requires?: string[];
+  /** Régions où la matière se trouve vraiment. Vide = nulle part (alliage). */
+  native: string[];
+}
+
+/** La géologie plausible d'une région, pour peupler une scène d'un clic. */
+export interface MaterialRegion {
+  key: string;
+  name: string;
+  description: string;
+  materials: string[];
 }
 
 /* ──────────────────────────────────────────

@@ -70,6 +70,10 @@ function toIndexEntry(slug, data) {
   if (rarity) entry.rarity = rarity;
   if (data.image) entry.image = data.image;
   if (data.icon) entry.icon = data.icon;
+  // Matière de l'objet : la fabrique de combat lit l'INDEX, pas les fiches.
+  // Sans cette ligne, l'index régénéré perdait la composition — et avec elle
+  // tout ce qui en dépend, à commencer par le magnétisme.
+  if (data.material) entry.material = data.material;
   // Poids unitaire pour l'inventaire des fiches de personnage (0 si non défini).
   entry.weight = parseWeight(data);
   // Règles de portage des sacs à dos, lues dans la bande d'identité de la fiche

@@ -1,15 +1,50 @@
 {
   "name": "Tenue de pirate",
   "subtitle": "Chemise large, foulard et bottes de cuir",
+  "armorCategory": "clothing",
+  "material": "cuir",
   "description": [
     "Chemise ample, ceinture large et bottes de cuir : la tenue débraillée mais pratique de l'écumeur des mers, faite pour grimper, sauter et se battre."
   ],
   "pieces": [
-    { "slot": "head", "label": "Foulard de tête",     "physicalArmor": 0, "magicalProtection": 0, "weight": 0.2 },
-    { "slot": "body", "label": "Chemise et baudrier",  "physicalArmor": 1, "magicalProtection": 0, "weight": 2.3 },
-    { "slot": "legs", "label": "Pantalon large",       "physicalArmor": 1, "magicalProtection": 0, "weight": 1.2 },
-    { "slot": "feet", "label": "Bottes de cuir",       "physicalArmor": 1, "magicalProtection": 0, "weight": 1.3 }
+    {
+      "slot": "head",
+      "label": "Foulard de tête",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 0.2
+    },
+    {
+      "slot": "body",
+      "label": "Chemise et baudrier",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 2.3
+    },
+    {
+      "slot": "legs",
+      "label": "Pantalon large",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1.2
+    },
+    {
+      "slot": "feet",
+      "label": "Bottes de cuir",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1.3
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
-  "properties": ["Liberté de mouvement pour l'abordage", "Baudrier pour sabre et pistolet"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
+  ],
+  "properties": [
+    "Liberté de mouvement pour l'abordage",
+    "Baudrier pour sabre et pistolet"
+  ]
 }

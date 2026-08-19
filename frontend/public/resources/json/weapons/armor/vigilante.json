@@ -1,15 +1,50 @@
 {
   "name": "Tenue de vigilante",
   "subtitle": "Masque et cape du justicier nocturne",
+  "armorCategory": "light",
+  "material": "cuir",
   "description": [
     "Un masque pour cacher un visage, une cape pour disparaître, un cuir renforcé pour encaisser : l'attirail de celui qui rend justice hors la loi."
   ],
   "pieces": [
-    { "slot": "head", "label": "Masque et capuche",      "physicalArmor": 1, "magicalProtection": 0, "weight": 0.5 },
-    { "slot": "body", "label": "Cape et plastron de cuir","physicalArmor": 2, "magicalProtection": 0, "weight": 2.6 },
-    { "slot": "legs", "label": "Pantalon renforcé",       "physicalArmor": 1, "magicalProtection": 0, "weight": 1 },
-    { "slot": "feet", "label": "Bottes de cuir",          "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 }
+    {
+      "slot": "head",
+      "label": "Masque et capuche",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 0.5
+    },
+    {
+      "slot": "body",
+      "label": "Cape et plastron de cuir",
+      "physicalArmor": 2,
+      "magicalProtection": 0,
+      "weight": 2.6
+    },
+    {
+      "slot": "legs",
+      "label": "Pantalon renforcé",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1
+    },
+    {
+      "slot": "feet",
+      "label": "Bottes de cuir",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1.1
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Peu commune" }],
-  "properties": ["Dissimule l'identité", "Cape utile pour planer et amortir les chutes"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
+  ],
+  "properties": [
+    "Dissimule l'identité",
+    "Cape utile pour planer et amortir les chutes"
+  ]
 }

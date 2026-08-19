@@ -1,15 +1,50 @@
 {
   "name": "Tenue d'héritier",
   "subtitle": "Habits fins brodés aux armes de la maison",
+  "armorCategory": "clothing",
+  "material": "soie",
   "description": [
     "Étoffes coûteuses et broderies aux armes familiales : une tenue d'apparat qui affiche le rang plus qu'elle ne protège."
   ],
   "pieces": [
-    { "slot": "head", "label": "Toque ornée",        "physicalArmor": 0, "magicalProtection": 0, "weight": 0.3 },
-    { "slot": "body", "label": "Pourpoint brodé",     "physicalArmor": 1, "magicalProtection": 0, "weight": 2.2 },
-    { "slot": "legs", "label": "Chausses fines",      "physicalArmor": 0, "magicalProtection": 0, "weight": 1 },
-    { "slot": "feet", "label": "Souliers de cour",    "physicalArmor": 0, "magicalProtection": 0, "weight": 1 }
+    {
+      "slot": "head",
+      "label": "Toque ornée",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 0.3
+    },
+    {
+      "slot": "body",
+      "label": "Pourpoint brodé",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 2.2
+    },
+    {
+      "slot": "legs",
+      "label": "Chausses fines",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 1
+    },
+    {
+      "slot": "feet",
+      "label": "Souliers de cour",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 1
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Peu commune" }],
-  "properties": ["Affiche le rang et la lignée", "Ouvre les portes des hautes sociétés"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
+  ],
+  "properties": [
+    "Affiche le rang et la lignée",
+    "Ouvre les portes des hautes sociétés"
+  ]
 }

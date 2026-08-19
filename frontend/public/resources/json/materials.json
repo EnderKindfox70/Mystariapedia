@@ -1,0 +1,942 @@
+{
+    "_note": "Catalogue des matières du monde. Les familles PIERRE, MÉTAL, CRISTAL et SABLE sont celles que le domaine de la Terre peut façonner (cf. shapesMaterial) ; les autres — bois, cuir, fibre, verre — existent pour que chaque objet puisse dire de quoi il est fait, sans être conjurables pour autant. Les facteurs entrent dans la même chaîne de multiplicateurs que la météo et le moment de la journée.",
+    "families": [
+        {
+            "key": "stone",
+            "name": "Pierre",
+            "description": "Roches sédimentaires, ignées et métamorphiques. Ce qui tient une forme."
+        },
+        {
+            "key": "metal",
+            "name": "Métal",
+            "description": "Minerais natifs et alliages. Un alliage exige d'avoir étudié ses composants."
+        },
+        {
+            "key": "crystal",
+            "name": "Cristal",
+            "description": "Gemmes et quartz. Les plus rares à étudier, les plus typés à l'usage."
+        },
+        {
+            "key": "sand",
+            "name": "Sable",
+            "description": "Sédiments non consolidés. Ne tiennent aucune forme : ils attendent des sorts qui leur sont propres, pas ceux de la roche."
+        },
+        {
+            "key": "wood",
+            "name": "Bois",
+            "description": "Hampes, arcs et manches. Rien ne le conjure : il pousse."
+        },
+        {
+            "key": "leather",
+            "name": "Cuir",
+            "description": "Peau travaillée. Souple, silencieuse, elle ne protège que de peu."
+        },
+        {
+            "key": "fibre",
+            "name": "Fibre",
+            "description": "Toile, laine, soie, chanvre. Ce qui se tisse ou se torsade."
+        },
+        {
+            "key": "glass",
+            "name": "Verre",
+            "description": "Contenants et lentilles. Tranchant une fois brisé, inutile avant."
+        }
+    ],
+    "materials": [
+        {
+            "key": "granite",
+            "name": "Granite",
+            "family": "stone",
+            "formation": "Ignée, refroidissement lent",
+            "property": "Très dur",
+            "effect": "Défense élevée, la référence du domaine.",
+            "defenseFactor": 1.15,
+            "damageFactor": 1,
+            "manaFactor": 1,
+            "studyCost": 1,
+            "native": [
+                "aldenmoor",
+                "etats-souterrains"
+            ],
+            "color": "#8d8a86",
+            "damage": {
+                "min": 12,
+                "max": 20
+            },
+            "defense": 28,
+            "damageType": "bludgeoning",
+            "speedPenalty": 4,
+            "ferromagnetic": false
+        },
+        {
+            "key": "gres",
+            "name": "Grès",
+            "family": "stone",
+            "formation": "Sédimentaire, dépôts compactés",
+            "property": "Tendre et poreux",
+            "effect": "Défense faible, mais l'appel en coûte moins : la roche se laisse faire.",
+            "defenseFactor": 0.8,
+            "damageFactor": 0.9,
+            "manaFactor": 0.8,
+            "studyCost": 1,
+            "native": [
+                "royaume-abandonne"
+            ],
+            "color": "#c2a878",
+            "damage": {
+                "min": 11,
+                "max": 18
+            },
+            "defense": 19,
+            "damageType": "bludgeoning",
+            "speedPenalty": 2,
+            "ferromagnetic": false
+        },
+        {
+            "key": "calcaire",
+            "name": "Calcaire",
+            "family": "stone",
+            "formation": "Sédimentaire, dépôts compactés",
+            "property": "Se dissout à l'acide",
+            "effect": "Défense modeste, et ce qu'on en tire cède devant l'acide et le poison.",
+            "defenseFactor": 0.9,
+            "damageFactor": 0.95,
+            "manaFactor": 0.9,
+            "weaknesses": [
+                "poison"
+            ],
+            "studyCost": 1,
+            "native": [
+                "aldenmoor",
+                "luxarion"
+            ],
+            "color": "#d8d2c0",
+            "damage": {
+                "min": 11,
+                "max": 19
+            },
+            "defense": 22,
+            "damageType": "bludgeoning",
+            "speedPenalty": 2,
+            "ferromagnetic": false
+        },
+        {
+            "key": "basalte",
+            "name": "Basalte",
+            "family": "stone",
+            "formation": "Ignée, refroidissement rapide",
+            "property": "Dense et lourd",
+            "effect": "Bonne défense ; la masse se paie à l'incantation.",
+            "defenseFactor": 1.2,
+            "damageFactor": 1.05,
+            "manaFactor": 1.1,
+            "studyCost": 1,
+            "native": [
+                "archipel"
+            ],
+            "color": "#4a4844",
+            "damage": {
+                "min": 13,
+                "max": 21
+            },
+            "defense": 29,
+            "damageType": "bludgeoning",
+            "speedPenalty": 6,
+            "ferromagnetic": false
+        },
+        {
+            "key": "obsidienne",
+            "name": "Obsidienne",
+            "family": "stone",
+            "formation": "Ignée, refroidissement très rapide",
+            "property": "Tranchante mais cassante",
+            "effect": "Les meilleurs dégâts de la famille, tranchants — et la pire défense.",
+            "defenseFactor": 0.65,
+            "damageFactor": 1.35,
+            "manaFactor": 1,
+            "damageType": "slashing",
+            "studyCost": 2,
+            "native": [
+                "archipel"
+            ],
+            "color": "#241f2b",
+            "damage": {
+                "min": 16,
+                "max": 27
+            },
+            "defense": 16,
+            "speedPenalty": 2,
+            "ferromagnetic": false
+        },
+        {
+            "key": "andesite",
+            "name": "Andésite",
+            "family": "stone",
+            "formation": "Ignée, refroidissement rapide",
+            "property": "Intermédiaire",
+            "effect": "Sans défaut ni éclat : le matériau qu'on prend quand on ne sait pas ce qui vient.",
+            "defenseFactor": 1,
+            "damageFactor": 1,
+            "manaFactor": 1,
+            "studyCost": 1,
+            "native": [
+                "archipel"
+            ],
+            "color": "#7a7570",
+            "damage": {
+                "min": 12,
+                "max": 20
+            },
+            "defense": 24,
+            "damageType": "bludgeoning",
+            "speedPenalty": 4,
+            "ferromagnetic": false
+        },
+        {
+            "key": "ardoise",
+            "name": "Ardoise",
+            "family": "stone",
+            "formation": "Métamorphique, clivage en feuillets",
+            "property": "Se clive en plaques minces",
+            "effect": "Légère et souple : une armure qui suit le corps, pas un mur.",
+            "defenseFactor": 0.9,
+            "damageFactor": 0.9,
+            "manaFactor": 0.85,
+            "studyCost": 1,
+            "native": [
+                "aldenmoor",
+                "etats-souterrains"
+            ],
+            "color": "#5b6672",
+            "damage": {
+                "min": 11,
+                "max": 18
+            },
+            "defense": 22,
+            "damageType": "slashing",
+            "speedPenalty": 1,
+            "ferromagnetic": false
+        },
+        {
+            "key": "marbre",
+            "name": "Marbre",
+            "family": "stone",
+            "formation": "Métamorphique, depuis le calcaire",
+            "property": "Poli, prestigieux",
+            "effect": "Médiocre au combat : ce qu'il vaut, il le vaut aux yeux des gens.",
+            "defenseFactor": 0.85,
+            "damageFactor": 0.85,
+            "manaFactor": 1,
+            "studyCost": 2,
+            "native": [
+                "luxarion"
+            ],
+            "color": "#e6e2da",
+            "damage": {
+                "min": 10,
+                "max": 17
+            },
+            "defense": 20,
+            "damageType": "bludgeoning",
+            "speedPenalty": 2,
+            "ferromagnetic": false
+        },
+        {
+            "key": "sable-desertique",
+            "name": "Sable désertique",
+            "family": "sand",
+            "formation": "Sédiment non consolidé, quartz érodé",
+            "property": "Ne tient aucune forme",
+            "effect": "Défense dérisoire, mais il emplit l'espace : ce qu'on en tire porte en zone.",
+            "defenseFactor": 0.5,
+            "damageFactor": 0.85,
+            "manaFactor": 0.7,
+            "studyCost": 1,
+            "native": [
+                "royaume-abandonne"
+            ],
+            "color": "#d9bd85",
+            "damage": {
+                "min": 10,
+                "max": 17
+            },
+            "defense": 12,
+            "damageType": "bludgeoning",
+            "speedPenalty": 0,
+            "ferromagnetic": false
+        },
+        {
+            "key": "sable-volcanique",
+            "name": "Sable volcanique",
+            "family": "sand",
+            "formation": "Sédiment non consolidé, basalte broyé",
+            "property": "Noir et brûlant",
+            "effect": "Même principe que le sable désertique, teinté de feu.",
+            "defenseFactor": 0.5,
+            "damageFactor": 0.9,
+            "manaFactor": 0.7,
+            "damageType": "fire",
+            "studyCost": 1,
+            "native": [
+                "archipel"
+            ],
+            "color": "#4f463f",
+            "damage": {
+                "min": 11,
+                "max": 18
+            },
+            "defense": 12,
+            "speedPenalty": 0,
+            "ferromagnetic": false
+        },
+        {
+            "key": "sable-corallien",
+            "name": "Sable corallien",
+            "family": "sand",
+            "formation": "Sédiment non consolidé, carbonate de calcium",
+            "property": "Calcaire broyé",
+            "effect": "Comme le sable, et comme le calcaire : l'acide en vient à bout.",
+            "defenseFactor": 0.5,
+            "damageFactor": 0.85,
+            "manaFactor": 0.7,
+            "weaknesses": [
+                "poison"
+            ],
+            "studyCost": 1,
+            "native": [
+                "archipel"
+            ],
+            "color": "#e4cfc0",
+            "damage": {
+                "min": 10,
+                "max": 17
+            },
+            "defense": 12,
+            "damageType": "bludgeoning",
+            "speedPenalty": 0,
+            "ferromagnetic": false
+        },
+        {
+            "key": "silice",
+            "name": "Sable de silice",
+            "family": "sand",
+            "formation": "Sédiment non consolidé, côtier",
+            "property": "Le plus générique",
+            "effect": "Le sable de tout le monde : rien à en dire, rien à en craindre.",
+            "defenseFactor": 0.5,
+            "damageFactor": 0.85,
+            "manaFactor": 0.7,
+            "studyCost": 1,
+            "native": [
+                "luxarion"
+            ],
+            "color": "#d5cbb4",
+            "damage": {
+                "min": 10,
+                "max": 17
+            },
+            "defense": 12,
+            "damageType": "bludgeoning",
+            "speedPenalty": 0,
+            "ferromagnetic": false
+        },
+        {
+            "key": "cuivre",
+            "name": "Cuivre",
+            "family": "metal",
+            "formation": "Minerai natif",
+            "property": "Mou et conducteur",
+            "effect": "Défense faible, et le courant y entre comme chez lui.",
+            "defenseFactor": 0.85,
+            "damageFactor": 0.95,
+            "manaFactor": 0.9,
+            "weaknesses": [
+                "lightning"
+            ],
+            "studyCost": 1,
+            "native": [
+                "etats-souterrains",
+                "aldenmoor"
+            ],
+            "color": "#b5703c",
+            "damage": {
+                "min": 11,
+                "max": 19
+            },
+            "defense": 20,
+            "damageType": "bludgeoning",
+            "speedPenalty": 4,
+            "magicDefense": 3,
+            "ferromagnetic": false
+        },
+        {
+            "key": "etain",
+            "name": "Étain",
+            "family": "metal",
+            "formation": "Minerai natif",
+            "property": "Très mou, bas point de fusion",
+            "effect": "Presque inutile seul. On l'étudie pour ce qu'il permet d'allier.",
+            "defenseFactor": 0.75,
+            "damageFactor": 0.85,
+            "manaFactor": 0.85,
+            "studyCost": 1,
+            "native": [
+                "etats-souterrains"
+            ],
+            "color": "#b9bcc0",
+            "damage": {
+                "min": 10,
+                "max": 17
+            },
+            "defense": 18,
+            "damageType": "bludgeoning",
+            "speedPenalty": 2,
+            "magicDefense": 2,
+            "ferromagnetic": false
+        },
+        {
+            "key": "fer",
+            "name": "Fer",
+            "family": "metal",
+            "formation": "Minerai natif",
+            "property": "Robuste",
+            "effect": "L'étalon du métal : rien d'exceptionnel, rien à redire.",
+            "defenseFactor": 1,
+            "damageFactor": 1,
+            "manaFactor": 1,
+            "studyCost": 1,
+            "native": [
+                "etats-souterrains",
+                "aldenmoor",
+                "luxarion"
+            ],
+            "color": "#8a8f96",
+            "damage": {
+                "min": 12,
+                "max": 20
+            },
+            "defense": 24,
+            "damageType": "slashing",
+            "speedPenalty": 4,
+            "magicDefense": 4,
+            "ferromagnetic": true
+        },
+        {
+            "key": "bronze",
+            "name": "Bronze",
+            "family": "metal",
+            "formation": "Alliage — cuivre et étain",
+            "property": "Supérieur au fer",
+            "effect": "Meilleur que le fer sur les deux tableaux. Un alliage ne se trouve pas dans le sol : il faut avoir étudié ses deux composants pour le conjurer.",
+            "defenseFactor": 1.15,
+            "damageFactor": 1.1,
+            "manaFactor": 1.05,
+            "studyCost": 2,
+            "requires": [
+                "cuivre",
+                "etain"
+            ],
+            "native": [],
+            "color": "#a9762f",
+            "damage": {
+                "min": 13,
+                "max": 22
+            },
+            "defense": 28,
+            "damageType": "slashing",
+            "speedPenalty": 6,
+            "magicDefense": 6,
+            "ferromagnetic": false
+        },
+        {
+            "key": "or",
+            "name": "Or",
+            "family": "metal",
+            "formation": "Minerai natif",
+            "property": "Mou et inaltérable",
+            "effect": "Défense dérisoire, mais il ne se corrompt pas — et il ouvre des portes.",
+            "defenseFactor": 0.7,
+            "damageFactor": 0.8,
+            "manaFactor": 1.2,
+            "resistances": [
+                "dark"
+            ],
+            "studyCost": 3,
+            "native": [
+                "etats-souterrains"
+            ],
+            "color": "#d4af37",
+            "damage": {
+                "min": 10,
+                "max": 16
+            },
+            "defense": 17,
+            "damageType": "bludgeoning",
+            "speedPenalty": 8,
+            "magicDefense": 14,
+            "ferromagnetic": false
+        },
+        {
+            "key": "argent",
+            "name": "Argent",
+            "family": "metal",
+            "formation": "Minerai natif",
+            "property": "Le meilleur conducteur, et il ternit",
+            "effect": "Défense modeste, mais la meilleure résonance qui soit avec l'or : la lumière glisse dessus, et la mort n'y trouve pas prise. Le courant, lui, y entre comme chez lui.",
+            "damage": {
+                "min": 12,
+                "max": 19
+            },
+            "defense": 17,
+            "magicDefense": 14,
+            "speedPenalty": 4,
+            "damageType": "slashing",
+            "weaknesses": [
+                "lightning"
+            ],
+            "resistances": [
+                "light",
+                "death"
+            ],
+            "color": "#c9ccd1",
+            "studyCost": 2,
+            "native": [
+                "etats-souterrains"
+            ],
+            "damageFactor": 0.95,
+            "defenseFactor": 0.7,
+            "manaFactor": 1.05,
+            "ferromagnetic": false
+        },
+        {
+            "key": "acier",
+            "name": "Acier",
+            "family": "metal",
+            "formation": "Alliage — fer travaillé au carbone",
+            "property": "Dur et tenace à la fois",
+            "effect": "Le meilleur compromis du métal : il encaisse comme le bronze et tranche mieux. Le carbone vient de la forge, pas du sol — il suffit d'avoir étudié le fer.",
+            "damage": {
+                "min": 15,
+                "max": 24
+            },
+            "defense": 30,
+            "magicDefense": 4,
+            "speedPenalty": 4,
+            "damageType": "slashing",
+            "color": "#7c848c",
+            "studyCost": 2,
+            "requires": [
+                "fer"
+            ],
+            "native": [],
+            "damageFactor": 1.2,
+            "defenseFactor": 1.25,
+            "manaFactor": 1.05,
+            "ferromagnetic": true
+        },
+        {
+            "key": "tungstene",
+            "name": "Tungstène",
+            "family": "metal",
+            "formation": "Minerai des veines profondes",
+            "property": "Le plus réfractaire, et presque le plus dense",
+            "effect": "Rien ne le fait fondre et presque rien ne l'entame — mais il pèse comme du plomb et ne répond à aucune résonance. Une armure pour qui ne compte pas courir.",
+            "damage": {
+                "min": 14,
+                "max": 22
+            },
+            "defense": 34,
+            "magicDefense": 2,
+            "speedPenalty": 9,
+            "damageType": "bludgeoning",
+            "resistances": [
+                "fire"
+            ],
+            "color": "#5f636a",
+            "studyCost": 3,
+            "native": [
+                "etats-souterrains"
+            ],
+            "damageFactor": 1.1,
+            "defenseFactor": 1.42,
+            "manaFactor": 1.25,
+            "ferromagnetic": false
+        },
+        {
+            "key": "quartz",
+            "name": "Quartz",
+            "family": "crystal",
+            "formation": "Cristal commun",
+            "property": "Piézoélectrique",
+            "effect": "Sous la contrainte, il rend une étincelle : la seule pierre qui parle à la foudre.",
+            "defenseFactor": 0.95,
+            "damageFactor": 1.05,
+            "manaFactor": 1,
+            "damageType": "lightning",
+            "studyCost": 2,
+            "native": [
+                "etats-souterrains"
+            ],
+            "color": "#cfd6dc",
+            "damage": {
+                "min": 13,
+                "max": 21
+            },
+            "defense": 23,
+            "speedPenalty": 2,
+            "magicDefense": 9,
+            "ferromagnetic": false
+        },
+        {
+            "key": "amethyste",
+            "name": "Améthyste",
+            "family": "crystal",
+            "formation": "Quartz teinté",
+            "property": "Réputée apaisante",
+            "effect": "Ce qu'elle protège résiste un peu mieux à la peur et au charme.",
+            "defenseFactor": 1,
+            "damageFactor": 1,
+            "manaFactor": 1.1,
+            "cleanses": [
+                "peur",
+                "charme"
+            ],
+            "studyCost": 2,
+            "native": [
+                "etats-souterrains"
+            ],
+            "color": "#8f6fb5",
+            "damage": {
+                "min": 12,
+                "max": 20
+            },
+            "defense": 24,
+            "damageType": "piercing",
+            "speedPenalty": 2,
+            "magicDefense": 10,
+            "ferromagnetic": false
+        },
+        {
+            "key": "rubis",
+            "name": "Rubis",
+            "family": "crystal",
+            "formation": "Corindon coloré",
+            "property": "Résiste à la chaleur",
+            "effect": "Bonne défense, et le feu ne l'entame pas.",
+            "defenseFactor": 1.2,
+            "damageFactor": 1.1,
+            "manaFactor": 1.2,
+            "resistances": [
+                "fire"
+            ],
+            "studyCost": 3,
+            "native": [
+                "archipel"
+            ],
+            "color": "#a63447",
+            "damage": {
+                "min": 13,
+                "max": 22
+            },
+            "defense": 29,
+            "damageType": "fire",
+            "speedPenalty": 4,
+            "magicDefense": 8,
+            "ferromagnetic": false
+        },
+        {
+            "key": "diamant",
+            "name": "Diamant",
+            "family": "crystal",
+            "formation": "Carbone sous très haute pression",
+            "property": "Le plus dur qui soit",
+            "effect": "La meilleure défense du catalogue. Et l'étude la plus chère de toutes.",
+            "defenseFactor": 1.4,
+            "damageFactor": 1.15,
+            "manaFactor": 1.35,
+            "studyCost": 3,
+            "native": [
+                "etats-souterrains"
+            ],
+            "color": "#bfe0ea",
+            "damage": {
+                "min": 14,
+                "max": 23
+            },
+            "defense": 34,
+            "damageType": "piercing",
+            "speedPenalty": 4,
+            "magicDefense": 12,
+            "ferromagnetic": false
+        },
+        {
+            "key": "plomb",
+            "name": "Plomb",
+            "family": "metal",
+            "formation": "Minerai natif",
+            "property": "Mou et très dense",
+            "effect": "Il ne tient aucun tranchant et protège à peine, mais il pèse — c'est tout ce qu'on lui demande quand on leste un filet ou une bille.",
+            "damage": {
+                "min": 9,
+                "max": 15
+            },
+            "defense": 14,
+            "speedPenalty": 7,
+            "damageType": "bludgeoning",
+            "color": "#6e7075",
+            "studyCost": 1,
+            "native": [
+                "etats-souterrains"
+            ],
+            "ferromagnetic": false,
+            "damageFactor": 0.75,
+            "defenseFactor": 0.58,
+            "manaFactor": 0.7
+        },
+        {
+            "key": "bois",
+            "name": "Bois",
+            "family": "wood",
+            "formation": "Végétal",
+            "property": "Léger et souple",
+            "effect": "Une hampe, un fût, un manche. Il encaisse mal mais ne pèse rien, et il brûle.",
+            "damage": {
+                "min": 7,
+                "max": 12
+            },
+            "defense": 9,
+            "speedPenalty": 1,
+            "damageType": "bludgeoning",
+            "weaknesses": [
+                "fire"
+            ],
+            "color": "#8a6136",
+            "studyCost": 1,
+            "native": [],
+            "ferromagnetic": false,
+            "damageFactor": 0.6,
+            "defenseFactor": 0.38,
+            "manaFactor": 1
+        },
+        {
+            "key": "osier",
+            "name": "Osier",
+            "family": "wood",
+            "formation": "Végétal tressé",
+            "property": "Tressé, creux, très léger",
+            "effect": "Des paniers et des hottes. Ça porte beaucoup et ne protège de rien.",
+            "damage": {
+                "min": 4,
+                "max": 8
+            },
+            "defense": 5,
+            "speedPenalty": 1,
+            "damageType": "bludgeoning",
+            "weaknesses": [
+                "fire"
+            ],
+            "color": "#c3a165",
+            "studyCost": 1,
+            "native": [],
+            "ferromagnetic": false,
+            "damageFactor": 0.4,
+            "defenseFactor": 0.21,
+            "manaFactor": 1
+        },
+        {
+            "key": "cuir",
+            "name": "Cuir",
+            "family": "leather",
+            "formation": "Peau tannée",
+            "property": "Souple et silencieux",
+            "effect": "Il suit le corps et ne fait aucun bruit. Contre une lame, il vaut mieux que rien — guère plus.",
+            "damage": {
+                "min": 5,
+                "max": 9
+            },
+            "defense": 11,
+            "speedPenalty": 1,
+            "damageType": "bludgeoning",
+            "weaknesses": [
+                "fire"
+            ],
+            "color": "#7a4a28",
+            "studyCost": 1,
+            "native": [],
+            "ferromagnetic": false,
+            "damageFactor": 0.45,
+            "defenseFactor": 0.46,
+            "manaFactor": 1
+        },
+        {
+            "key": "toile",
+            "name": "Toile",
+            "family": "fibre",
+            "formation": "Tissage de lin ou de chanvre",
+            "property": "Rêche et résistante",
+            "effect": "Des sacs, des vareuses, des voiles. Elle ne protège pas : elle contient.",
+            "damage": {
+                "min": 2,
+                "max": 4
+            },
+            "defense": 3,
+            "speedPenalty": 0,
+            "damageType": "bludgeoning",
+            "weaknesses": [
+                "fire"
+            ],
+            "color": "#c9bda1",
+            "studyCost": 1,
+            "native": [],
+            "ferromagnetic": false,
+            "damageFactor": 0.2,
+            "defenseFactor": 0.13,
+            "manaFactor": 1
+        },
+        {
+            "key": "chanvre",
+            "name": "Chanvre",
+            "family": "fibre",
+            "formation": "Fibre torsadée",
+            "property": "Solide en traction",
+            "effect": "Cordes, filets, lignes. Il tient au tirage et cède au tranchant.",
+            "damage": {
+                "min": 2,
+                "max": 4
+            },
+            "defense": 2,
+            "speedPenalty": 0,
+            "damageType": "bludgeoning",
+            "weaknesses": [
+                "fire",
+                "slashing"
+            ],
+            "color": "#a8955f",
+            "studyCost": 1,
+            "native": [],
+            "ferromagnetic": false,
+            "damageFactor": 0.2,
+            "defenseFactor": 0.08,
+            "manaFactor": 1
+        },
+        {
+            "key": "soie",
+            "name": "Soie",
+            "family": "fibre",
+            "formation": "Fil sécrété",
+            "property": "Fine, légère, coûteuse",
+            "effect": "Presque invisible et presque indéchirable pour son poids. On la tend là où l'on ne veut pas être vu.",
+            "damage": {
+                "min": 2,
+                "max": 3
+            },
+            "defense": 2,
+            "speedPenalty": 0,
+            "damageType": "bludgeoning",
+            "weaknesses": [
+                "fire"
+            ],
+            "color": "#e3dbe8",
+            "studyCost": 2,
+            "native": [],
+            "ferromagnetic": false,
+            "damageFactor": 0.15,
+            "defenseFactor": 0.08,
+            "manaFactor": 1
+        },
+        {
+            "key": "verre",
+            "name": "Verre",
+            "family": "glass",
+            "formation": "Silice fondue",
+            "property": "Cassant, tranchant une fois brisé",
+            "effect": "Il ne sert à rien tant qu'il est entier, et coupe dès qu'il ne l'est plus.",
+            "damage": {
+                "min": 10,
+                "max": 16
+            },
+            "defense": 4,
+            "speedPenalty": 1,
+            "damageType": "slashing",
+            "color": "#b6d4d8",
+            "studyCost": 1,
+            "native": [],
+            "ferromagnetic": false,
+            "damageFactor": 0.8,
+            "defenseFactor": 0.17,
+            "manaFactor": 1
+        }
+    ],
+    "_regions_note": "Géologie plausible par région, pour peupler une scène d'un clic. Ce que le sol offre VRAIMENT décide du palier Manipulation.",
+    "regions": [
+        {
+            "key": "aldenmoor",
+            "name": "Aldenmoor / Dorsale",
+            "description": "Granite en montagne, calcaire en bassin.",
+            "materials": [
+                "granite",
+                "calcaire",
+                "ardoise",
+                "fer",
+                "cuivre"
+            ]
+        },
+        {
+            "key": "luxarion",
+            "name": "Luxarion",
+            "description": "Bassin calcaire, côtes de silice.",
+            "materials": [
+                "calcaire",
+                "marbre",
+                "silice",
+                "fer"
+            ]
+        },
+        {
+            "key": "royaume-abandonne",
+            "name": "Royaume Abandonné",
+            "description": "Grès et sédiments arides.",
+            "materials": [
+                "gres",
+                "sable-desertique"
+            ]
+        },
+        {
+            "key": "etats-souterrains",
+            "name": "États Souterrains",
+            "description": "Granite profond, métamorphique, veines concentrées.",
+            "materials": [
+                "granite",
+                "ardoise",
+                "quartz",
+                "fer",
+                "cuivre",
+                "etain",
+                "amethyste",
+                "or",
+                "diamant",
+                "argent",
+                "tungstene"
+            ]
+        },
+        {
+            "key": "archipel",
+            "name": "Archipel de la Nuit",
+            "description": "Chaîne volcanique : basalte, andésite, obsidienne.",
+            "materials": [
+                "basalte",
+                "andesite",
+                "obsidienne",
+                "sable-volcanique",
+                "sable-corallien",
+                "rubis"
+            ]
+        },
+        {
+            "key": "haute-mer",
+            "name": "Haute mer / pont de navire",
+            "description": "Aucune géologie : rien à manipuler, tout doit être conjuré.",
+            "materials": []
+        }
+    ]
+}

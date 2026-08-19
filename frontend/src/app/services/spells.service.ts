@@ -11,13 +11,16 @@ import lifeDomain from '../../../public/resources/json/domains/life.json';
 import deathDomain from '../../../public/resources/json/domains/death.json';
 import timeDomain from '../../../public/resources/json/domains/time.json';
 import spaceDomain from '../../../public/resources/json/domains/space.json';
+import renforcementDomain from '../../../public/resources/json/domains/renforcement.json';
+import emissionDomain from '../../../public/resources/json/domains/emission.json';
 import combinations from '../../../public/resources/json/domains/combinations.json';
 import { DomainCombination, DomainEntry, DomainSpellEntry, SpellPageData } from '../wiki.types';
 
 /**
  * Source unique et automatique des pages de sorts.
  *
- * Le service parcourt les 12 fichiers de domaine + `combinations.json` et
+ * Le service parcourt les 12 fichiers de domaine, les deux usages non polarisés
+ * (Renforcement, Émission) + `combinations.json` et
  * construit un index de tous les sorts par leur `key` (= slug de page). Chaque
  * sort déclaré dans un JSON obtient donc automatiquement sa page
  * `/magics/spell/<key>` — aucun enregistrement manuel n'est nécessaire.
@@ -38,6 +41,10 @@ export class SpellsService {
     death: deathDomain as unknown as DomainEntry,
     time: timeDomain as unknown as DomainEntry,
     space: spaceDomain as unknown as DomainEntry,
+    // Magie non polarisée : deux usages de la mana brute, sans domaine ni
+    // affinité. Leurs sorts se lisent et se tarifent comme les autres.
+    renforcement: renforcementDomain as unknown as DomainEntry,
+    emission: emissionDomain as unknown as DomainEntry,
   };
 
   /** Index `key → page`, construit une fois au démarrage. */

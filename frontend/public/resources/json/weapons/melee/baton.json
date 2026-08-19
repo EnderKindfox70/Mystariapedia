@@ -6,11 +6,20 @@
     "Sous-estimé, il désarme, bouscule et brise sans verser le sang — et beaucoup de mages le préfèrent comme focus."
   ],
   "weaponCategory": "staff",
+  "material": "bois",
   "minDamage": 3,
   "maxDamage": 7,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "1,5 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,5 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Excellent en parade",

@@ -7,7 +7,7 @@
         "Une potion simple qui restaure une petite quantité de mana. Idéale pour les aventuriers débutants ou ceux qui ont besoin d'un regain rapide d'énergie magique. Cette version a été développé en dilluant et utilisant moins d'ingrédients pour pouvoir en vendre en plus grande quantité, mais elle est moins efficace que les potions de mana plus puissantes."
     ],
     "effects": [
-        "Restaure une petite quantité de mana"
+        "Restaure 5 points de mana, plus 5 % de la réserve maximale du buveur."
     ],
     "secondary-effects": [
         "Peut provoquer une sensation de nausée si consommée en grande quantité."

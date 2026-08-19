@@ -1,5 +1,6 @@
 {
   "name": "Épée longue",
+  "material": "acier",
   "subtitle": "Lame d'acier à une ou deux mains",
   "image": "/resources/media/pictures/weapons/straight_sword.png",
   "description": [
@@ -10,8 +11,16 @@
   "minDamage": 4,
   "maxDamage": 9,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "1,5 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,5 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Polyvalente : taille et estoc",

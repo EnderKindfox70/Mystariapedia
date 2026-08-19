@@ -1,17 +1,34 @@
 {
   "name": "Bouclier rond",
+  "material": "fer",
   "subtitle": "Garde polyvalente de bois cerclé",
+  "armorCategory": "shield",
   "description": [
     "Disque de bois renforcé d'une bordure et d'un umbo de métal, le bouclier rond est aussi simple qu'efficace. Il dévie les coups, pare les traits et frappe au besoin.",
     "Léger et maniable, il accompagne aussi bien le fantassin que le voyageur. Son umbo central peut servir d'arme pour bousculer un adversaire."
   ],
-  "resistances": ["slashing", "piercing"],
-  "weaknesses": ["fire"],
+  "resistances": [
+    "slashing",
+    "piercing"
+  ],
+  "weaknesses": [
+    "fire"
+  ],
   "pieces": [
-    { "slot": "shield", "label": "Bouclier rond", "physicalArmor": 10, "magicalProtection": 2, "weight": 3 }
+    {
+      "slot": "shield",
+      "label": "Bouclier rond",
+      "physicalArmor": 10,
+      "magicalProtection": 2,
+      "weight": 3
+    }
   ],
   "info": [
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Polyvalent : parade et frappe à l'umbo",

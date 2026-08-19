@@ -1,38 +1,57 @@
 {
-    "name": "Sac de voyageur",
-    "subtitle": "Sac de toile",
-    "category": "sacs",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Un sac de grosse toile à deux bretelles, avec un rabat lacé, une poche extérieure et des passants de cuir pour sangler une couverture ou une corde par-dessus. Le compromis honnête : assez pour une semaine de route, assez léger pour la faire.",
-        "C'est le sac des colporteurs, des pèlerins et des aventuriers de première année. Il ne durera pas dix ans, il ne survivra pas à une chute dans un torrent, mais il coûte quarante pièces d'or et il porte tout ce qu'il faut pour dormir dehors sans y laisser sa santé."
-    ],
-    "info": [
-        { "key": "weight",   "label": "Poids",    "value": "1 kg" },
-        { "key": "type",     "label": "Type",     "value": "Sac à dos" },
-        { "key": "rarity",   "label": "Rareté",   "value": "Commune" },
-        { "key": "capacity", "label": "Capacité", "value": "+8 kg" },
-        { "key": "value",    "label": "Valeur",   "value": "40 pièces d'or" }
-    ],
-    "properties": [
-        "Ajoute 8 kg à la capacité de charge de son porteur.",
-        "Deux bretelles : la charge repose sur les épaules, non sur une seule.",
-        "Passants extérieurs pour sangler une couverture, une corde ou une lanterne — de l'encombrant qui n'entame pas le volume intérieur.",
-        "Une poche extérieure lacée, de quoi garder à portée de main ce qu'on ne veut pas chercher : briquet, rations du jour, sels."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les drapiers et les selliers de bourg, sur les marchés d'étape et dans les comptoirs de caravane.",
-            "Contrôler les coutures d'épaule avant d'acheter : c'est là que cède un sac de toile, toujours en pleine côte et jamais au village."
-        ]
+  "name": "Sac de voyageur",
+  "subtitle": "Sac de toile",
+  "material": "toile",
+  "category": "sacs",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Un sac de grosse toile à deux bretelles, avec un rabat lacé, une poche extérieure et des passants de cuir pour sangler une couverture ou une corde par-dessus. Le compromis honnête : assez pour une semaine de route, assez léger pour la faire.",
+    "C'est le sac des colporteurs, des pèlerins et des aventuriers de première année. Il ne durera pas dix ans, il ne survivra pas à une chute dans un torrent, mais il coûte quarante pièces d'or et il porte tout ce qu'il faut pour dormir dehors sans y laisser sa santé."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1 kg"
     },
-    "notes": [
-        "Sangler le lourd en haut et près du dos. Un sac bien chargé pèse deux fois moins qu'un sac rempli au hasard.",
-        "Sous la pluie, envelopper les parchemins dans du cuir huilé. La toile boit, et ce qu'elle boit, le contenu le garde."
-    ],
-    "references": [
-
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Sac à dos"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "capacity",
+      "label": "Capacité",
+      "value": "+8 kg"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "40 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Ajoute 8 kg à la capacité de charge de son porteur.",
+    "Deux bretelles : la charge repose sur les épaules, non sur une seule.",
+    "Passants extérieurs pour sangler une couverture, une corde ou une lanterne — de l'encombrant qui n'entame pas le volume intérieur.",
+    "Une poche extérieure lacée, de quoi garder à portée de main ce qu'on ne veut pas chercher : briquet, rations du jour, sels."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les drapiers et les selliers de bourg, sur les marchés d'étape et dans les comptoirs de caravane.",
+      "Contrôler les coutures d'épaule avant d'acheter : c'est là que cède un sac de toile, toujours en pleine côte et jamais au village."
     ]
+  },
+  "notes": [
+    "Sangler le lourd en haut et près du dos. Un sac bien chargé pèse deux fois moins qu'un sac rempli au hasard.",
+    "Sous la pluie, envelopper les parchemins dans du cuir huilé. La toile boit, et ce qu'elle boit, le contenu le garde."
+  ],
+  "references": []
 }

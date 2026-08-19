@@ -104,6 +104,8 @@ export function parseShape(text: string | undefined): AbilityShape {
   const raw = asText(text).trim().toLowerCase();
   if (!raw) return { kind: 'single' };
   if (raw.startsWith('soi')) return { kind: 'self' };
+  // « Tous les marqués » : pas une zone, une liste de porteurs.
+  if (raw.includes('marqu')) return { kind: 'marked' };
   if (raw.startsWith('rayon')) return { kind: 'radius', meters: firstNumber(raw) ?? CELL_METERS };
   if (raw.startsWith('cône') || raw.startsWith('cone'))
     return { kind: 'cone', meters: firstNumber(raw) ?? CELL_METERS };
@@ -133,6 +135,8 @@ export function shapeLabel(shape: AbilityShape): string {
       return `Ligne ${shape.meters} m`;
     case 'targets':
       return `${shape.count} cibles`;
+    case 'marked':
+      return 'Tous les marqués';
     default:
       return 'Cible unique';
   }
@@ -154,6 +158,10 @@ export function cellsInShape(
 
   switch (shape.kind) {
     case 'self':
+    // Une détonation de marques n'a pas d'empreinte au sol : ce qu'elle touche
+    // est désigné par un statut, pas par une surface. On rend la case du
+    // lanceur pour que les appelants génériques aient quelque chose de sûr.
+    case 'marked':
       return keep([origin]);
 
     case 'radius': {
@@ -259,6 +267,15 @@ export interface ReachableCell {
   pos: GridPos;
   /** Coût cumulé en mètres depuis le point de départ. */
   cost: number;
+  /**
+   * Case d'où l'on y arrive au meilleur prix. Absente sur le point de départ.
+   *
+   * C'est ce qui permet de REMONTER le trajet (cf. `pathTo`) au lieu de ne
+   * connaître que son prix : sans elle, on sait qu'une case coûte 9 m sans
+   * pouvoir montrer par où l'on passe, et un contournement d'obstacle reste
+   * invisible jusqu'à ce que le pion y soit.
+   */
+  from?: GridPos;
 }
 
 /**
@@ -315,7 +332,7 @@ export function reachableCells(
         if (cost > budgetMeters + 1e-6) continue;
         const key = cellKey(next);
         if (cost < (result.get(key)?.cost ?? Infinity)) {
-          const entry = { pos: next, cost };
+          const entry = { pos: next, cost, from: current.pos };
           result.set(key, entry);
           queue.push(entry);
         }
@@ -323,6 +340,71 @@ export function reachableCells(
     }
   }
   return result;
+}
+
+/**
+ * Existe-t-il un cheminement de `from` à `to` en contournant le solide ?
+ *
+ * Ni la vue ni le budget de déplacement n'entrent ici : c'est la question
+ * qu'on pose d'un projectile qui CONTOURNE — il se moque des murs pourvu qu'il
+ * reste une ouverture, mais rien ne le fait entrer dans une pièce scellée.
+ *
+ * Le passage se juge case par case avec `solid`, que l'appelant fournit : un
+ * gouffre arrête les pas et pas un rayon, un fourré arrête la vue et pas un
+ * rayon. Seul ce qui arrête les DEUX est vraiment plein.
+ */
+export function hasPathThrough(
+  from: GridPos,
+  to: GridPos,
+  grid: { width: number; height: number },
+  solid: (cell: string) => boolean,
+): boolean {
+  if (samePos(from, to)) return true;
+  if (!inBounds(from, grid) || !inBounds(to, grid)) return false;
+  // Une cible emmurée dans le solide n'est joignable par aucun chemin.
+  if (solid(cellKey(to))) return false;
+
+  const goal = cellKey(to);
+  const seen = new Set<string>([cellKey(from)]);
+  const queue: GridPos[] = [from];
+  while (queue.length) {
+    const current = queue.shift()!;
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        const next = { x: current.x + dx, y: current.y + dy };
+        if (!inBounds(next, grid)) continue;
+        const key = cellKey(next);
+        if (seen.has(key)) continue;
+        if (key === goal) return true;
+        if (solid(key)) continue;
+        seen.add(key);
+        queue.push(next);
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Le trajet réellement emprunté pour rejoindre `target`, du départ à l'arrivée.
+ *
+ * Remonte les prédécesseurs laissés par `reachableCells`. Rend un tableau vide
+ * si la case n'est pas atteignable — c'est le cas d'une téléportation ou d'un
+ * échange de place, qui ne SUIVENT aucun chemin, et que l'appelant reconnaît
+ * ainsi sans avoir à le demander.
+ */
+export function pathTo(reach: Map<string, ReachableCell>, target: GridPos): GridPos[] {
+  let step = reach.get(cellKey(target));
+  if (!step) return [];
+  const path: GridPos[] = [step.pos];
+  // Garde-fou : une boucle de prédécesseurs ne doit pas figer la vue.
+  for (let guard = 0; step?.from && guard < 4096; guard++) {
+    step = reach.get(cellKey(step.from));
+    if (!step) break;
+    path.unshift(step.pos);
+  }
+  return path;
 }
 
 /**

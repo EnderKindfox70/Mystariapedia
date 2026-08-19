@@ -4,11 +4,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { of } from 'rxjs/internal/observable/of';
-import { CrossRef, ResourceEntry, ResourceIndexEntry } from '../../wiki.types';
+import { ResourceInfoField, CrossRef, ResourceEntry, ResourceIndexEntry } from '../../wiki.types';
 import { WikiLinkPipe } from '../../pipes/wiki-link-pipe';
 import { Navbar } from '../../components/navbar/navbar';
 import { PotionUsageService } from '../../services/potion-usage-service';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
+import { compositionLabel } from '../../combat/materials';
 
 /** Libellés d'affichage par catégorie de ressource. */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -43,6 +44,22 @@ export class ResourceEntryComponent {
   private paramMap = toSignal(this.route.paramMap, { requireSync: true });
 
   entry = computed(() => this.routeData()['entry'] as ResourceEntry);
+
+  /**
+   * La bande de caractéristiques, composition comprise.
+   *
+   * Elle est AJOUTÉE au rendu plutôt que recopiée dans le JSON de chaque fiche :
+   * la matière est déjà déclarée une fois, sur `material`, et la dupliquer dans
+   * `info` aurait créé deux vérités qui finiraient par diverger.
+   */
+  infoFields = computed<ResourceInfoField[]>(() => {
+    const base = this.entry().info;
+    const composition = compositionLabel(this.entry().material);
+    return composition
+      ? [...base, { key: 'material', label: 'Composition', value: composition }]
+      : [...base];
+  });
+
 
   /**
    * Catégorie de la fiche : segment d'URL pour les ressources naturelles

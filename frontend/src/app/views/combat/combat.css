@@ -317,6 +317,9 @@
 .cb-turn { color: var(--faded-ivory); }
 .cb-turn strong { color: var(--ancient-gold); }
 .cb-turn__end { color: var(--ancient-gold); cursor: help; }
+/* Un créneau dépensé s'efface au lieu de disparaître : on doit pouvoir lire
+   d'un coup d'œil ce qu'il reste du tour, pas deviner ce qui manque. */
+.cb-turn__spent { color: rgba(217, 204, 184, .45); }
 .cb-modes { display: flex; gap: .35rem; align-items: center; }
 
 .cb-grid {
@@ -324,6 +327,8 @@
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
   gap: 1px;
   padding: 1px;
+  /* Ancre du calque de déplacement (`.cb-slide__layer`). */
+  position: relative;
   border: 1px solid rgba(139, 107, 47, .35);
   background: rgba(139, 107, 47, .18);
   /* Les cases étant carrées, la hauteur du plateau suit sa largeur. On borne
@@ -384,6 +389,88 @@
 /* Pion sélectionné pendant la préparation. */
 .cb-cell.is-picked { box-shadow: inset 0 0 0 2px var(--ancient-gold); }
 
+/* ── Le trajet ───────────────────────────────────────────────────────────
+   Une case verte dit qu'on peut aller là, pas par où. Le trajet sous le
+   curseur montre le contournement AVANT le clic — c'est là qu'il sert, puisque
+   c'est le détour qui coûte. Chaque case porte son rang, pour qu'on lise le
+   sens de marche sans animation.
+─────────────────────────────────────────────────────────────────────────── */
+.cb-cell.is-path {
+  background: rgba(75, 122, 82, .62);
+  box-shadow: inset 0 0 0 1px rgba(151, 199, 158, .75);
+}
+.cb-cell.is-path::after {
+  content: attr(data-step);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: .55rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(232, 240, 232, .8);
+  pointer-events: none;
+}
+/* La dernière case du trajet est la destination : on l'appuie. */
+.cb-cell.is-path:hover { background: rgba(107, 168, 116, .8); }
+
+/* ── Le pion qui parcourt sa route ───────────────────────────────────────
+   Le calque épouse le CONTENU de la grille (le `padding: 1px` en moins), ce
+   qui rend le calcul de case exact : sans ça, le fantôme dérive d'un pixel par
+   colonne et n'arrive pas tout à fait sur sa case.
+─────────────────────────────────────────────────────────────────────────── */
+.cb-slide__layer {
+  position: absolute;
+  inset: 1px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* La boîte qui voyage fait exactement UNE case, et rien d'autre. Elle imite une
+   `.cb-cell` pour que le pion qu'elle contient soit un `.cb-token` ordinaire,
+   sans une seule règle de géométrie à réécrire — y compris pour une créature de
+   2×2, qui déborde de sa case ici comme là.
+
+   DEUX PIÈGES, tous deux payés une fois :
+
+   1. `.cb-token` est déclaré plus bas dans cette feuille. Un fantôme qui aurait
+      porté les deux classes se serait vu imposer la géométrie du pion ordinaire
+      (`inset: 8%`, largeur relative au parent) et aurait pris la taille du
+      plateau entier. D'où l'emboîtement plutôt que le cumul de classes.
+
+   2. Un pourcentage rangé dans une variable ne se résout PAS au moment où on
+      l'écrit, mais dans la propriété où il atterrit : le même `--cell` valait la
+      largeur d'une case dans `left`, et tout autre chose dans `top`, où 100 %
+      désigne la hauteur. On ne calcule donc plus qu'une largeur, la hauteur en
+      découle par `aspect-ratio`, et le déplacement se fait en `translate` — dont
+      les pourcentages se lisent sur la boîte elle-même, carrée par construction. */
+.cb-slide__layer .cb-slide {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Largeur d'une case, gouttières déduites — la même que celle du plateau. */
+  width: calc((100% - (var(--cols) - 1) * 1px) / var(--cols));
+  aspect-ratio: 1;
+  /* Un pas = une case + sa gouttière, dans les deux axes. */
+  transform: translate(
+    calc(var(--x) * 100% + var(--x) * 1px),
+    calc(var(--y) * 100% + var(--y) * 1px)
+  );
+  /* Un pas dure ce que dure un pas côté composant (`STEP_MS`) : linéaire, pour
+     qu'une longue route se lise à vitesse constante plutôt que par à-coups. */
+  transition: transform .11s linear;
+}
+/* Le pion en chemin s'éclaire : on doit le suivre des yeux sur tout le trajet. */
+.cb-slide__layer .cb-token { box-shadow: 0 0 10px rgba(139, 107, 47, .55); }
+/* Le vrai pion est déjà arrivé : on le tait le temps que le fantôme le rejoigne. */
+.cb-token.is-sliding { visibility: hidden; }
+
+/* Qui a demandé du calme n'a pas de fantôme à suivre : le composant n'anime
+   pas, et cette règle couvre le cas où un trajet serait déjà en cours. */
+@media (prefers-reduced-motion: reduce) {
+  .cb-slide__layer { display: none; }
+  .cb-token.is-sliding { visibility: visible; }
+}
+
 /* ── Palette de décor ────────────────────────────────────────────────────── */
 
 .cb-palette {
@@ -413,6 +500,27 @@
 .cb-brush.is-on { background: var(--tint); border-color: var(--ancient-gold); color: var(--faded-ivory); }
 .cb-brush__glyph { font-size: .85rem; opacity: .8; }
 
+/* La barre « qui joue quoi » : discrète, mais toujours lisible — on doit
+   savoir d'un coup d'œil qui tient la main. */
+.cb-auto { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
+.cb-auto__label { font-variant: small-caps; letter-spacing: .06em; opacity: .7; font-size: .82rem; }
+.cb-auto__team {
+  padding: .12rem .5rem; font: inherit; font-size: .82rem; cursor: pointer;
+  color: var(--faded-ivory); background: transparent;
+  border: 1px solid rgba(139, 107, 47, .35); border-radius: .2rem;
+}
+.cb-auto__team:hover { background: rgba(139, 107, 47, .18); }
+.cb-auto__team.is-on { background: rgba(107, 31, 31, .35); border-color: var(--ancient-gold); }
+.cb-auto__speed { display: flex; align-items: center; gap: .35rem; font-size: .8rem; opacity: .75; }
+.cb-auto__speed input { width: 7rem; }
+.cb-auto__halt { font-size: .82rem; color: var(--ancient-gold); }
+.cb-auto__halt--warn { color: #e8c9c0; }
+.cb-btn.is-on { background: rgba(107, 31, 31, .35); border-color: var(--ancient-gold); }
+
+.cb-palette--layouts { margin-top: .35rem; }
+/* Les cartes ne portent pas de teinte : ce sont des choix, pas des pinceaux. */
+.cb-brush--layout { font-variant: small-caps; letter-spacing: .04em; }
+.cb-brush--layout.is-on { background: rgba(139, 107, 47, .35); border-color: var(--ancient-gold); }
 .cb-palette__hint {
   margin-left: auto;
   font-size: .7rem;
@@ -527,6 +635,63 @@
 }
 .cb-hint .cb-mini { margin-left: .5rem; }
 
+/* Choix d'un objet métallique — projectile à lancer, ou prise à arracher. */
+.cb-metal {
+  margin: 0 0 .6rem;
+  padding: .45rem .6rem;
+  border-left: 3px solid var(--ancient-gold);
+  background: rgba(139, 107, 47, .09);
+}
+.cb-metal__title {
+  margin: 0 0 .35rem;
+  font-size: .78rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ancient-gold);
+}
+.cb-metal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .25rem;
+}
+.cb-metal__pick {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .3rem .45rem;
+  border: 1px solid rgba(139, 107, 47, .45);
+  border-radius: 3px;
+  background: rgba(20, 16, 12, .35);
+  color: inherit;
+  font: inherit;
+  font-size: .82rem;
+  text-align: left;
+  cursor: pointer;
+}
+.cb-metal__pick:hover { background: rgba(139, 107, 47, .22); }
+.cb-metal__pick.is-chosen {
+  border-color: var(--ancient-gold);
+  background: rgba(139, 107, 47, .3);
+}
+.cb-metal__meta { opacity: .75; font-size: .76rem; white-space: nowrap; }
+.cb-metal__note { margin: .35rem 0 0; font-size: .74rem; opacity: .7; }
+
+/* Un objet posé au sol : un losange discret dans le coin de la case. */
+.cb-ground {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  font-size: .6rem;
+  line-height: 1;
+  color: var(--ancient-gold);
+  text-shadow: 0 0 2px rgba(0, 0, 0, .9);
+  pointer-events: none;
+}
+
 .cb-ability__list {
   list-style: none;
   margin: 0;
@@ -574,7 +739,27 @@
 /* L'essoufflement se signale comme un danger : c'est un combattant qui devient
    une proie, pas un simple malus de plus. */
 .cb-tag--winded { background: rgba(120, 66, 18, .45); color: #f0c98a; border-color: rgba(200, 130, 40, .5); }
+/* Les fils : ce qu'on tient sur les autres, et ce qu'on est devenu pour un
+   autre. Deux faces d'une même emprise, donc une même teinte violette — celle
+   des Ténèbres — l'une pleine côté maître, l'autre en pointillé côté pantin. */
+.cb-tag--sustain { background: rgba(78, 46, 110, .45); color: #d9c2f0; border-color: rgba(150, 100, 200, .55); }
+.cb-tag--puppet { background: rgba(78, 46, 110, .3); color: #d9c2f0; border-style: dashed; border-color: rgba(150, 100, 200, .55); }
 .cb-ability__heal { background: rgba(75, 122, 82, .3) !important; color: #cfe3cf !important; }
+/* Le créneau d'action bonus se marque SUR le nom, pas dans la ligne de chiffres :
+   c'est une nature, pas une valeur — et c'est ce qui explique qu'un bouton
+   reste vif alors que l'attaque du tour est déjà partie. */
+.cb-ability__bonus {
+  margin-left: .35rem;
+  padding: 0 .3rem;
+  border: 1px solid rgba(139, 107, 47, .5);
+  border-radius: 2px;
+  font-family: 'EB Garamond', serif;
+  font-size: .62rem;
+  font-style: normal;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ancient-gold);
+}
 .cb-ability[data-kind='class'] { border-left-color: var(--domain-lightning); }
 .cb-ability[data-kind='item'] { border-left-color: var(--team-allies); }
 
@@ -736,3 +921,434 @@
   line-height: 1.5;
   color: rgba(217, 204, 184, .58);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HORS COMBAT — LE CAMP
+
+   Le camp occupe la place de l'arène et rien d'autre : l'ordre d'initiative
+   reste à gauche, le journal à droite. Il est bâti en blocs empilés — le
+   temps, la survie, les dépouilles — parce qu'on y descend dans cet ordre-là :
+   on décide combien de temps passe, on regarde ce que ça coûte, puis on
+   fouille.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Où en est la table. Trois créneaux, comme les onglets du journal : la même
+   grammaire sert partout, on ne réapprend rien. */
+.cb-phases { display: flex; gap: .3rem; }
+.cb-phases button {
+  padding: .3rem .8rem;
+  border: 1px solid rgba(139, 107, 47, .35);
+  background: rgba(11, 9, 8, .6);
+  color: rgba(217, 204, 184, .7);
+  font-family: 'Cinzel', serif;
+  font-size: .74rem;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+.cb-phases button.is-on { background: rgba(139, 107, 47, .28); color: var(--faded-ivory); border-color: var(--ancient-gold); }
+.cb-phases button:disabled { opacity: .35; cursor: not-allowed; }
+
+.cb-round--clock { border-color: rgba(139, 107, 47, .45); color: rgba(217, 204, 184, .75); }
+
+/* La barre du camp : elle prend la place de la barre de combat au-dessus de la
+   grille. Tout y tient en lignes courtes, parce qu'elle ne doit pas repousser
+   le plateau hors de l'écran — c'est lui qu'on regarde, même hors combat. */
+.cb-campbar {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  margin-bottom: .7rem;
+  padding: .6rem .7rem;
+  border: 1px solid rgba(139, 107, 47, .22);
+  background: rgba(11, 9, 8, .5);
+}
+.cb-campbar__clock { display: flex; flex-wrap: wrap; gap: .6rem; align-items: baseline; }
+.cb-campbar__row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
+.cb-campbar__label {
+  min-width: 4.5rem;
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: rgba(217, 204, 184, .45);
+}
+.cb-campbar__sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 .3rem;
+  background: rgba(139, 107, 47, .3);
+}
+
+/* L'heure est l'information maîtresse du camp : elle porte la taille d'un
+   titre, pas celle d'une mention. */
+.cb-clock {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  letter-spacing: .05em;
+  color: var(--ancient-gold);
+}
+.cb-clock__moment { color: rgba(217, 204, 184, .7); font-style: italic; }
+.cb-clock__moment.is-locked { color: var(--cosmic-violet); font-style: normal; }
+
+/* ── Activité et durée ───────────────────────────────────────────────────── */
+
+.cb-acts { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .55rem; }
+.cb-act {
+  padding: .3rem .7rem;
+  border: 1px solid rgba(139, 107, 47, .35);
+  background: rgba(28, 26, 24, .8);
+  color: rgba(217, 204, 184, .75);
+  font-family: 'Cinzel', serif;
+  font-size: .74rem;
+  cursor: pointer;
+}
+.cb-act:hover { background: rgba(139, 107, 47, .2); }
+.cb-act.is-on { background: rgba(139, 107, 47, .4); border-color: var(--ancient-gold); color: var(--faded-ivory); }
+
+.cb-steps { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin-top: .35rem; }
+.cb-steps__custom { display: inline-flex; align-items: center; gap: .3rem; font-size: .74rem; color: rgba(217, 204, 184, .6); }
+.cb-steps__custom input {
+  width: 4rem;
+  padding: .2rem .3rem;
+  border: 1px solid rgba(139, 107, 47, .4);
+  background: rgba(11, 9, 8, .85);
+  color: var(--old-paper);
+  font-size: .74rem;
+}
+
+/* ── Survie ──────────────────────────────────────────────────────────────── */
+
+/* Les jauges tiennent SOUS la ligne du combattant, dans la colonne de
+   gauche : c'est là qu'on regarde qui est en état de repartir. */
+.cb-party__gauges { display: flex; flex-wrap: wrap; gap: .5rem; margin: .35rem 0 .2rem; }
+
+.cb-gauge { display: flex; align-items: center; gap: .35rem; }
+.cb-gauge__icon { width: 1rem; height: 1rem; fill: none; stroke: rgba(217, 204, 184, .6); stroke-width: 1.6; }
+.cb-gauge__segments { display: inline-flex; gap: 2px; }
+
+/* Un cran se raye d'un clic, exactement comme sur la fiche : c'est le même
+   geste, il doit avoir la même apparence. */
+.cb-gauge__seg {
+  width: .55rem;
+  height: 1rem;
+  padding: 0;
+  border: 1px solid rgba(139, 107, 47, .4);
+  background: transparent;
+  cursor: pointer;
+}
+.cb-gauge__seg.is-filled { background: var(--ancient-gold); border-color: var(--ancient-gold); }
+.cb-gauge__seg:hover { border-color: var(--faded-ivory); }
+
+.cb-gauge__state { font-size: .7rem; font-style: italic; color: rgba(217, 204, 184, .5); }
+
+.cb-party__side { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; justify-content: flex-end; }
+
+/* Ce que le vide coûte, en rouge : c'est un malus qui s'applique pour de vrai,
+   pas une note de couleur. */
+.cb-party__malus {
+  margin: .1rem 0 .2rem;
+  font-size: .72rem;
+  color: #c98b7a;
+  letter-spacing: .02em;
+}
+
+/* ── Dépouilles ──────────────────────────────────────────────────────────── */
+
+.cb-loot__items { list-style: none; margin: .4rem 0 0; padding: 0 0 0 .4rem; display: flex; flex-wrap: wrap; gap: .3rem; }
+.cb-loot__take {
+  padding: .18rem .5rem;
+  border: 1px dashed rgba(139, 107, 47, .5);
+  background: rgba(28, 26, 24, .7);
+  color: var(--old-paper);
+  font-size: .72rem;
+  cursor: pointer;
+}
+.cb-loot__take:hover:not(:disabled) { background: rgba(139, 107, 47, .25); border-style: solid; }
+.cb-loot__take:disabled { opacity: .4; cursor: not-allowed; }
+.cb-loot__gold { font-size: .72rem; color: var(--ancient-gold); }
+
+/* Le journal distingue les lignes du hors-combat : le temps, la survie et le
+   butin ne se confondent pas avec les coups portés. */
+.cb-log__line[data-kind='time'] { border-left-color: rgba(139, 107, 47, .8); }
+.cb-log__line[data-kind='survival'] { border-left-color: #c98b7a; }
+.cb-log__line[data-kind='loot'] { border-left-color: var(--ancient-gold); }
+
+/* ── Aperçu du report sur les fiches ─────────────────────────────────────
+   Un dialogue plutôt qu'un panneau : écrire sur les fiches est le seul geste
+   de cette page qui sorte de la rencontre, et il doit demander à être vu. */
+
+.cb-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(6, 5, 4, .75);
+}
+
+.cb-modal__box {
+  width: min(34rem, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--ancient-gold);
+  background: var(--abyss);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, .6);
+}
+.cb-modal__box h2 {
+  margin: 0 0 .4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  letter-spacing: .07em;
+  color: var(--ancient-gold);
+}
+.cb-modal__note { margin: 0 0 .8rem; font-size: .78rem; font-style: italic; color: rgba(217, 204, 184, .55); }
+
+.cb-modal__list { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .35rem; }
+.cb-modal__list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: baseline;
+  padding: .35rem .5rem;
+  border-left: 2px solid var(--ancient-gold);
+  background: rgba(11, 9, 8, .6);
+  font-size: .85rem;
+}
+/* Une fiche sans écart reste listée, en retrait : savoir qu'elle n'a rien
+   gagné vaut mieux que de la voir disparaître. */
+.cb-modal__list li.is-idle { border-left-color: rgba(139, 107, 47, .3); opacity: .5; }
+.cb-modal__diff { font-size: .76rem; color: rgba(217, 204, 184, .65); }
+
+.cb-modal__actions { display: flex; gap: .5rem; justify-content: flex-end; }
+
+/* ── Fouille sur la grille ───────────────────────────────────────────────
+   Un corps qui a encore quelque chose à rendre doit se voir SUR le plateau :
+   c'est là qu'il est tombé, et c'est là qu'on va le chercher. */
+
+.cb-token.is-lootable {
+  outline: 2px dashed var(--ancient-gold);
+  outline-offset: -2px;
+  opacity: .85;
+  cursor: pointer;
+}
+.cb-token.is-opened { outline-style: solid; box-shadow: 0 0 0 3px rgba(139, 107, 47, .45); }
+/* Le porteur : celui qui empochera ce qu'on ramasse. */
+.cb-token.is-carrier { box-shadow: 0 0 0 2px var(--team-allies); }
+
+.cb-lootpanel h3 { display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline; }
+.cb-lootpanel__who { font-family: 'Spectral', serif; font-size: .78rem; color: rgba(217, 204, 184, .55); }
+.cb-lootpanel .cb-loot__items { padding: 0; margin: .2rem 0 .6rem; }
+.cb-loot__take--gold { border-color: var(--ancient-gold); color: var(--ancient-gold); }
+
+/* ── Changer un pion de camp ─────────────────────────────────────────────
+   Trois créneaux qui portent la couleur de leur camp : on lit d'un coup d'œil
+   où est le pion, et où on peut l'envoyer. Même code couleur que le liseré des
+   lignes d'initiative et des pions sur la grille. */
+
+.cb-teamswitch { display: flex; gap: .25rem; margin-bottom: .4rem; }
+.cb-teamswitch button {
+  flex: 1;
+  padding: .28rem .3rem;
+  border: 1px solid rgba(139, 107, 47, .35);
+  border-bottom: 2px solid var(--team-neutres);
+  background: rgba(11, 9, 8, .6);
+  color: rgba(217, 204, 184, .7);
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.cb-teamswitch button[data-team='allies'] { border-bottom-color: var(--team-allies); }
+.cb-teamswitch button[data-team='ennemis'] { border-bottom-color: var(--team-ennemis); }
+.cb-teamswitch button:hover { background: rgba(139, 107, 47, .2); }
+.cb-teamswitch button.is-on {
+  background: rgba(139, 107, 47, .3);
+  border-color: var(--ancient-gold);
+  color: var(--faded-ivory);
+}
+
+/* ── Menu contextuel ─────────────────────────────────────────────────────
+   Posé aux coordonnées du clic, au-dessus de tout sauf du dialogue de report. */
+
+.cb-menu {
+  position: fixed;
+  z-index: 35;
+  min-width: 11rem;
+  padding: .35rem;
+  border: 1px solid var(--ancient-gold);
+  background: var(--abyss);
+  box-shadow: 0 .6rem 1.6rem rgba(0, 0, 0, .6);
+}
+.cb-menu__title {
+  margin: 0 0 .3rem;
+  padding: 0 .35rem .3rem;
+  border-bottom: 1px solid rgba(139, 107, 47, .3);
+  font-family: 'Cinzel', serif;
+  font-size: .8rem;
+  color: var(--faded-ivory);
+}
+.cb-menu__label {
+  margin: .3rem 0 .2rem;
+  padding: 0 .35rem;
+  font-size: .66rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: rgba(217, 204, 184, .4);
+}
+.cb-menu__item {
+  display: block;
+  width: 100%;
+  padding: .3rem .5rem;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--old-paper);
+  font-family: 'Spectral', serif;
+  font-size: .8rem;
+  text-align: left;
+  cursor: pointer;
+}
+.cb-menu__item[data-team='allies'] { border-left-color: var(--team-allies); }
+.cb-menu__item[data-team='ennemis'] { border-left-color: var(--team-ennemis); }
+.cb-menu__item[data-team='neutres'] { border-left-color: var(--team-neutres); }
+.cb-menu__item:hover:not(:disabled) { background: rgba(139, 107, 47, .25); }
+/* Le camp courant reste listé, éteint : savoir où l'on est vaut mieux que de
+   voir la ligne disparaître. */
+.cb-menu__item:disabled { opacity: .45; cursor: default; }
+.cb-menu__item--danger { margin-top: .3rem; border-top: 1px solid rgba(139, 107, 47, .3); color: #c98b7a; }
+
+/* Les crans que rend une prise, en marge de son nom : on compare les trois
+   tailles d'un coup d'œil sans lire les infobulles. */
+.cb-campbar .cb-mini em { margin-left: .3rem; font-style: normal; color: var(--ancient-gold); }
+.cb-campbar__hint { font-size: .72rem; font-style: italic; color: rgba(217, 204, 184, .5); }
+
+/* Les chances de la table de chasse, affichées à côté du bouton : on doit
+   savoir ce qu'on risque avant de lancer les dés, pas le lire après coup. */
+.cb-odds { display: inline-flex; flex-wrap: wrap; gap: .5rem; }
+.cb-odds__item {
+  font-size: .7rem;
+  color: rgba(217, 204, 184, .5);
+  white-space: nowrap;
+}
+.cb-odds__item em { margin-left: .2rem; font-style: normal; color: rgba(139, 107, 47, .9); }
+
+/* ── Le décor qu'on manipule ─────────────────────────────────────────────
+   L'état d'une porte doit se lire SUR LE PLATEAU : ouverte, verrouillée ou
+   enfoncée change la carte, et le joueur doit le voir sans cliquer. */
+
+.cb-cell[data-terrain='porte'].is-locked { box-shadow: inset 0 0 0 2px var(--ritual-red); }
+/* Ouverte : la case s'efface presque — elle ne barre plus rien. */
+.cb-cell[data-terrain='porte'].is-open { opacity: .35; }
+.cb-cell[data-terrain='porte'].is-picked { box-shadow: inset 0 0 0 2px var(--ancient-gold); }
+
+/* L'eau profonde se distingue de la flaque : plus sombre, plus dense. */
+.cb-cell[data-terrain='eau-profonde'] { box-shadow: inset 0 0 1rem rgba(0, 0, 0, .5); }
+
+.cb-doorpanel .cb-btn em {
+  margin-left: .35rem;
+  font-style: normal;
+  font-size: .72rem;
+  color: var(--ancient-gold);
+}
+
+/* Géologie de la scène : les préréglages régionaux, puis le détail matériau
+   par matériau. Déplié à la demande — ça ne concerne qu'un domaine. */
+.cb-geology__toggle { cursor: pointer; }
+.cb-geology__toggle.is-on { border-color: var(--ancient-gold); color: var(--faded-ivory); }
+.cb-geology {
+  margin: .6rem 0 0;
+  padding: .6rem .8rem;
+  border: 1px solid rgba(139, 107, 47, .3);
+  background: rgba(21, 19, 17, .6);
+}
+.cb-geology__intro { margin: 0 0 .5rem; font-size: .78rem; opacity: .8; }
+.cb-geology__regions { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .5rem; }
+.cb-geology__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: .25rem;
+}
+
+/* Un mur conjuré : il remplit sa case, et sa jauge dit ce qu'il lui reste à
+   encaisser. Le chiffre en coin est le compte à rebours d'un mur qui se
+   décomposera — un mur façonné dans le sol n'en a pas. */
+.cb-wall {
+  position: absolute;
+  inset: 0;
+  display: block;
+  /* La teinte VIENT DE LA MATIÈRE (`--wall-color`) : un mur d'obsidienne ne
+     ressemble pas à un mur de marbre, et ça se voit sans survoler la case. Les
+     hachures par-dessus disent « maçonnerie » sans masquer la couleur. */
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, .22) 0 3px,
+      rgba(255, 255, 255, .08) 3px 6px
+    ),
+    var(--wall-color, #8d8a86);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55);
+  pointer-events: none;
+}
+.cb-wall.is-open { box-shadow: inset 0 0 0 2px var(--ancient-gold); }
+.cb-wall__hp {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--ancient-gold);
+  transition: width .25s;
+}
+.cb-wall__timer {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: .58rem;
+  font-style: normal;
+  line-height: 1;
+  color: var(--faded-ivory);
+  text-shadow: 0 0 2px #000;
+}
+
+/* La pastille de matière, en tête de la fiche du mur. */
+.cb-wall__swatch {
+  display: inline-block;
+  width: .7rem;
+  height: .7rem;
+  margin-right: .35rem;
+  vertical-align: -1px;
+  border: 1px solid rgba(0, 0, 0, .6);
+}
+.cb-wallinfo { list-style: none; margin: 0 0 .4rem; padding: 0; display: grid; gap: .2rem; }
+.cb-wallinfo li {
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  font-size: .8rem;
+}
+.cb-wallinfo span { opacity: .6; }
+.cb-wallinfo b { font-weight: 400; color: var(--faded-ivory); text-align: right; }
+.cb-wallinfo__weak { color: #d08a6a; }
+/* Ce qu'une capacité accorde (défense, enchantement, mur), par opposition à ce
+   qu'elle inflige : une teinte verte, distincte des dégâts. */
+.cb-ability__gain { color: #7fa66b; font-style: normal; }
+/* Ce que chaque matière fait AU SORT : la ligne qui décide vraiment du choix. */
+.cb-shape__effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  padding: .15rem .45rem .3rem;
+  font-size: .7rem;
+}
+.cb-shape__eff {
+  font-style: normal;
+  padding: 0 .25rem;
+  background: rgba(139, 107, 47, .16);
+  color: var(--faded-ivory);
+}
+.cb-shape__trait { font-style: normal; opacity: .6; }

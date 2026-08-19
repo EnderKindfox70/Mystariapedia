@@ -228,9 +228,9 @@
                 "progression": {
                     "root": "sv1",
                     "nodes": [
-                        { "id": "sv1", "tier": 1, "branch": "trunk", "name": "Siphon vital I", "description": "Draine la force vitale de la cible au profit du lanceur.", "next": ["sv2"], "stats": { "damageMin": 4, "damageMax": 6, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 40 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.5 }] } },
-                        { "id": "sv2", "tier": 2, "branch": "trunk", "name": "Siphon vital II", "description": "Le drain s'intensifie et vide plus vite la vigueur de la proie.", "next": ["sv3"], "stats": { "damageMin": 5, "damageMax": 9, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 50 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.7 }] } },
-                        { "id": "sv3", "tier": 3, "branch": "trunk", "name": "Siphon vital III", "description": "Une saignée vitale qui laisse la cible exsangue et ravigore le lanceur.", "stats": { "damageMin": 7, "damageMax": 12, "mana": 10, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 60 }], "effects": [{ "stat": "force", "value": 4, "scaling": [{ "source": "atk_mag", "ratio": 0.11 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.9 }] } }
+                        { "id": "sv1", "tier": 1, "branch": "trunk", "name": "Siphon vital I", "description": "Draine la force vitale de la cible au profit du lanceur.", "next": ["sv2"], "stats": { "damageMin": 4, "damageMax": 6, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 40 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] } },
+                        { "id": "sv2", "tier": 2, "branch": "trunk", "name": "Siphon vital II", "description": "Le drain s'intensifie et vide plus vite la vigueur de la proie.", "next": ["sv3"], "stats": { "damageMin": 5, "damageMax": 9, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 50 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] } },
+                        { "id": "sv3", "tier": 3, "branch": "trunk", "name": "Siphon vital III", "description": "Une saignée vitale qui laisse la cible exsangue et ravigore le lanceur.", "stats": { "damageMin": 7, "damageMax": 12, "mana": 10, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 60 }], "effects": [{ "stat": "force", "value": 4, "scaling": [{ "source": "atk_mag", "ratio": 0.11 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.11 }] } }
                     ]
                 }
             }
@@ -361,8 +361,33 @@
                     "root": "ef1",
                     "nodes": [
                         { "id": "ef1", "tier": 1, "branch": "trunk", "name": "Évasion enflammée I", "description": "Le lanceur se téléporte en laissant un brasier qui brûle ses poursuivants.", "next": ["ef2"], "stats": { "damageMin": 2, "damageMax": 3, "mana": 5, "range": "Autour de soi", "area": "Rayon 3 m", "targets": ["enemy"], "teleport": true, "teleportRange": "8 m", "reaction": ["incoming-attack"], "inflicts": [{ "status": "brulure", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "ef2", "tier": 2, "branch": "trunk", "name": "Évasion enflammée II", "description": "Le brasier de départ s'élargit et mord plus fort ceux qui s'approchent.", "next": ["ef3"], "stats": { "damageMin": 3, "damageMax": 5, "mana": 6, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "ef3", "tier": 3, "branch": "trunk", "name": "Évasion enflammée III", "description": "Une fuite fulgurante laissant derrière soi une déflagration ardente.", "stats": { "damageMin": 4, "damageMax": 6, "mana": 8, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] } }
+                        { "id": "ef2", "tier": 2, "branch": "trunk", "name": "Évasion enflammée II", "description": "Le brasier de départ s'élargit et mord plus fort ceux qui s'approchent.", "next": ["ef3"], "stats": { "damageMin": 3, "damageMax": 5, "mana": 6, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }], "teleport": true, "teleportRange": "10 m", "reaction": ["incoming-attack"] } },
+                        { "id": "ef3", "tier": 3, "branch": "trunk", "name": "Évasion enflammée III", "description": "Une fuite fulgurante laissant derrière soi une déflagration ardente.", "stats": { "damageMin": 4, "damageMax": 6, "mana": 8, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }], "teleport": true, "teleportRange": "12 m", "reaction": ["incoming-attack"] } }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "name": "Équilibre",
+        "components": ["renforcement", "emission"],
+        "spells": [
+            {
+                "key": "combo-trame-equilibree",
+                "name": "Trame équilibrée",
+                "description": "Partage la même mana entre le dedans et le dehors : moitié Renforcement, moitié Voile. Rien n'est porté à son maximum, mais rien n'est laissé découvert.",
+                "usage": { "combat": "Un peu d'attaque, un peu d'armure, un peu de vitesse et un peu de résistance magique, tout à la fois — le sort de qui ne sait pas encore ce qui va lui tomber dessus.", "outOfCombat": "La posture de voyage des praticiens de la mana brute : on tient la trame en fond, prêt à la basculer d'un côté ou de l'autre selon ce qui surgit." },
+                "mana": 4,
+                "level": 4,
+                "icon": "/resources/media/icons/magic.svg",
+                "subdomains": ["Équilibre"],
+                "requires": ["renforcement-corps", "emission-voile"],
+                "progression": {
+                    "root": "te1",
+                    "nodes": [
+                        { "id": "te1", "tier": 1, "branch": "trunk", "name": "Trame équilibrée I", "description": "La mana se scinde en deux parts égales : l'une durcit la chair, l'autre s'ouvre en voile.", "next": ["te2"], "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "atk_phy", "value": 1, "scaling": [{ "source": "force", "ratio": 0.15 }] }, { "stat": "def_phy", "value": 1, "scaling": [{ "source": "constitution", "ratio": 0.15 }] }, { "stat": "speed", "value": 1 }, { "stat": "def_mag", "value": 2, "scaling": [{ "source": "sagesse", "ratio": 0.2 }] }] } },
+                        { "id": "te2", "tier": 2, "branch": "trunk", "name": "Trame équilibrée II", "description": "Le partage se fait sans perte : les deux moitiés gagnent ensemble.", "next": ["te3"], "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "atk_phy", "value": 2, "scaling": [{ "source": "force", "ratio": 0.2 }] }, { "stat": "def_phy", "value": 2, "scaling": [{ "source": "constitution", "ratio": 0.2 }] }, { "stat": "speed", "value": 2 }, { "stat": "def_mag", "value": 3, "scaling": [{ "source": "sagesse", "ratio": 0.3 }] }] } },
+                        { "id": "te3", "tier": 3, "branch": "trunk", "name": "Trame équilibrée III", "description": "Le dedans et le dehors tiennent d'un même geste : ni faille martiale, ni faille arcanique.", "stats": { "mana": 10, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "atk_phy", "value": 3, "scaling": [{ "source": "force", "ratio": 0.25 }] }, { "stat": "def_phy", "value": 3, "scaling": [{ "source": "constitution", "ratio": 0.25 }] }, { "stat": "speed", "value": 3 }, { "stat": "def_mag", "value": 4, "scaling": [{ "source": "sagesse", "ratio": 0.4 }] }] } }
                     ]
                 }
             }

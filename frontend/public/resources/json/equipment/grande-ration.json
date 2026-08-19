@@ -1,0 +1,78 @@
+{
+  "name": "Grande ration",
+  "subtitle": "Matériel de camp",
+  "material": "toile",
+  "category": "camp",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Un cuissot entier, un poisson de belle taille, une miche et un fromage rond : deux jours de nourriture pour un homme, et de quoi faire un vrai repas le soir même.",
+    "C'est ce que rend une bonne chasse — un cerf levé au bon moment, un banc de truites, une ruche. Le groupe mange chaud, on rit autour du feu, et personne ne compte les rations pendant deux jours. Encore faut-il traîner la bête jusqu'au camp."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "2 kg"
+    },
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Consommable — vivres"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Deux jours de nourriture ; se conserve trois jours seulement"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "8 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Comble la faim entièrement : six crans, soit deux jours pleins.",
+    "Ne se conserve QUE trois jours : c'est de la viande fraîche, pas de la ration sèche. Ce qu'on ne mange pas se perd.",
+    "Ce que rend une chasse réussie sur du gros gibier, ou une pêche au bon endroit.",
+    "Pèse 2 kg et s'accommode mal du sac : on la porte à la main ou en travers de l'épaule, et elle ralentit."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Ne se transporte pas d'une ville à l'autre : elle se prend sur le terrain et se mange sur place. Ce qui arrive au marché est déjà salé, fumé, et redevenu ration de voyage.",
+      "Les fermes des vallées en cèdent volontiers au moment de l'abattage, quand il y a plus de viande que de sel pour la garder."
+    ]
+  },
+  "notes": [
+    "La règle est simple : une grande ration se mange le soir même ou le lendemain. Compter dessus le quatrième jour est une erreur de débutant.",
+    "Un groupe qui vise le rendement sale sa prise et la transforme en rations de voyage — moins bon, mais deux mois de conservation."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "rations-de-voyage",
+          "collection": "equipment",
+          "label": "Rations de voyage"
+        },
+        {
+          "ref": "petite-ration",
+          "collection": "equipment",
+          "label": "Petite ration"
+        },
+        {
+          "ref": "sel-de-conservation",
+          "collection": "equipment",
+          "label": "Sel de conservation"
+        }
+      ]
+    }
+  ]
+}

@@ -1,21 +1,13 @@
-import { Combatant, CombatAbility, CombatAction, Encounter, GridPos, Team } from '../combat.types';
-import { cellsInShape, occupiedCells, reachableCells, unitToCellMeters } from '../grid';
+import { Combatant, CombatAction, Encounter, Team } from '../combat.types';
+import { aliveIn, decide } from '../tactician';
 import {
   abilityDamageRanges,
-  abilityHealAmount,
-  aims,
   applyAction,
   cannotUse,
-  expectedHitFactor,
-  hitThreshold,
   currentUnit,
-  damageReduction,
-  effectiveStat,
   findUnit,
   isOver,
-  affordableMovement,
   pendingStrikeTargets,
-  teleportRangeOf,
 } from '../rules';
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -114,306 +106,16 @@ export interface ArenaOptions {
 
 const DEFAULTS = { maxRounds: 40, maxActionsPerTurn: 16 } as const;
 
+/* ── Lecture d'état ────────────────────────────────────────────────────────── */
+
+const alive = (enc: Encounter, team?: Team): Combatant[] => aliveIn(enc, team);
+
 /**
  * Combien un buff vaut, rapporté à la meilleure attaque disponible.
  *
  * Juste au-dessus de 1 : on se prépare au premier tour, puis on frappe.
  */
 const BUFF_PREFERENCE = 1.15;
-
-/* ── Lecture d'état ────────────────────────────────────────────────────────── */
-
-const alive = (enc: Encounter, team?: Team): Combatant[] =>
-  enc.combatants.filter((c) => !c.down && c.hp > 0 && (!team || c.team === team));
-
-const enemiesOf = (enc: Encounter, unit: Combatant): Combatant[] =>
-  alive(enc).filter((c) => c.team !== unit.team);
-
-const alliesOf = (enc: Encounter, unit: Combatant): Combatant[] =>
-  alive(enc).filter((c) => c.team === unit.team && c.id !== unit.id);
-
-/**
- * Dégâts moyens attendus sur cette cible-ci : défense comprise, JET COMPRIS,
- * sans compter le surplus.
- *
- * Le jet de toucher doit entrer ici, sinon l'IA préférerait systématiquement la
- * grosse frappe hasardeuse au coup sûr — et le rapport mesurerait un jeu que
- * personne ne jouerait ainsi.
- */
-function expectedDamage(actor: Combatant, ability: CombatAbility, target: Combatant): number {
-  const accuracy = aims(ability) ? expectedHitFactor(hitThreshold(actor, ability, target)) : 1;
-  let total = 0;
-  for (const range of abilityDamageRanges(actor, ability)) {
-    const avg = (range.min + range.max) / 2;
-    total += avg * accuracy * (1 - damageReduction(target, range.type));
-  }
-  // Frapper un mourant pour trois fois ses PV restants ne vaut pas mieux que
-  // de l'achever : sans ce plafond, l'IA gaspille ses grosses frappes.
-  return Math.min(total, target.hp);
-}
-
-/** Dégâts bruts annoncés, avant tout ce qui les amortit. Sert au rapport. */
-function rawDamage(actor: Combatant, ability: CombatAbility): number {
-  return abilityDamageRanges(actor, ability).reduce((sum, r) => sum + (r.min + r.max) / 2, 0);
-}
-
-/** Cibles effectivement touchées si la capacité est centrée sur `at`. */
-function unitsHit(enc: Encounter, ability: CombatAbility, at: GridPos, from: Combatant): Combatant[] {
-  if (ability.shape.kind === 'single' || ability.shape.kind === 'self') {
-    const one = alive(enc).find((c) => c.pos.x === at.x && c.pos.y === at.y);
-    return one ? [one] : [];
-  }
-  const cells = new Set(
-    cellsInShape(ability.shape, from.pos, at, enc.grid).map((c) => `${c.x},${c.y}`),
-  );
-  return alive(enc).filter((c) => cells.has(`${c.pos.x},${c.pos.y}`));
-}
-
-/**
- * Où pointer cette capacité pour frapper `enemy`.
- *
- * Une attaque ordinaire se vise sur la cible. Une TÉLÉPORTATION, non : son `at`
- * est la case d'ARRIVÉE, et viser la case occupée par l'ennemi fait échouer le
- * saut. Le moteur refuse alors l'action sans rien consommer — l'IA la
- * reproposerait indéfiniment et le combat s'enliserait jusqu'à la limite de
- * tours. On cherche donc une case libre au contact de la cible, ce que ferait
- * n'importe quel joueur avec un sort de ce genre.
- */
-function aimFor(
-  enc: Encounter,
-  unit: Combatant,
-  ability: CombatAbility,
-  enemy: Combatant,
-): GridPos | null {
-  if (!ability.teleport) return cannotUse(enc, unit, ability, enemy.pos) ? null : enemy.pos;
-
-  const taken = new Set(
-    enc.combatants.filter((c) => c.id !== unit.id).flatMap((c) => occupiedCells(c).map((p) => `${p.x},${p.y}`)),
-  );
-  const jump = teleportRangeOf(ability);
-  let best: GridPos | null = null;
-  let bestCost = Infinity;
-  for (let dx = -1; dx <= 1; dx++) {
-    for (let dy = -1; dy <= 1; dy++) {
-      if (!dx && !dy) continue;
-      const cell = { x: enemy.pos.x + dx, y: enemy.pos.y + dy };
-      if (cell.x < 0 || cell.y < 0 || cell.x >= enc.grid.width || cell.y >= enc.grid.height) continue;
-      if (taken.has(`${cell.x},${cell.y}`)) continue;
-      const cost = unitToCellMeters(unit, cell);
-      if (cost > jump + 1e-6 || cost >= bestCost) continue;
-      if (cannotUse(enc, unit, ability, cell)) continue;
-      best = cell;
-      bestCost = cost;
-    }
-  }
-  return best;
-}
-
-/**
- * Où atterrir pour ÉCHAPPER à `threat`, avec une téléportation jouée en
- * réaction.
- *
- * C'est l'exact inverse de la visée offensive : un Pas dimensionnel joué pour
- * parer doit sortir de l'allonge, pas s'y jeter. Viser l'assaillant ferait
- * échouer le saut, et le moteur rendrait la main sans rien consommer.
- */
-function escapeFrom(enc: Encounter, unit: Combatant, ability: CombatAbility, threat: Combatant): GridPos | null {
-  const taken = new Set(
-    enc.combatants.filter((c) => c.id !== unit.id).flatMap((c) => occupiedCells(c).map((p) => `${p.x},${p.y}`)),
-  );
-  const jump = teleportRangeOf(ability);
-  let best: GridPos | null = null;
-  let bestGain = unitToCellMeters(threat, unit.pos);
-  for (let x = 0; x < enc.grid.width; x++) {
-    for (let y = 0; y < enc.grid.height; y++) {
-      const cell = { x, y };
-      if (taken.has(`${x},${y}`)) continue;
-      if (unitToCellMeters(unit, cell) > jump + 1e-6) continue;
-      const gain = unitToCellMeters(threat, cell);
-      if (gain <= bestGain) continue;
-      if (cannotUse(enc, unit, ability, cell)) continue;
-      best = cell;
-      bestGain = gain;
-    }
-  }
-  return best;
-}
-
-/** L'unité porte-t-elle déjà l'effet de cette capacité ? Le relancer serait perdu. */
-const alreadyBuffed = (unit: Combatant, ability: CombatAbility): boolean =>
-  unit.effects.some((e) => e.name === ability.name);
-
-/* ── La décision ───────────────────────────────────────────────────────────── */
-
-interface Candidate {
-  action: CombatAction;
-  value: number;
-  ability: CombatAbility;
-  /** Dégâts bruts annoncés, pour la comptabilité du rapport. */
-  raw: number;
-  /** Part de ces dégâts que les défenses de la cible vont manger. */
-  soaked?: number;
-}
-
-/**
- * Ce que l'unité peut faire de mieux, tout de suite, sans bouger.
- *
- * Le barème est volontairement grossier — dégâts attendus, soins utiles, buffs
- * pas encore posés. Il ne cherche pas le coup parfait : il cherche à ne pas
- * jouer stupidement, ce qui suffit à faire ressortir un déséquilibre de fiche.
- */
-function bestPlay(enc: Encounter, unit: Combatant, allowSupport = true): Candidate | null {
-  const enemies = enemiesOf(enc, unit);
-  if (!enemies.length) return null;
-
-  let best: Candidate | null = null;
-  /** Buffs retenus, à départager une fois les attaques chiffrées. */
-  const pending: CombatAbility[] = [];
-  /** Gardes envisagées, avec le besoin de souffle qui les justifie. */
-  const support: { ability: CombatAbility; urgency: number }[] = [];
-  const keep = (c: Candidate) => {
-    if (!best || c.value > best.value) best = c;
-  };
-
-  for (const ability of unit.abilities) {
-    // La garde n'est plus un simple repli : c'est le seul geste qui refait le
-    // souffle. On la joue quand la réserve est basse — sans quoi le banc
-    // mesurerait des combattants qui s'épuisent sans jamais reprendre haleine,
-    // c'est-à-dire un jeu que personne ne joue.
-    if (ability.kind === 'guard') {
-      if (!ability.restoreEndurance) continue;
-      const max = unit.base.endurance;
-      const manque = max - unit.endurance;
-      if (unit.winded || manque >= ability.restoreEndurance) {
-        // D'autant plus attirante qu'on est bas : à bout de souffle, se couvrir
-        // vaut mieux que n'importe quelle frappe qu'on porterait mal.
-        const besoin = unit.winded ? 2 : manque / Math.max(1, max);
-        support.push({ ability, urgency: besoin });
-      }
-      continue;
-    }
-
-    const damages = abilityDamageRanges(unit, ability);
-    const heal = abilityHealAmount(unit, ability);
-
-    if (damages.length) {
-      for (const enemy of enemies) {
-        const at = aimFor(enc, unit, ability, enemy);
-        if (!at) continue;
-        // Une téléportation frappe DEPUIS sa case d'arrivée : c'est de là qu'il
-        // faut lire la zone, sans quoi on compterait des cibles hors d'atteinte.
-        const touched = ability.teleport
-          ? unitsHit(enc, ability, enemy.pos, { ...unit, pos: at })
-          : unitsHit(enc, ability, at, unit);
-        let value = 0;
-        for (const hit of touched) {
-          // Une zone qui prend ses propres alliés se paie : c'est ce qui rend
-          // un souffle moins évident qu'il n'en a l'air sur la fiche.
-          const sign = hit.team === unit.team ? -1.2 : 1;
-          value += sign * expectedDamage(unit, ability, hit);
-        }
-        if (value > 0) {
-          keep({
-            action: { type: 'use', actorId: unit.id, abilityId: ability.id, at },
-            value,
-            ability,
-            raw: rawDamage(unit, ability) * Math.max(1, touched.length),
-            soaked:
-              rawDamage(unit, ability) * Math.max(1, touched.length) -
-              touched.reduce((s, h) => s + expectedDamage(unit, ability, h), 0),
-          });
-        }
-      }
-      continue;
-    }
-
-    if (heal > 0) {
-      const wounded = [unit, ...alliesOf(enc, unit)]
-        .filter((c) => c.hp < c.base.hp)
-        .sort((a, b) => a.hp / a.base.hp - b.hp / b.base.hp)[0];
-      if (wounded && !cannotUse(enc, unit, ability, wounded.pos)) {
-        // Un soin ne vaut que ce qu'il rend vraiment : rendre 40 PV à qui en a
-        // perdu 5 n'est pas une bonne action.
-        const useful = Math.min(heal, wounded.base.hp - wounded.hp);
-        keep({
-          action: { type: 'use', actorId: unit.id, abilityId: ability.id, at: wounded.pos },
-          value: useful * 0.8,
-          ability,
-          raw: 0,
-        });
-      }
-      continue;
-    }
-
-    // Buff : il ne vaut que s'il n'est pas déjà là — les effets ne s'empilent
-    // pas, le relancer serait un tour perdu. On les met de côté : leur valeur
-    // se juge PAR RAPPORT à ce qu'on renonce à frapper, ce qu'on ne saura
-    // qu'une fois toutes les attaques évaluées.
-    const buffs = !!ability.mods?.length || !!ability.enchant || !!ability.retaliate;
-    if (buffs && ability.duration && !alreadyBuffed(unit, ability)) {
-      pending.push(ability);
-    }
-  }
-
-  // Un buff vaut un peu plus qu'une attaque — assez pour être posé au premier
-  // tour, pas assez pour qu'on y passe le combat.
-  //
-  // Le rapporter à l'attaque, et non aux PV du porteur, est le point important :
-  // adossée aux PV max, la valeur explosait chez les gros combattants, au point
-  // qu'un personnage de 174 PV préférait s'enchanter indéfiniment plutôt que de
-  // frapper. Le banc mesurait alors un jeu que personne ne joue.
-  const reference = best ? (best as Candidate).value : 1;
-  if (!allowSupport) return best;
-
-  // Reprendre haleine vaut d'autant plus qu'on est à bout : à sec, on frappe
-  // avec deux crans de précision en moins et l'on se traîne.
-  for (const { ability, urgency } of support) {
-    if (cannotUse(enc, unit, ability, unit.pos)) continue;
-    keep({
-      action: { type: 'use', actorId: unit.id, abilityId: ability.id, at: unit.pos },
-      value: reference * urgency,
-      ability,
-      raw: 0,
-    });
-  }
-
-  for (const ability of pending) {
-    const on = unit.pos;
-    if (cannotUse(enc, unit, ability, on)) continue;
-    keep({
-      action: { type: 'use', actorId: unit.id, abilityId: ability.id, at: on },
-      value: reference * BUFF_PREFERENCE,
-      ability,
-      raw: 0,
-    });
-  }
-
-  return best;
-}
-
-/** La case, à portée de jambes, qui rapproche le plus de l'ennemi le plus proche. */
-function stepToward(enc: Encounter, unit: Combatant): GridPos | null {
-  const enemies = enemiesOf(enc, unit);
-  if (!enemies.length) return null;
-
-  const budget = affordableMovement(unit);
-  if (budget <= 0) return null;
-
-  const cells = reachableCells(unit, budget, enc.grid, enc.terrain, enc.combatants);
-  const distanceFrom = (pos: GridPos): number =>
-    Math.min(...enemies.map((e) => unitToCellMeters(e, pos)));
-
-  let bestCell: GridPos | null = null;
-  let bestScore = distanceFrom(unit.pos);
-  for (const { pos } of cells.values()) {
-    const score = distanceFrom(pos);
-    if (score < bestScore - 1e-6) {
-      bestScore = score;
-      bestCell = pos;
-    }
-  }
-  return bestCell;
-}
 
 /* ── La boucle ─────────────────────────────────────────────────────────────── */
 
@@ -509,7 +211,11 @@ export function fight(encounter: Encounter, options: ArenaOptions = {}): FightRe
   const fingerprint = (): string =>
     `${enc.round}/${enc.turnIndex}/${enc.pendingStrike?.actorId ?? ''}/${enc.pendingReaction?.actorId ?? ''}/` +
     enc.combatants
-      .map((c) => `${c.pos.x},${c.pos.y},${c.hp},${c.mana},${c.endurance},${c.moved},${c.actionUsed ? 1 : 0}`)
+      .map(
+        (c) =>
+          `${c.pos.x},${c.pos.y},${c.hp},${c.mana},${c.endurance},${c.moved},` +
+          `${c.actionUsed ? 1 : 0}${c.bonusActionUsed ? 1 : 0}`,
+      )
       .join(';');
 
   let stalled = false;
@@ -563,111 +269,54 @@ export function fight(encounter: Encounter, options: ArenaOptions = {}): FightRe
   };
 
   while (!isOver(enc) && enc.round <= maxRounds) {
-    // 1) Une fenêtre de réaction gèle tout le reste : elle se tranche d'abord.
-    if (enc.pendingReaction) {
-      reactionWindows++;
-      const pending = enc.pendingReaction;
-      const reactor = findUnit(enc, pending.actorId);
-      const source = findUnit(enc, pending.sourceId);
-      let played = false;
-      for (const option of reactor?.abilities ?? []) {
-        if (!pending.options.includes(option.id)) continue;
-        const at =
-          option.teleport && source ? escapeFrom(enc, reactor!, option, source) : pending.at;
-        if (!at || cannotUse(enc, reactor!, option, at)) continue;
-        play({ type: 'react', abilityId: option.id, at }, reactor!.id);
-        played = true;
-        break;
-      }
-      // Une réaction que le moteur a refusée laisserait la fenêtre ouverte : on
-      // passe, plutôt que de la reproposer indéfiniment.
-      if (!played || stalled) play({ type: 'skipReaction' });
-      continue;
-    }
+    if (enc.pendingReaction) reactionWindows++;
 
-    // 2) Une frappe offerte se porte sur le plus mal en point : c'est elle qui
-    //    transforme un avantage en élimination.
-    if (enc.pendingStrike) {
-      const targets = pendingStrikeTargets(enc);
-      const prey = targets.sort((a, b) => a.hp - b.hp)[0];
-      const striker = enc.pendingStrike.actorId;
-      if (prey) play({ type: 'freeStrike', targetId: prey.id }, striker);
-      else play({ type: 'skipStrike' });
-      continue;
-    }
-
-    const unit = currentUnit(enc);
-    if (!unit || unit.down) {
-      play({ type: 'endTurn' });
-      continue;
-    }
+    // TOUT passe par le tacticien, sans exception : c'est ce qui garantit que
+    // ce rapport décrit l'adversaire qu'on affronte réellement à la table.
+    const choix = decide(enc);
+    if (!choix) break;
 
     const turnKey = `${enc.round}:${enc.turnIndex}`;
     if (turnKey !== lastTurnKey) {
       lastTurnKey = turnKey;
       actionsThisTurn = 0;
     }
-    // Un combattant qui a déjà frappé n'a plus rien à faire de son tour : ce
-    // reliquat n'est ni une approche ni un tour perdu, et le compter comme tel
-    // ferait passer pour mou un combat où tout le monde agit.
-    if (unit.actionUsed) {
-      play({ type: 'endTurn' });
-      continue;
-    }
     if (++actionsThisTurn > maxActionsPerTurn) {
       play({ type: 'endTurn' });
       continue;
     }
 
-    // 3) Frapper si l'on peut. On exclut d'abord les soins et les buffs : ils
-    //    sont jouables à n'importe quelle distance, donc les proposer ici ferait
-    //    passer un combattant hors de portée son tour à se préparer plutôt qu'à
-    //    marcher — et il ne rejoindrait jamais l'ennemi.
-    const play1 = bestPlay(enc, unit, false);
-    if (play1) {
-      const t = tally.get(unit.id)!;
-      if (play1.raw > 0) {
-        rawAttempted += play1.raw;
-        soakedTotal += Math.max(0, play1.soaked ?? 0);
+    const t = choix.actorId ? tally.get(choix.actorId) : undefined;
+    if (t) {
+      if (choix.intent === 'attack' && choix.raw) {
+        rawAttempted += choix.raw;
+        soakedTotal += Math.max(0, choix.soaked ?? 0);
         t.attacks++;
-        if (play1.ability.kind === 'spell') t.spells++;
-        else if (play1.ability.kind === 'class') t.classSkills++;
-        else if (play1.ability.kind === 'weapon') t.basicAttacks++;
+        const kind = choix.ability?.kind;
+        if (kind === 'spell') t.spells++;
+        else if (kind === 'class') t.classSkills++;
+        else if (kind === 'weapon') t.basicAttacks++;
       }
-      play(play1.action, unit.id);
-      if (stalled) play({ type: 'endTurn' });
-      continue;
-    }
-
-    // 4) Sinon se rapprocher, et retenter au tour de boucle suivant.
-    const step = stepToward(enc, unit);
-    if (step) {
-      play({ type: 'move', actorId: unit.id, to: step }, unit.id);
-      if (!stalled && bestPlay(enc, findUnit(enc, unit.id)!, false)) continue;
       // Avancer sans pouvoir frapper n'est pas un tour perdu : c'est le prix de
       // la distance. On le compte à part, sans quoi tout combat qui commence
       // loin passerait pour un combat mou.
-      tally.get(unit.id)!.approachTurns++;
-      play({ type: 'endTurn' });
-      continue;
+      if (choix.intent === 'move') t.approachTurns++;
+      if (choix.intent === 'endTurn') {
+        const unit = choix.actorId ? findUnit(enc, choix.actorId) : undefined;
+        // Un combattant qui a déjà frappé n'a rien perdu : son tour est fait.
+        if (unit && !unit.actionUsed && !unit.down) {
+          t.idleTurns++;
+          const starved = starvation(enc, unit);
+          if (starved === 'mana') t.manaStarvedTurns++;
+          if (starved === 'endurance') t.enduranceStarvedTurns++;
+        }
+      }
     }
 
-    // 5) Hors de portée et immobile : c'est le moment de se préparer, pas de
-    //    passer son tour. Un buff posé maintenant servira au contact.
-    const support = bestPlay(enc, unit, true);
-    if (support) {
-      play(support.action, unit.id);
-      if (stalled) play({ type: 'endTurn' });
-      continue;
-    }
-
-    // 6) Rien à faire : on note POURQUOI, c'est là que se lit l'économie.
-    const t = tally.get(unit.id)!;
-    t.idleTurns++;
-    const starved = starvation(enc, unit);
-    if (starved === 'mana') t.manaStarvedTurns++;
-    if (starved === 'endurance') t.enduranceStarvedTurns++;
-    play({ type: 'endTurn' });
+    play(choix.action, choix.actorId);
+    // Une action que le moteur a refusée laisse le monde tel quel : la
+    // reproposer serait une boucle.
+    if (stalled) play({ type: 'endTurn' });
   }
 
   const survivors = alive(enc);

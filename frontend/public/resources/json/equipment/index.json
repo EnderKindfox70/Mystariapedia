@@ -6,6 +6,7 @@
     "category": "chasse",
     "rarity": "Peu commun",
     "image": "/resources/media/pictures/equipment/appeau.png",
+    "material": "bois",
     "weight": 0.2
   },
   {
@@ -15,6 +16,7 @@
     "category": "erudition",
     "rarity": "Peu commune",
     "image": "/resources/media/pictures/equipment/astrolabe.png",
+    "material": "bronze",
     "weight": 1
   },
   {
@@ -24,6 +26,7 @@
     "category": "soins",
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/bandage.png",
+    "material": "toile",
     "weight": 0.2
   },
   {
@@ -32,6 +35,7 @@
     "subtitle": "Portage — accès rapide",
     "category": "sacs",
     "rarity": "Peu commune",
+    "material": "cuir",
     "weight": 0.8
   },
   {
@@ -40,6 +44,7 @@
     "subtitle": "Sac de toile",
     "category": "sacs",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0.5,
     "capacityBonus": 4
   },
@@ -49,6 +54,7 @@
     "subtitle": "Sac enchanté",
     "category": "sacs",
     "rarity": "Rare",
+    "material": "toile",
     "weight": 1,
     "weightReductionPct": 25
   },
@@ -59,6 +65,7 @@
     "category": "lumiere",
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/flint_and_steel.png",
+    "material": "acier",
     "weight": 0.2
   },
   {
@@ -67,6 +74,7 @@
     "subtitle": "Matériel de contention",
     "category": "chasse",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 1.5
   },
   {
@@ -76,6 +84,7 @@
     "category": "insignes",
     "rarity": "Rare",
     "image": "/resources/media/pictures/equipment/ring_noble.png",
+    "material": "or",
     "weight": 0.05
   },
   {
@@ -85,6 +94,7 @@
     "category": "escalade",
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/rope.png",
+    "material": "chanvre",
     "weight": 2.5
   },
   {
@@ -93,6 +103,7 @@
     "subtitle": "Outil de récolte",
     "category": "recolte",
     "rarity": "Commune",
+    "material": "acier",
     "weight": 0.4
   },
   {
@@ -101,6 +112,7 @@
     "subtitle": "Matériel de contention",
     "category": "chasse",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 3
   },
   {
@@ -109,6 +121,7 @@
     "subtitle": "Contenant blindé",
     "category": "recolte",
     "rarity": "Peu commun",
+    "material": "fer",
     "weight": 1.5
   },
   {
@@ -117,6 +130,7 @@
     "subtitle": "Matériel d'alerte",
     "category": "chasse",
     "rarity": "Peu commune",
+    "material": "soie",
     "weight": 0.3
   },
   {
@@ -125,6 +139,7 @@
     "subtitle": "Matériel de capture",
     "category": "chasse",
     "rarity": "Commune",
+    "material": "chanvre",
     "weight": 1.5
   },
   {
@@ -134,6 +149,7 @@
     "category": "lumiere",
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/cartouche_huile.png",
+    "material": "verre",
     "weight": 0.5
   },
   {
@@ -142,6 +158,7 @@
     "subtitle": "Contenants — lot de six",
     "category": "recolte",
     "rarity": "Commune",
+    "material": "verre",
     "weight": 0.6
   },
   {
@@ -150,7 +167,17 @@
     "subtitle": "Matériel de soin",
     "category": "soins",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0.1
+  },
+  {
+    "slug": "grande-ration",
+    "name": "Grande ration",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "rarity": "Peu commune",
+    "material": "toile",
+    "weight": 2
   },
   {
     "slug": "grappin",
@@ -158,6 +185,7 @@
     "subtitle": "Matériel de franchissement",
     "category": "escalade",
     "rarity": "Commune",
+    "material": "acier",
     "weight": 2
   },
   {
@@ -166,6 +194,7 @@
     "subtitle": "Hotte d'osier",
     "category": "sacs",
     "rarity": "Commune",
+    "material": "osier",
     "weight": 3,
     "capacityBonus": 22
   },
@@ -175,6 +204,7 @@
     "subtitle": "Outil de dressage",
     "category": "outils",
     "rarity": "Commune",
+    "material": "bois",
     "weight": 1.5
   },
   {
@@ -184,6 +214,7 @@
     "category": "lumiere",
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/oil_lamp.png",
+    "material": "fer",
     "weight": 1
   },
   {
@@ -192,6 +223,7 @@
     "subtitle": "Papier de maison de change",
     "category": "insignes",
     "rarity": "Peu commune",
+    "material": "toile",
     "weight": 0.05
   },
   {
@@ -200,6 +232,7 @@
     "subtitle": "Matériel de pêche",
     "category": "chasse",
     "rarity": "Commune",
+    "material": "acier",
     "weight": 0.3
   },
   {
@@ -208,6 +241,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 2
   },
   {
@@ -216,6 +250,7 @@
     "subtitle": "Outillage d'alchimiste",
     "category": "recolte",
     "rarity": "Commune",
+    "material": "granite",
     "weight": 1.2
   },
   {
@@ -224,6 +259,7 @@
     "subtitle": "Outillage d'érudit",
     "category": "erudition",
     "rarity": "Commune",
+    "material": "bois",
     "weight": 1
   },
   {
@@ -232,6 +268,7 @@
     "subtitle": "Matériel de réparation",
     "category": "escalade",
     "rarity": "Commune",
+    "material": "chanvre",
     "weight": 0.5
   },
   {
@@ -240,6 +277,7 @@
     "subtitle": "Outillage d'artisan",
     "category": "outils",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 4
   },
   {
@@ -248,6 +286,7 @@
     "subtitle": "Outillage fin",
     "category": "chasse",
     "rarity": "Peu commune",
+    "material": "acier",
     "weight": 0.5
   },
   {
@@ -257,7 +296,17 @@
     "category": "camp",
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/waterskin.png",
+    "material": "cuir",
     "weight": 0.3
+  },
+  {
+    "slug": "petite-ration",
+    "name": "Petite ration",
+    "subtitle": "Matériel de camp",
+    "category": "camp",
+    "rarity": "Commune",
+    "material": "toile",
+    "weight": 0.2
   },
   {
     "slug": "piege-a-machoires",
@@ -266,6 +315,7 @@
     "category": "chasse",
     "rarity": "Peu commun",
     "image": "/resources/media/pictures/equipment/bear_trap.png",
+    "material": "acier",
     "weight": 4
   },
   {
@@ -275,6 +325,7 @@
     "category": "outils",
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/whetstone.png",
+    "material": "gres",
     "weight": 0.5
   },
   {
@@ -283,6 +334,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 3.5
   },
   {
@@ -291,6 +343,7 @@
     "subtitle": "Sac de cuir",
     "category": "sacs",
     "rarity": "Commune",
+    "material": "cuir",
     "weight": 2,
     "capacityBonus": 14
   },
@@ -300,6 +353,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 2.5
   },
   {
@@ -308,6 +362,7 @@
     "subtitle": "Sac de toile",
     "category": "sacs",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 1,
     "capacityBonus": 8
   },
@@ -317,6 +372,7 @@
     "subtitle": "Sac enchanté",
     "category": "sacs",
     "rarity": "Très rare",
+    "material": "toile",
     "weight": 2,
     "weightReductionPct": 50
   },
@@ -326,6 +382,7 @@
     "subtitle": "Consommable de récolte",
     "category": "recolte",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 0.5
   },
   {
@@ -334,6 +391,7 @@
     "subtitle": "Consommable de soin",
     "category": "soins",
     "rarity": "Peu commune",
+    "material": "verre",
     "weight": 0.2
   },
   {
@@ -342,6 +400,7 @@
     "subtitle": "Outil de récolte",
     "category": "recolte",
     "rarity": "Commune",
+    "material": "acier",
     "weight": 0.6
   },
   {
@@ -350,6 +409,7 @@
     "subtitle": "Matériel d'éclairage",
     "category": "lumiere",
     "rarity": "Commune",
+    "material": "bois",
     "weight": 0.5
   },
   {
@@ -358,6 +418,7 @@
     "subtitle": "Outillage de soin",
     "category": "soins",
     "rarity": "Peu commune",
+    "material": "acier",
     "weight": 2
   },
   {
@@ -366,6 +427,7 @@
     "subtitle": "Vêtement de campagne",
     "category": "camp",
     "rarity": "Commune",
+    "material": "toile",
     "weight": 1.5
   }
 ]

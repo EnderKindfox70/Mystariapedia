@@ -61,7 +61,7 @@
     "key": "elf",
     "name": "Elfe",
     "subraces": [
-      { "key": "continental-elf", "name": "Elfe continental", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 0}, {"key":"constitution", "value": -1}, {"key":"intelligence", "value": 1}, {"key":"wisdom", "value": 1}, {"key":"charisma", "value": 0}] },
+      { "key": "continental-elf", "name": "Elfe continental", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 0}, {"key":"constitution", "value": -1}, {"key":"intelligence", "value": 1}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] },
       { "key": "island-elf", "name": "Elfe des îles", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 1}, {"key":"constitution", "value": 0}, {"key":"intelligence", "value": -1}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] }
     ],
     "attributes":

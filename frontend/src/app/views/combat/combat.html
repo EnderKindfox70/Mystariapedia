@@ -14,45 +14,201 @@
           [value]="encounter().name"
           (change)="rename($any($event.target).value)"
         >
-        @if (encounter().started) {
+        @if (phase() === 'combat') {
           <span class="cb-round">Round {{ encounter().round }}</span>
+        } @else if (phase() === 'exploration') {
+          <span class="cb-round cb-round--idle">Hors combat</span>
         } @else {
           <span class="cb-round cb-round--idle">Préparation</span>
         }
+        <span class="cb-round cb-round--clock" [title]="daytimeName()">{{ clockLabel() }}</span>
       </div>
 
+      <!-- Où en est la table. Le combat s'y met et en sort tout seul (lancer
+           l'initiative, la dernière chute) ; ces boutons servent à y revenir —
+           une embuscade qui reprend, un montage à retoucher. -->
+      <nav class="cb-phases" aria-label="Phase de la table">
+        <button
+          type="button"
+          [class.is-on]="phase() === 'setup'"
+          [disabled]="encounter().started"
+          title="Monter la rencontre : poser les pions, dessiner le décor."
+          (click)="setPhase('setup')"
+        >Préparation</button>
+        <button
+          type="button"
+          [class.is-on]="phase() === 'combat'"
+          [disabled]="!encounter().started"
+          title="Le tour par tour, la grille, l’initiative."
+          (click)="setPhase('combat')"
+        >Combat</button>
+        <button
+          type="button"
+          [class.is-on]="phase() === 'exploration'"
+          title="Le temps qui passe, le camp, la fouille des corps."
+          (click)="setPhase('exploration')"
+        >Hors combat</button>
+      </nav>
+
       <div class="cb-head__actions">
-        @if (!encounter().started) {
+        @if (phase() !== 'combat') {
           <button
             type="button"
             class="cb-btn cb-btn--primary"
             [disabled]="encounter().combatants.length < 2"
+            [title]="encounter().started
+              ? 'Tirer l’initiative pour une nouvelle empoignade.'
+              : 'Tirer l’initiative et ouvrir le premier tour.'"
             (click)="start()"
-          >Lancer le combat</button>
+          >{{ encounter().started ? 'Nouveau combat' : 'Lancer le combat' }}</button>
         } @else {
           <button type="button" class="cb-btn cb-btn--primary" [disabled]="finished()" (click)="endTurn()">
             Fin du tour
           </button>
+
+          <!-- Résolution autonome : l'adversaire joue seul, mais on le voit
+               jouer. Un pas à la fois, ou en continu jusqu'à ce que la main
+               revienne. -->
+          <button
+            type="button"
+            class="cb-btn"
+            [class.is-on]="autoRunning()"
+            [disabled]="finished() || !autoTeams().length"
+            [title]="autoRunning() ? 'Interrompre la résolution' : 'Laisser l’adversaire jouer jusqu’à ton tour'"
+            (click)="autoPlay()"
+          >{{ autoRunning() ? 'Interrompre' : 'Laisser jouer' }}</button>
+          <button
+            type="button"
+            class="cb-btn"
+            [disabled]="!autoCanPlay() || autoRunning()"
+            title="Jouer une seule action de l’adversaire"
+            (click)="autoStep()"
+          >Pas à pas</button>
         }
         <button type="button" class="cb-btn" [disabled]="!canUndo()" (click)="undo()">Annuler</button>
         <button type="button" class="cb-btn" [disabled]="saving()" (click)="save()">
           {{ saving() ? 'Sauvegarde…' : 'Sauvegarder' }}
         </button>
+        <button
+          type="button"
+          class="cb-btn"
+          [disabled]="!encounter().combatants.length"
+          title="Remonter tous les combattants depuis leur fiche : niveaux, armes, maîtrise et règles à jour. Position, blessures et jauges de survie conservées."
+          (click)="refreshAll()"
+        >Rafraîchir les fiches</button>
+        <button
+          type="button"
+          class="cb-btn"
+          [disabled]="reporting()"
+          title="Redescendre la séance sur les fiches : jauges de survie, sac et bourse. L’écart se lit avant d’être écrit."
+          (click)="openReport()"
+        >Reporter sur les fiches</button>
         <button type="button" class="cb-btn" (click)="fresh()">Nouvelle</button>
       </div>
+
+      <!-- Qui joue quoi. Un camp coché passe au tacticien ; les autres restent
+           entre tes mains, et la résolution s'arrête dès qu'ils reprennent la
+           main. Réservé au combat : il n'y a pas de tour à jouer ailleurs. -->
+      @if (phase() === 'combat') {
+      <div class="cb-auto">
+        <span class="cb-auto__label">Joué par l’IA :</span>
+        <button
+          type="button"
+          class="cb-auto__team"
+          [class.is-on]="isAuto('ennemis')"
+          (click)="toggleAuto('ennemis')"
+        >Adversaires</button>
+        <button
+          type="button"
+          class="cb-auto__team"
+          [class.is-on]="isAuto('allies')"
+          (click)="toggleAuto('allies')"
+        >Groupe</button>
+        <button
+          type="button"
+          class="cb-auto__team"
+          [class.is-on]="isAuto('neutres')"
+          (click)="toggleAuto('neutres')"
+        >Neutres</button>
+
+        <label class="cb-auto__speed">
+          Rythme
+          <input
+            type="range" min="150" max="2000" step="50"
+            [value]="autoDelay()"
+            (input)="autoDelay.set(+$any($event.target).value)"
+          />
+          <span>{{ (autoDelay() / 1000).toFixed(1) }} s</span>
+        </label>
+
+        @if (autoHalt() === 'human') {
+          <span class="cb-auto__halt">À toi de jouer.</span>
+        } @else if (autoHalt() === 'over') {
+          <span class="cb-auto__halt">Combat terminé.</span>
+        } @else if (autoHalt() === 'runaway' || autoHalt() === 'stalled') {
+          <span class="cb-auto__halt cb-auto__halt--warn">
+            Résolution interrompue : l’adversaire ne progressait plus.
+          </span>
+        }
+      </div>
+      }
     </header>
 
     @if (saveError()) {
       <p class="cb-alert">{{ saveError() }}</p>
     }
-    @if (finished()) {
+    @if (reportError()) {
+      <p class="cb-alert">{{ reportError() }}</p>
+    }
+
+    <!-- ══ Aperçu du report sur les fiches ══
+         L'écart se lit AVANT d'être écrit : une séance rejouée, un essai, un
+         combat annulé ne doivent pas saccager les fiches dans le dos du MJ. -->
+    @if (reports(); as lines) {
+      <div class="cb-modal" role="dialog" aria-modal="true" aria-label="Reporter sur les fiches">
+        <div class="cb-modal__box">
+          <h2>Reporter sur les fiches</h2>
+          <p class="cb-modal__note">
+            Réserves (points de vie, endurance, mana), jauges de survie, sac et bourse
+            redescendent sur la fiche. Ce qui suit sera écrit.
+          </p>
+
+          <ul class="cb-modal__list">
+            @for (line of lines; track line.report.unitId) {
+              <li [class.is-idle]="!line.report.changed">
+                <strong>{{ line.report.name }}</strong>
+                <span class="cb-modal__diff">{{ summarize(line.report) }}</span>
+              </li>
+            }
+          </ul>
+
+          <div class="cb-modal__actions">
+            <button type="button" class="cb-btn" (click)="closeReport()">Annuler</button>
+            <button
+              type="button"
+              class="cb-btn cb-btn--primary"
+              [disabled]="reporting()"
+              (click)="confirmReport()"
+            >{{ reporting() ? 'Écriture…' : 'Reporter' }}</button>
+          </div>
+        </div>
+      </div>
+    }
+    @if (finished() && phase() === 'combat') {
       <p class="cb-alert cb-alert--done">Le combat est terminé. Consultez le journal pour le détail.</p>
     }
 
     <div class="cb-body">
-      <!-- ══ Colonne gauche : ordre d'initiative ══ -->
+      <!-- ══ Colonne gauche : qui est sur la table ══
+           Le titre — et ce que porte chaque ligne — suit la phase. L'initiative
+           ne veut rien dire hors combat : elle cède la place aux jauges de
+           survie, qui sont ce qu'on surveille en voyage. -->
       <aside class="cb-order">
-        <h2>{{ encounter().started ? 'Ordre d’initiative' : 'Combattants' }}</h2>
+        <h2>
+          @if (phase() === 'combat') { Ordre d’initiative }
+          @else if (phase() === 'exploration') { Groupe }
+          @else { Combattants }
+        </h2>
 
         @if (!encounter().combatants.length) {
           <p class="cb-empty">Ajoutez des personnages et des créatures depuis le panneau de droite.</p>
@@ -67,7 +223,15 @@
               [class.is-selected]="selectedId() === unit.id"
               [attr.data-team]="unit.team"
             >
-              <button type="button" class="cb-unit__main" (click)="select(unit)">
+              <!-- Le clic droit vise la LIGNE du combattant, pas tout le bloc :
+                   posé sur le `li`, il s'ouvrirait aussi par-dessus le panneau
+                   d'outils déplié en dessous. -->
+              <button
+                type="button"
+                class="cb-unit__main"
+                (click)="select(unit)"
+                (contextmenu)="openMenu($event, unit)"
+              >
                 @if (unit.portrait) {
                   <img class="cb-unit__face" [src]="unit.portrait" alt="">
                 } @else {
@@ -87,7 +251,8 @@
                   }
                   <small>
                     {{ unit.hp }} / {{ unit.base.hp }} PV
-                    @if (encounter().started) { · vit. {{ unit.initiative }} }
+                    @if (phase() === 'combat') { · vit. {{ unit.initiative }} }
+                    @if (phase() === 'exploration' && unit.purse) { · {{ unit.purse }} po }
                   </small>
                 </span>
               </button>
@@ -111,14 +276,60 @@
               }
             </div>
 
+              <!-- Faim, soif, sommeil — hors combat seulement, et seulement
+                   pour qui en tient : une bête n'a pas de jauges. Un cran se
+                   raye d'un clic, comme sur la fiche. -->
+              @if (phase() === 'exploration' && unit.survival) {
+                <div class="cb-party__gauges">
+                  @for (g of survivalGauges; track g.key) {
+                    <div
+                      class="cb-gauge"
+                      [title]="g.label + ' : ' + survivalStage(g.key, unit.survival)"
+                    >
+                      <svg class="cb-gauge__icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path [attr.d]="g.icon" />
+                      </svg>
+                      <span class="cb-gauge__segments" role="group" [attr.aria-label]="g.label">
+                        @for (seg of gaugeSegments(g); track seg) {
+                          <button
+                            type="button"
+                            class="cb-gauge__seg"
+                            [class.is-filled]="seg <= notchesLeft(g.key, unit.survival)"
+                            [attr.aria-label]="g.label + ' : ' + seg"
+                            (click)="setSurvival(unit, g.key, seg)"
+                          ></button>
+                        }
+                      </span>
+                    </div>
+                  }
+                </div>
+
+                @if (survivalPenalties(unit); as malus) {
+                  <p class="cb-party__malus">{{ malus }}</p>
+                }
+
+                @if (edibles(unit).length) {
+                  <div class="cb-tags">
+                    @for (food of edibles(unit); track food.name) {
+                      <button
+                        type="button"
+                        class="cb-mini"
+                        [title]="'Consommer : ' + food.name"
+                        (click)="eat(unit, food)"
+                      >{{ food.name }} ×{{ food.qty }}</button>
+                    }
+                  </div>
+                }
+              }
+
               <!-- Statuts actifs : cliquer sur une pastille la retire. -->
-              @if (unit.statuses.length || unit.effects.length) {
+              @if (unit.statuses.length || unit.effects.length || sustainHint(unit)) {
                 <div class="cb-tags">
                   @for (status of unit.statuses; track status.key) {
                     <button
                       type="button"
                       class="cb-tag cb-tag--status"
-                      [title]="(statusByKey(status.key)?.effect ?? '') + ' — cliquer pour retirer'"
+                      [title]="statusTitle(unit, status)"
                       (click)="removeStatus(unit, status.key)"
                     >
                       {{ statusByKey(status.key)?.name ?? status.key }}
@@ -130,6 +341,17 @@
                     <span class="cb-tag cb-tag--effect" [title]="effect.name">
                       {{ effect.name }} <em>{{ effect.remaining }}</em>
                     </span>
+                  }
+                  <!-- Ce que ce combattant TIENT sur d'autres corps : ses fils
+                       ne sont pas sur lui, mais ils lui coûtent ses mains. -->
+                  @if (sustainHint(unit); as fils) {
+                    <span class="cb-tag cb-tag--sustain" [title]="fils">{{ fils }}</span>
+                  }
+                  @if (controller(unit); as maitre) {
+                    <span
+                      class="cb-tag cb-tag--puppet"
+                      [title]="'Agit dans le camp de ' + maitre.name + ' : il prend ses anciens alliés pour cibles, et c\'est ce camp-là qui joue son tour.'"
+                    >Aux mains de {{ maitre.name }}</span>
                   }
                   <!-- L'essoufflement n'est pas un statut du catalogue : c'est
                        un état de la réserve, et il doit se voir comme tel. -->
@@ -195,7 +417,22 @@
                     <p class="cb-notes">{{ unit.notes }}</p>
                   }
 
-                  @if (!encounter().started) {
+                  <!-- Changer de camp SUR PLACE. Retirer puis rajouter faisait
+                       revenir le pion neuf : sans ses blessures, ses jauges, sa
+                       bourse ni sa dépouille déjà fouillée. -->
+                  @if (canEditRoster()) {
+                    <h4 class="cb-subhead">Camp</h4>
+                    <div class="cb-teamswitch">
+                      @for (team of teams; track team[0]) {
+                        <button
+                          type="button"
+                          [attr.data-team]="team[0]"
+                          [class.is-on]="unit.team === team[0]"
+                          (click)="setTeam(unit, team[0])"
+                        >{{ team[1] }}</button>
+                      }
+                    </div>
+
                     <button type="button" class="cb-mini cb-mini--danger" (click)="removeCombatant(unit.id)">
                       Retirer de la rencontre
                     </button>
@@ -207,7 +444,10 @@
         </ul>
       </aside>
 
-      <!-- ══ Centre : la grille tactique ══ -->
+      <!-- ══ Centre : la grille ══
+           Elle reste à l’écran dans les trois phases. Hors combat, les corps
+           sont restés où ils sont tombés : fouiller se fait SUR le cadavre,
+           à sa place, pas dans une liste à côté. -->
       <section class="cb-arena">
         <div class="cb-arena__bar">
           <span class="cb-scale">1 case = {{ cellMeters }} m</span>
@@ -218,6 +458,10 @@
               {{ movementLeft() | number:'1.0-1' }} m de déplacement ·
               {{ unit.actionUsed ? 'action utilisée' : 'action disponible' }} ·
               <span
+                [class.cb-turn__spent]="unit.bonusActionUsed"
+                title="L’action bonus sert l’arme secondaire et les objets du sac"
+              >{{ unit.bonusActionUsed ? 'bonus utilisée' : 'bonus disponible' }}</span> ·
+              <span
                 class="cb-turn__end"
                 [title]="'Récupère ' + enduranceRecovery(unit) + ' d’endurance au début de chaque tour'"
               >{{ unit.endurance }}/{{ effectiveStat(unit, 'endurance') }} endurance</span>
@@ -225,7 +469,7 @@
           }
 
           <span class="cb-modes">
-            @if (!encounter().started) {
+            @if (phase() === 'setup') {
               <button
                 type="button"
                 class="cb-mini"
@@ -233,23 +477,253 @@
                 (click)="mode.set(mode() === 'terrain' ? 'play' : 'terrain')"
               >Décor</button>
             }
-            <select class="cb-select cb-select--slim" aria-label="Moment de la journée" [value]="encounter().daytime ?? ''" (change)="setDaytime($any($event.target).value)">
-              <option value="">Heure indéterminée</option>
+            <!-- La sélection se marque sur les OPTIONS, pas sur le `select` :
+                 `[value]` est posé avant que `@for` n'ait créé les options, et
+                 le champ retombait sur la première ligne — « Heure indéterminée »
+                 alors que l'horloge disait matinée. -->
+            <select class="cb-select cb-select--slim" aria-label="Moment de la journée" (change)="setDaytime($any($event.target).value)">
+              <option value="" [selected]="!encounter().daytime">Heure indéterminée</option>
               @for (moment of daytimes; track moment.key) {
-                <option [value]="moment.key">{{ moment.name }}</option>
+                <option [value]="moment.key" [selected]="moment.key === encounter().daytime">
+                  {{ moment.name }}
+                </option>
               }
             </select>
-            <select class="cb-select cb-select--slim" aria-label="Météo" [value]="encounter().weather ?? ''" (change)="setWeather($any($event.target).value)">
-              <option value="">Ciel dégagé</option>
+            <select class="cb-select cb-select--slim" aria-label="Météo" (change)="setWeather($any($event.target).value)">
+              <option value="" [selected]="!encounter().weather">Ciel dégagé</option>
               @for (weather of weathers; track weather.key) {
-                <option [value]="weather.key">{{ weather.name }}</option>
+                <option [value]="weather.key" [selected]="weather.key === encounter().weather">
+                  {{ weather.name }}
+                </option>
               }
             </select>
+            <!-- Ce que le sol offre : c'est lui qui décide de ce qu'un mage de
+                 Terre vaut ici, avant qu'il n'ouvre la bouche. -->
+            <button
+              type="button"
+              class="cb-select cb-select--slim cb-geology__toggle"
+              [class.is-on]="geologyOpen()"
+              title="Géologie de la scène — ce qui peut être façonné sur place"
+              (click)="geologyOpen.set(!geologyOpen())"
+            >△ {{ geologyLabel() }}</button>
           </span>
         </div>
 
-        <!-- Palette de décor : un clic pose, un second sur la même case efface. -->
-        @if (mode() === 'terrain') {
+        @if (geologyOpen()) {
+          <div class="cb-geology">
+            <p class="cb-geology__intro">
+              Ce que le sol offre se façonne <strong>sans rien avoir étudié</strong>, et
+              coûte moins de mana. Ce qui n'y est pas doit être conjuré — donc étudié,
+              ou improvisé de mémoire.
+            </p>
+            <div class="cb-geology__regions">
+              @for (region of earthRegions; track region.key) {
+                <button
+                  type="button"
+                  class="cb-mini"
+                  [title]="region.description"
+                  (click)="setRegionGeology(region.key)"
+                >{{ region.name }}</button>
+              }
+            </div>
+            <ul class="cb-geology__list">
+              @for (m of earthMaterials; track m.key) {
+                <li>
+                  <button
+                    type="button"
+                    class="cb-metal__pick"
+                    [class.is-chosen]="geology().includes(m.key)"
+                    [title]="materialHint(m)"
+                    (click)="toggleGeology(m.key)"
+                  >
+                    <span class="cb-metal__name">{{ m.name }}</span>
+                    <span class="cb-metal__meta">{{ m.property }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <!-- ══ Hors combat : l'horloge et le camp, au-dessus de la grille ══
+             La grille NE DISPARAÎT PAS quand on sort du combat : les corps sont
+             restés où ils sont tombés, et fouiller se fait sur le cadavre, à sa
+             place. Seule la barre change. -->
+        @if (phase() === 'exploration') {
+          <div class="cb-campbar">
+            <div class="cb-campbar__clock">
+              <span class="cb-clock">{{ clockLabel() }}</span>
+              <span class="cb-clock__moment" [class.is-locked]="daytimeLocked()">
+                {{ daytimeName() }}
+              </span>
+              <button
+                type="button"
+                class="cb-mini"
+                [class.is-on]="daytimeLocked()"
+                [title]="daytimeLocked()
+                  ? 'Moment de la journée figé : l’horloge tourne sans lui. Cliquez pour le raccrocher à l’heure.'
+                  : 'Le moment de la journée suit l’horloge. Cliquez pour le figer (souterrain, éclipse).'"
+                (click)="toggleDaytimeLock()"
+              >{{ daytimeLocked() ? 'Figé' : 'Suit l’heure' }}</button>
+            </div>
+
+            <div class="cb-campbar__row">
+              <span class="cb-campbar__label">Le groupe</span>
+              @for (act of activities; track act.key) {
+                <button
+                  type="button"
+                  class="cb-act"
+                  [class.is-on]="activity() === act.key"
+                  [title]="act.description"
+                  (click)="activity.set(act.key)"
+                >{{ act.label }}</button>
+              }
+            </div>
+
+            <div class="cb-campbar__row">
+              <span class="cb-campbar__label">pendant</span>
+              @for (step of timeSteps; track step.label) {
+                <button type="button" class="cb-mini" (click)="passTime(step.seconds)">
+                  {{ step.label }}
+                </button>
+              }
+              <span class="cb-steps__custom">
+                <input
+                  type="number" min="1" max="2880" step="5"
+                  aria-label="Durée sur mesure, en minutes"
+                  [value]="customMinutes()"
+                  (input)="customMinutes.set(+$any($event.target).value)"
+                >
+                min
+                <button type="button" class="cb-mini" (click)="passCustom()">Avancer</button>
+              </span>
+              <button
+                type="button"
+                class="cb-mini"
+                title="Huit heures de sommeil d’un bloc : de quoi effacer une journée debout."
+                (click)="sleep()"
+              >Nuit complète</button>
+            </div>
+
+            <!-- Les gestes du camp. « Repas » et « Boire » PRENNENT SUR LES
+                 VIVRES : ce que chacun sort de son sac en disparaît, et qui n'a
+                 rien reste sur sa faim. « À la source » et « Chasse » ne coûtent
+                 rien — c'est au MJ de dire qu'il y en avait. -->
+            <div class="cb-campbar__row">
+              <span class="cb-campbar__label">Camp</span>
+              <button
+                type="button"
+                class="cb-mini"
+                title="Chacun entame ses rations. Le sac se vide pour de vrai."
+                (click)="meal('hunger')"
+              >Repas</button>
+              <button
+                type="button"
+                class="cb-mini"
+                title="Chacun boit son outre, qui se retrouve vide dans son sac."
+                (click)="meal('thirst')"
+              >Boire aux outres</button>
+              <button
+                type="button"
+                class="cb-mini"
+                title="Remplit les outres vides du groupe."
+                (click)="refill()"
+              >Remplir les outres</button>
+              <span class="cb-campbar__sep"></span>
+              <button
+                type="button"
+                class="cb-mini"
+                title="De l’eau libre : ne coûte rien au sac. À vous de dire qu’il y en avait."
+                (click)="restoreAll('thirst', 'la source')"
+              >À la source</button>
+            </div>
+
+            <!-- La chasse SE JETTE : une battue sur quatre ne rend rien. C'est
+                 ce qui empêche la chasse de remplacer purement et simplement
+                 les rations, et ce qui fait qu'un groupe compte sa besace au
+                 lieu de partir en se disant qu'on trouvera bien quelque chose.
+                 La prise revient à celui qui a lancé la battue. -->
+            <div class="cb-campbar__row">
+              <span class="cb-campbar__label">Chasse</span>
+              <button
+                type="button"
+                class="cb-btn cb-btn--primary"
+                [disabled]="!looter()"
+                title="Jette un d100 sur la table de chasse. La prise va au chasseur."
+                (click)="hunt()"
+              >Chasser</button>
+
+              <!-- Les chances sont affichées : on doit savoir ce qu'on risque
+                   AVANT de lancer les dés, pas le découvrir au journal. -->
+              <span class="cb-odds">
+                @for (issue of huntTable; track issue.key) {
+                  <span class="cb-odds__item" [title]="issue.flavour">
+                    {{ issue.chance }} % {{ issue.label.toLowerCase() }}
+                    @if (issue.nourishment) { <em>{{ issue.nourishment.notches }} cr.</em> }
+                  </span>
+                }
+              </span>
+
+              @if (looter(); as chasseur) {
+                <span class="cb-campbar__hint">
+                  chasseur : {{ chasseur.name }}
+                  @if (huntBonus()) {
+                    <b title="Bonus de Nature, ajouté au d100">Nature +{{ huntBonus() }}</b>
+                  }
+                </span>
+              }
+            </div>
+
+            <!-- Ce qui n'est pas chassé : un achat à l'étape, un don, une
+                 correction. Sans jet — il n'y a rien à hasarder. -->
+            <div class="cb-campbar__row">
+              <span class="cb-campbar__label">Ravitailler</span>
+              @for (vivre of supplies; track vivre.name) {
+                <button
+                  type="button"
+                  class="cb-mini"
+                  [disabled]="!looter()"
+                  [title]="'Ajoute ' + vivre.name + ' au sac (achat, don).'"
+                  (click)="provision(vivre.name)"
+                >
+                  + {{ vivre.name }}
+                  <em>{{ vivre.notches }} cr.</em>
+                </button>
+              }
+            </div>
+
+            <div class="cb-campbar__row">
+              <span class="cb-campbar__label">Ramasse</span>
+              <select
+                class="cb-select cb-select--slim"
+                aria-label="Qui ramasse le butin"
+                (change)="looterId.set($any($event.target).value)"
+              >
+                @for (unit of looters(); track unit.id) {
+                  <option [value]="unit.id" [selected]="unit.id === looter()?.id">
+                    {{ unit.name }}
+                  </option>
+                }
+              </select>
+              @if (!looters().length) {
+                <span class="cb-loot__empty">personne debout pour porter</span>
+              }
+              <button
+                type="button"
+                class="cb-mini"
+                [disabled]="!bodies().length"
+                title="Fouille tous les corps encore intacts."
+                (click)="searchAll()"
+              >Tout fouiller ({{ bodies().length }})</button>
+            </div>
+          </div>
+        }
+
+        <!-- Palette de décor : un clic pose, un second sur la même case efface.
+             RÉSERVÉE AU MONTAGE. Elle n'était liée qu'au mode et pas à la phase :
+             rester en mode Décor la traînait jusqu'en combat, et il fallait la
+             faire défiler à chaque fois pour atteindre le reste. -->
+        @if (phase() === 'setup' && mode() === 'terrain') {
           <div class="cb-palette">
             @for (kind of terrainKinds; track kind.key) {
               <button
@@ -265,6 +739,26 @@
               </button>
             }
             <span class="cb-palette__hint">Recliquer une case avec le même décor l’efface.</span>
+          </div>
+
+          <!-- Décors prêts à jouer : de quoi éprouver couvert, vue et
+               déplacement sans peindre trente cases à la main. -->
+          <div class="cb-palette cb-palette--layouts">
+            @for (layout of terrainLayouts; track layout.key) {
+              <button
+                type="button"
+                class="cb-brush cb-brush--layout"
+                [class.is-on]="activeLayout() === layout.key"
+                [title]="layout.hint"
+                (click)="applyLayout(layout)"
+              >
+                {{ layout.name }}
+              </button>
+            }
+            <button type="button" class="cb-brush cb-brush--layout" (click)="clearTerrain()">
+              Terrain nu
+            </button>
+            <span class="cb-palette__hint">Une carte remplace le décor en place.</span>
           </div>
         }
 
@@ -282,7 +776,12 @@
               [style.--terrain]="terrainAt(cell.key)?.color"
               [attr.data-terrain]="terrainAt(cell.key)?.key"
               [attr.data-glyph]="terrainAt(cell.key)?.glyph"
+              [class.is-open]="doorAt(cell.key)?.open || doorAt(cell.key)?.broken"
+              [class.is-locked]="doorAt(cell.key)?.locked"
+              [class.is-picked]="featureCell() === cell.key"
               [class.is-reachable]="reachable().has(cell.key)"
+              [class.is-path]="pathPreview().has(cell.key)"
+              [attr.data-step]="pathPreview().get(cell.key)"
               [class.is-range]="rangeOverlay().has(cell.key)"
               [class.is-close]="disadvantageCells().has(cell.key)"
               [class.is-strike]="pendingCells().has(cell.key) || teleportCells().has(cell.key)"
@@ -297,10 +796,15 @@
                   <span
                     class="cb-token"
                     [attr.data-team]="unit.team"
+                    [class.is-sliding]="slide()?.unitId === unit.id"
                     [class.is-active]="active()?.id === unit.id"
                     [class.is-down]="unit.down"
+                    [class.is-lootable]="phase() === 'exploration' && worthSearching(unit)"
+                    [class.is-carrier]="phase() === 'exploration' && looter()?.id === unit.id"
+                    [class.is-opened]="lootTargetId() === unit.id"
                     [style.--span]="unit.footprint"
                     [title]="unit.name + ' — ' + unit.hp + '/' + unit.base.hp + ' PV'"
+                    (contextmenu)="openMenu($event, unit)"
                   >
                     @if (unit.portrait) {
                       <img [src]="unit.portrait" alt="">
@@ -313,7 +817,56 @@
               } @else if (reachable().get(cell.key); as cost) {
                 <span class="cb-cost">{{ cost | number:'1.0-1' }}</span>
               }
+              <!-- Un mur conjuré : il occupe la case, et sa jauge dit combien
+                   de coups il tiendra encore. -->
+              @if (wallOn(cell.key); as mur) {
+                <span
+                  class="cb-wall"
+                  [style.--wall-color]="wallTint(mur)"
+                  [class.is-open]="openWall() === mur.id"
+                  [title]="wallHint(mur)"
+                >
+                  <span class="cb-wall__hp" [style.width.%]="wallHpPercent(mur)"></span>
+                  @if (mur.remaining !== -1) {
+                    <em class="cb-wall__timer">{{ mur.remaining }}</em>
+                  }
+                </span>
+              }
+              <!-- Ce qui traîne par terre. Marqué même sous un pion : on doit
+                   voir qu'une épée est tombée là où quelqu'un se tient. -->
+              @if (groundLabel(cell.key); as posee) {
+                <span class="cb-ground" [title]="posee">◆</span>
+              }
             </button>
+          }
+
+          <!-- ══ Le pion en chemin ══
+               Un calque au-dessus de la grille, calé sur ses gouttières : le
+               vrai pion est déjà à l'arrivée (l'état ne ment jamais), c'est ce
+               fantôme qui parcourt la route à sa place. -->
+          @if (slide(); as glisse) {
+            <div class="cb-slide__layer">
+              <!-- La boîte fait exactement UNE case et c'est elle qui voyage ;
+                   le pion qu'elle contient est un `.cb-token` ordinaire, qui
+                   s'y cale comme il se cale dans une case du plateau. -->
+              <span
+                class="cb-slide"
+                [style.--x]="glisse.path[glisse.step].x"
+                [style.--y]="glisse.path[glisse.step].y"
+              >
+                <span
+                  class="cb-token"
+                  [attr.data-team]="slidingUnit()?.team"
+                  [style.--span]="slidingUnit()?.footprint ?? 1"
+                >
+                  @if (slidingUnit()?.portrait; as portrait) {
+                    <img [src]="portrait" alt="">
+                  } @else {
+                    <span class="cb-token__glyph">{{ slidingUnit()?.name?.charAt(0) }}</span>
+                  }
+                </span>
+              </span>
+            </div>
           }
         </div>
 
@@ -325,8 +878,19 @@
             </p>
             @if (teleporting(); as spell) {
               <p class="cb-hint">
-                <strong>{{ spell.name }}</strong> — cliquez la case où vous vous rendez
-                (jusqu’à {{ spell.teleportMeters ?? spell.rangeMeters }} m).
+                @if (spell.swap) {
+                  @if (teleportCells().size) {
+                    <strong>{{ spell.name }}</strong> — cliquez le porteur de votre marque
+                    avec qui échanger votre place (jusqu’à {{ spell.rangeMeters }} m, sans
+                    ligne de vue).
+                  } @else {
+                    <strong>{{ spell.name }}</strong> —
+                    {{ swapRefusal(spell) ?? 'rien à échanger.' }}
+                  }
+                } @else {
+                  <strong>{{ spell.name }}</strong> — cliquez la case où vous vous rendez
+                  (jusqu’à {{ spell.teleportMeters ?? spell.rangeMeters }} m).
+                }
                 <button type="button" class="cb-mini" (click)="teleporting.set(null)">Annuler</button>
               </p>
             } @else {
@@ -339,7 +903,8 @@
                     (click)="chooseReaction(option)"
                   >
                     {{ option.name }}
-                    @if (option.teleport) { <em>se dérober</em> }
+                    @if (option.swap) { <em>échanger de place</em> }
+                    @else if (option.teleport) { <em>se dérober</em> }
                     @else if (option.damages.length) { <em>riposter</em> }
                   </button>
                 }
@@ -373,18 +938,360 @@
         }
 
         <!-- ══ Capacités du combattant actif ══ -->
+        <!-- ══ Agir sur le décor ══
+             Une porte n'est pas un mur : elle s'ouvre, se verrouille, se
+             crochète et s'enfonce. Les deux derniers demandent un jet, et
+             quelqu'un à portée du battant. -->
+        @if (openedDoor(); as cible) {
+          <div class="cb-abilities cb-doorpanel">
+            <h3>
+              Porte
+              <span class="cb-lootpanel__who">
+                @if (cible.door.broken) { enfoncée }
+                @else if (cible.door.open) { ouverte }
+                @else if (cible.door.locked) { fermée, verrouillée }
+                @else { fermée }
+                @if (handler(); as qui) { · {{ qui.name }} }
+              </span>
+            </h3>
+
+            @if (!handler()) {
+              <p class="cb-hint">Désignez d’abord qui agit — un personnage à portée du battant.</p>
+            }
+
+            <div class="cb-steps">
+              @if (!cible.door.open && !cible.door.broken) {
+                <button
+                  type="button"
+                  class="cb-btn cb-btn--primary"
+                  [disabled]="!handler() || cible.door.locked"
+                  [title]="cible.door.locked ? 'Verrouillée : crochetez-la ou enfoncez-la.' : 'Pousser le battant.'"
+                  (click)="door(cible.cell, 'open')"
+                >Ouvrir</button>
+              } @else if (!cible.door.broken) {
+                <button
+                  type="button"
+                  class="cb-btn"
+                  [disabled]="!handler()"
+                  (click)="door(cible.cell, 'close')"
+                >Refermer</button>
+              }
+
+              @if (cible.door.locked) {
+                <button
+                  type="button"
+                  class="cb-btn"
+                  [disabled]="!handler()"
+                  [title]="'Jet d’Escamotage contre ' + cible.door.lockDc + '. Exige des outils de crocheteur.'"
+                  (click)="door(cible.cell, 'pick')"
+                >Crocheter <em>seuil {{ cible.door.lockDc }}</em></button>
+              }
+
+              @if (!cible.door.broken) {
+                <button
+                  type="button"
+                  class="cb-btn"
+                  [disabled]="!handler()"
+                  [title]="'Jet d’Athlétisme contre ' + cible.door.breakDc + '. Une porte enfoncée ne se referme plus.'"
+                  (click)="door(cible.cell, 'break')"
+                >Enfoncer <em>seuil {{ cible.door.breakDc }}</em></button>
+              }
+            </div>
+
+            <!-- La main du MJ : poser l'état sans jet ni distance. -->
+            @if (!cible.door.broken) {
+              <div class="cb-steps">
+                <span class="cb-campbar__label">MJ</span>
+                <button
+                  type="button"
+                  class="cb-mini"
+                  (click)="door(cible.cell, cible.door.locked ? 'unlock' : 'lock')"
+                >{{ cible.door.locked ? 'Déverrouiller' : 'Verrouiller' }}</button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ══ Fouiller une dépouille ══
+             Le pendant hors combat du panneau d'actions : on clique un corps
+             sur la grille, et ce qu'il porte s'ouvre ici. Fouiller jette les
+             dés une fois pour toutes ; prendre transfère vers le porteur. -->
+        @if (phase() === 'exploration') {
+          @if (lootTarget(); as body) {
+            <div class="cb-abilities cb-lootpanel">
+              <h3>
+                {{ body.name }}
+                <span class="cb-lootpanel__who">
+                  → {{ looter()?.name ?? 'personne pour porter' }}
+                </span>
+              </h3>
+
+              @if (!body.searched) {
+                <p class="cb-hint">
+                  Le corps n’a pas été fouillé. Les dés ne se jettent qu’une fois :
+                  ce qui n’y est pas n’y sera jamais.
+                </p>
+                <button
+                  type="button"
+                  class="cb-btn cb-btn--primary"
+                  [disabled]="!looters().length"
+                  (click)="search(body)"
+                >Fouiller</button>
+              } @else if (hasLoot(body)) {
+                <div class="cb-loot__items">
+                  @for (item of body.loot ?? []; track item.name) {
+                    <button
+                      type="button"
+                      class="cb-loot__take"
+                      [disabled]="!looter()"
+                      [title]="'Prendre ' + item.name"
+                      (click)="takeOne(body, item)"
+                    >{{ item.name }} ×{{ item.qty }}</button>
+                  }
+                  @if (body.lootGold) {
+                    <button
+                      type="button"
+                      class="cb-loot__take cb-loot__take--gold"
+                      [disabled]="!looter()"
+                      (click)="takeAll(body)"
+                    >{{ body.lootGold }} pièces d’or</button>
+                  }
+                </div>
+                <button
+                  type="button"
+                  class="cb-btn cb-btn--primary"
+                  [disabled]="!looter()"
+                  (click)="takeAll(body)"
+                >Tout prendre</button>
+              } @else {
+                <p class="cb-hint">Fouillé — il ne reste rien sur ce corps.</p>
+              }
+            </div>
+          } @else {
+            <div class="cb-abilities cb-lootpanel">
+              <h3>Fouille</h3>
+              <p class="cb-hint">
+                @if (bodies().length) {
+                  Cliquez un corps sur la grille pour le fouiller. Cliquer un vivant
+                  en fait le porteur.
+                } @else {
+                  Personne à terre. Le temps passe, les jauges descendent — la barre
+                  au-dessus de la grille mène le camp.
+                }
+              </p>
+            </div>
+          }
+        }
+
+        @if (phase() !== 'exploration') {
         @if (active(); as unit) {
           <div class="cb-abilities">
             <h3>Actions de {{ unit.name }}</h3>
             @if (armed(); as ability) {
               <p class="cb-hint">
                 <strong>{{ ability.name }}</strong> armé —
-                {{ ability.shape.kind === 'targets'
-                    ? 'désignez ' + shapeLabel(ability.shape)
-                    : 'cliquez la case visée' }}.
-                Portée {{ ability.rangeMeters }} m · {{ shapeLabel(ability.shape) }}.
+                @if (ability.teleport) {
+                  cliquez la case où vous vous rendez.
+                  Saut {{ jumpRange(ability) }} m · les cases libres à portée sont surlignées.
+                } @else if (ability.swap) {
+                  cliquez le porteur de votre marque avec qui échanger votre place.
+                  Portée {{ ability.rangeMeters }} m · sans ligne de vue.
+                } @else {
+                  {{ ability.shape.kind === 'targets'
+                      ? 'désignez ' + shapeLabel(ability.shape)
+                      : 'cliquez la case visée' }}.
+                  Portée {{ ability.rangeMeters }} m · {{ shapeLabel(ability.shape) }}.
+                }
                 <button type="button" class="cb-mini" (click)="armed.set(null)">Annuler</button>
               </p>
+
+              <!-- La matière façonnée. Le sol impose la sienne par défaut, mais
+                   rien n'oblige à s'en contenter : conjurer ce qu'on a étudié
+                   coûte plus cher et se décompose, et c'est parfois le bon prix. -->
+              @if (shapeOptions().length) {
+                <div class="cb-metal">
+                  <p class="cb-metal__title">Matière</p>
+                  <ul class="cb-metal__list">
+                    @for (forme of shapeOptions(); track forme.material.key) {
+                      <li>
+                        <button
+                          type="button"
+                          class="cb-metal__pick"
+                          [class.is-chosen]="chosenShape()?.material?.key === forme.material.key"
+                          [title]="forme.note"
+                          (click)="shapeMaterial.set(forme.material.key)"
+                        >
+                          <span class="cb-metal__name">
+                            <span class="cb-wall__swatch" [style.background]="forme.material.color"></span>
+                            {{ forme.material.name }}
+                          </span>
+                          <span class="cb-metal__meta">
+                            {{ shapeManaCost(forme) }} mana ·
+                            <em>{{ shapeTierLabel(forme.tier) }}</em>
+                            @if (!forme.stable) { · se décompose }
+                          </span>
+                        </button>
+                        <!-- Ce que le sort DEVIENT avec cette matière : c'est ça
+                             qui fait le choix, pas le nom de la pierre. -->
+                        <span class="cb-shape__effects">
+                          @for (eff of shapeEffects(forme); track $index) {
+                            <em class="cb-shape__eff">{{ eff }}</em>
+                          }
+                          @for (trait of shapeTraits(forme); track $index) {
+                            <em class="cb-shape__trait">{{ trait }}</em>
+                          }
+                          @if (forme.precisionPenalty) {
+                            <em class="cb-shape__trait">−{{ forme.precisionPenalty / 5 }} crans</em>
+                          }
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                  @if (chosenShape(); as forme) {
+                    <p class="cb-metal__note">{{ forme.note }}</p>
+                  }
+                </div>
+              }
+
+              <!-- Ce qu'on projette sort de son PROPRE sac : le choix se pose
+                   dès que le sort est armé, avant même de viser. -->
+              @if (throwable().length) {
+                <div class="cb-metal">
+                  <p class="cb-metal__title">Projectile</p>
+                  <ul class="cb-metal__list">
+                    @for (item of throwable(); track item.name) {
+                      <li>
+                        <button
+                          type="button"
+                          class="cb-metal__pick"
+                          [class.is-chosen]="(thrownItem() ?? throwable()[0].name) === item.name"
+                          (click)="thrownItem.set(item.name)"
+                        >
+                          <span class="cb-metal__name">{{ item.name }}</span>
+                          <span class="cb-metal__meta">
+                            {{ thrownLabel(item) }}
+                            @if (item.source === 'weapon') {
+                              · <em>en main</em>
+                            }
+                          </span>
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                  <p class="cb-metal__note">
+                    L’objet ne revient pas : il quitte le sac, et une arme projetée
+                    quitte la main.
+                  </p>
+                </div>
+              }
+            }
+
+            <!-- Ce qu'on ARRACHE dépend de la cible : le panneau n'apparaît
+                 qu'une fois quelqu'un désigné, et il montre ce qu'il porte. -->
+            <!-- La fiche d'un mur, ouverte en cliquant dessus. -->
+            @if (inspectedWall(); as mur) {
+              <div class="cb-metal">
+                <p class="cb-metal__title">
+                  <span class="cb-wall__swatch" [style.background]="wallTint(mur)"></span>
+                  {{ mur.name }}
+                </p>
+                <ul class="cb-wallinfo">
+                  <li>
+                    <span>Santé</span>
+                    <b>{{ mur.hp }} / {{ mur.maxHp }}</b>
+                  </li>
+                  <li>
+                    <span>Tenue</span>
+                    <b>
+                      @if (mur.remaining === -1) {
+                        permanent — façonné dans le sol
+                      } @else {
+                        {{ mur.remaining }} tour{{ mur.remaining > 1 ? 's' : '' }} avant décomposition
+                      }
+                    </b>
+                  </li>
+                  <li>
+                    <span>Cède à</span>
+                    <b class="cb-wallinfo__weak">{{ wallWeaknesses(mur) }}</b>
+                  </li>
+                  @if (wallResistances(mur); as resiste) {
+                    <li>
+                      <span>Encaisse</span>
+                      <b>{{ resiste }}</b>
+                    </li>
+                  }
+                  <li>
+                    <span>Emprise</span>
+                    <b>{{ mur.cells.length }} case{{ mur.cells.length > 1 ? 's' : '' }}</b>
+                  </li>
+                </ul>
+                <p class="cb-metal__note">
+                  Toute paroi se BRISE : le contondant compte double contre elle,
+                  quelle qu'en soit la matière.
+                </p>
+                <button type="button" class="cb-mini cb-mini--danger" (click)="breakWall(mur)">Abattre</button>
+                <button type="button" class="cb-mini" (click)="openWall.set(null)">Fermer</button>
+              </div>
+            }
+
+            <!-- Ce qui est tombé à portée de main. Se baisser coûte l'action
+                 bonus en combat, rien hors combat. -->
+            @if (withinReach().length) {
+              <div class="cb-metal">
+                <p class="cb-metal__title">À ramasser</p>
+                <ul class="cb-metal__list">
+                  @for (pile of withinReach(); track pile.key) {
+                    @for (line of pile.items; track line.name) {
+                      <li>
+                        <button
+                          type="button"
+                          class="cb-metal__pick"
+                          [disabled]="!!pickUpBlocker()"
+                          [title]="pickUpBlocker() ?? 'Ramasser ' + line.name"
+                          (click)="pickUp(pile.pos, line.name)"
+                        >
+                          <span class="cb-metal__name">{{ line.name }} ×{{ line.qty }}</span>
+                          <span class="cb-metal__meta">({{ pile.pos.x }}, {{ pile.pos.y }})</span>
+                        </button>
+                      </li>
+                    }
+                  }
+                </ul>
+                @if (pickUpBlocker(); as raison) {
+                  <p class="cb-metal__note">{{ raison }}</p>
+                } @else if (phase() === 'combat') {
+                  <p class="cb-metal__note">Se baisser coûte l’action bonus.</p>
+                }
+              </div>
+            }
+
+            @if (pullTarget()) {
+              <div class="cb-metal">
+                <p class="cb-metal__title">Arracher à {{ pullTargetName() }}</p>
+                <ul class="cb-metal__list">
+                  @for (item of pullable(); track item.name) {
+                    <li>
+                      <button
+                        type="button"
+                        class="cb-metal__pick"
+                        (click)="confirmPull(item.name)"
+                      >
+                        <span class="cb-metal__name">{{ item.name }}</span>
+                        <span class="cb-metal__meta">
+                          @if (item.source === 'weapon') {
+                            <em>au poing — jet de Force pour la garder</em>
+                          } @else if (item.source === 'ground') {
+                            par terre
+                          } @else {
+                            au sac
+                          }
+                        </span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+                <button type="button" class="cb-mini" (click)="cancelPull()">Annuler</button>
+              </div>
             }
 
             <!-- Onglets par famille : on ne voit que ce qu'on cherche, et la
@@ -394,7 +1301,7 @@
                 @if (countIn(group.key)) {
                   <button
                     type="button"
-                    [class.is-on]="actionTab() === group.key"
+                    [class.is-on]="effectiveTab() === group.key"
                     (click)="actionTab.set(group.key)"
                   >
                     {{ group.label }}
@@ -416,16 +1323,29 @@
                     [title]="abilityBlocker(ability) ?? ability.description ?? ability.name"
                     (click)="toggleAbility(ability)"
                   >
-                    <span class="cb-ability__name">{{ ability.name }}</span>
+                    <span class="cb-ability__name">
+                      {{ ability.name }}
+                      <!-- Le créneau se lit sur le bouton : sans cela, rien ne
+                           dit pourquoi la dague de main gauche reste jouable
+                           alors que l'attaque du tour est déjà partie. -->
+                      @if (ability.bonusAction) {
+                        <em class="cb-ability__bonus" title="Se joue en action bonus">bonus</em>
+                      }
+                    </span>
                     <span class="cb-ability__meta">
                       <!-- Dégâts RÉELS (dés + scaling + buffs de poing), pas les
                            chiffres bruts de la fiche. -->
                       @for (chip of damageChips(unit, ability); track $index) {
                         <em class="cb-ability__dmg">{{ chip }}</em>
                       }
+                      <!-- Ce que la capacité ACCORDE : défense, enchantement,
+                           mur. Un sort de protection n'affichait rien sans ça. -->
+                      @for (chip of statChips(unit, ability); track $index) {
+                        <em class="cb-ability__gain">{{ chip }}</em>
+                      }
                       <!-- Approché : la cible n'est pas encore désignée. -->
                       @if (hitThresholdHint(unit, ability); as seuil) {
-                        <em class="cb-ability__hit" title="Score à faire au d20, hors esquive de la cible et gêne de tir">
+                        <em class="cb-ability__hit" [title]="hitHint(unit, ability)">
                           touche à {{ seuil }}+
                         </em>
                       }
@@ -464,6 +1384,7 @@
             </ul>
           </div>
         }
+        }
       </section>
 
       <!-- ══ Colonne droite : montage / journal ══ -->
@@ -477,17 +1398,21 @@
           <div class="cb-panel">
             @if (rosterError()) { <p class="cb-alert">{{ rosterError() }}</p> }
 
-            <h3>Grille</h3>
-            <div class="cb-row">
-              <label>Largeur
-                <input type="number" min="5" max="60" [value]="encounter().grid.width"
-                       (change)="resize($any($event.target).valueAsNumber, encounter().grid.height)">
-              </label>
-              <label>Hauteur
-                <input type="number" min="5" max="60" [value]="encounter().grid.height"
-                       (change)="resize(encounter().grid.width, $any($event.target).valueAsNumber)">
-              </label>
-            </div>
+            <!-- Redimensionner rogne le plateau et rapatrie les pions qui en
+                 sortent : c'est un geste de montage, pas de partie. -->
+            @if (phase() === 'setup') {
+              <h3>Grille</h3>
+              <div class="cb-row">
+                <label>Largeur
+                  <input type="number" min="5" max="60" [value]="encounter().grid.width"
+                         (change)="resize($any($event.target).valueAsNumber, encounter().grid.height)">
+                </label>
+                <label>Hauteur
+                  <input type="number" min="5" max="60" [value]="encounter().grid.height"
+                         (change)="resize(encounter().grid.width, $any($event.target).valueAsNumber)">
+                </label>
+              </div>
+            }
 
             <h3>Camp des ajouts</h3>
             <div class="cb-row cb-row--teams">
@@ -610,5 +1535,43 @@
         }
       </aside>
     </div>
+
+    <!-- ══ Menu contextuel d'un pion ══
+         Le chemin rapide, au clic droit sur la grille comme dans la liste. Les
+         mêmes commandes restent dans le panneau du combattant sélectionné : un
+         menu caché derrière un clic droit ne doit pas être le seul endroit où
+         l'on peut faire quelque chose. -->
+    @if (menu(); as ctx) {
+      <div
+        class="cb-menu"
+        role="menu"
+        [style.left.px]="ctx.x"
+        [style.top.px]="ctx.y"
+        (click)="$event.stopPropagation()"
+        (contextmenu)="$event.preventDefault()"
+      >
+        <p class="cb-menu__title">{{ ctx.unit.name }}</p>
+
+        <p class="cb-menu__label">Changer de camp</p>
+        @for (team of teams; track team[0]) {
+          <button
+            type="button"
+            role="menuitem"
+            class="cb-menu__item"
+            [attr.data-team]="team[0]"
+            [class.is-on]="ctx.unit.team === team[0]"
+            [disabled]="ctx.unit.team === team[0]"
+            (click)="setTeam(ctx.unit, team[0])"
+          >{{ team[1] }}</button>
+        }
+
+        <button
+          type="button"
+          role="menuitem"
+          class="cb-menu__item cb-menu__item--danger"
+          (click)="removeCombatant(ctx.unit.id); closeMenu()"
+        >Retirer de la rencontre</button>
+      </div>
+    }
   </main>
 </div>

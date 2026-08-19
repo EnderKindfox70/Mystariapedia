@@ -1,5 +1,6 @@
 {
   "name": "Carreaux",
+  "material": "fer",
   "subtitle": "Munition lourde des arbalètes",
   "description": [
     "Plus courts et plus épais que les flèches, les carreaux concentrent leur masse derrière une pointe pyramidale conçue pour percer l'acier.",
@@ -7,10 +8,21 @@
   ],
   "damageType": "piercing",
   "damageBonus": 2,
-  "compatibleWith": ["crossbow", "handCrossbow"],
+  "compatibleWith": [
+    "crossbow",
+    "handCrossbow"
+  ],
   "info": [
-    { "key": "weight", "label": "Poids unitaire", "value": "0,08 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids unitaire",
+      "value": "0,08 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Pénétration d'armure supérieure",

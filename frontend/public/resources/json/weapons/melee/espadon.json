@@ -1,5 +1,6 @@
 {
   "name": "Espadon",
+  "material": "acier",
   "subtitle": "Épée à deux mains de guerre",
   "image": "/resources/media/pictures/weapons/greatsword.png",
   "description": [
@@ -10,8 +11,16 @@
   "minDamage": 7,
   "maxDamage": 15,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "3 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Rare" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "3 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Rare"
+    }
   ],
   "properties": [
     "Polyvalent : taille et estoc puissants",

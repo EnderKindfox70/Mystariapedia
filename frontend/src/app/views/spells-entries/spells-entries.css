@@ -1133,6 +1133,10 @@
 [data-type="bludgeoning"] { --dt-color: #6b7885; }
 [data-type="piercing"]    { --dt-color: #8793a0; }
 [data-type="slashing"]    { --dt-color: #55606b; }
+/* « Type de l'arme » : ce n'est PAS un type, c'est un renvoi. Il ne prend donc
+   aucune des teintes d'acier ci-dessus — les confondre laisserait croire que le
+   sort inflige du contondant, alors qu'il inflige ce que l'arme inflige. */
+[data-type="weapon"]      { --dt-color: #8a6f3e; }
 
 /* Badge de type de dégâts — précédé d'un espace, coloré à la teinte de son type
    (repli sur la couleur du domaine si le type est inconnu). */
@@ -1149,6 +1153,34 @@
   border: 1px solid color-mix(in srgb, var(--dt-color, var(--domain-color, var(--ancient-gold))) 45%, transparent);
   cursor: default;
 }
+/* Un badge qui porte une explication : il faut voir qu'il y a quelque chose à
+   survoler, sinon le renvoi à l'arme reste une étiquette qu'on ne lit pas. */
+.se-dmg-type.has-tip {
+  position: relative;
+  cursor: help;
+  border-style: dashed;
+  border-width: 1px 1px 2px;
+}
+.se-dmg-type.has-tip::after {
+  content: '?';
+  margin-left: .3rem;
+  font-size: .62rem;
+  vertical-align: super;
+  opacity: .75;
+}
+.se-dmg-type.has-tip:hover,
+.se-dmg-type.has-tip:focus-visible {
+  background: color-mix(in srgb, var(--dt-color, var(--ancient-gold)) 28%, transparent);
+}
+.se-dmg-type.has-tip:hover .se-effect-tip,
+.se-dmg-type.has-tip:focus-visible .se-effect-tip,
+.se-dmg-type.has-tip:focus-within .se-effect-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+/* Une infobulle de PHRASE, et non de valeurs alignées : elle doit revenir à la
+   ligne, là où les lignes « + 0,3 × Force » tiennent à ne pas se couper. */
+.se-effect-tip__row--wrap { white-space: normal; }
 /* Valeur chiffrée de dégâts : teintée par le type quand il est connu. */
 .se-inline-val[data-type] { color: var(--dt-color); }
 /* Valeur de soin : teinte « vie ». */
@@ -1380,3 +1412,66 @@
   }
   .se-spell-nav__link { max-width: 100%; }
 }
+
+/* ══ MATÉRIAUX DE TERRE ══════════════════════════════════════════════════════
+   Un sélecteur, pas un tableau : c'est lui qui relit toute la fiche. Page sur
+   PARCHEMIN — les teintes claires du simulateur y seraient invisibles. */
+.se-materials {
+  margin-top: .9rem;
+  padding-top: .8rem;
+  border-top: 1px dotted rgba(139, 107, 47, .35);
+}
+.se-materials__label {
+  display: block;
+  margin-bottom: .35rem;
+  font-family: 'Cinzel', serif;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6b4a1f;
+}
+.se-materials__select {
+  width: 100%;
+  max-width: 26rem;
+  padding: .35rem .5rem;
+  border: 1px solid rgba(43, 26, 18, .35);
+  border-radius: 2px;
+  background: rgba(255, 252, 244, .85);
+  color: #16110d;
+  font-family: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+}
+.se-materials__select:focus { outline: none; border-color: #6b4a1f; }
+.se-materials__intro {
+  margin: .5rem 0 .5rem;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: rgba(43, 26, 18, .75);
+}
+.se-materials__facts {
+  list-style: none;
+  margin: 0 0 .5rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: .15rem .9rem;
+}
+.se-materials__facts li {
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .18rem 0;
+  border-bottom: 1px solid rgba(43, 26, 18, .1);
+  font-size: .8rem;
+}
+.se-materials__facts span { color: rgba(43, 26, 18, .6); }
+.se-materials__facts b { color: #16110d; font-weight: 500; text-align: right; }
+.se-materials__note {
+  margin: 0;
+  font-size: .78rem;
+  font-style: italic;
+  color: rgba(43, 26, 18, .7);
+}
+/* Une matière qui n'oppose rien à la magie : le dire, plutôt qu'un « +0 ». */
+.se-materials__none { font-style: italic; color: rgba(43, 26, 18, .45); font-weight: 400; }

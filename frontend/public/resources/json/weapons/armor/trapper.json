@@ -1,15 +1,50 @@
 {
   "name": "Tenue de trappeur",
   "subtitle": "Fourrures et cuir des bois profonds",
+  "armorCategory": "light",
+  "material": "cuir",
   "description": [
     "Lourde de fourrures et de cuir, cette tenue protège du froid mordant des bois profonds où le trappeur relève ses pièges."
   ],
   "pieces": [
-    { "slot": "head", "label": "Chapka de fourrure",  "physicalArmor": 1, "magicalProtection": 0, "weight": 0.5 },
-    { "slot": "body", "label": "Manteau de fourrure",  "physicalArmor": 2, "magicalProtection": 0, "weight": 3 },
-    { "slot": "legs", "label": "Pantalon de cuir",     "physicalArmor": 1, "magicalProtection": 0, "weight": 1.4 },
-    { "slot": "feet", "label": "Bottes fourrées",      "physicalArmor": 1, "magicalProtection": 0, "weight": 1.1 }
+    {
+      "slot": "head",
+      "label": "Chapka de fourrure",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 0.5
+    },
+    {
+      "slot": "body",
+      "label": "Manteau de fourrure",
+      "physicalArmor": 2,
+      "magicalProtection": 0,
+      "weight": 3
+    },
+    {
+      "slot": "legs",
+      "label": "Pantalon de cuir",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1.4
+    },
+    {
+      "slot": "feet",
+      "label": "Bottes fourrées",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1.1
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
-  "properties": ["Chaude pour les bois profonds", "Le cuir résiste aux morsures et aux ronces"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
+  ],
+  "properties": [
+    "Chaude pour les bois profonds",
+    "Le cuir résiste aux morsures et aux ronces"
+  ]
 }

@@ -27,6 +27,20 @@ export interface TerrainKind {
   color: string;
   /** Glyphe affiché dans la case. */
   glyph: string;
+  /**
+   * Le décor se franchit **à la nage**. Il barre la route à tout le monde, sauf
+   * à qui sait nager — pour qui il devient simplement pénible.
+   *
+   * C'est une quatrième propriété et non un décor de plus : « infranchissable »
+   * et « infranchissable pour toi » sont deux choses différentes, et la seconde
+   * est ce qui rend une rivière intéressante à placer.
+   */
+  swimmable?: boolean;
+  /**
+   * Le décor est un **élément qu'on manipule** : il porte un état (ouvert,
+   * verrouillé, brisé) et propose des actions au clic. Cf. `EncounterFeatures`.
+   */
+  operable?: boolean;
 }
 
 /**
@@ -85,14 +99,38 @@ export const TERRAIN_KINDS: TerrainKind[] = [
     glyph: '✿',
   },
   {
+    key: 'porte',
+    label: 'Porte',
+    hint: 'Fermée : barre la route et la vue. S’ouvre, se crochète, s’enfonce',
+    blocksMovement: true,
+    blocksSight: true,
+    moveCost: 1,
+    color: 'rgba(126, 88, 46, .85)',
+    glyph: '🚪',
+    operable: true,
+  },
+  {
     key: 'eau',
-    label: 'Point d’eau',
-    hint: 'Se traverse lentement, la vue passe',
+    label: 'Eau peu profonde',
+    hint: 'On y patauge : se traverse lentement, la vue passe',
     blocksMovement: false,
     blocksSight: false,
     moveCost: 2,
     color: 'rgba(61, 121, 168, .5)',
     glyph: '≈',
+  },
+  {
+    key: 'eau-profonde',
+    label: 'Eau profonde',
+    hint: 'On n’y a plus pied : infranchissable si l’on ne sait pas nager',
+    // Barrée par défaut : c'est le cas du plus grand nombre. `swimmable` la
+    // rouvre à qui sait nager, pour qui elle redevient une simple gêne.
+    blocksMovement: true,
+    blocksSight: false,
+    moveCost: 2,
+    color: 'rgba(28, 74, 122, .8)',
+    glyph: '≋',
+    swimmable: true,
   },
   {
     key: 'boue',
@@ -154,6 +192,84 @@ export function normalizeTerrain(terrain: TerrainMap | LegacyTerrain | undefined
     return out;
   }
   return { ...(terrain as TerrainMap) };
+}
+
+/* ── Les éléments qu'on manipule ───────────────────────────────────────────
+   Une porte n'est pas un mur : elle a un ÉTAT, et cet état change en cours de
+   partie. On le range à côté du décor plutôt que dedans — le décor dit ce
+   qu'est la case, l'état dit dans quelle position elle se trouve. Une carte
+   reste ainsi une simple liste de cases, et un décor sans état ne paie rien.
+─────────────────────────────────────────────────────────────────────────── */
+
+/** État d'une porte posée sur une case. */
+export interface DoorState {
+  /** Ouverte : on passe et on voit au travers. */
+  open: boolean;
+  /** Verrouillée : il faut la crocheter ou l'enfoncer avant de l'ouvrir. */
+  locked: boolean;
+  /** Enfoncée : elle ne se referme plus, et ne se verrouille plus jamais. */
+  broken: boolean;
+  /** Seuil du jet d'Escamotage pour la crocheter. */
+  lockDc: number;
+  /** Seuil du jet d'Athlétisme pour l'enfoncer. */
+  breakDc: number;
+}
+
+/** État des éléments manipulables : case ("x,y") → état. */
+export type EncounterFeatures = Record<string, DoorState>;
+
+/** Seuils par défaut d'une porte neuve — une serrure ordinaire, un bois franc. */
+export const DEFAULT_LOCK_DC = 12;
+export const DEFAULT_BREAK_DC = 15;
+
+/** Une porte fermée et non verrouillée : l'état par défaut à la pose. */
+export const newDoor = (): DoorState => ({
+  open: false,
+  locked: false,
+  broken: false,
+  lockDc: DEFAULT_LOCK_DC,
+  breakDc: DEFAULT_BREAK_DC,
+});
+
+/** Une porte laisse-t-elle passer ? Ouverte ou enfoncée, oui. */
+export const doorIsPassable = (door: DoorState | undefined): boolean =>
+  !!door && (door.open || door.broken);
+
+/**
+ * Décor **tel qu'il est réellement à cet instant**, pour ce combattant-là.
+ *
+ * C'est la pièce qui évite de toucher au calcul de chemin : plutôt que
+ * d'apprendre les portes et la nage à Dijkstra, on lui présente une carte déjà
+ * résolue. Une porte ouverte n'y figure plus ; l'eau profonde n'y figure plus
+ * non plus si celui qui avance sait nager.
+ *
+ * Sans `mover`, on résout ce qui ne dépend de personne — les portes — et l'eau
+ * profonde reste barrée. C'est la bonne vue pour la ligne de VUE, qui ne
+ * dépend pas de qui regarde.
+ */
+export function effectiveTerrain(
+  terrain: TerrainMap,
+  features: EncounterFeatures | undefined,
+  mover?: { canSwim?: boolean },
+): TerrainMap {
+  const out: TerrainMap = { ...terrain };
+
+  for (const [cell, key] of Object.entries(terrain)) {
+    const kind = terrainKind(key);
+    if (!kind) continue;
+
+    if (kind.operable && doorIsPassable(features?.[cell])) {
+      // Une porte ouverte n'est plus un obstacle : la case redevient nue.
+      delete out[cell];
+      continue;
+    }
+    if (kind.swimmable && mover?.canSwim) {
+      // Le nageur y passe — lentement. « Eau peu profonde » porte exactement
+      // cette règle : on la réutilise plutôt que d'en inventer une jumelle.
+      out[cell] = 'eau';
+    }
+  }
+  return out;
 }
 
 /** La case bloque-t-elle le passage ? */

@@ -33,14 +33,20 @@
     </section>
 
     <!-- ── Informations ── -->
-    @if (entry().info.length) {
+    @if (infoFields().length) {
       <section class="re-section">
         <div class="re-divider"><span>Informations</span></div>
         <ul class="re-info-grid">
-          @for (field of entry().info; track field.label) {
+          @for (field of infoFields(); track field.label) {
             <li class="re-info">
               <span class="re-info__icon" aria-hidden="true">
                 @switch (field.key) {
+                  @case ('material') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                      <path d="M4 9l4-3h8l4 3-4 3H8L4 9Z" stroke-linejoin="round"/>
+                      <path d="M4 15l4-3M20 15l-4-3M8 18h8l4-3-4-3M8 18l-4-3" stroke-linejoin="round"/>
+                    </svg>
+                  }
                   @case ('type') {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
                       <path d="M5 19c0-7 5-13 14-14 0 9-6 14-14 14Z" stroke-linejoin="round"/>

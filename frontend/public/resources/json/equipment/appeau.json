@@ -1,46 +1,75 @@
 {
-    "name": "Appeau",
-    "subtitle": "Matériel de traqueur",
-    "category": "chasse",
-    "image": "/resources/media/pictures/equipment/appeau.png",
-    "icon": "",
-    "description": [
-        "Un sifflet de buis creusé et cerclé de laiton, avec une anche de roseau que l'on remplace au besoin, porté au cou par un cordon. Il n'imite rien tout seul : c'est le souffle qui fait le cri, et un appeau entre des lèvres inexpérimentées ne produit qu'un couinement qui fait fuir la forêt entière.",
-        "Bien joué, il fait venir. Un cri de détresse de faon, un appel de femelle en saison, le glapissement d'un louveteau isolé : le traqueur choisit ce qu'il veut attirer et l'attend là où il a décidé de le rencontrer, plutôt que de le poursuivre trois jours dans un sous-bois."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "0,2 kg" },
-        { "key": "type",   "label": "Type",        "value": "Outil — appel réutilisable" },
-        { "key": "rarity", "label": "Rareté",      "value": "Peu commun" },
-        { "key": "usage",  "label": "Utilisation", "value": "Exige la connaissance du cri imité" },
-        { "key": "value",  "label": "Valeur",      "value": "20 pièces d'or" }
-    ],
-    "properties": [
-        "Attire une créature de la région dont on sait imiter le cri : elle vient au lieu choisi, dans le quart d'heure, si elle est à portée d'oreille.",
-        "L'appel n'apprivoise rien : la créature qui vient arrive dans son état d'esprit habituel, curieuse, méfiante ou affamée.",
-        "Un appel mal exécuté fait l'inverse : la faune du secteur se tait et s'éloigne pour plusieurs heures.",
-        "Sans effet sur ce qui ne chasse pas à l'oreille, sur les morts-vivants et sur les entités.",
-        "Attire aussi ce qui chasse la proie imitée. Un cri de faon appelle le faon, et ce qui mange les faons.",
-        "L'anche de roseau se fend avec l'humidité. En emporter deux de rechange dans le cordon."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les marchands de matériel de chasse et dans les villages de forêt, où on les taille l'hiver au coin du feu.",
-            "Chaque région a ses appeaux, accordés à sa faune. Un appeau des plaines du sud ne dit rien qui vaille aux bêtes du nord."
-        ]
+  "name": "Appeau",
+  "subtitle": "Matériel de traqueur",
+  "material": "bois",
+  "category": "chasse",
+  "image": "/resources/media/pictures/equipment/appeau.png",
+  "icon": "",
+  "description": [
+    "Un sifflet de buis creusé et cerclé de laiton, avec une anche de roseau que l'on remplace au besoin, porté au cou par un cordon. Il n'imite rien tout seul : c'est le souffle qui fait le cri, et un appeau entre des lèvres inexpérimentées ne produit qu'un couinement qui fait fuir la forêt entière.",
+    "Bien joué, il fait venir. Un cri de détresse de faon, un appel de femelle en saison, le glapissement d'un louveteau isolé : le traqueur choisit ce qu'il veut attirer et l'attend là où il a décidé de le rencontrer, plutôt que de le poursuivre trois jours dans un sous-bois."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,2 kg"
     },
-    "notes": [
-        "Apprendre un cri prend des semaines. Un appeau acheté ne sert à rien sans le savoir qui va avec — c'est pourquoi il se transmet plus qu'il ne se vend.",
-        "Ne jamais appeler sans savoir ce qui répond dans le secteur. Les traqueurs consultent le bestiaire avant de souffler."
-    ],
-    "references": [
-        {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "piege-a-machoires", "collection": "equipment", "label": "Piège à mâchoires" },
-                { "ref": "filet-leste", "collection": "equipment", "label": "Filet lesté" }
-            ]
-        }
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Outil — appel réutilisable"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commun"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Exige la connaissance du cri imité"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "20 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Attire une créature de la région dont on sait imiter le cri : elle vient au lieu choisi, dans le quart d'heure, si elle est à portée d'oreille.",
+    "L'appel n'apprivoise rien : la créature qui vient arrive dans son état d'esprit habituel, curieuse, méfiante ou affamée.",
+    "Un appel mal exécuté fait l'inverse : la faune du secteur se tait et s'éloigne pour plusieurs heures.",
+    "Sans effet sur ce qui ne chasse pas à l'oreille, sur les morts-vivants et sur les entités.",
+    "Attire aussi ce qui chasse la proie imitée. Un cri de faon appelle le faon, et ce qui mange les faons.",
+    "L'anche de roseau se fend avec l'humidité. En emporter deux de rechange dans le cordon."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les marchands de matériel de chasse et dans les villages de forêt, où on les taille l'hiver au coin du feu.",
+      "Chaque région a ses appeaux, accordés à sa faune. Un appeau des plaines du sud ne dit rien qui vaille aux bêtes du nord."
     ]
+  },
+  "notes": [
+    "Apprendre un cri prend des semaines. Un appeau acheté ne sert à rien sans le savoir qui va avec — c'est pourquoi il se transmet plus qu'il ne se vend.",
+    "Ne jamais appeler sans savoir ce qui répond dans le secteur. Les traqueurs consultent le bestiaire avant de souffler."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "piege-a-machoires",
+          "collection": "equipment",
+          "label": "Piège à mâchoires"
+        },
+        {
+          "ref": "filet-leste",
+          "collection": "equipment",
+          "label": "Filet lesté"
+        }
+      ]
+    }
+  ]
 }

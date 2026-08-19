@@ -2,13 +2,16 @@ import { Component, inject, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import weaponCategoryCatalog from '../../../../public/resources/json/weapon_category.json';
+import { ARMOR_CATEGORIES } from '../../character/universe-data';
 import {
+  ArmorCategoryKey,
   ArmorPiece,
   ResourceInfoField,
   WeaponCategoryDef,
   WeaponCategoryKey,
 } from '../../wiki.types';
 import { Navbar } from '../../components/navbar/navbar';
+import { compositionLabel } from '../../combat/materials';
 
 /** Champs unifiés pour l'affichage d'une arme ou d'une armure. */
 interface DetailEntry {
@@ -18,6 +21,8 @@ interface DetailEntry {
   icon?: string;
   description: string[];
   info?: ResourceInfoField[];
+  /** Matière de l'objet (clé de `materials.json`). */
+  material?: string;
   properties?: string[];
   notes?: string[];
   // — Arme —
@@ -25,6 +30,7 @@ interface DetailEntry {
   minDamage?: number;
   maxDamage?: number;
   // — Armure —
+  armorCategory?: ArmorCategoryKey;
   resistances?: string[];
   weaknesses?: string[];
   pieces?: ArmorPiece[];
@@ -94,6 +100,22 @@ export class WeaponEntryComponent {
     weaponCategoryCatalog.weapon_categories as WeaponCategoryDef[];
 
   entry = computed(() => this.routeData()['entry'] as DetailEntry);
+
+  /**
+   * La bande de caractéristiques, composition comprise.
+   *
+   * Elle est AJOUTÉE au rendu plutôt que recopiée dans le JSON de chaque fiche :
+   * la matière est déjà déclarée une fois, sur `material`, et la dupliquer dans
+   * `info` aurait créé deux vérités qui finiraient par diverger.
+   */
+  infoFields = computed<ResourceInfoField[]>(() => {
+    const base = this.entry().info ?? [];
+    const composition = compositionLabel(this.entry().material);
+    return composition
+      ? [...base, { key: 'material', label: 'Composition', value: composition }]
+      : [...base];
+  });
+
   category = computed(() => this.paramMap().get('category') ?? '');
   categoryLabel = computed(() => CATEGORY_LABELS[this.category()] ?? 'Armes');
 
@@ -114,6 +136,11 @@ export class WeaponEntryComponent {
 
   // ── Armure ──
   armorPieces = computed(() => this.entry().pieces ?? []);
+  /** Catégorie du set : ce que les classes citent dans leurs maîtrises. */
+  armorCategory = computed(() => {
+    const key = this.entry().armorCategory;
+    return key ? ARMOR_CATEGORIES.find((c) => c.key === key) : undefined;
+  });
   resistances = computed(() =>
     (this.entry().resistances ?? []).map((r) => this.damageTypeLabel(r)),
   );

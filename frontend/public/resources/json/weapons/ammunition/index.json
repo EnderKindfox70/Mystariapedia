@@ -4,6 +4,7 @@
     "name": "Billes de fronde",
     "subtitle": "Munition de plomb ou de pierre",
     "rarity": "Commune",
+    "material": "plomb",
     "weight": 0.04
   },
   {
@@ -11,6 +12,7 @@
     "name": "Carreaux",
     "subtitle": "Munition lourde des arbalètes",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 0.08
   },
   {
@@ -18,6 +20,7 @@
     "name": "Flèches",
     "subtitle": "Munition des arcs",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 0.05
   }
 ]

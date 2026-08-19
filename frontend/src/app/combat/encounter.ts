@@ -1,4 +1,5 @@
-import { Encounter, GridPos, Team } from './combat.types';
+import { daytimeAt, startingClock } from './clock';
+import { Encounter, EncounterPhase, GridPos, Team } from './combat.types';
 import { normalizeTerrain } from './terrain';
 import { newSeed } from './dice';
 
@@ -7,6 +8,7 @@ export const DEFAULT_GRID = { width: 20, height: 15 };
 
 /** Une rencontre vierge, prête à recevoir des combattants. */
 export function emptyEncounter(name = 'Nouvelle rencontre'): Encounter {
+  const clock = startingClock();
   return {
     name,
     grid: { ...DEFAULT_GRID },
@@ -16,6 +18,9 @@ export function emptyEncounter(name = 'Nouvelle rencontre'): Encounter {
     round: 0,
     order: [],
     turnIndex: 0,
+    phase: 'setup',
+    clock,
+    daytime: daytimeAt(clock),
     seed: newSeed(),
     rollCount: 0,
     log: [],
@@ -27,10 +32,31 @@ export function emptyEncounter(name = 'Nouvelle rencontre'): Encounter {
  * Remet une rencontre venue du serveur dans sa forme courante.
  *
  * Une partie sauvegardée avant l'arrivée des types de terrain porte encore deux
- * listes de cases ; elle doit rester jouable.
+ * listes de cases ; elle doit rester jouable. De même, une partie antérieure
+ * aux phases et à l'horloge n'en a pas : on les lui déduit plutôt que de la
+ * refuser.
  */
 export function migrateEncounter(encounter: Encounter): Encounter {
-  return { ...encounter, terrain: normalizeTerrain(encounter.terrain) };
+  const clock = encounter.clock ?? startingClock();
+  return {
+    ...encounter,
+    terrain: normalizeTerrain(encounter.terrain),
+    clock,
+    phase: encounter.phase ?? phaseFor(encounter),
+    // Une rencontre d'avant l'horloge portait un moment de la journée choisi à
+    // la main : le respecter, et le considérer comme figé. Sans ce verrou, la
+    // première avance de temps effacerait le réglage du MJ.
+    daytime: encounter.daytime ?? daytimeAt(clock),
+    daytimeLocked: encounter.daytimeLocked ?? (!encounter.clock && !!encounter.daytime),
+  };
+}
+
+/** Phase déduite d'une rencontre qui n'en portait pas encore. */
+function phaseFor(encounter: Encounter): EncounterPhase {
+  if (!encounter.started) return 'setup';
+  // Un combat fini est un combat dont on sort : la table en est déjà au butin.
+  const standing = new Set(encounter.combatants.filter((c) => !c.down).map((c) => c.team));
+  return standing.size <= 1 ? 'exploration' : 'combat';
 }
 
 export const TEAM_LABELS: Record<Team, string> = {

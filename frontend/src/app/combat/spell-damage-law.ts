@@ -130,6 +130,55 @@ export const DICE_SPREAD = 0.25;
  */
 export const COMBO_PREMIUM = 1.5;
 
+/**
+ * Le RÔLE d'un sort dans l'arsenal, et ce qu'il vaut en puissance.
+ *
+ * Sans cette notion, la loi nivelle : trois sorts de feu joués au même niveau
+ * reçoivent le même budget, et l'on obtient un Inferno à 70 mana qui frappe
+ * moins fort que des Braises à 1 mana. Le niveau d'accès ne suffit pas à dire
+ * ce qu'un sort est censé être.
+ *
+ * - `standard` — l'écrasante majorité. Le sort fait son travail.
+ * - `majeur` — le gros sort d'un domaine : deux fois et demie la norme, et un
+ *   coût qui suit. On ne l'enchaîne pas.
+ * - `signature` — l'aboutissement d'un arbre. Dévastateur, ruineux en mana, et
+ *   dangereux pour ses propres alliés : ce sont ces deux contreparties qui
+ *   PAIENT la puissance, et elles doivent être écrites sur la fiche.
+ *
+ * Le rôle est déclaré dans la donnée (`spell.power`), pas déduit : c'est une
+ * intention d'auteur, et le test vérifie ensuite qu'elle est tenue.
+ */
+export type SpellPower = 'standard' | 'majeur' | 'signature';
+
+export const POWER_FACTOR: Record<SpellPower, number> = {
+  standard: 1,
+  majeur: 2.5,
+  signature: 6.5,
+};
+
+/**
+ * Part du budget qu'obtient un REVÊTEMENT (lame ou poings enchantés).
+ *
+ * Un enchantement n'est pas une frappe : il s'ajoute à **chaque coup**, pendant
+ * trois à cinq tours, par-dessus l'arme qui frappe déjà. Lui donner le budget
+ * d'une attaque revient à doubler la puissance du porteur pour le prix d'un
+ * sort — et c'est ce qu'on observait : à niveau 3, une lame d'ombre ajoutait
+ * 11-14 de ténèbres à une rapière qui n'en faisait que 7-12.
+ */
+export const ENCHANT_SHARE = 0.4;
+
+/**
+ * Ce qu'un bonus de classe ajoute, rapporté au scaling propre du nœud.
+ *
+ * Un bonus doit se sentir sans devenir l'essentiel. Il valait jusqu'ici SIX
+ * fois le scaling de base (0,40 contre 0,07) : la classe ne bonifiait plus le
+ * sort, elle le remplaçait.
+ */
+export const CLASS_BONUS_SHARE = 0.5;
+
+/** Un sort de revêtement (arme ou poings) se reconnaît à sa clé. */
+export const isEnchant = (key: string | undefined): boolean => /revetement/.test(key ?? '');
+
 /** Ce qu'un nœud devrait infliger, et comment le répartir. */
 export interface DamageBudget {
   /** Niveau auquel ce palier se joue. */
@@ -148,10 +197,17 @@ export function damageBudget(
   tier: number,
   area?: string,
   combo = false,
+  power: SpellPower = 'standard',
+  enchant = false,
 ): DamageBudget {
   const playedAt = tierPlayedAt(spellLevel, tier);
   const total =
-    TARGET_HP_SHARE * referenceHp(playedAt) * shapeShare(area) * (combo ? COMBO_PREMIUM : 1);
+    TARGET_HP_SHARE *
+    referenceHp(playedAt) *
+    shapeShare(area) *
+    (combo ? COMBO_PREMIUM : 1) *
+    POWER_FACTOR[power] *
+    (enchant ? ENCHANT_SHARE : 1);
 
   const diceAvg = total * DICE_SHARE;
   const scaled = total * (1 - DICE_SHARE);
@@ -209,8 +265,10 @@ export function auditDamage(
   ratio: number,
   area?: string,
   combo = false,
+  power: SpellPower = 'standard',
+  enchant = false,
 ): DamageVerdict {
-  const budget = damageBudget(spellLevel, tier, area, combo);
+  const budget = damageBudget(spellLevel, tier, area, combo, power, enchant);
   const actual = actualDamage(spellLevel, tier, diceMin, diceMax, ratio);
   const factor = budget.total > 0 ? actual / budget.total : 1;
   return {

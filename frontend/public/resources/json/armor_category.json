@@ -1,0 +1,10 @@
+{
+    "armor_categories":
+    [
+        { "id": 0, "key": "clothing", "name": "Vêtements",              "requiresProficiency": false, "description": "Toile, laine, soie. Des habits : ils habillent, ils ne protègent pas. Rien à apprendre pour les porter.",              "examples": ["Robe d'érudit", "Tenue de fermier", "Habits d'héritier"] },
+        { "id": 1, "key": "light",    "name": "Armure légère",          "requiresProficiency": true,  "description": "Cuir souple, cuir bouilli, fourrure. Ne gêne ni la course ni l'escalade — on la garde pour dormir.",              "examples": ["Tenue de voleur", "Tenue de traqueur", "Tenue de trappeur"] },
+        { "id": 2, "key": "medium",   "name": "Armure intermédiaire",   "requiresProficiency": true,  "description": "Gambison rembourré, cuir clouté, écailles. Le compromis de qui marche longtemps et se bat parfois.",           "examples": ["Tenue de fantassin", "Tenue de chevalier aspirant"] },
+        { "id": 3, "key": "heavy",    "name": "Armure lourde",          "requiresProficiency": true,  "description": "Cotte de mailles et plaques d'acier. Elle arrête presque tout, et se paie en poids, en bruit et en fatigue.",   "examples": ["Cotte de mailles", "Armure de plaques"] },
+        { "id": 4, "key": "shield",   "name": "Bouclier",               "requiresProficiency": true,  "description": "Rondache, écu, pavois. S'apprend à part : tenir un bouclier, c'est un pas de côté et un angle, pas un vêtement.", "examples": ["Bouclier rond"] }
+    ]
+}

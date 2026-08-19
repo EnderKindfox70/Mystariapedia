@@ -1,6 +1,6 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { dataDir } from '../data-dir.js';
+import { readJsonSafe, updateJson } from '../json-file.js';
 
 // Magasin de fiches de personnage sur fichier JSON, calqué sur auth/store.ts :
 // suffisant tant qu'aucune base de données n'est branchée. Ignoré par git.
@@ -29,20 +29,18 @@ export type SheetSummary = {
   image: string;
 };
 
-async function readAll(): Promise<StoredSheet[]> {
-  try {
-    const raw = await readFile(sheetsFile, 'utf8');
-    return JSON.parse(raw) as StoredSheet[];
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
-    throw error;
-  }
-}
+// Lecture et écriture passent par `json-file` : les opérations d'un même
+// fichier s'y suivent au lieu de se chevaucher, et l'écriture est atomique.
+// Deux requêtes simultanées ne peuvent donc plus mêler leurs documents — c'est
+// ce qui avait rendu toutes les fiches illisibles d'un coup.
+const readAll = (): Promise<StoredSheet[]> => readJsonSafe<StoredSheet[]>(sheetsFile, []);
 
-async function writeAll(sheets: StoredSheet[]): Promise<void> {
-  await mkdir(dataDir, { recursive: true });
-  await writeFile(sheetsFile, JSON.stringify(sheets, null, 2), 'utf8');
-}
+/** Lit, modifie et réécrit la collection en une seule opération protégée. */
+const mutate = <R>(change: (sheets: StoredSheet[]) => R): Promise<R> =>
+  updateJson<StoredSheet[], R>(sheetsFile, [], (sheets) => ({
+    value: sheets,
+    result: change(sheets),
+  }));
 
 const asString = (value: unknown): string => (typeof value === 'string' ? value : '');
 
@@ -67,39 +65,38 @@ export async function findById(id: string): Promise<StoredSheet | undefined> {
   return (await readAll()).find((sheet) => sheet.id === id);
 }
 
-export async function create(userId: string, data: SheetData): Promise<StoredSheet> {
-  const sheets = await readAll();
-  const now = new Date().toISOString();
-  const sheet: StoredSheet = {
-    id: crypto.randomUUID(),
-    userId,
-    data,
-    createdAt: now,
-    updatedAt: now,
-  };
-  sheets.push(sheet);
-  await writeAll(sheets);
-  return sheet;
+export function create(userId: string, data: SheetData): Promise<StoredSheet> {
+  return mutate((sheets) => {
+    const now = new Date().toISOString();
+    const sheet: StoredSheet = {
+      id: crypto.randomUUID(),
+      userId,
+      data,
+      createdAt: now,
+      updatedAt: now,
+    };
+    sheets.push(sheet);
+    return sheet;
+  });
 }
 
-export async function update(
+export function update(
   id: string,
   userId: string,
   data: SheetData,
 ): Promise<StoredSheet | undefined> {
-  const sheets = await readAll();
-  const sheet = sheets.find((s) => s.id === id && s.userId === userId);
-  if (!sheet) return undefined;
-  sheet.data = data;
-  sheet.updatedAt = new Date().toISOString();
-  await writeAll(sheets);
-  return sheet;
+  return mutate((sheets) => {
+    const sheet = sheets.find((s) => s.id === id && s.userId === userId);
+    if (!sheet) return undefined;
+    sheet.data = data;
+    sheet.updatedAt = new Date().toISOString();
+    return sheet;
+  });
 }
 
-export async function remove(id: string, userId: string): Promise<boolean> {
-  const sheets = await readAll();
-  const next = sheets.filter((s) => !(s.id === id && s.userId === userId));
-  if (next.length === sheets.length) return false;
-  await writeAll(next);
-  return true;
+export function remove(id: string, userId: string): Promise<boolean> {
+  return updateJson<StoredSheet[], boolean>(sheetsFile, [], (sheets) => {
+    const next = sheets.filter((s) => !(s.id === id && s.userId === userId));
+    return { value: next, result: next.length !== sheets.length };
+  });
 }

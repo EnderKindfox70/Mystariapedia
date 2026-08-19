@@ -180,6 +180,15 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   cursor: pointer;
   font-size: 0.74rem;
 }
+/* Compte rendu du tirage d'affinité (« Deux affinités — Feu, Terre »). */
+.cs-magic-roll {
+  padding: 0.15rem 0.55rem;
+  font-family: var(--font-title); font-size: 0.78rem; color: var(--ancient-gold);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 35%, transparent);
+  border-radius: 5px; background: rgba(0, 0, 0, 0.4);
+}
+/* Aucun éveil : le tirage a bien eu lieu, il n'a simplement rien donné. */
+.cs-magic-roll.is-sealed { color: var(--burned-paper); font-style: italic; opacity: 0.75; }
 .cs-domain__sigil { font-size: 1.25rem; }
 .cs-domain__icon { width: 2.2rem; height: 2.2rem; object-fit: contain; }
 /* Sélectionné, le fond passe en doré clair : l'icône sombre y ressort mal sans
@@ -347,6 +356,78 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-roll-select option { color: #1a1410; }
 .cs-roll-select:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Réserves (formulaire) : une barre lisse, elle — contrairement aux jauges de
+   survie, on lit ici une proportion de points, pas des jours cochés. Chaque
+   réserve garde sa couleur pour être reconnue d'un coup d'œil. */
+.cs-pools { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 0.6rem; }
+.cs-pool {
+  display: grid; grid-template-columns: auto 6.5rem 1fr auto auto auto;
+  align-items: center; gap: 0.5rem;
+}
+.cs-pool__icon {
+  width: 18px; height: 18px; flex-shrink: 0;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; color: var(--ancient-gold);
+}
+.cs-pool__label { font-size: 0.78rem; color: var(--burned-paper); }
+.cs-pool__track {
+  min-width: 3rem; height: 0.85rem; overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 30%, transparent);
+  border-radius: 3px;
+}
+.cs-pool__fill { height: 100%; border-radius: 2px; transition: width 0.15s ease-out; }
+.cs-pool__fill.is-hp { background: linear-gradient(180deg, #c2542f, #7d2f1c); }
+.cs-pool__fill.is-endurance { background: linear-gradient(180deg, var(--burned-paper), var(--ancient-gold)); }
+.cs-pool__fill.is-mana { background: linear-gradient(180deg, #6c8fd6, #35508f); }
+.cs-pool__value { display: flex; align-items: center; gap: 0.25rem; margin: 0; }
+.cs-pool__value input { width: 3.6rem; }
+.cs-pool__max { font-size: 0.74rem; color: var(--burned-paper); white-space: nowrap; }
+.cs-pool__steps { display: flex; gap: 0.2rem; }
+.cs-pool__steps button:disabled { opacity: 0.35; cursor: not-allowed; }
+.cs-pool__state { font-size: 0.72rem; font-style: italic; color: var(--burned-paper); white-space: nowrap; }
+/* Réserve à sec : l'état avertit au lieu de mentionner. */
+.cs-pool__state.is-empty { color: #c2542f; font-style: normal; font-weight: 700; }
+/* Intitulé réservé aux lecteurs d'écran (le champ n'a pas de libellé visible). */
+.cs-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+@media (max-width: 720px) {
+  .cs-pool { grid-template-columns: auto 1fr auto; }
+  .cs-pool__track { grid-column: 1 / -1; }
+  .cs-pool__steps { grid-column: 1 / -1; justify-content: flex-end; }
+  .cs-pool__state { grid-column: 1 / -1; }
+}
+
+/* Survie (formulaire) : crans cliquables, jamais une barre lisse. */
+.cs-survivals { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 0.6rem; }
+.cs-survival { display: grid; grid-template-columns: auto 4.4rem 1fr auto; align-items: center; gap: 0.5rem; }
+.cs-survival__icon {
+  width: 18px; height: 18px; flex-shrink: 0;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; color: var(--ancient-gold);
+}
+.cs-survival__label { font-size: 0.78rem; color: var(--burned-paper); }
+.cs-survival__segments { display: flex; gap: 0.2rem; min-width: 0; }
+.cs-survival__seg {
+  flex: 1; min-width: 0.7rem; height: 0.85rem; padding: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 30%, transparent);
+  border-radius: 3px; cursor: pointer;
+}
+.cs-survival__seg.is-filled { background: linear-gradient(180deg, var(--burned-paper), var(--ancient-gold)); }
+.cs-survival__state { font-size: 0.72rem; font-style: italic; color: var(--burned-paper); white-space: nowrap; }
+/* Jauge vide : l'état devient un avertissement, pas une simple mention. */
+.cs-survival__state.is-empty { color: #c2542f; font-style: normal; font-weight: 700; }
+
+@media (max-width: 520px) {
+  .cs-survival { grid-template-columns: auto 1fr; }
+  .cs-survival__segments { grid-column: 1 / -1; }
+  .cs-survival__state { grid-column: 1 / -1; }
+}
+
 /* Compétences */
 .cs-skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.35rem; }
 .cs-skill { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem; padding: 0.2rem 0; }
@@ -359,6 +440,39 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   background: color-mix(in srgb, var(--domain-life, #77a356) 70%, var(--burned-paper));
   border-radius: 10px;
 }
+
+/* Maîtrises (formulaire) : pastilles de la classe + ajouts manuels retirables. */
+.cs-mastery { margin-bottom: 0.9rem; }
+.cs-mastery:last-child { margin-bottom: 0; }
+.cs-mastery__label {
+  display: block; margin-bottom: 0.3rem;
+  font-size: 0.72rem; letter-spacing: 0.05em; color: var(--burned-paper);
+}
+.cs-mastery__chips { display: flex; flex-wrap: wrap; gap: 0.3rem; min-height: 1.6rem; }
+.cs-mastery__chip {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.76rem; color: var(--faded-ivory);
+  background: rgba(214, 167, 54, 0.16);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 45%, transparent);
+  border-radius: 11px;
+}
+/* Ajout manuel : pointillé, et lui seul porte une croix — on ne retire pas une
+   maîtrise de classe depuis ici, on change de classe. */
+.cs-mastery__chip.is-manual {
+  background: transparent;
+  border-style: dashed;
+  color: var(--burned-paper);
+}
+.cs-mastery__del {
+  padding: 0; width: 1rem; height: 1rem; line-height: 1;
+  font-size: 0.65rem; color: #e08a8a;
+  background: transparent; border: none; cursor: pointer;
+}
+.cs-mastery__none { font-size: 0.76rem; font-style: italic; color: var(--dust-brown); }
+.cs-mastery__add { display: flex; gap: 0.4rem; align-items: center; margin-top: 0.4rem; }
+.cs-mastery__add input { flex: 1; min-width: 0; }
+.cs-mastery__add .cs-add { margin-top: 0; white-space: nowrap; }
 
 /* Sorts de classe (formulaire) */
 .cs-classpells { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -405,6 +519,11 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-equip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.6rem; }
 .cs-equip { display: flex; flex-direction: column; gap: 0.3rem; }
 .cs-equip span { font-size: 0.74rem; color: var(--burned-paper); }
+/* Emplacement condamné (main faible sous une arme à deux mains) : il reste
+   VISIBLE et grisé. Le retirer ferait croire à une fiche incomplète ; le laisser
+   actif ferait croire qu'on peut y mettre quelque chose. */
+.cs-equip.is-blocked { opacity: 0.55; }
+.cs-equip.is-blocked input { cursor: not-allowed; font-style: italic; }
 
 /* Sorts & inventaire : grille à colonnes fixes pour que le nom reste large
    et les champs numériques étroits (sans déborder ni masquer la saisie). */
@@ -549,8 +668,10 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "character attrs"
+    "pools survival"
     "stats stats"
     "sorts classpells"
+    "mastery mastery"
     "equipment equipment"
     "skills inventory"
     "traits traits"
@@ -579,6 +700,10 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 
 .sheet-character { grid-area: character; }
 .sheet-attrs { grid-area: attrs; }
+/* Réserves et survie partagent une rangée : deux lectures de l'état du
+   personnage, l'une en points, l'autre en jours. */
+.sheet-pools { grid-area: pools; }
+.sheet-survival { grid-area: survival; }
 .sheet-stats { grid-area: stats; }
 .sheet-spells { grid-area: sorts; }
 .sheet-classpells { grid-area: classpells; }
@@ -588,6 +713,7 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .sheet-notes { grid-area: notes; }
 .sheet-artwork { grid-area: artwork; }
 .sheet-equipment { grid-area: equipment; }
+.sheet-mastery { grid-area: mastery; }
 
 .sheet-block {
   padding: 0.7rem 0.85rem;
@@ -710,6 +836,49 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   font-weight: 700; font-size: 0.82rem; color: #2a1c14;
 }
 
+/* Survie (fiche rendue) : mêmes crans, en lecture seule. Intitulé et verdict
+   occupent une ligne à part pour que les crans prennent toute la largeur. */
+.sheet-gauges { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.sheet-gauge { display: flex; flex-direction: column; gap: 0.25rem; }
+.sheet-gauge__head { display: flex; align-items: center; gap: 0.4rem; }
+.sheet-gauge__label { font-size: 0.82rem; font-weight: 700; color: #2a1c14; }
+.sheet-gauge__state { margin-left: auto; font-size: 0.76rem; font-style: italic; color: #5e4632; }
+.sheet-gauge__segments { display: flex; gap: 3px; }
+.sheet-gauge__seg {
+  flex: 1; min-width: 0; height: 10px;
+  background: rgba(94, 70, 50, 0.18);
+  border: 1px solid rgba(94, 70, 50, 0.4);
+  border-radius: 2px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.sheet-gauge__seg.is-filled {
+  background: linear-gradient(180deg, var(--ancient-gold), #5e4632);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+/* Réserves (fiche rendue) : la même barre, en lecture seule. Les couleurs sont
+   forcées à l'impression — une barre à moitié pleine qui sort toute blanche ne
+   dit plus rien. */
+.sheet-pools__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.sheet-pool { display: flex; flex-direction: column; gap: 0.25rem; }
+.sheet-pool__head { display: flex; align-items: center; gap: 0.4rem; }
+.sheet-pool__label { font-size: 0.82rem; font-weight: 700; color: #2a1c14; }
+.sheet-pool__state { margin-left: auto; font-size: 0.76rem; font-style: italic; color: #5e4632; }
+.sheet-pool__track {
+  height: 10px; overflow: hidden;
+  background: rgba(94, 70, 50, 0.18);
+  border: 1px solid rgba(94, 70, 50, 0.4);
+  border-radius: 2px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.sheet-pool__fill {
+  height: 100%;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.sheet-pool__fill.is-hp { background: linear-gradient(180deg, #c2542f, #7d2f1c); }
+.sheet-pool__fill.is-endurance { background: linear-gradient(180deg, var(--ancient-gold), #5e4632); }
+.sheet-pool__fill.is-mana { background: linear-gradient(180deg, #6c8fd6, #35508f); }
+
 /* Défenses : deux icônes empilées, chacune avec sa valeur. */
 .sheet-defenses {
   display: flex; flex-direction: column; gap: 0.6rem; justify-content: center;
@@ -781,6 +950,9 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 }
 .sheet-slot__item { font-size: 0.82rem; color: #2a1c14; }
 .sheet-slot.is-empty .sheet-slot__item { color: #6b5340; font-style: italic; }
+/* Main faible condamnée : le paperdoll dit pourquoi elle est vide. */
+.sheet-slot.is-blocked { opacity: 0.6; }
+.sheet-slot.is-blocked .sheet-slot__item { color: #6b5340; font-style: italic; }
 
 /* Dégâts de l'arme équipée, affichés dans le slot */
 .sheet-slot__dmg {
@@ -793,6 +965,39 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   font-size: 0.62rem;
   color: #6b5340;
   font-variant-numeric: tabular-nums;
+}
+/* Maîtrise de l'arme en main : dit tout de suite si le bonus de maîtrise compte. */
+.sheet-slot__prof {
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  color: #6a5223;
+}
+.sheet-slot__prof.is-off { color: #8c3b2c; font-style: italic; }
+
+/* Maîtrises (fiche) : deux rangées de pastilles, armes puis armures. */
+.sheet-mastery__group { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.35rem; }
+.sheet-mastery__group:last-child { margin-bottom: 0; }
+.sheet-mastery__label {
+  flex-shrink: 0;
+  min-width: 4.2rem;
+  font-family: var(--font-title);
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #5e4632;
+}
+.sheet-mastery__chips { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.sheet-mastery__chip {
+  padding: 0.08rem 0.45rem;
+  font-size: 0.72rem;
+  color: #2a1c14;
+  background: rgba(154, 116, 64, 0.28);
+  border: 1px solid rgba(94, 70, 50, 0.5);
+  border-radius: 10px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+/* Ajoutée à la main : contour pointillé — la classe ne l'a pas donnée. */
+.sheet-mastery__chip.is-manual {
+  background: rgba(255, 250, 235, 0.35);
+  border-style: dashed;
+  font-style: italic;
 }
 .sheet-figure {
   display: flex; align-items: center; justify-content: center;
@@ -936,3 +1141,141 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   }
   @page { size: A4 portrait; margin: 10mm; }
 }
+
+/* ══ MATÉRIAUX DE TERRE ══════════════════════════════════════════════════════
+   Une matière par ligne : ce qu'elle est, où elle se trouve, et les deux
+   degrés de savoir qu'on peut en avoir. */
+.sheet-earth__intro {
+  margin: 0 0 .7rem;
+  font-size: .78rem;
+  line-height: 1.5;
+  opacity: .8;
+}
+.sheet-earth__family { margin-bottom: .8rem; }
+.sheet-earth__title {
+  margin: 0 0 .3rem;
+  font-family: 'Cinzel', serif;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ancient-gold);
+}
+.sheet-earth__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; }
+.sheet-earth__item {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) 1fr auto;
+  gap: .5rem;
+  align-items: center;
+  padding: .2rem .4rem;
+  border-left: 2px solid transparent;
+  font-size: .8rem;
+}
+.sheet-earth__item.is-known { border-left-color: rgba(139, 107, 47, .5); }
+.sheet-earth__item.is-studied {
+  border-left-color: var(--ancient-gold);
+  background: rgba(139, 107, 47, .1);
+}
+.sheet-earth__name { display: flex; align-items: center; gap: .3rem; }
+.sheet-earth__where {
+  font-size: .7rem;
+  opacity: .55;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sheet-earth__acts { display: flex; gap: .25rem; }
+/* Les deux degrés de savoir, en bascule. Défini ici : la fiche n'avait pas
+   encore de petit bouton à état. */
+.sheet-mini {
+  padding: .1rem .4rem;
+  border: 1px solid rgba(139, 107, 47, .45);
+  border-radius: 2px;
+  background: rgba(28, 26, 24, .55);
+  color: inherit;
+  font-family: inherit;
+  font-size: .68rem;
+  letter-spacing: .03em;
+  cursor: pointer;
+}
+.sheet-mini:hover:not(:disabled) { background: rgba(139, 107, 47, .22); }
+.sheet-mini:disabled { opacity: .35; cursor: not-allowed; }
+.sheet-mini.is-on {
+  border-color: var(--ancient-gold);
+  background: rgba(139, 107, 47, .4);
+  color: var(--faded-ivory);
+}
+.sheet-earth__equip {
+  padding: 0 .2rem;
+  border: 0;
+  background: none;
+  color: rgba(217, 204, 184, .35);
+  font-size: .8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.sheet-earth__equip.is-on { color: var(--ancient-gold); }
+
+/* ══ MATÉRIAUX DE TERRE — les contrôles, côté FORMULAIRE ═════════════════════
+   L'aperçu de droite part au PDF : il ne porte qu'un résumé en lecture seule.
+   Tout ce qui se clique vit ici. */
+.cs-earth__family { margin-bottom: .7rem; }
+.cs-earth__title {
+  display: block;
+  margin-bottom: .25rem;
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ancient-gold);
+}
+.cs-earth__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; }
+.cs-earth__item {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) 1fr auto;
+  gap: .5rem;
+  align-items: center;
+  padding: .2rem .4rem;
+  border-left: 2px solid transparent;
+  font-size: .82rem;
+}
+.cs-earth__item.is-known { border-left-color: rgba(139, 107, 47, .5); }
+.cs-earth__item.is-studied {
+  border-left-color: var(--ancient-gold);
+  background: rgba(139, 107, 47, .1);
+}
+.cs-earth__name { display: flex; align-items: center; gap: .3rem; }
+.cs-earth__where {
+  font-size: .7rem;
+  opacity: .55;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cs-earth__acts { display: flex; gap: .25rem; }
+.cs-earth__btn {
+  padding: .1rem .4rem;
+  border: 1px solid rgba(139, 107, 47, .45);
+  border-radius: 2px;
+  background: rgba(28, 26, 24, .55);
+  color: inherit;
+  font-family: inherit;
+  font-size: .68rem;
+  cursor: pointer;
+}
+.cs-earth__btn:hover:not(:disabled) { background: rgba(139, 107, 47, .22); }
+.cs-earth__btn:disabled { opacity: .35; cursor: not-allowed; }
+.cs-earth__btn.is-on {
+  border-color: var(--ancient-gold);
+  background: rgba(139, 107, 47, .4);
+  color: var(--faded-ivory);
+}
+.cs-earth__equip {
+  padding: 0 .2rem;
+  border: 0;
+  background: none;
+  color: rgba(217, 204, 184, .35);
+  font-size: .8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.cs-earth__equip.is-on { color: var(--ancient-gold); }

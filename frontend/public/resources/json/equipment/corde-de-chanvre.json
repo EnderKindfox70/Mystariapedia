@@ -1,51 +1,84 @@
 {
-    "name": "Corde de chanvre",
-    "subtitle": "Matériel d'aventurier",
-    "category": "escalade",
-    "image": "/resources/media/pictures/equipment/rope.png",
-    "icon": "",
-    "description": [
-        "Quinze mètres de chanvre tressé en trois torons, cordée serrée et épissée à chaque bout pour qu'elle ne s'effiloche pas. Elle pèse son poids, gratte les mains et prend l'eau — et aucune expédition sérieuse n'en part sans.",
-        "Descendre un puits, ligoter un prisonnier, hisser un sac, assurer un compagnon sur une corniche, tendre une bâche : la corde est l'objet qui résout le plus de problèmes par kilo transporté. Les vieux aventuriers disent qu'on reconnaît un débutant à ce qu'il n'en a pas."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "2,5 kg" },
-        { "key": "type",   "label": "Type",        "value": "Matériel — outil" },
-        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Longueur 15 m ; supporte environ 200 kg" },
-        { "key": "state",  "label": "Résistance",  "value": "10 points de dégâts tranchants pour la couper" },
-        { "key": "value",  "label": "Valeur",      "value": "8 pièces d'or" }
-    ],
-    "properties": [
-        "Longueur de 15 mètres, nœuds compris ; peut être épissée à une autre corde en perdant un mètre par jonction.",
-        "Supporte sans rompre le poids de deux adultes équipés (environ 200 kg).",
-        "Se coupe avec une arme tranchante après 10 points de dégâts infligés à la corde.",
-        "Gorgée d'eau, elle pèse près du double et devient raide : une corde mouillée doit être séchée avant d'être rangée, sous peine de pourrir.",
-        "Le domaine du Renforcement permet de la raffermir temporairement au-delà de sa résistance naturelle."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "En vente dans tous les ports, chez les cordiers des villes et sur les marchés de bourg ; on en trouve aussi d'occasion, mais une corde reprise est une corde dont on ignore l'histoire.",
-            "Conseil de cordier : achetez-la neuve, inspectez-la avant chaque descente et retirez-la du service dès qu'un toron est rompu. Une corde ne prévient qu'une fois."
-        ]
+  "name": "Corde de chanvre",
+  "subtitle": "Matériel d'aventurier",
+  "material": "chanvre",
+  "category": "escalade",
+  "image": "/resources/media/pictures/equipment/rope.png",
+  "icon": "",
+  "description": [
+    "Quinze mètres de chanvre tressé en trois torons, cordée serrée et épissée à chaque bout pour qu'elle ne s'effiloche pas. Elle pèse son poids, gratte les mains et prend l'eau — et aucune expédition sérieuse n'en part sans.",
+    "Descendre un puits, ligoter un prisonnier, hisser un sac, assurer un compagnon sur une corniche, tendre une bâche : la corde est l'objet qui résout le plus de problèmes par kilo transporté. Les vieux aventuriers disent qu'on reconnaît un débutant à ce qu'il n'en a pas."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "2,5 kg"
     },
-    "notes": [
-        "Un mètre de corde vaut mieux que dix pièces d'or au fond d'un gouffre.",
-        "Les cordes des Marcheurs des Profondeurs sont tressées avec des fibres d'algue et ne pourrissent pas ; elles coûtent dix fois ce prix."
-    ],
-    "references": [
-        {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "grappin", "collection": "equipment", "label": "Grappin" }
-            ]
-        },
-        {
-            "label": "Domaines liés",
-            "items": [
-                { "ref": "renforcement", "collection": "domains", "label": "Renforcement" }
-            ]
-        }
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Matériel — outil"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Longueur 15 m ; supporte environ 200 kg"
+    },
+    {
+      "key": "state",
+      "label": "Résistance",
+      "value": "10 points de dégâts tranchants pour la couper"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "8 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Longueur de 15 mètres, nœuds compris ; peut être épissée à une autre corde en perdant un mètre par jonction.",
+    "Supporte sans rompre le poids de deux adultes équipés (environ 200 kg).",
+    "Se coupe avec une arme tranchante après 10 points de dégâts infligés à la corde.",
+    "Gorgée d'eau, elle pèse près du double et devient raide : une corde mouillée doit être séchée avant d'être rangée, sous peine de pourrir.",
+    "Le domaine du Renforcement permet de la raffermir temporairement au-delà de sa résistance naturelle."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "En vente dans tous les ports, chez les cordiers des villes et sur les marchés de bourg ; on en trouve aussi d'occasion, mais une corde reprise est une corde dont on ignore l'histoire.",
+      "Conseil de cordier : achetez-la neuve, inspectez-la avant chaque descente et retirez-la du service dès qu'un toron est rompu. Une corde ne prévient qu'une fois."
     ]
+  },
+  "notes": [
+    "Un mètre de corde vaut mieux que dix pièces d'or au fond d'un gouffre.",
+    "Les cordes des Marcheurs des Profondeurs sont tressées avec des fibres d'algue et ne pourrissent pas ; elles coûtent dix fois ce prix."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "grappin",
+          "collection": "equipment",
+          "label": "Grappin"
+        }
+      ]
+    },
+    {
+      "label": "Domaines liés",
+      "items": [
+        {
+          "ref": "renforcement",
+          "collection": "domains",
+          "label": "Renforcement"
+        }
+      ]
+    }
+  ]
 }

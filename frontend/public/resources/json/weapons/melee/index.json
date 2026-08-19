@@ -4,6 +4,7 @@
     "name": "Bâton",
     "subtitle": "Hampe de bois ferré",
     "rarity": "Commune",
+    "material": "bois",
     "weight": 1.5
   },
   {
@@ -12,6 +13,7 @@
     "subtitle": "Grande épée des highlands",
     "rarity": "Rare",
     "image": "/resources/media/pictures/weapons/claymore.png",
+    "material": "acier",
     "weight": 3.2
   },
   {
@@ -20,6 +22,7 @@
     "subtitle": "Lame courte, rapide et discrète",
     "rarity": "Commune",
     "image": "/resources/media/pictures/weapons/dagger.png",
+    "material": "acier",
     "weight": 0.5
   },
   {
@@ -28,6 +31,7 @@
     "subtitle": "Lame d'acier à une ou deux mains",
     "rarity": "Commune",
     "image": "/resources/media/pictures/weapons/straight_sword.png",
+    "material": "acier",
     "weight": 1.5
   },
   {
@@ -36,6 +40,7 @@
     "subtitle": "Épée à deux mains de guerre",
     "rarity": "Rare",
     "image": "/resources/media/pictures/weapons/greatsword.png",
+    "material": "acier",
     "weight": 3
   },
   {
@@ -43,6 +48,7 @@
     "name": "Fouet",
     "subtitle": "Lanière cinglante à grande allonge",
     "rarity": "Peu commune",
+    "material": "cuir",
     "weight": 0.8
   },
   {
@@ -51,6 +57,7 @@
     "subtitle": "Fendoir à deux mains",
     "rarity": "Peu commune",
     "image": "/resources/media/pictures/weapons/battle_axe.png",
+    "material": "acier",
     "weight": 3.5
   },
   {
@@ -58,6 +65,7 @@
     "name": "Hache de guerre",
     "subtitle": "Tranchant lourd à une main",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 1.8
   },
   {
@@ -65,6 +73,7 @@
     "name": "Katana",
     "subtitle": "Sabre courbe d'Orient",
     "rarity": "Rare",
+    "material": "acier",
     "weight": 1.2
   },
   {
@@ -72,6 +81,7 @@
     "name": "Lance",
     "subtitle": "Hampe à pointe, allonge redoutable",
     "rarity": "Commune",
+    "material": "fer",
     "weight": 2.2
   },
   {
@@ -79,6 +89,7 @@
     "name": "Marteau de guerre",
     "subtitle": "Masse à deux mains, briseur d'acier",
     "rarity": "Peu commune",
+    "material": "fer",
     "weight": 4
   },
   {
@@ -86,6 +97,7 @@
     "name": "Masse d'armes",
     "subtitle": "Tête de métal pour broyer les armures",
     "rarity": "Peu commune",
+    "material": "fer",
     "weight": 2
   },
   {
@@ -93,6 +105,7 @@
     "name": "Rapière",
     "subtitle": "Lame fine pour l'estoc",
     "rarity": "Peu commune",
+    "material": "acier",
     "weight": 1
   },
   {
@@ -100,6 +113,7 @@
     "name": "Sabre",
     "subtitle": "Lame courbe de cavalerie",
     "rarity": "Commune",
+    "material": "acier",
     "weight": 1.1
   }
 ]

@@ -1,6 +1,6 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { dataDir } from '../data-dir.js';
+import { readJsonSafe, updateJson } from '../json-file.js';
 
 // Magasin des rencontres de combat, calqué sur sheets/store.ts : un fichier
 // JSON suffit tant qu'aucune base n'est branchée.
@@ -30,20 +30,18 @@ export type EncounterSummary = {
   updatedAt: string;
 };
 
-async function readAll(): Promise<StoredEncounter[]> {
-  try {
-    const raw = await readFile(encountersFile, 'utf8');
-    return JSON.parse(raw) as StoredEncounter[];
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
-    throw error;
-  }
-}
+// Même protection que les fiches : les écritures d'un même fichier se suivent
+// et sont atomiques. Une rencontre est lourde (grille, journal, combattants),
+// donc deux sauvegardes qui se chevauchent avaient tout pour se mêler.
+const readAll = (): Promise<StoredEncounter[]> =>
+  readJsonSafe<StoredEncounter[]>(encountersFile, []);
 
-async function writeAll(encounters: StoredEncounter[]): Promise<void> {
-  await mkdir(dataDir, { recursive: true });
-  await writeFile(encountersFile, JSON.stringify(encounters, null, 2), 'utf8');
-}
+/** Lit, modifie et réécrit la collection en une seule opération protégée. */
+const mutate = <R>(change: (encounters: StoredEncounter[]) => R): Promise<R> =>
+  updateJson<StoredEncounter[], R>(encountersFile, [], (encounters) => ({
+    value: encounters,
+    result: change(encounters),
+  }));
 
 export function toSummary(encounter: StoredEncounter): EncounterSummary {
   const data = encounter.data ?? {};
@@ -69,39 +67,38 @@ export async function findById(id: string): Promise<StoredEncounter | undefined>
   return (await readAll()).find((e) => e.id === id);
 }
 
-export async function create(userId: string, data: EncounterData): Promise<StoredEncounter> {
-  const encounters = await readAll();
-  const now = new Date().toISOString();
-  const encounter: StoredEncounter = {
-    id: crypto.randomUUID(),
-    userId,
-    data,
-    createdAt: now,
-    updatedAt: now,
-  };
-  encounters.push(encounter);
-  await writeAll(encounters);
-  return encounter;
+export function create(userId: string, data: EncounterData): Promise<StoredEncounter> {
+  return mutate((encounters) => {
+    const now = new Date().toISOString();
+    const encounter: StoredEncounter = {
+      id: crypto.randomUUID(),
+      userId,
+      data,
+      createdAt: now,
+      updatedAt: now,
+    };
+    encounters.push(encounter);
+    return encounter;
+  });
 }
 
-export async function update(
+export function update(
   id: string,
   userId: string,
   data: EncounterData,
 ): Promise<StoredEncounter | undefined> {
-  const encounters = await readAll();
-  const encounter = encounters.find((e) => e.id === id && e.userId === userId);
-  if (!encounter) return undefined;
-  encounter.data = data;
-  encounter.updatedAt = new Date().toISOString();
-  await writeAll(encounters);
-  return encounter;
+  return mutate((encounters) => {
+    const encounter = encounters.find((e) => e.id === id && e.userId === userId);
+    if (!encounter) return undefined;
+    encounter.data = data;
+    encounter.updatedAt = new Date().toISOString();
+    return encounter;
+  });
 }
 
-export async function remove(id: string, userId: string): Promise<boolean> {
-  const encounters = await readAll();
-  const next = encounters.filter((e) => !(e.id === id && e.userId === userId));
-  if (next.length === encounters.length) return false;
-  await writeAll(next);
-  return true;
+export function remove(id: string, userId: string): Promise<boolean> {
+  return updateJson<StoredEncounter[], boolean>(encountersFile, [], (encounters) => {
+    const next = encounters.filter((e) => !(e.id === id && e.userId === userId));
+    return { value: next, result: next.length !== encounters.length };
+  });
 }

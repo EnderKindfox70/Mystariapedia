@@ -1,46 +1,75 @@
 {
-    "name": "Garrot",
-    "subtitle": "Matériel de soin",
-    "category": "soins",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Une sangle de cuir large de deux doigts, munie d'une boucle à cran et d'un bâtonnet de bois qui sert de treuil : on passe la sangle au-dessus de la plaie, on tourne le bâtonnet, le sang s'arrête. Cinq secondes, aucun geste médical, aucune connaissance.",
-        "Il ne soigne rien. Il achète du temps — le temps d'atteindre l'abri, de sortir une potion, de finir le combat. C'est le geste qu'on apprend en premier dans les compagnies, avant même de savoir poser un bandage, parce que c'est celui qui ramène les gens vivants."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "0,1 kg" },
-        { "key": "type",   "label": "Type",        "value": "Outil — soin réutilisable" },
-        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Une action ; 10 minutes de pose au maximum" },
-        { "key": "value",  "label": "Valeur",      "value": "3 pièces d'or" }
-    ],
-    "properties": [
-        "Met fin au statut Saignement, sur soi ou sur un allié à portée de contact. Une action.",
-        "Ne rend aucun point de vie : il arrête l'hémorragie, il ne referme pas la plaie.",
-        "Réutilisable indéfiniment. Il ne se consomme pas, contrairement à un bandage.",
-        "Ne fonctionne que sur un membre : une plaie au torse, au cou ou au ventre exige un bandage.",
-        "Serré plus de dix minutes, il condamne le membre. Desserrer, puis bander dès que la situation le permet.",
-        "Le geste réflexe du combat : garrot maintenant, bandage après, potion si le compte est mauvais."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les selliers, les barbiers et les intendants de compagnie ; les milices en distribuent un par soldat, cousu au ceinturon.",
-            "Une simple courroie et un bâton font un garrot de fortune, moins fiable et plus douloureux. La boucle à cran est ce qui distingue l'outil de l'improvisation."
-        ]
+  "name": "Garrot",
+  "subtitle": "Matériel de soin",
+  "material": "toile",
+  "category": "soins",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Une sangle de cuir large de deux doigts, munie d'une boucle à cran et d'un bâtonnet de bois qui sert de treuil : on passe la sangle au-dessus de la plaie, on tourne le bâtonnet, le sang s'arrête. Cinq secondes, aucun geste médical, aucune connaissance.",
+    "Il ne soigne rien. Il achète du temps — le temps d'atteindre l'abri, de sortir une potion, de finir le combat. C'est le geste qu'on apprend en premier dans les compagnies, avant même de savoir poser un bandage, parce que c'est celui qui ramène les gens vivants."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,1 kg"
     },
-    "notes": [
-        "Noter l'heure de la pose. Un garrot oublié fait perdre le bras que la blessure aurait laissé.",
-        "Les vétérans en portent deux : un pour eux, un pour celui qui n'y aura pas pensé."
-    ],
-    "references": [
-        {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "bandages", "collection": "equipment", "label": "Bandages" },
-                { "ref": "trousse-de-chirurgien", "collection": "equipment", "label": "Trousse de chirurgien" }
-            ]
-        }
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Outil — soin réutilisable"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Une action ; 10 minutes de pose au maximum"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "3 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Met fin au statut Saignement, sur soi ou sur un allié à portée de contact. Une action.",
+    "Ne rend aucun point de vie : il arrête l'hémorragie, il ne referme pas la plaie.",
+    "Réutilisable indéfiniment. Il ne se consomme pas, contrairement à un bandage.",
+    "Ne fonctionne que sur un membre : une plaie au torse, au cou ou au ventre exige un bandage.",
+    "Serré plus de dix minutes, il condamne le membre. Desserrer, puis bander dès que la situation le permet.",
+    "Le geste réflexe du combat : garrot maintenant, bandage après, potion si le compte est mauvais."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les selliers, les barbiers et les intendants de compagnie ; les milices en distribuent un par soldat, cousu au ceinturon.",
+      "Une simple courroie et un bâton font un garrot de fortune, moins fiable et plus douloureux. La boucle à cran est ce qui distingue l'outil de l'improvisation."
     ]
+  },
+  "notes": [
+    "Noter l'heure de la pose. Un garrot oublié fait perdre le bras que la blessure aurait laissé.",
+    "Les vétérans en portent deux : un pour eux, un pour celui qui n'y aura pas pensé."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "bandages",
+          "collection": "equipment",
+          "label": "Bandages"
+        },
+        {
+          "ref": "trousse-de-chirurgien",
+          "collection": "equipment",
+          "label": "Trousse de chirurgien"
+        }
+      ]
+    }
+  ]
 }

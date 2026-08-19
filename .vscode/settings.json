@@ -1,0 +1,17 @@
+{
+  // Le terminal intégré est lancé avec une stratégie d'exécution explicite (portée
+  // Process uniquement, aucune modification du registre, aucun droit admin requis).
+  // Sans ça, la stratégie « AllSigned » définie au niveau LocalMachine sur certains
+  // postes bloque le chargement de C:\Program Files\nodejs\npm.ps1 et « npm start »
+  // échoue avec « l'exécution de scripts est désactivée sur ce système ».
+  // RemoteSigned autorise les scripts locaux (npm.ps1) et continue de refuser les
+  // scripts téléchargés non signés.
+  "terminal.integrated.profiles.windows": {
+    "PowerShell (Mystariapedia)": {
+      "source": "PowerShell",
+      "args": ["-ExecutionPolicy", "RemoteSigned"],
+      "icon": "terminal-powershell"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell (Mystariapedia)"
+}

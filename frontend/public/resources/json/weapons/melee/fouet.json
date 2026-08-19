@@ -6,11 +6,20 @@
     "Arme de finesse et de ruse, il récompense l'adresse : entre des mains habiles, il peut arracher une arme ou crocheter une cheville."
   ],
   "weaponCategory": "whip",
+  "material": "cuir",
   "minDamage": 2,
   "maxDamage": 6,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "0,8 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,8 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
   ],
   "properties": [
     "Grande allonge",

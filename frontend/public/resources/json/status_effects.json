@@ -413,6 +413,99 @@
             "defaultDuration": 3,
             "stackable": false,
             "ends": "Expire à la fin de la durée ; enrayée par un soin purifiant ou une puissante régénération vitale."
+        },
+        {
+            "id": 24,
+            "key": "controle",
+            "name": "Contrôle",
+            "icon": "",
+            "category": "control",
+            "description": "Des fils invisibles se sont noués aux membres de la cible : elle bouge encore, mais ce n'est plus elle qui décide.",
+            "effect": "Le marionnettiste dicte ses actions : elle se bat dans son camp, contre les siens. À chaque ordre, un jet de sagesse lui permet de refuser d'obéir — et un 20 naturel brise les fils. Un pantin n'est le compagnon de personne : les deux camps peuvent le frapper, y compris celui qui le tient. Tenir les fils coûte du mana à chaque tour, et deux pantins coûtent le double.",
+            "tick": null,
+            "save": {
+                "attribute": "sagesse",
+                "dc": 18,
+                "trigger": "action",
+                "onSuccess": "refuse",
+                "onCritical": "clear",
+                "description": "À chaque ordre reçu, jet de sagesse contre une base de 18 : en cas de réussite, la marionnette refuse et l'ordre se perd. Sur un 20 naturel, elle brise les fils et se libère définitivement."
+            },
+            "sustain": {
+                "bindsHands": 1,
+                "commands": true,
+                "concentrationDc": 12,
+                "upkeep": 3
+            },
+            "statEffects": [],
+            "preventsAction": false,
+            "preventsMovement": false,
+            "preventsCasting": false,
+            "defaultDuration": -1,
+            "stackable": false,
+            "ends": "Ne s'épuise pas avec le temps. Prend fin si le marionnettiste perd sa concentration en encaissant un coup, s'il n'a plus de quoi entretenir les fils, s'il tombe, si la marionnette sort de sa portée effective, ou sur un 20 naturel au jet de sagesse."
+        },
+        {
+            "id": 25,
+            "key": "marque-spatiale",
+            "name": "Marque spatiale",
+            "icon": "",
+            "category": "debuff",
+            "description": "Une ancre d'espace nouée au porteur le relie à celui qui l'a posée. Elle ne pèse rien, ne blesse pas, et ne se voit que de qui sait la lire.",
+            "effect": "Donne prise aux sorts d'espace qui s'y accrochent : Change-place permute le marqueur et son porteur, sans ligne de vue. N'a aucun autre effet.",
+            "tick": null,
+            "statEffects": [],
+            "preventsAction": false,
+            "preventsMovement": false,
+            "preventsCasting": false,
+            "defaultDuration": -1,
+            "stackable": false,
+            "ends": "Ne s'épuise pas avec le temps : se rompt dès que le porteur sort de la portée d'ancrage de celui qui l'a posée, ou si ce dernier tombe."
+        },
+        {
+            "id": 26,
+            "key": "ancrage",
+            "name": "Piège d'ancrage",
+            "description": "Son porteur tient un champ tendu : l'espace se raidit entre tous ceux qu'il a marqués.",
+            "icon": "",
+            "category": "control",
+            "effect": "Tant que ce champ tient, TOUS les porteurs de la Marque spatiale de son lanceur — y compris ceux marqués après coup — ne peuvent plus venir à moins de l'écart imposé les uns des autres. Coûte du mana à chaque tour pour être maintenu.",
+            "tick": null,
+            "sustain": {
+                "concentrationDc": 12,
+                "upkeep": 2,
+                "governs": "marque-spatiale"
+            },
+            "statEffects": [],
+            "preventsAction": false,
+            "preventsMovement": false,
+            "preventsCasting": false,
+            "defaultDuration": -1,
+            "stackable": false,
+            "ends": "Tient tant que le lanceur se concentre ET peut payer l'entretien : prend fin s'il perd sa concentration en encaissant un coup, s'il tombe à court de mana, ou s'il tombe tout court."
+        },
+        {
+            "id": 27,
+            "key": "repulsion-magnetique",
+            "name": "Répulsion magnétique",
+            "description": "Son porteur tient un champ tendu autour de lui : tout ce qui est ferreux refuse de l'approcher.",
+            "icon": "",
+            "category": "control",
+            "effect": "Tant que ce champ tient, aucune créature portant du métal — armure, arme, bouclier — ne peut venir à moins de l'écart imposé du porteur, et les coups portés avec une arme métallique sont déviés avant de l'atteindre. Ceux que le champ surprend au contact sont écartés aussitôt, d'un pas et sans provoquer d'attaque d'opportunité. Coûte du mana à chaque tour pour être maintenu.",
+            "tick": null,
+            "sustain": {
+                "concentrationDc": 12,
+                "upkeep": 2,
+                "governsMetal": true,
+                "repelsFromHolder": true
+            },
+            "statEffects": [],
+            "preventsAction": false,
+            "preventsMovement": false,
+            "preventsCasting": false,
+            "defaultDuration": -1,
+            "stackable": false,
+            "ends": "Tient tant que le lanceur se concentre ET peut payer l'entretien : prend fin s'il perd sa concentration en encaissant un coup, s'il tombe à court de mana, ou s'il tombe tout court."
         }
     ]
 }

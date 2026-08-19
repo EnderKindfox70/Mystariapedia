@@ -1,15 +1,50 @@
 {
   "name": "Robe d'astronome",
   "subtitle": "Manteau étoilé et capuche du veilleur",
+  "armorCategory": "clothing",
+  "material": "toile",
   "description": [
     "Un ample manteau brodé de constellations, taillé pour les longues nuits froides passées à scruter le ciel depuis les tours."
   ],
   "pieces": [
-    { "slot": "head", "label": "Capuche du veilleur", "physicalArmor": 0, "magicalProtection": 1, "weight": 0.4 },
-    { "slot": "body", "label": "Manteau étoilé",       "physicalArmor": 0, "magicalProtection": 2, "weight": 2.2 },
-    { "slot": "legs", "label": "Robe longue",          "physicalArmor": 0, "magicalProtection": 1, "weight": 0.9 },
-    { "slot": "feet", "label": "Chaussons fourrés",    "physicalArmor": 0, "magicalProtection": 0, "weight": 0.7 }
+    {
+      "slot": "head",
+      "label": "Capuche du veilleur",
+      "physicalArmor": 0,
+      "magicalProtection": 1,
+      "weight": 0.4
+    },
+    {
+      "slot": "body",
+      "label": "Manteau étoilé",
+      "physicalArmor": 0,
+      "magicalProtection": 2,
+      "weight": 2.2
+    },
+    {
+      "slot": "legs",
+      "label": "Robe longue",
+      "physicalArmor": 0,
+      "magicalProtection": 1,
+      "weight": 0.9
+    },
+    {
+      "slot": "feet",
+      "label": "Chaussons fourrés",
+      "physicalArmor": 0,
+      "magicalProtection": 0,
+      "weight": 0.7
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Commune" }],
-  "properties": ["Chaude pour les nuits d'observation", "Trame magique attentive aux flux célestes"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
+  ],
+  "properties": [
+    "Chaude pour les nuits d'observation",
+    "Trame magique attentive aux flux célestes"
+  ]
 }

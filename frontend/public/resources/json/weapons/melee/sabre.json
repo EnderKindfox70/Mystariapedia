@@ -1,5 +1,6 @@
 {
   "name": "Sabre",
+  "material": "acier",
   "subtitle": "Lame courbe de cavalerie",
   "description": [
     "Le sabre épouse le geste du cavalier : sa courbe prolonge la coupe au passage, tranchant sans s'enfoncer ni rester coincé.",
@@ -9,8 +10,16 @@
   "minDamage": 4,
   "maxDamage": 9,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "1,1 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,1 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Coupes fluides en mouvement",

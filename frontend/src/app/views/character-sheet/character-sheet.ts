@@ -5,8 +5,23 @@ import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { Navbar } from '../../components/navbar/navbar';
 import { CharacterSheetService } from '../../services/character-sheet.service';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
-import weaponCategoryCatalog from '../../../../public/resources/json/weapon_category.json';
-import { ArmorEntry, ResourceIndexEntry, WeaponCategoryDef, WeaponEntry } from '../../wiki.types';
+import {
+  ArmorEntry,
+  MaterialFamilyKey,
+  Material,
+  ResourceIndexEntry,
+  WeaponEntry,
+} from '../../wiki.types';
+import {
+  cannotStudy,
+  MATERIAL_FAMILIES,
+  MATERIALS,
+  MATERIAL_REGIONS,
+  MATERIAL_BY_KEY,
+  materialsOfFamily,
+  normalizeTraining,
+  studySlots,
+} from '../../combat/materials';
 import {
   AttributeKey,
   BackgroundDef,
@@ -14,6 +29,8 @@ import {
   ClassDef,
   CharacterSpells,
   ClassSpell,
+  EarthMaterialTraining,
+  PoolKey,
   RaceDef,
   StatKey,
   StatMode,
@@ -41,6 +58,17 @@ import {
   DEFENSE_STATS,
   MAGIC_DEFENSE_SPARK,
   MAGIC_DOMAINS,
+  SURVIVAL_GAUGES,
+  clampSurvival,
+  fullSurvival,
+  survivalStage,
+  type SurvivalGauge,
+  POOL_GAUGES,
+  clampPoolLoss,
+  noPoolLoss,
+  poolCurrent,
+  poolStage,
+  type PoolGauge,
   SKILLS,
   STATS,
   abilityModifier,
@@ -66,10 +94,28 @@ import {
   emptySheet,
   formatBonus,
   grantedTraits,
+  LEARNABLE_ARMOR_CATEGORIES,
+  WEAPON_CATEGORIES,
+  armorCategory,
+  armorCategoryName,
+  armorMastery,
+  isTwoHanded,
+  weaponCategory,
+  armorProficiencies,
+  weaponProficiencies,
+  resolveArmorCategory,
+  resolveWeaponCategory,
+  type ArmorMastery,
+  type Proficiency,
   randomSeed,
   roll4d6DropLowest,
   skillLabel,
 } from '../../character/universe-data';
+import {
+  AFFINITY_ODDS,
+  rollMagicAffinity,
+  type MagicAffinityRoll,
+} from '../../character/magic-affinity';
 import type { PdfSlotRow, PdfSpellRow, SheetPdfData } from './sheet-pdf';
 
 /** Tailles max des images importées (octets bruts du fichier, avant recompression). */
@@ -108,16 +154,6 @@ const PIECE_TO_EQUIP_SLOT: Record<string, string> = {
   shield: 'offhand',
 };
 
-/** Catégories d'armes indexées par clé (maniement, dégâts, portée, attributs…). */
-const WEAPON_CATEGORY_BY_KEY = new Map<string, WeaponCategoryDef>(
-  (weaponCategoryCatalog.weapon_categories as WeaponCategoryDef[]).map((c) => [c.key, c]),
-);
-
-/** Maniement (nombre de mains) par clé de catégorie d'arme. */
-const WEAPON_HANDLING = new Map<string, number>(
-  [...WEAPON_CATEGORY_BY_KEY.values()].map((c) => [c.key, c.handling]),
-);
-
 /** Libellés FR des attributs. */
 const ATTRIBUTE_LABELS: Record<string, string> = {
   force: 'Force',
@@ -135,6 +171,18 @@ const DAMAGE_TYPE_LABELS: Record<string, string> = {
   bludgeoning: 'Contondant',
 };
 
+/** Une réserve prête à afficher : maximum calculé, niveau du moment, verdict. */
+export interface PoolRow {
+  gauge: PoolGauge;
+  /** Maximum recalculé (race, classe, niveau, équipement). */
+  max: number;
+  /** Niveau du moment, maximum moins le creux stocké. */
+  current: number;
+  /** Remplissage de la barre, en pourcentage. */
+  pct: number;
+  stage: string;
+}
+
 /** Détail de combat d'une arme équipée, prêt à afficher sur la fiche. */
 export interface EquippedWeapon {
   slotKey: string;
@@ -148,16 +196,36 @@ export interface EquippedWeapon {
   damageType: string;
   attributeDamage: string;
   enduranceCost: number;
+  /** Catégorie de l'arme, en toutes lettres (« Épée longue »). */
+  category: string;
+  /** Le personnage sait-il manier cette catégorie ? (classe + ajouts manuels) */
+  proficient: boolean;
+}
+
+/** Pièce d'armure équipée, telle que la fiche l'affiche dans son emplacement. */
+export interface EquippedArmor {
+  physicalArmor: number;
+  magicalProtection: number;
+  /** Catégorie du set, en toutes lettres (vide si la fiche ne la déclare pas). */
+  category: string;
+  /** Verdict de maîtrise — `clothing` et `unknown` ne se commentent pas. */
+  mastery: ArmorMastery;
 }
 
 /** Catégories d'armes réservées à la main secondaire (jamais en main principale). */
 const OFFHAND_ONLY_CATEGORIES = new Set(['handCrossbow']);
+
+/** Les deux emplacements tenus en main. */
+const MAIN_HAND_SLOT = 'weapon';
+const OFFHAND_SLOT = 'offhand';
 
 /** Contribution d'un objet équipé aux défenses et au poids. */
 interface EquipmentStat {
   physicalArmor: number;
   magicalProtection: number;
   weight: number;
+  /** Catégorie du set dont la pièce provient (cf. armor_category.json). */
+  armorCategory?: string;
 }
 
 /**
@@ -167,6 +235,12 @@ interface EquipmentStat {
  */
 const isBag = (e: ResourceIndexEntry): boolean =>
   e.capacityBonus != null || e.weightReductionPct != null;
+
+/** Liste de clés reçue d'une fiche : chaînes non vides, sans doublon. */
+const normalizeKeys = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? [...new Set(value.filter((k): k is string => typeof k === 'string' && !!k.trim()))]
+    : [];
 
 /**
  * Part du poids des objets PORTÉS qui compte dans la charge. Bien réparti sur le
@@ -232,6 +306,8 @@ export class CharacterSheetEditor {
   readonly rightSlots = EQUIPMENT_SLOTS.filter((s) => s.side === 'right');
   readonly stats = STATS;
   readonly barStats = BAR_STATS;
+  readonly survivalGauges = SURVIVAL_GAUGES;
+  readonly poolGauges = POOL_GAUGES;
   readonly defenseStats = DEFENSE_STATS;
   readonly magicDefenseSpark = MAGIC_DEFENSE_SPARK;
 
@@ -351,10 +427,11 @@ export class CharacterSheetEditor {
       // Armes : main principale (sauf catégories réservées) et/ou main secondaire (1 main).
       for (const w of weapons) {
         if (!w.name) continue;
-        const handling = w.weaponCategory ? WEAPON_HANDLING.get(w.weaponCategory) ?? 1 : 1;
         const offhandOnly = !!w.weaponCategory && OFFHAND_ONLY_CATEGORIES.has(w.weaponCategory);
-        if (!offhandOnly) push('weapon', w.name);
-        if (handling === 1) push('offhand', w.name);
+        if (!offhandOnly) push(MAIN_HAND_SLOT, w.name);
+        // Une arme à deux mains ne se propose jamais en main faible : elle n'y
+        // tiendrait pas plus qu'elle ne laisse de place à côté d'elle.
+        if (!isTwoHanded(w.weaponCategory)) push(OFFHAND_SLOT, w.name);
         stats.set(w.name, { physicalArmor: 0, magicalProtection: 0, weight: w.weight ?? 0 });
         weapons2.set(w.name, {
           minDamage: w.minDamage ?? 0,
@@ -377,6 +454,9 @@ export class CharacterSheetEditor {
             physicalArmor: piece.physicalArmor ?? 0,
             magicalProtection: piece.magicalProtection ?? 0,
             weight: piece.weight ?? 0,
+            // La catégorie se déclare sur le set, pas sur la pièce : un heaume
+            // de plaques est lourd parce que l'armure dont il vient l'est.
+            armorCategory: item.set?.armorCategory,
           });
         }
       }
@@ -451,6 +531,10 @@ export class CharacterSheetEditor {
       if (this.model.inventory.some((line) => line.name === item.name)) continue;
       this.model.inventory.push({ name: item.name, qty: 1, weight: item.weight });
     }
+
+    // La tenue de départ peut apporter un bouclier et l'arme une claymore : on
+    // tranche après coup, quand les deux sont posés.
+    this.onEquipmentChange();
   }
 
   /** À chaque changement de race, on invalide une sous-race devenue incohérente. */
@@ -586,6 +670,51 @@ export class CharacterSheetEditor {
     );
   }
 
+  /* ── Ce que les mains peuvent tenir ───────────────────────────────────────
+     Une arme à deux mains prend les DEUX : ni arme secondaire, ni bouclier.
+     La règle se joue à trois endroits qui doivent s'accorder — la saisie (on
+     ne peut plus rien y écrire), l'affichage (l'emplacement est montré
+     condamné) et les totaux (ce qui y traîne ne compte pas). Une fiche
+     enregistrée avant la règle peut très bien porter les deux : on l'ignore
+     plutôt que de la laisser jouer.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /** L'arme de main principale réclame-t-elle les deux mains ? */
+  get bothHandsTaken(): boolean {
+    const name = this.model.equipment[MAIN_HAND_SLOT];
+    const weapon = name ? this.weaponInfo().get(name) : undefined;
+    return isTwoHanded(weapon?.weaponCategory);
+  }
+
+  /** L'emplacement est-il condamné par ce qu'on tient déjà ? */
+  slotBlocked(slotKey: string): boolean {
+    return slotKey === OFFHAND_SLOT && this.bothHandsTaken;
+  }
+
+  /** Ce qu'un emplacement porte VRAIMENT — rien s'il est condamné. */
+  itemIn(slotKey: string): string {
+    return this.slotBlocked(slotKey) ? '' : (this.model.equipment[slotKey] ?? '');
+  }
+
+  /** Suggestions d'un emplacement : aucune tant qu'il est condamné. */
+  optionsFor(slotKey: string): string[] {
+    return this.slotBlocked(slotKey) ? [] : (this.equipmentOptions()[slotKey] ?? []);
+  }
+
+  /**
+   * Vide la main faible dès que la main principale réclame les deux mains.
+   *
+   * Appelé à chaque changement d'équipement : c'est le moment où la contrainte
+   * peut naître (on vient de prendre une claymore) comme disparaître (on repose
+   * la claymore, l'emplacement se rouvre — vide, ce qui est honnête : on ne
+   * rend pas une dague qu'on n'a plus).
+   */
+  onEquipmentChange(): void {
+    if (this.bothHandsTaken && this.model.equipment[OFFHAND_SLOT]) {
+      this.model.equipment[OFFHAND_SLOT] = '';
+    }
+  }
+
   /** Somme des contributions de l'équipement porté : défenses + poids. */
   get equipmentBonus(): { def_phy: number; def_mag: number; weight: number } {
     const stats = this.equipmentStats();
@@ -593,7 +722,7 @@ export class CharacterSheetEditor {
     let defMag = 0;
     let weight = 0;
     for (const slot of EQUIPMENT_SLOTS) {
-      const name = this.model.equipment[slot.key];
+      const name = this.itemIn(slot.key);
       const s = name ? stats.get(name) : undefined;
       if (!s) continue;
       defPhy += s.physicalArmor;
@@ -608,11 +737,11 @@ export class CharacterSheetEditor {
     const info = this.weaponInfo();
     const out: EquippedWeapon[] = [];
     for (const slot of EQUIPMENT_SLOTS) {
-      if (slot.key !== 'weapon' && slot.key !== 'offhand') continue;
-      const name = this.model.equipment[slot.key];
+      if (slot.key !== MAIN_HAND_SLOT && slot.key !== OFFHAND_SLOT) continue;
+      const name = this.itemIn(slot.key);
       const w = name ? info.get(name) : undefined;
       if (!w) continue;
-      const cat = w.weaponCategory ? WEAPON_CATEGORY_BY_KEY.get(w.weaponCategory) : undefined;
+      const cat = w.weaponCategory ? weaponCategory(w.weaponCategory) : undefined;
       const mod = cat ? abilityModifier(this.finalAttributes[cat.attributeDamage]) : 0;
       out.push({
         slotKey: slot.key,
@@ -625,6 +754,10 @@ export class CharacterSheetEditor {
         damageType: cat ? DAMAGE_TYPE_LABELS[cat.damageType] ?? cat.damageType : '—',
         attributeDamage: cat ? ATTRIBUTE_LABELS[cat.attributeDamage] ?? cat.attributeDamage : '—',
         enduranceCost: cat?.enduranceCost ?? 0,
+        category: cat?.name ?? '—',
+        // Ce que le combat en fera : sans maîtrise, l'entraînement ne compte pas
+        // dans le seuil de toucher (cf. `masterySteps` dans combat/rules.ts).
+        proficient: !!w.weaponCategory && this.masteredWeapons.some((p) => p.key === w.weaponCategory),
       });
     }
     return out;
@@ -636,11 +769,16 @@ export class CharacterSheetEditor {
   }
 
   /** Valeurs de protection de la pièce équipée dans un emplacement (armure + magie). */
-  armorForSlot(slotKey: string): { physicalArmor: number; magicalProtection: number } | undefined {
-    const name = this.model.equipment[slotKey];
+  armorForSlot(slotKey: string): EquippedArmor | undefined {
+    const name = this.itemIn(slotKey);
     const s = name ? this.equipmentStats().get(name) : undefined;
     if (!s || (s.physicalArmor === 0 && s.magicalProtection === 0)) return undefined;
-    return { physicalArmor: s.physicalArmor, magicalProtection: s.magicalProtection };
+    return {
+      physicalArmor: s.physicalArmor,
+      magicalProtection: s.magicalProtection,
+      category: s.armorCategory ? armorCategoryName(s.armorCategory) : '',
+      mastery: armorMastery(s.armorCategory, this.masteredArmors),
+    };
   }
 
   /** Stats finales = génétique + montée de niveau (+ modif. d'attribut) + traits + équipement. */
@@ -702,6 +840,92 @@ export class CharacterSheetEditor {
   /** Relance le tirage aléatoire des stats (nouvelle graine). */
   rerollStats(): void {
     this.model.statSeed = randomSeed();
+  }
+
+  // ── Survie : faim & soif ───────────────────────────────────────────────────
+
+  /** Crans restants d'une jauge (jauge pleine si la fiche ignore le champ). */
+  survivalValue(gauge: SurvivalGauge): number {
+    const stored = this.model.survival?.[gauge.key];
+    return stored === undefined ? gauge.segments : clampSurvival(gauge, stored);
+  }
+
+  /** Crans de la jauge, du premier au dernier (indices 1..segments). */
+  survivalSegments(gauge: SurvivalGauge): number[] {
+    return Array.from({ length: gauge.segments }, (_, i) => i + 1);
+  }
+
+  /** Verdict affiché à côté de la jauge (« Affamé », « Désaltéré »…). */
+  survivalStage(gauge: SurvivalGauge): string {
+    return survivalStage(gauge, this.survivalValue(gauge));
+  }
+
+  /**
+   * Coche les crans jusqu'à celui cliqué. Recliquer le dernier cran plein le
+   * vide : sans ça, une jauge tombée à 1 ne pourrait plus revenir à 0.
+   */
+  setSurvival(gauge: SurvivalGauge, segment: number): void {
+    const survival = (this.model.survival ??= fullSurvival());
+    const current = this.survivalValue(gauge);
+    survival[gauge.key] = clampSurvival(gauge, segment === current ? segment - 1 : segment);
+  }
+
+  /** Remet toutes les jauges au plein (repas chaud, gourde remplie, nuit entière). */
+  refillSurvival(): void {
+    this.model.survival = fullSurvival();
+  }
+
+  // ── Réserves : points de vie, endurance, mana ─────────────────────────────
+
+  /**
+   * Les trois réserves prêtes à afficher : maximum recalculé, niveau du moment,
+   * remplissage et verdict.
+   *
+   * Une seule lecture de `finalStats` pour les trois — le calcul remonte race,
+   * classe, traits et équipement, on ne le refait pas par ligne. Le template
+   * mémorise le résultat (`@let`), comme il le fait déjà des stats.
+   */
+  get poolRows(): PoolRow[] {
+    const stats = this.finalStats;
+    return POOL_GAUGES.map((gauge) => {
+      const max = Math.max(0, Math.round(stats[gauge.key]));
+      const current = poolCurrent(max, this.model.poolLoss?.[gauge.key]);
+      return {
+        gauge,
+        max,
+        current,
+        pct: max > 0 ? (current / max) * 100 : 0,
+        stage: poolStage(gauge, current, max),
+      };
+    });
+  }
+
+  /** Une réserve au moins est entamée : le bouton de récupération a un sens. */
+  get poolsDrained(): boolean {
+    return this.poolRows.some((row) => row.current < row.max);
+  }
+
+  /**
+   * Fixe le niveau du moment d'une réserve. C'est le CREUX qui est stocké : la
+   * fiche ne garde jamais un total, elle garde ce qui manque au maximum (cf.
+   * `poolLoss`).
+   */
+  setPool(key: PoolKey, current: number | null, max: number): void {
+    // Champ vidé le temps de retaper un nombre : on ne le lit pas comme un
+    // zéro, sinon la réserve tombe à sec sous les doigts du joueur.
+    if (current === null || current === undefined || Number.isNaN(Number(current))) return;
+    const loss = (this.model.poolLoss ??= noPoolLoss());
+    loss[key] = clampPoolLoss(max, max - Number(current));
+  }
+
+  /** Coup encaissé, souffle repris, sort lancé : la réserve bouge d'un pas. */
+  adjustPool(row: PoolRow, delta: number): void {
+    this.setPool(row.gauge.key, row.current + delta, row.max);
+  }
+
+  /** Tout au plein — une nuit de repos referme les plaies et refait les forces. */
+  refillPools(): void {
+    this.model.poolLoss = noPoolLoss();
   }
 
   /**
@@ -887,15 +1111,37 @@ export class CharacterSheetEditor {
       attributePointBuy: { ...base.attributePointBuy!, ...data.attributePointBuy },
       attributeRolls: Array.isArray(data.attributeRolls) ? data.attributeRolls : [],
       attributeAssign: { ...base.attributeAssign!, ...data.attributeAssign },
+      // Jauges de survie : une fiche antérieure au champ repart au plein.
+      survival: Object.fromEntries(
+        SURVIVAL_GAUGES.map((g) => [
+          g.key,
+          data.survival?.[g.key] === undefined
+            ? g.segments
+            : clampSurvival(g, data.survival[g.key]),
+        ]),
+      ) as CharacterSheet['survival'],
+      // Réserves : on ne borne pas le creux ici (le maximum dépend de stats que
+      // la fiche n'a pas encore assemblées), seulement à l'affichage.
+      poolLoss: Object.fromEntries(
+        POOL_GAUGES.map((g) => [g.key, Math.max(0, Math.round(Number(data.poolLoss?.[g.key]) || 0))]),
+      ) as CharacterSheet['poolLoss'],
       statMode: data.statMode === 'mean' ? 'mean' : 'random',
       // Graine stockée conservée (stats stables) ; sinon valeur stable par défaut.
       statSeed: typeof data.statSeed === 'number' ? data.statSeed : 1,
       proficiencyBonus: data.proficiencyBonus ?? base.proficiencyBonus,
       skills: Array.isArray(data.skills) ? data.skills : [],
       spells: this.normalizeSpells(data.spells),
+      // Ajouts manuels : une fiche antérieure à ces champs n'en a aucun.
+      extraWeaponProficiencies: normalizeKeys(data.extraWeaponProficiencies),
+      extraArmorProficiencies: normalizeKeys(data.extraArmorProficiencies),
       goldDelta: Math.round(Number(data.goldDelta) || 0),
       inventory: data.inventory ?? [],
       equipment: { ...base.equipment, ...data.equipment },
+      // Matériaux de Terre : cette lecture est une LISTE BLANCHE — un champ
+      // absent d'ici est purement et simplement perdu au rechargement, quoi
+      // qu'on ait sauvegardé. C'est ce qui donnait l'impression que l'étude ne
+      // s'enregistrait pas.
+      earthMaterials: normalizeTraining(data.earthMaterials, levelForXp(xp)),
       notes: data.notes ?? '',
     };
   }
@@ -1164,6 +1410,92 @@ export class CharacterSheetEditor {
     this.model.skills = this.model.skills.filter((k) => opts.includes(k));
   }
 
+  /* ── Maîtrises d'armes et d'armures ─────────────────────────────────────── */
+
+  /** Catalogue proposé à la saisie (datalist) — les catégories du jeu. Côté
+   *  armures, seules celles qui s'apprennent : pas les vêtements. */
+  readonly weaponCategories = WEAPON_CATEGORIES;
+  readonly armorCategories = LEARNABLE_ARMOR_CATEGORIES;
+
+  /** Champs de saisie des ajouts manuels (hors modèle : ils ne sont pas persistés). */
+  weaponProficiencyDraft = '';
+  armorProficiencyDraft = '';
+
+  /** Armes maîtrisées : celles de la classe, puis celles ajoutées à la main. */
+  get masteredWeapons(): Proficiency[] {
+    return weaponProficiencies(this.selectedClass, this.model);
+  }
+
+  /** Armures maîtrisées : celles de la classe, puis celles ajoutées à la main. */
+  get masteredArmors(): Proficiency[] {
+    return armorProficiencies(this.selectedClass, this.model);
+  }
+
+  /** Infobulle d'une maîtrise : ce que la catégorie recouvre, quand on le sait. */
+  weaponProficiencyHint(key: string): string {
+    const cat = weaponCategory(key);
+    if (!cat) return 'Ajoutée à la main';
+    return `${cat.range} · ${cat.handling === 1 ? 'une main' : 'deux mains'} · ${cat.enduranceCost} end.`;
+  }
+
+  armorProficiencyHint(key: string): string {
+    return armorCategory(key)?.description ?? 'Ajoutée à la main';
+  }
+
+  /**
+   * Mention portée sous une pièce d'armure équipée. Vide pour un vêtement ou
+   * pour un set qui ne déclare pas sa catégorie : la fiche ne commente que ce
+   * qu'elle sait, faute de quoi elle ferait douter d'une tenue irréprochable.
+   */
+  armorNote(armor: EquippedArmor): string {
+    // Tournure sans accord : les catégories mêlent féminin (armure lourde) et
+    // masculin (bouclier), et « bouclier non maîtrisée » se voyait.
+    if (armor.mastery === 'mastered') return `✦ ${armor.category.toLowerCase()} — sait s'en servir`;
+    if (armor.mastery === 'unmastered') return `⚠ ${armor.category.toLowerCase()} — sans entraînement`;
+    return '';
+  }
+
+  armorNoteHint(armor: EquippedArmor): string {
+    return armor.mastery === 'mastered'
+      ? `${armor.category} : le porteur a appris à s'en servir`
+      : `${armor.category} : le porteur ne l'a jamais appris — il la porte, il ne la maîtrise pas`;
+  }
+
+  /**
+   * Ajoute une maîtrise saisie à la main. La saisie est résolue en clé de
+   * catégorie quand elle en désigne une (« Hache » → `axe`) : c'est à cette
+   * condition que le combat la reconnaîtra sur une arme équipée.
+   */
+  addWeaponProficiency(): void {
+    const key = resolveWeaponCategory(this.weaponProficiencyDraft);
+    if (!key) return;
+    const extra = (this.model.extraWeaponProficiencies ??= []);
+    // Rien à ajouter si la classe l'accorde déjà, ou si elle y figure.
+    if (!this.masteredWeapons.some((p) => p.key === key)) extra.push(key);
+    this.weaponProficiencyDraft = '';
+  }
+
+  addArmorProficiency(): void {
+    const key = resolveArmorCategory(this.armorProficiencyDraft);
+    if (!key) return;
+    const extra = (this.model.extraArmorProficiencies ??= []);
+    if (!this.masteredArmors.some((p) => p.key === key)) extra.push(key);
+    this.armorProficiencyDraft = '';
+  }
+
+  /** Retire une maîtrise ajoutée à la main (celles de la classe ne se retirent pas ici). */
+  removeWeaponProficiency(key: string): void {
+    const extra = this.model.extraWeaponProficiencies ?? [];
+    const i = extra.indexOf(key);
+    if (i >= 0) extra.splice(i, 1);
+  }
+
+  removeArmorProficiency(key: string): void {
+    const extra = this.model.extraArmorProficiencies ?? [];
+    const i = extra.indexOf(key);
+    if (i >= 0) extra.splice(i, 1);
+  }
+
   /** Bonus total : mod. attribut + valeurs du background + maîtrise (si choisie). */
   skillBonus(skillKey: string, attribute: AttributeKey): number {
     const bg = this.backgroundSkills.get(skillKey) ?? 0;
@@ -1226,10 +1558,150 @@ export class CharacterSheetEditor {
     return this.compose(this.model.identity.subbackground, this.model.identity.background);
   }
 
+  /* ── Matériaux de Terre ──────────────────────────────────────────────────
+     Le domaine de la Terre n'a pas un sort par pierre : il a un sort par
+     famille, dont la saveur vient de ce qu'on sait façonner. Cette section est
+     donc de la construction de personnage au même titre qu'une maîtrise
+     d'arme — et elle n'apparaît que pour qui a le domaine.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  readonly earthMaterials = MATERIALS;
+  readonly earthFamilies = MATERIAL_FAMILIES;
+
+  /** Le personnage touche-t-il à la Terre ? Sinon, la section n'a rien à dire. */
+  get hasEarthDomain(): boolean {
+    return this.model.domains.includes('earth');
+  }
+
+  /** Le bloc de la fiche, créé à la première utilisation. */
+  private get earthTraining(): EarthMaterialTraining {
+    return (this.model.earthMaterials ??= { studied: [], known: [] });
+  }
+
+  get studiedMaterials(): string[] {
+    return this.model.earthMaterials?.studied ?? [];
+  }
+
+  get knownMaterials(): string[] {
+    return this.model.earthMaterials?.known ?? [];
+  }
+
+  get equippedMaterial(): string | undefined {
+    return this.model.earthMaterials?.equipped;
+  }
+
+  /** Places d'étude ouvertes par le niveau, et celles déjà prises. */
+  get studySlotsTotal(): number {
+    return studySlots(this.model.level);
+  }
+
+  get studySlotsUsed(): number {
+    return this.studiedMaterials.length;
+  }
+
+  /** Les matériaux d'une famille, pour l'affichage par colonne. */
+  materialsIn(family: MaterialFamilyKey): Material[] {
+    return materialsOfFamily(family);
+  }
+
+  /** Ce qui empêche d'étudier ce matériau, ou `null`. */
+  studyBlocker(key: string): string | null {
+    if (this.studiedMaterials.includes(key)) return null;
+    return cannotStudy(key, this.studiedMaterials, this.model.level);
+  }
+
+  /** Étudie le matériau, ou renonce à l'étude. */
+  toggleStudied(key: string): void {
+    const bloc = this.earthTraining;
+    const i = bloc.studied.indexOf(key);
+    if (i >= 0) {
+      bloc.studied.splice(i, 1);
+      // Renoncer à un composant, c'est renoncer à l'alliage qu'il permettait.
+      bloc.studied = bloc.studied.filter(
+        (m) => !(MATERIAL_BY_KEY.get(m)?.requires ?? []).includes(key),
+      );
+      if (bloc.equipped && !bloc.studied.includes(bloc.equipped)) bloc.equipped = undefined;
+      return;
+    }
+    if (cannotStudy(key, bloc.studied, this.model.level)) return;
+    bloc.studied.push(key);
+  }
+
+  /** Marque un matériau comme vu ET touché, sans l'avoir étudié. */
+  toggleKnown(key: string): void {
+    const bloc = this.earthTraining;
+    bloc.known ??= [];
+    const i = bloc.known.indexOf(key);
+    if (i >= 0) bloc.known.splice(i, 1);
+    else bloc.known.push(key);
+  }
+
+  /** Le matériau qu'on porte en tête. Se change au repos, pas en plein combat. */
+  setEquipped(key: string): void {
+    const bloc = this.earthTraining;
+    bloc.equipped = bloc.equipped === key ? undefined : key;
+  }
+
+  /** Nom affiché d'un matériau, depuis sa clé (résumé de l'aperçu). */
+  materialName(key: string): string {
+    return MATERIAL_BY_KEY.get(key)?.name ?? key;
+  }
+
+  /** Infobulle d'un matériau depuis sa clé. */
+  materialTitle(key: string): string {
+    const m = MATERIAL_BY_KEY.get(key);
+    return m ? this.materialHint(m) : key;
+  }
+
+  /** Une ligne lisible pour l'infobulle d'un matériau. */
+  materialHint(m: Material): string {
+    return `${m.formation} — ${m.property}. ${m.effect}`;
+  }
+
+  /** Les régions où la matière se trouve vraiment, en clair. */
+  materialRegions(m: Material): string {
+    if (!m.native.length) return 'Nulle part : alliage, à conjurer';
+    return m.native
+      .map((k) => MATERIAL_REGIONS.find((r) => r.key === k)?.name ?? k)
+      .join(', ');
+  }
+
   // ── Domaines de magie ──────────────────────────────────────────────────────
 
   isDomainSelected(key: string): boolean {
     return this.model.domains.includes(key);
+  }
+
+  /**
+   * Dernier tirage d'affinité magique. Volontairement hors modèle : c'est le
+   * compte rendu du jet (« Deux affinités », ou l'absence d'éveil), pas une
+   * donnée de la fiche — seuls les domaines obtenus y sont écrits.
+   */
+  readonly magicRoll = signal<MagicAffinityRoll | null>(null);
+
+  /** Chances du tirage, reprises du lore (affichées sous les domaines). */
+  readonly affinityOdds = AFFINITY_ODDS;
+
+  /**
+   * Tire les affinités magiques : d'abord leur nombre (0 à 3, poids du lore),
+   * puis les domaines selon la répartition du peuple choisi. Remplace la
+   * sélection en cours — les sorts devenus hors domaine sont retirés.
+   */
+  rollMagicDomains(): void {
+    const roll = rollMagicAffinity(this.selectedRace?.key);
+    this.model.domains = [...roll.domains];
+    this.magicRoll.set(roll);
+    this.pruneSpells();
+  }
+
+  /** Domaines du dernier tirage, en toutes lettres (« Feu, Terre »). */
+  get rolledDomainNames(): string {
+    return (this.magicRoll()?.domains ?? []).map((k) => domainName(k)).join(', ');
+  }
+
+  /** Peuple servant de table de tirage (à défaut : moyenne des populations). */
+  get affinitySourceLabel(): string {
+    return this.selectedRace?.name ?? 'moyenne des peuples';
   }
 
   toggleDomain(key: string): void {
@@ -1581,10 +2053,19 @@ export class CharacterSheetEditor {
           `${weapon.minDamage}–${weapon.maxDamage} (${weapon.modMin}–${weapon.modMax}) · ${weapon.damageType}`,
         );
         lines.push(`${weapon.attributeDamage} · ${weapon.enduranceCost} end.`);
+        lines.push(
+          weapon.proficient
+            ? `${weapon.category} · maîtrisée`
+            : `${weapon.category} · non maîtrisée`,
+        );
       }
       const armor = this.armorForSlot(slot.key);
-      if (armor) lines.push(`Arm. ${armor.physicalArmor} · Mag. ${armor.magicalProtection}`);
-      return { label: slot.label, item: this.model.equipment[slot.key] ?? '', lines };
+      if (armor) {
+        lines.push(`Arm. ${armor.physicalArmor} · Mag. ${armor.magicalProtection}`);
+        const note = this.armorNote(armor);
+        if (note) lines.push(note);
+      }
+      return { label: slot.label, item: this.itemIn(slot.key), lines };
     };
 
     return {
@@ -1620,6 +2101,21 @@ export class CharacterSheetEditor {
         value: stats[st.key],
         pct: this.barPct(stats[st.key], maxBar),
       })),
+      survival: this.survivalGauges.map((g) => ({
+        label: g.label,
+        icon: g.icon,
+        filled: this.survivalValue(g),
+        segments: g.segments,
+        stage: this.survivalStage(g),
+      })),
+      pools: this.poolRows.map((row) => ({
+        label: row.gauge.label,
+        icon: row.gauge.icon,
+        current: row.current,
+        max: row.max,
+        pct: row.pct,
+        stage: row.stage,
+      })),
       defenses: this.defenseStats.map((st) => ({
         label: st.label,
         icon: st.icon,
@@ -1639,6 +2135,10 @@ export class CharacterSheetEditor {
         endurance: sp.endurance,
         description: sp.description,
       })),
+      proficiencies: {
+        weapons: this.masteredWeapons.map((p) => ({ label: p.label, manual: p.source === 'manual' })),
+        armors: this.masteredArmors.map((p) => ({ label: p.label, manual: p.source === 'manual' })),
+      },
       equipment: {
         left: this.leftSlots.map(slotRow),
         right: this.rightSlots.map(slotRow),

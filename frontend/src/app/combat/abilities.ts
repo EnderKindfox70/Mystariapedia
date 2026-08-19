@@ -16,6 +16,7 @@ import {
 } from './combat.types';
 import { CELL_METERS, parseRangeMeters, parseShape } from './grid';
 import { WEAPON_ATTACK_RATIO } from './rules';
+import { isFerromagnetic } from './materials';
 
 /* ──────────────────────────────────────────────────────────────────────────
    TRADUCTION DES DONNÉES DU WIKI EN CAPACITÉS JOUABLES
@@ -42,6 +43,16 @@ export interface WeaponCategoryDef {
 export const WEAPON_CATEGORY_BY_KEY = new Map<string, WeaponCategoryDef>(
   (weaponCategoryCatalog.weapon_categories as WeaponCategoryDef[]).map((c) => [c.key, c]),
 );
+
+/**
+ * Emplacement de la main faible sur la fiche.
+ *
+ * C'est LUI qui décide de tout ce qui distingue une arme secondaire : elle se
+ * joue en action bonus, et elle frappe sans la part d'attaque physique. Une
+ * dague n'est pas « une arme secondaire » en soi — elle le devient quand on la
+ * range dans cette main-là.
+ */
+export const OFFHAND_SLOT = 'offhand';
 
 /**
  * Portée des armes à distance, en mètres, par catégorie.
@@ -102,6 +113,8 @@ export interface WeaponSource {
   minDamage: number;
   maxDamage: number;
   weaponCategory?: string;
+  /** Matière de l'arme (clé de `materials.json`), quand le catalogue la dit. */
+  material?: string;
 }
 
 /** Ce que la fiche d'une munition apporte au combat. */
@@ -125,34 +138,50 @@ export interface AmmunitionSource {
  * Le projectile forme une composante de dégâts SÉPARÉE plutôt qu'un bonus fondu
  * dans l'arme : il porte son propre type, donc les résistances de la cible
  * s'appliquent correctement à chacun, et le journal montre les deux lignes.
+ *
+ * **La main faible fait exception** (cf. `OFFHAND_SLOT`) : elle ne touche pas à
+ * l'attaque physique, elle ne vaut que l'arme et le modificateur du bras qui la
+ * tient.
  */
 export function weaponAbility(
   weapon: WeaponSource,
   slot: string,
   ammunition?: AmmunitionSource,
+  proficient = false,
 ): CombatAbility {
+  // Une arme à projectile sans munition appariée au catalogue tirerait sans
+  // rien dépenser. On lui impose alors son propre nom de munition générique
+  // plutôt que de la laisser tirer à l'infini.
+  const ammo = ammunition ?? (usesAmmunition(weapon) ? { name: 'Munitions' } : undefined);
   const category = weapon.weaponCategory
     ? WEAPON_CATEGORY_BY_KEY.get(weapon.weaponCategory)
     : undefined;
 
   const weaponType = category?.damageType ?? 'bludgeoning';
+  const offhand = slot === OFFHAND_SLOT;
   const damages: AbilityDamage[] = [
     {
       min: weapon.minDamage,
       max: weapon.maxDamage,
       type: weaponType,
       // La part d'attaque ne s'applique qu'une fois, sur l'arme elle-même :
-      // l'accrocher aussi au projectile la compterait deux fois.
-      scaling: [{ source: 'atk_phy', ratio: WEAPON_ATTACK_RATIO }],
+      // l'accrocher aussi au projectile la compterait deux fois. La main faible
+      // n'y a pas droit du tout : c'est le prix du coup en plus.
+      scaling: offhand ? [] : [{ source: 'atk_phy', ratio: WEAPON_ATTACK_RATIO }],
+      // …et ce qu'elle garde, c'est le modificateur de l'attribut qui blesse :
+      // une arbalète de poing en main gauche vaut ses 4–8 + le mod. de Dextérité.
+      attributeModifier: offhand
+        ? (category?.attributeDamage ?? 'dexterite')
+        : undefined,
     },
   ];
 
-  const projectile = ammunition?.damageBonus ?? 0;
+  const projectile = ammo?.damageBonus ?? 0;
   if (projectile > 0) {
     damages.push({
       min: projectile,
       max: projectile,
-      type: ammunition?.damageType ?? weaponType,
+      type: ammo?.damageType ?? weaponType,
     });
   }
 
@@ -160,8 +189,8 @@ export function weaponAbility(
     id: `weapon:${slot}`,
     name: weapon.name,
     kind: 'weapon',
-    subtitle: ammunition
-      ? `${category?.name ?? 'Arme'} · ${ammunition.name}`
+    subtitle: ammo
+      ? `${category?.name ?? 'Arme'} · ${ammo.name}`
       : (category?.name ?? 'Arme'),
     ref: weapon.slug,
     rangeMeters: weaponRangeMeters(category),
@@ -174,9 +203,28 @@ export function weaponAbility(
     // Le catalogue distingue l'attribut qui vise de celui qui blesse : c'est le
     // premier qui pilote le jet de toucher.
     attackAttribute: category?.attributePrecision ?? 'dexterite',
+    proficient,
+    // La main gauche frappe en action bonus : c'est ce qui donne un intérêt à
+    // s'armer des deux mains plutôt qu'à porter une arme de rechange. On la
+    // reconnaît à son EMPLACEMENT, pas à sa nature — la même dague vaut action
+    // en main principale et action bonus en main faible.
+    bonusAction: offhand,
+    // Deux mains sur le manche : il ne reste rien pour la main faible.
+    twoHanded: (category?.handling ?? 1) === 2,
+    // Une arme à projectile puise dans le carquois. Le dire ICI et non chez
+    // l'appelant est ce qui garantit qu'une arme volée, ramassée ou reprise au
+    // sac reste soumise au décompte : la fabrique n'est plus le seul chemin par
+    // lequel une arme arrive en main.
+    consumes: ammo ? { item: ammo.name, qty: 1 } : undefined,
     // Une arme de contact sert l'attaque d'opportunité ; un arc, non : on ne
     // punit pas un désengagement à trente mètres.
     reaction: weaponRangeMeters(category) <= CELL_METERS * 2 ? ['leave-reach'] : undefined,
+    // Le magnétisme se DÉDUIT de la matière : une lame d'acier s'arrache, une
+    // masse de bronze non. Plus de drapeau à tenir à jour objet par objet.
+    metallic: isFerromagnetic(weapon.material),
+    material: weapon.material,
+    // De quoi la reposer dans une autre main, ou la sortir d'un sac.
+    wield: { source: weapon, ammo },
   };
 }
 
@@ -220,7 +268,10 @@ export const unarmedDamage = (ratio = UNARMED_ATTACK_RATIO): AbilityDamage => ({
  * frapper du poing, et c'est le recours quand l'arme est hors de portée ou le
  * carquois vide.
  */
-export function unarmedAbility(ratio = UNARMED_ATTACK_RATIO): CombatAbility {
+export function unarmedAbility(
+  ratio = UNARMED_ATTACK_RATIO,
+  proficient = false,
+): CombatAbility {
   return {
     id: 'weapon:unarmed',
     name: 'Attaque au poing',
@@ -234,6 +285,7 @@ export function unarmedAbility(ratio = UNARMED_ATTACK_RATIO): CombatAbility {
     damages: [unarmedDamage(ratio)],
     attackAttribute: 'force',
     unarmed: true,
+    proficient,
     // On peut toujours saisir au passage : le poing sert d'opportunité.
     reaction: ['leave-reach'],
   };
@@ -413,6 +465,19 @@ export function spellAbility(
     'light';
 
   const damages: AbilityDamage[] = [];
+  // Un jet de métal ne chiffre pas ses dégâts sur le palier : ils viennent de
+  // l'objet lancé, et on ne sait pas encore lequel. On pose quand même une
+  // composante VIDE, pour y garder le scaling du nœud — la poussée du lanceur,
+  // qui elle appartient bien au sort. Le moteur y versera les dégâts de l'objet
+  // au moment du tir (cf. `resolveMetalThrow`).
+  if (stats.throwsMetal) {
+    damages.push({
+      min: 0,
+      max: 0,
+      type: fallbackType,
+      scaling: withBonus(toScaling(stats.scaling, 'damage')),
+    });
+  }
   if (choice) {
     if (choice.damageMin !== undefined) {
       damages.push({
@@ -480,7 +545,17 @@ export function spellAbility(
       reaction: stats.reaction,
       weather: stats.weather ?? page.spell.weather,
       autoHit: true,
+      // Un revêtement de Terre façonne de la matière comme n'importe quel autre
+      // sort du domaine. Cette branche a son propre `return` : tout ce qu'on
+      // ajoute au cas général doit être répété ICI, sinon un poing de pierre
+      // n'a plus de matière — et c'est exactement ce qui était arrivé.
+      shapesMaterial: stats.shapesMaterial ?? page.spell.shapesMaterial,
+      materialScale: stats.materialScale,
       freeStrike: bonus?.freeStrike ? enchantTarget : undefined,
+      // Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe
+      // ses poings ET s'en sert dans le même tour, là où un mage y passe son
+      // action.
+      bonusAction: bonus?.bonusAction,
       manualEffects: bonus ? [bonus.description] : undefined,
     };
   }
@@ -538,12 +613,37 @@ export function spellAbility(
     teleportMeters: stats.teleport
       ? parseRangeMeters(stats.teleportRange ?? stats.range)
       : undefined,
+    homingMark: stats.homingMark,
+    marksTargets: stats.marksTargets,
+    consumesMark: stats.consumesMark,
+    anchorGapMeters: stats.anchorGap ? parseRangeMeters(stats.anchorGap) : undefined,
+    requiresHit: stats.requiresHit,
+    precisionPenalty: stats.precisionPenalty,
+    swap: stats.swap,
+    swapMark: stats.swapMark,
+    shapesMaterial: stats.shapesMaterial ?? page.spell.shapesMaterial,
+    raisesWall: stats.raisesWall,
+    materialScale: stats.materialScale,
+    pullsMetal: stats.pullsMetal,
+    pullDc: stats.pullDc,
+    throwsMetal: stats.throwsMetal,
+    tetherMeters: stats.tetherRange ? parseRangeMeters(stats.tetherRange) : undefined,
     attackAttribute: 'intelligence',
     // Un sort qui ne blesse pas ne se rate pas : soins et buffs portent toujours.
-    autoHit: damages.length === 0 && !stats.damagePercentMaxHp && !stats.damagePercentCurrentHp,
+    // Sauf ce qui s'IMPOSE — un sceau, des fils : `requiresHit` le dit, et le
+    // jet revient (contre les hostiles seulement, cf. `resolveAgainst`).
+    autoHit:
+      !stats.requiresHit &&
+      damages.length === 0 &&
+      !stats.damagePercentMaxHp &&
+      !stats.damagePercentCurrentHp,
+    // La garantie du critique porte sur les DÉGÂTS, jamais sur le toucher :
+    // le jet reste entier, c'est ce que vaut l'impact qui est acquis.
+    alwaysCritical: stats.alwaysCritical,
     // Une frappe gratuite se joue même hors revêtement (« Échauffement » du
     // domaine du feu) : elle porte alors sur ce que le lanceur a en main.
     freeStrike: bonus?.freeStrike ? 'unarmed' : undefined,
+    bonusAction: bonus?.bonusAction,
     // Un bonus de classe n'est pas toujours chiffrable : sa description part
     // au journal pour que le MJ voie ce que le moteur n'a pas su résoudre.
     manualEffects: bonus ? [bonus.description] : undefined,
@@ -741,6 +841,7 @@ export interface ConsumableSource {
 export function consumableAbility(item: ConsumableSource, statusKeys: Map<string, string>): CombatAbility {
   let heal = 0;
   let restoreMana = 0;
+  let restoreManaPercent = 0;
   const cleanses: string[] = [];
   const manual: string[] = [];
 
@@ -751,12 +852,23 @@ export function consumableAbility(item: ConsumableSource, statusKeys: Map<string
     // par-dessus le combat, elle rend un montant fiable.
     const amount = dice ? Math.round((dice.min + dice.max) / 2) : 0;
 
+    // Un nombre COLLÉ au mot mana, et lui seul. La règle est stricte à dessein :
+    // « absorber la mana ambiante pendant 10 minutes » parle de mana et porte un
+    // nombre, mais ne rend rien — une lecture large en aurait tiré 10 points.
+    const flatMana = line.match(/(\d+)\s*(?:points?\s+de\s+)?mana\b/i);
+    // Le pourcentage, lui, se lit à l'échelle de la ligne : la part de réserve
+    // s'énonce loin du mot (« plus 30 % de la réserve maximale du buveur »).
+    const pctMana = lower.includes('mana') ? line.match(/(\d+)\s*%/) : null;
+
     let handled = false;
-    if (amount && (lower.includes('point') || lower.includes('pv'))) {
-      heal += amount;
+    // Le mana passe AVANT les points de vie : « points de mana » contient le mot
+    // « point », et l'ordre inverse versait la potion de mana dans le soin.
+    if (flatMana || pctMana) {
+      if (flatMana) restoreMana += Number(flatMana[1]);
+      if (pctMana) restoreManaPercent += Number(pctMana[1]);
       handled = true;
-    } else if (amount && lower.includes('mana')) {
-      restoreMana += amount;
+    } else if (amount && (lower.includes('point') || lower.includes('pv'))) {
+      heal += amount;
       handled = true;
     }
 
@@ -787,9 +899,14 @@ export function consumableAbility(item: ConsumableSource, statusKeys: Map<string
     damages: [],
     heal: heal || undefined,
     restoreMana: restoreMana || undefined,
+    restoreManaPercent: restoreManaPercent || undefined,
     cleanses: cleanses.length ? cleanses : undefined,
     manualEffects: manual.length ? manual : undefined,
     autoHit: true,
+    // Se soigner ne coûte plus le tour : porter la main au sac est un geste
+    // bref. Tant qu'une fiole valait une attaque, elle restait au fond du sac
+    // et la potion n'existait qu'à l'inventaire.
+    bonusAction: true,
   };
 }
 
@@ -922,4 +1039,24 @@ export function naturalControlAbility(): CombatAbility {
     // Une bête plaque d'autant plus volontiers sa proie qu'elle s'enfuit.
     reaction: ['leave-reach'],
   };
+}
+
+/**
+ * L'onglet d'actions réellement affichable : celui qu'on a choisi TANT QU'IL A
+ * QUELQUE CHOSE DEDANS, sinon la première famille garnie.
+ *
+ * L'onglet est un réglage global, alors que les familles dépendent du
+ * combattant : rester sur « Magie » en passant la main à un garde qui n'a
+ * qu'une épée vidait le panneau — et comme un onglet vide n'est pas affiché, il
+ * n'y avait rien à cliquer pour en sortir. Le combattant paraissait réduit au
+ * déplacement, ce qui est précisément le symptôme qu'on a mis longtemps à
+ * imputer au bon endroit.
+ */
+export function visibleGroup(
+  order: readonly string[],
+  byKey: ReadonlyMap<string, readonly unknown[]>,
+  current: string,
+): string {
+  if (byKey.get(current)?.length) return current;
+  return order.find((key) => byKey.get(key)?.length) ?? current;
 }

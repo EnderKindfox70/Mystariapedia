@@ -1,15 +1,50 @@
 {
   "name": "Tenue de chevalier aspirant",
   "subtitle": "Gambison et tabard de l'écuyer",
+  "armorCategory": "medium",
+  "material": "toile",
   "description": [
     "Le gambison de l'écuyer, frappé du tabard de son ordre. Une protection d'entraînement, en attendant l'acier du chevalier."
   ],
   "pieces": [
-    { "slot": "head", "label": "Coiffe matelassée",   "physicalArmor": 2, "magicalProtection": 0, "weight": 0.6 },
-    { "slot": "body", "label": "Gambison et tabard",   "physicalArmor": 4, "magicalProtection": 1, "weight": 4.3 },
-    { "slot": "legs", "label": "Chausses rembourrées", "physicalArmor": 2, "magicalProtection": 0, "weight": 2.2 },
-    { "slot": "feet", "label": "Bottes de cuir",       "physicalArmor": 1, "magicalProtection": 0, "weight": 1.4 }
+    {
+      "slot": "head",
+      "label": "Coiffe matelassée",
+      "physicalArmor": 2,
+      "magicalProtection": 0,
+      "weight": 0.6
+    },
+    {
+      "slot": "body",
+      "label": "Gambison et tabard",
+      "physicalArmor": 4,
+      "magicalProtection": 1,
+      "weight": 4.3
+    },
+    {
+      "slot": "legs",
+      "label": "Chausses rembourrées",
+      "physicalArmor": 2,
+      "magicalProtection": 0,
+      "weight": 2.2
+    },
+    {
+      "slot": "feet",
+      "label": "Bottes de cuir",
+      "physicalArmor": 1,
+      "magicalProtection": 0,
+      "weight": 1.4
+    }
   ],
-  "info": [{ "key": "rarity", "label": "Rareté", "value": "Peu commune" }],
-  "properties": ["Se porte sous une armure de plaques", "Tabard aux couleurs de l'ordre"]
+  "info": [
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
+  ],
+  "properties": [
+    "Se porte sous une armure de plaques",
+    "Tabard aux couleurs de l'ordre"
+  ]
 }

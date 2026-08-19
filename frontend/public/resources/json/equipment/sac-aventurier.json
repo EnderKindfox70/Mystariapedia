@@ -1,39 +1,58 @@
 {
-    "name": "Sac d'aventurier",
-    "subtitle": "Sac de cuir",
-    "category": "sacs",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Cuir épais monté sur une armature de bois cintré, doublé de toile huilée, avec bretelles rembourrées, ceinture ventrale et une demi-douzaine d'anneaux de fer pour accrocher ce qui ne rentre pas. Il pèse deux kilos à vide et les fait oublier une fois sur le dos.",
-        "C'est le sac de ceux qui vivent de ce métier. L'armature reporte la charge sur les hanches au lieu des épaules, le cuir huilé garde le contenu au sec, et les anneaux tiennent la corde, la lanterne et la marmite hors du volume utile. Quatre-vingt-dix pièces d'or — le prix de deux potions de soin, et il durera dix ans."
-    ],
-    "info": [
-        { "key": "weight",   "label": "Poids",    "value": "2 kg" },
-        { "key": "type",     "label": "Type",     "value": "Sac à dos" },
-        { "key": "rarity",   "label": "Rareté",   "value": "Commune" },
-        { "key": "capacity", "label": "Capacité", "value": "+14 kg" },
-        { "key": "value",    "label": "Valeur",   "value": "90 pièces d'or" }
-    ],
-    "properties": [
-        "Ajoute 14 kg à la capacité de charge de son porteur.",
-        "Armature et ceinture ventrale : la charge repose sur les hanches, ce qui permet de marcher une journée entière sous un sac plein.",
-        "Doublure de toile huilée : le contenu reste sec sous une pluie battante et lors d'un passage à gué rapide.",
-        "Six anneaux extérieurs pour la corde, la lanterne, la marmite et le matériel encombrant.",
-        "Compartiments séparés : on retrouve une fiole précise sans vider le sac, ce qui compte quand on la cherche dans le noir."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les selliers des grandes cités et dans les comptoirs des guildes d'aventuriers, qui le vendent souvent à crédit aux nouveaux inscrits.",
-            "L'occasion est un bon achat : un sac d'aventurier bien entretenu vaut mieux qu'un sac de toile neuf, à condition que l'armature ne soit pas fendue."
-        ]
+  "name": "Sac d'aventurier",
+  "subtitle": "Sac de cuir",
+  "material": "cuir",
+  "category": "sacs",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Cuir épais monté sur une armature de bois cintré, doublé de toile huilée, avec bretelles rembourrées, ceinture ventrale et une demi-douzaine d'anneaux de fer pour accrocher ce qui ne rentre pas. Il pèse deux kilos à vide et les fait oublier une fois sur le dos.",
+    "C'est le sac de ceux qui vivent de ce métier. L'armature reporte la charge sur les hanches au lieu des épaules, le cuir huilé garde le contenu au sec, et les anneaux tiennent la corde, la lanterne et la marmite hors du volume utile. Quatre-vingt-dix pièces d'or — le prix de deux potions de soin, et il durera dix ans."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "2 kg"
     },
-    "notes": [
-        "Graisser le cuir deux fois par an. Un cuir sec craque, et un sac fendu se vide en chemin sans prévenir.",
-        "Beaucoup de compagnies l'exigent avant d'accepter un candidat. Se présenter avec une besace, c'est annoncer qu'on ne sait pas encore ce qu'on va porter."
-    ],
-    "references": [
-
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Sac à dos"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "capacity",
+      "label": "Capacité",
+      "value": "+14 kg"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "90 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Ajoute 14 kg à la capacité de charge de son porteur.",
+    "Armature et ceinture ventrale : la charge repose sur les hanches, ce qui permet de marcher une journée entière sous un sac plein.",
+    "Doublure de toile huilée : le contenu reste sec sous une pluie battante et lors d'un passage à gué rapide.",
+    "Six anneaux extérieurs pour la corde, la lanterne, la marmite et le matériel encombrant.",
+    "Compartiments séparés : on retrouve une fiole précise sans vider le sac, ce qui compte quand on la cherche dans le noir."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les selliers des grandes cités et dans les comptoirs des guildes d'aventuriers, qui le vendent souvent à crédit aux nouveaux inscrits.",
+      "L'occasion est un bon achat : un sac d'aventurier bien entretenu vaut mieux qu'un sac de toile neuf, à condition que l'armature ne soit pas fendue."
     ]
+  },
+  "notes": [
+    "Graisser le cuir deux fois par an. Un cuir sec craque, et un sac fendu se vide en chemin sans prévenir.",
+    "Beaucoup de compagnies l'exigent avant d'accepter un candidat. Se présenter avec une besace, c'est annoncer qu'on ne sait pas encore ce qu'on va porter."
+  ],
+  "references": []
 }

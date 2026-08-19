@@ -1,5 +1,6 @@
 {
   "name": "Hache de guerre",
+  "material": "fer",
   "subtitle": "Tranchant lourd à une main",
   "description": [
     "La hache de guerre concentre tout son poids derrière un tranchant unique. Moins élégante que l'épée, elle compense par une puissance brute qui fend boucliers et heaumes.",
@@ -9,8 +10,16 @@
   "minDamage": 4,
   "maxDamage": 9,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "1,8 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,8 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Forte puissance de coupe",

@@ -6,11 +6,20 @@
     "Massés en rangs, les archers longs transforment le ciel en pluie de traits, capables de percer mailles et cuirs à longue portée."
   ],
   "weaponCategory": "longBow",
+  "material": "bois",
   "minDamage": 5,
   "maxDamage": 10,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "1,2 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,2 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
   ],
   "properties": [
     "Grande portée et forte pénétration",

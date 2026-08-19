@@ -15,6 +15,7 @@ import truite from '../../../public/resources/json/bestiary/truite-de-courant.js
 import vache from '../../../public/resources/json/bestiary/vache-des-vallons.json';
 import classCatalog from '../../../public/resources/json/characters/classes.json';
 import { AttributeKey, ClassDef, StatKey } from '../character/character.types';
+import { proficiencyForLevel } from '../character/universe-data';
 import { BestiaryEntry } from '../wiki.types';
 import { CombatantFactory } from './combatant-factory';
 import { SpellsService } from '../services/spells.service';
@@ -35,12 +36,15 @@ import {
   unarmedDamage,
   unarmedRatioFor,
   usesAmmunition,
+  visibleGroup,
   weaponAbility,
 } from './abilities';
 import { Affinities, Combatant, CombatAbility, Encounter, Team } from './combat.types';
 import { Rng } from './dice';
 import { emptyEncounter } from './encounter';
+import { enemiesOf } from './tactician';
 import {
+  cellDistance,
   cellsInShape,
   hasLineOfSight,
   metersBetween,
@@ -48,6 +52,7 @@ import {
   parseRangeMeters,
   parseShape,
   reachableCells,
+  samePos,
   unitDistanceMeters,
 } from './grid';
 import {
@@ -57,12 +62,25 @@ import {
   ambienceDamageFactor,
   applyAction,
   effectiveManaCost,
+  allegianceOf,
+  anchorBlocker,
+  announcedBreakdown,
   applyStatus,
   cannotUse,
+  CASTER_HANDS,
+  controllerOf,
+  handsBound,
+  homesOn,
+  isValidTarget,
+  movementOverlay,
+  movementPath,
+  swapAnchorMissing,
+  swapPartnerAt,
   carriedQty,
   currentUnit,
   damageReduction,
   DISADVANTAGE_PRECISION,
+  PRECISION_PER_STEP,
   GRAZE_FACTOR,
   GRAZE_STEPS,
   HIT_TARGET_BASE,
@@ -74,6 +92,8 @@ import {
   reflexThreshold,
   resolveReflexRoll,
   outcomeOf,
+  BASE_PROFICIENCY,
+  masterySteps,
   precisionOf,
   resolveHitRoll,
   scalingFalloff,
@@ -96,6 +116,8 @@ import {
   isOver,
   movementBudget,
   resolveScaling,
+  statusByKey,
+  terrainFor,
   WEAPON_ATTACK_RATIO,
 } from './rules';
 
@@ -144,6 +166,7 @@ function mkUnit(over: Partial<Combatant> & { id: string; name: string; team: Tea
     endurance: base.endurance,
     moved: 0,
     actionUsed: false,
+    bonusActionUsed: false,
     reactionUsed: false,
     statuses: [],
     effects: [],
@@ -908,7 +931,7 @@ describe('statuts', () => {
 
   it('expire après sa durée', () => {
     let enc = applyAction(duel(), { type: 'start' });
-    applyStatus(enc, findUnit(enc, 'b')!, 'brulure', undefined, 1);
+    applyStatus(enc, findUnit(enc, 'b')!, 'brulure', undefined, { duration: 1 });
     // Un aller-retour dans l'ordre d'initiative suffit à consommer le tour.
     enc = applyAction(enc, { type: 'endTurn' });
     enc = applyAction(enc, { type: 'endTurn' });
@@ -1515,11 +1538,18 @@ describe('sorts de revêtement', () => {
     expect(unit.effects.filter((e) => e.enchant)).toHaveLength(1);
   });
 
-  it('couvre toute la famille du wiki : 14 sorts de poings, 14 d’arme', () => {
+  it('couvre toute la famille du wiki, poings et arme appariés', () => {
     const all = spells.all().filter((p) => enchantTargetOf(p.spell.key));
-    // Un par domaine (12), plus les deux déclinaisons de l'eau (glace, brume).
-    expect(all.filter((p) => enchantTargetOf(p.spell.key) === 'unarmed')).toHaveLength(14);
-    expect(all.filter((p) => enchantTargetOf(p.spell.key) === 'weapon')).toHaveLength(14);
+    const poings = all.filter((p) => enchantTargetOf(p.spell.key) === 'unarmed');
+    const armes = all.filter((p) => enchantTargetOf(p.spell.key) === 'weapon');
+
+    // On ne fige NI le compte, ni l'appariement : ajouter un domaine au wiki ne
+    // doit pas casser un test du moteur, et tous les domaines n'ont pas de
+    // raison d'offrir les deux formes — le Renforcement densifie une arme, il
+    // n'a pas de version pour les poings. Ce qui doit tenir, c'est que les deux
+    // familles existent et que chacune produise un enchantement valide.
+    expect(poings.length).toBeGreaterThanOrEqual(12);
+    expect(armes.length).toBeGreaterThanOrEqual(12);
     for (const page of all) {
       const ability = spellAbility(page, page.spell.progression!.nodes[0]);
       expect(ability.enchant, page.spell.key).toBeDefined();
@@ -1895,7 +1925,7 @@ describe('réactions', () => {
       const enc = ambush();
       findUnit(enc, 'b')!.mana = 0; // Pas dimensionnel devient inabordable.
 
-      expect(reactionOptions(findUnit(enc, 'b')!, 'incoming-attack')).toHaveLength(0);
+      expect(reactionOptions(enc, findUnit(enc, 'b')!, 'incoming-attack')).toHaveLength(0);
       const frappe = applyAction(enc, {
         type: 'use',
         actorId: 'a',
@@ -1915,7 +1945,7 @@ describe('réactions', () => {
       });
       enc = applyAction(enc, { type: 'react', abilityId: 'pas', at: { x: 6, y: 6 } });
       expect(findUnit(enc, 'b')!.reactionUsed).toBe(true);
-      expect(reactionOptions(findUnit(enc, 'b')!, 'incoming-attack')).toHaveLength(0);
+      expect(reactionOptions(enc, findUnit(enc, 'b')!, 'incoming-attack')).toHaveLength(0);
     });
 
     describe('voir le coup venir', () => {
@@ -2393,7 +2423,9 @@ describe('jet de toucher', () => {
     it('reste bornee des deux cotes', () => {
       // Rien n'est jamais acquis ni perdu d'avance : le meilleur bretteur peut
       // manquer, la cible la plus insaisissable finit par etre atteinte.
-      const arme = flatHit({ autoHit: false });
+      // L'arme est MAÎTRISÉE : sans cela, la maîtrise ne compte pas, et un
+      // virtuose ne serait virtuose que de ses attributs.
+      const arme = flatHit({ autoHit: false, proficient: true });
       const virtuose = mkUnit({
         id: 'a',
         name: 'A',
@@ -2419,6 +2451,57 @@ describe('jet de toucher', () => {
 
       expect(hitThreshold(virtuose, arme, pataud)).toBe(THRESHOLD_MIN);
       expect(hitThreshold(empote, arme, insaisissable)).toBe(THRESHOLD_MAX);
+    });
+  });
+
+  describe('la maîtrise', () => {
+    const arme = (proficient: boolean) => flatHit({ autoHit: false, proficient });
+    const cible = () => mkUnit({ id: 'z', name: 'Z', team: 'ennemis', pos: { x: 1, y: 0 } });
+    const combattant = (proficiency: number) =>
+      mkUnit({ id: 'a', name: 'A', team: 'allies', proficiency });
+
+    it('ne compte que sur ce qu’on sait manier', () => {
+      // C'est TOUTE la règle : ramasser l'arc d'un mort ne donne pas vingt ans
+      // d'entraînement à l'arc.
+      const veteran = combattant(6);
+      expect(masterySteps(veteran, arme(true))).toBeGreaterThan(0);
+      expect(masterySteps(veteran, arme(false))).toBe(0);
+      expect(hitThreshold(veteran, arme(true), cible())).toBeLessThan(
+        hitThreshold(veteran, arme(false), cible()),
+      );
+    });
+
+    it('ne change rien pour qui ne maîtrise pas, quel que soit son niveau', () => {
+      // Un guerrier de niveau 20 tient l'arc comme un débutant : sa progression
+      // est passée dans l'épée.
+      expect(hitThreshold(combattant(6), arme(false), cible())).toBe(
+        hitThreshold(combattant(2), arme(false), cible()),
+      );
+    });
+
+    it('vaut UN CRAN par palier — pas une fraction que l’arrondi avale', () => {
+      // Passée par l'échelle fine, la maîtrise ne valait que 0,4 cran : monter
+      // de 2 à 4 ne déplaçait pas le seuil d'un iota, et vingt niveaux de
+      // carrière n'en gagnaient qu'un et demi. Une progression qu'on ne voit
+      // pas n'existe pas.
+      const debutant = hitThreshold(combattant(BASE_PROFICIENCY), arme(true), cible());
+      for (const palier of [3, 4, 5, 6]) {
+        expect(hitThreshold(combattant(palier), arme(true), cible())).toBe(
+          debutant - (palier - BASE_PROFICIENCY),
+        );
+      }
+    });
+
+    it('suit le niveau du personnage, du débutant au vétéran', () => {
+      expect(proficiencyForLevel(1)).toBe(BASE_PROFICIENCY);
+      expect(proficiencyForLevel(12)).toBe(4);
+      expect(proficiencyForLevel(20)).toBe(6);
+      // Quatre crans d'écart entre le premier et le dernier niveau : vingt
+      // points de pourcentage, et ça se sent.
+      expect(
+        hitThreshold(combattant(proficiencyForLevel(1)), arme(true), cible()) -
+          hitThreshold(combattant(proficiencyForLevel(20)), arme(true), cible()),
+      ).toBe(4);
     });
   });
 
@@ -2990,6 +3073,199 @@ describe('tours', () => {
   });
 });
 
+/* ── Action bonus ──────────────────────────────────────────────────────────── */
+
+describe('action bonus', () => {
+  const dague = { name: 'Dague', minDamage: 3, maxDamage: 3, weaponCategory: 'dagger' };
+
+  /** Une frappe d'action bonus qui touche toujours, en plus de l'attaque du tour. */
+  const bonus = (over: Partial<CombatAbility> = {}) =>
+    flatHit({ id: 'test:bonus', name: 'Main gauche', bonusAction: true, ...over });
+
+  const jouer = (enc: Encounter, abilityId: string): Encounter =>
+    applyAction(enc, { type: 'use', actorId: 'a', abilityId, at: { x: 1, y: 0 } });
+
+  it('marque l’arme secondaire, jamais la main principale', () => {
+    expect(weaponAbility(dague, 'offhand').bonusAction).toBe(true);
+    expect(weaponAbility(dague, 'weapon').bonusAction).toBe(false);
+  });
+
+  it('frappe sans la part d’attaque physique, mais avec le modificateur du bras', () => {
+    const arbalete = {
+      name: 'Arbalète de poing',
+      minDamage: 4,
+      maxDamage: 8,
+      weaponCategory: 'handCrossbow',
+    };
+    // Dextérité 16 → +3. L'arbalète de poing blesse à la Dextérité.
+    const unit = mkUnit({ id: 'u', name: 'U', team: 'allies', attributes: ATTRS({ dexterite: 16 }) });
+
+    // Main faible : les 4–8 de l'arme, plus le seul modificateur.
+    const faible = abilityDamageRanges(unit, weaponAbility(arbalete, 'offhand'))[0];
+    expect(faible).toEqual({ min: 7, max: 11, type: 'piercing' });
+
+    // La MÊME arme en main principale reprend ses 25 % d'attaque physique (20 → 5).
+    const principale = abilityDamageRanges(unit, weaponAbility(arbalete, 'weapon'))[0];
+    expect(principale.min).toBe(4 + WEAPON_ATTACK_RATIO * 20);
+    expect(principale.max).toBe(8 + WEAPON_ATTACK_RATIO * 20);
+  });
+
+  it('n’ajoute le modificateur qu’une fois, pas sur le projectile', () => {
+    const arbalete = {
+      name: 'Arbalète de poing',
+      minDamage: 4,
+      maxDamage: 8,
+      weaponCategory: 'handCrossbow',
+    };
+    const carreaux = { name: 'Carreaux', damageType: 'piercing', damageBonus: 2 };
+    const unit = mkUnit({ id: 'u', name: 'U', team: 'allies', attributes: ATTRS({ dexterite: 16 }) });
+
+    const ranges = abilityDamageRanges(unit, weaponAbility(arbalete, 'offhand', carreaux));
+    expect(ranges[0]).toEqual({ min: 7, max: 11, type: 'piercing' });
+    expect(ranges[1]).toEqual({ min: 2, max: 2, type: 'piercing' });
+  });
+
+  it('porte vraiment ce qu’elle annonce', () => {
+    // Le coup RÉSOLU doit valoir la fourchette affichée : dés + modificateur,
+    // sans un point d'attaque physique.
+    const dague = { name: 'Dague', minDamage: 4, maxDamage: 4, weaponCategory: 'dagger' };
+    const arme = { ...weaponAbility(dague, 'offhand'), id: 'test:bonus', autoHit: true };
+    let enc = duel({ abilities: [arme], attributes: ATTRS({ dexterite: 16 }) });
+    enc = applyAction(enc, { type: 'start' });
+    enc = jouer(enc, 'test:bonus');
+    // 4 (dague) + 3 (mod. de Dextérité) = 7, et non 4 + 5 (25 % de 20).
+    expect(findUnit(enc, 'b')!.hp).toBe(33);
+  });
+
+  it('marque les objets du sac : boire ne coûte plus le tour', () => {
+    const fiole = consumableAbility(
+      { name: 'Potion de soin', slug: 'potion-de-soin', effects: ['Rend 2d4 points de vie.'] },
+      new Map(),
+    );
+    expect(fiole.bonusAction).toBe(true);
+  });
+
+  it('laisse frapper de la main gauche après l’attaque du tour', () => {
+    let enc = duel({ abilities: [flatHit(), bonus()] });
+    enc = applyAction(enc, { type: 'start' });
+
+    enc = jouer(enc, 'test:hit');
+    expect(findUnit(enc, 'a')!.actionUsed).toBe(true);
+    expect(findUnit(enc, 'a')!.bonusActionUsed).toBe(false);
+
+    enc = jouer(enc, 'test:bonus');
+    expect(findUnit(enc, 'a')!.bonusActionUsed).toBe(true);
+    // Les deux coups ont porté : 10 + 10.
+    expect(findUnit(enc, 'b')!.hp).toBe(20);
+  });
+
+  it('ne rend qu’un seul créneau bonus par tour', () => {
+    let enc = duel({ abilities: [flatHit(), bonus()] });
+    enc = applyAction(enc, { type: 'start' });
+    enc = jouer(enc, 'test:bonus');
+    const apres = jouer(enc, 'test:bonus');
+
+    expect(findUnit(apres, 'b')!.hp).toBe(30);
+    expect(apres.log.at(-1)?.text).toContain('Action bonus déjà utilisée');
+  });
+
+  it('ne reporte pas un créneau sur l’autre', () => {
+    let enc = duel({ abilities: [flatHit(), bonus()] });
+    enc = applyAction(enc, { type: 'start' });
+    // L'action bonus dépensée ne paie pas une attaque ordinaire…
+    const unit = findUnit(enc, 'a')!;
+    unit.bonusActionUsed = true;
+    expect(cannotUse(enc, unit, bonus(), { x: 1, y: 0 })).toContain('Action bonus déjà utilisée');
+    expect(cannotUse(enc, unit, flatHit(), { x: 1, y: 0 })).toBeNull();
+
+    // …et l'action dépensée ne bloque pas la main gauche.
+    unit.bonusActionUsed = false;
+    unit.actionUsed = true;
+    expect(cannotUse(enc, unit, flatHit(), { x: 1, y: 0 })).toContain('Action déjà utilisée');
+    expect(cannotUse(enc, unit, bonus(), { x: 1, y: 0 })).toBeNull();
+  });
+
+  it('rend les deux créneaux à l’ouverture du tour', () => {
+    let enc = duel({ abilities: [flatHit(), bonus()] });
+    enc = applyAction(enc, { type: 'start' });
+    enc = jouer(enc, 'test:hit');
+    enc = jouer(enc, 'test:bonus');
+
+    enc = applyAction(enc, { type: 'endTurn' });
+    enc = applyAction(enc, { type: 'endTurn' });
+    expect(findUnit(enc, 'a')!.actionUsed).toBe(false);
+    expect(findUnit(enc, 'a')!.bonusActionUsed).toBe(false);
+  });
+
+  it('n’entame pas le créneau du tour quand la main gauche riposte', () => {
+    // Une réaction se joue hors de son tour : elle ne doit rien prendre au
+    // budget de celui qui réagit, pas même son action bonus.
+    let enc = duel(
+      {},
+      { abilities: [bonus({ reaction: ['leave-reach'] })], pos: { x: 1, y: 0 } },
+    );
+    enc = applyAction(enc, { type: 'start' });
+    // Le défenseur a déjà joué son tour : c'est le cas ordinaire d'une riposte.
+    const avant = findUnit(enc, 'b')!;
+    avant.actionUsed = true;
+    avant.bonusActionUsed = false;
+
+    // L'attaquant se dérobe : la fenêtre s'ouvre sur le défenseur.
+    enc = applyAction(enc, { type: 'move', actorId: 'a', to: { x: 4, y: 0 } });
+    expect(enc.pendingReaction?.actorId).toBe('b');
+
+    enc = applyAction(enc, { type: 'react', abilityId: 'test:bonus' });
+    expect(findUnit(enc, 'a')!.hp).toBeLessThan(40);
+
+    const apres = findUnit(enc, 'b')!;
+    expect(apres.reactionUsed).toBe(true);
+    expect(apres.bonusActionUsed).toBe(false);
+    expect(apres.actionUsed).toBe(true);
+  });
+});
+
+/* ── Maniement à deux mains ────────────────────────────────────────────────── */
+
+describe('maniement à deux mains', () => {
+  const claymore = { name: 'Claymore', minDamage: 8, maxDamage: 14, weaponCategory: 'claymore' };
+  const dague = { name: 'Dague', minDamage: 3, maxDamage: 5, weaponCategory: 'dagger' };
+
+  /** Un combattant qui tient `principale`, plus une dague en main faible. */
+  const armé = (principale: typeof claymore) =>
+    duel({
+      abilities: [weaponAbility(principale, 'weapon'), weaponAbility(dague, 'offhand')],
+    });
+
+  it('reconnaît les armes qui prennent les deux mains', () => {
+    expect(weaponAbility(claymore, 'weapon').twoHanded).toBe(true);
+    expect(weaponAbility(dague, 'weapon').twoHanded).toBe(false);
+  });
+
+  it('refuse la main faible tant que l’arme principale prend les deux mains', () => {
+    const enc = applyAction(armé(claymore), { type: 'start' });
+    const unit = findUnit(enc, 'a')!;
+    const faible = unit.abilities.find((a) => a.id === 'weapon:offhand')!;
+
+    expect(cannotUse(enc, unit, faible, { x: 1, y: 0 })).toContain('à deux mains');
+  });
+
+  it('laisse la main faible frapper sous une arme à une main', () => {
+    const enc = applyAction(armé(dague), { type: 'start' });
+    const unit = findUnit(enc, 'a')!;
+    const faible = unit.abilities.find((a) => a.id === 'weapon:offhand')!;
+
+    expect(cannotUse(enc, unit, faible, { x: 1, y: 0 })).toBeNull();
+  });
+
+  it('n’empêche pas l’arme principale elle-même de frapper', () => {
+    const enc = applyAction(armé(claymore), { type: 'start' });
+    const unit = findUnit(enc, 'a')!;
+    const principale = unit.abilities.find((a) => a.id === 'weapon:weapon')!;
+
+    expect(cannotUse(enc, unit, principale, { x: 1, y: 0 })).toBeNull();
+  });
+});
+
 /* ── Rejouabilité ──────────────────────────────────────────────────────────── */
 
 describe('rejouabilité', () => {
@@ -3030,5 +3306,1776 @@ describe('scaling', () => {
       { source: 'intelligence', ratio: 1 }, // 1 × 16 = 16
     ]);
     expect(total).toBe(26);
+  });
+});
+
+/* ── Marque spatiale et échange de place ───────────────────────────────────
+   Trois choses distinguent l'échange d'une téléportation, et chacune s'est
+   d'abord trompée : il vise un CORPS et non une case libre (donc les deux
+   pions bougent vraiment), il se passe de ligne de vue, et il fonctionne
+   à l'identique en réaction. La marque, elle, se pose au contact et tient à
+   une laisse — s'en éloigner la rompt.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('marque spatiale et change-place', () => {
+  const spells = new SpellsService();
+  const node = (key: string, index = 0) => {
+    const page = spells.bySlug(key)!;
+    return spellAbility(page, page.spell.progression!.nodes[index]);
+  };
+
+  const marque = node('space-marque-spatiale');
+  /** Palier III : le premier qui se joue en réaction ET qui prend un ennemi. */
+  const changePlace = node('space-change-place', 2);
+
+  /** Un mage marqueur en (0,0), un compagnon en (5,5), une brute en (1,0). */
+  const table = () => {
+    const enc = emptyEncounter('Permutation');
+    enc.seed = 3;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 0, y: 0 },
+        abilities: [
+          { ...marque, id: 'marque' },
+          { ...changePlace, id: 'change' },
+        ],
+        mana: 80,
+        attributes: ATTRS({ dexterite: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'ami', name: 'Ami', team: 'allies', pos: { x: 5, y: 5 } }),
+      mkUnit({
+        id: 'brute',
+        name: 'Brute',
+        team: 'ennemis',
+        pos: { x: 1, y: 0 },
+        abilities: [flatHit({ id: 'coup' })],
+      }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  /**
+   * Pose la marque du mage sur `id`, en l'amenant au contact le temps du sort.
+   *
+   * Sur un ennemi, le sceau demande un jet : on réessaie jusqu'à ce qu'il
+   * prenne, puisque ce n'est pas ce que ces tests-là éprouvent.
+   */
+  const marquer = (enc: Encounter, id: string): Encounter => {
+    const depart = { ...findUnit(enc, 'mage')!.pos };
+    let etat = structuredClone(enc);
+    // Un echange se fait entre DEUX marques : le mage porte d'abord la sienne.
+    // Sur soi le sceau ne rate jamais, donc un seul essai suffit.
+    if (id !== 'mage' && !findUnit(etat, 'mage')!.statuses.length) {
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: depart });
+      findUnit(etat, 'mage')!.actionUsed = false;
+    }
+    for (let essai = 0; essai < 30; essai++) {
+      const cible = findUnit(etat, id)!;
+      findUnit(etat, 'mage')!.pos = { x: cible.pos.x - 1, y: cible.pos.y };
+      findUnit(etat, 'mage')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: cible.pos });
+      if (findUnit(etat, id)!.statuses.some((s) => s.key === 'marque-spatiale')) break;
+    }
+    // Le mage regagne sa place : seule la marque devait rester de ce détour.
+    findUnit(etat, 'mage')!.pos = depart;
+    findUnit(etat, 'mage')!.actionUsed = false;
+    return etat;
+  };
+
+  it('se pose au CONTACT, pas à distance', () => {
+    expect(marque.rangeMeters).toBe(1.5);
+    const enc = table();
+    // L'ami est à cinq cases : hors de portée du sceau.
+    const rate = applyAction(enc, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'marque',
+      at: { x: 5, y: 5 },
+    });
+    expect(findUnit(rate, 'ami')!.statuses).toHaveLength(0);
+    expect(rate.log.some((l) => l.text.includes('Hors de portée'))).toBe(true);
+  });
+
+  it('pose une marque illimitée, ancrée, et qui nomme son auteur', () => {
+    const enc = marquer(table(), 'brute');
+    const posee = findUnit(enc, 'brute')!.statuses.find((s) => s.key === 'marque-spatiale');
+    expect(posee).toBeDefined();
+    expect(posee!.remaining).toBe(-1);
+    expect(posee!.sourceId).toBe('mage');
+    expect(posee!.tetherMeters).toBe(15);
+  });
+
+  it('ÉCHANGE réellement les deux pions sur le plateau', () => {
+    const enc = marquer(table(), 'brute');
+    const after = applyAction(enc, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'change',
+      at: { x: 1, y: 0 },
+    });
+    expect(findUnit(after, 'mage')!.pos).toEqual({ x: 1, y: 0 });
+    expect(findUnit(after, 'brute')!.pos).toEqual({ x: 0, y: 0 });
+    expect(after.log.some((l) => l.text.includes('échangent leur place'))).toBe(true);
+  });
+
+  it('ne demande AUCUNE ligne de vue', () => {
+    const enc = marquer(table(), 'ami');
+    // Un mur plein entre les deux : une visée s'y briserait, pas un lien.
+    const mure = structuredClone(enc);
+    for (let y = 0; y <= 6; y++) mure.terrain[`3,${y}`] = 'mur';
+    const after = applyAction(mure, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'change',
+      at: { x: 5, y: 5 },
+    });
+    expect(findUnit(after, 'mage')!.pos).toEqual({ x: 5, y: 5 });
+    expect(findUnit(after, 'ami')!.pos).toEqual({ x: 0, y: 0 });
+  });
+
+  it('refuse de permuter avec qui ne porte pas SA marque', () => {
+    const enc = table();
+    const after = applyAction(enc, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'change',
+      at: { x: 1, y: 0 },
+    });
+    expect(findUnit(after, 'mage')!.pos).toEqual({ x: 0, y: 0 });
+    expect(findUnit(after, 'brute')!.pos).toEqual({ x: 1, y: 0 });
+    expect(after.log.some((l) => l.text.includes('Marque spatiale'))).toBe(true);
+  });
+
+  it('échange AUSSI en réaction, au lieu de se téléporter', () => {
+    // Le change-place n'est pas une dérobade : rien ne doit le faire passer
+    // pour une téléportation ordinaire.
+    expect(changePlace.teleport).toBeUndefined();
+    expect(changePlace.swap).toBe(true);
+    expect(changePlace.reaction).toEqual(['incoming-attack']);
+
+    // « Voir le coup venir » est un jet : un mage pris de court ne se voit pas
+    // offrir de menu. On rejoue donc l'assaut jusqu'à ce que la fenêtre
+    // s'ouvre — ce n'est pas elle qu'on éprouve ici, c'est ce qu'on en fait.
+    let enc = marquer(table(), 'brute');
+    let attaque = enc;
+    for (let seed = 1; seed <= 40 && !attaque.pendingReaction; seed++) {
+      enc = { ...enc, seed, rollCount: 0 };
+      attaque = applyAction(enc, {
+        type: 'use',
+        actorId: 'brute',
+        abilityId: 'coup',
+        at: { x: 0, y: 0 },
+      });
+    }
+    expect(attaque.pendingReaction?.actorId).toBe('mage');
+    expect(attaque.pendingReaction?.options).toContain('change');
+
+    const reagi = applyAction(attaque, {
+      type: 'react',
+      abilityId: 'change',
+      at: { x: 1, y: 0 },
+    });
+    // Les deux ont permuté — et le coup, qui visait (0,0), ne trouve plus que
+    // son propre auteur : il se perd.
+    expect(findUnit(reagi, 'mage')!.pos).toEqual({ x: 1, y: 0 });
+    expect(findUnit(reagi, 'brute')!.pos).toEqual({ x: 0, y: 0 });
+    expect(findUnit(reagi, 'mage')!.hp).toBe(findUnit(enc, 'mage')!.hp);
+    // Et surtout : la brute ne se frappe PAS elle-même. Le passe-droit accordé
+    // aux corps poussés dans la ligne de mire lève la question du camp, pas
+    // celle de savoir qui frappe — un assaillant permuté avec sa proie
+    // atterrissait sur la case qu'il visait et s'y assommait tout seul.
+    expect(findUnit(reagi, 'brute')!.hp).toBe(findUnit(enc, 'brute')!.hp);
+    expect(reagi.log.some((l) => l.text.includes('Aucune cible valide'))).toBe(true);
+  });
+
+  it('rompt la marque quand son porteur sort de la laisse', () => {
+    const enc = marquer(table(), 'ami');
+    expect(findUnit(enc, 'ami')!.statuses).toHaveLength(1);
+    // 15 m de laisse = 10 cases. On envoie l'ami à 12.
+    const loin = structuredClone(enc);
+    findUnit(loin, 'ami')!.pos = { x: 12, y: 0 };
+    const after = applyAction(loin, { type: 'endTurn' });
+    expect(findUnit(after, 'ami')!.statuses).toHaveLength(0);
+    expect(after.log.some((l) => l.text.includes('se rompt'))).toBe(true);
+  });
+});
+
+/* ── Les fils du marionnettiste ────────────────────────────────────────────
+   Six règles, toutes portées par le moteur : la prise se rate, elle occupe des
+   mains, le pantin change de camp, il peut refuser un ordre, un 20 naturel le
+   libère, et un coup encaissé par le maître fait lâcher les fils.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('fils du marionnettiste', () => {
+  const spells = new SpellsService();
+  const node = (key: string, index = 0) => {
+    const page = spells.bySlug(key)!;
+    return spellAbility(page, page.spell.progression!.nodes[index]);
+  };
+
+  const fils = node('darkness-fils-du-marionnettiste');
+
+  /** Un marionnettiste au contact de deux gardes, et un compagnon derrière lui. */
+  const scene = () => {
+    const enc = emptyEncounter('Fils');
+    enc.seed = 4;
+    enc.combatants = [
+      mkUnit({
+        id: 'maitre',
+        name: 'Marionnettiste',
+        team: 'allies',
+        pos: { x: 1, y: 1 },
+        abilities: [
+          { ...fils, id: 'fils' },
+          flatHit({ id: 'weapon:offhand', name: 'Dague de main faible' }),
+          flatHit({ id: 'weapon:weapon', name: 'Épée' }),
+        ],
+        mana: 200,
+        attributes: ATTRS({ intelligence: 20, sagesse: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'garde', name: 'Garde', team: 'ennemis', pos: { x: 2, y: 1 } }),
+      mkUnit({ id: 'sbire', name: 'Sbire', team: 'ennemis', pos: { x: 1, y: 2 } }),
+      mkUnit({ id: 'ami', name: 'Ami', team: 'allies', pos: { x: 0, y: 0 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  /** Noue les fils sur `id`, en réessayant : la prise se rate, et c'est voulu. */
+  const nouer = (enc: Encounter, id: string): Encounter => {
+    let etat = enc;
+    for (let essai = 0; essai < 40; essai++) {
+      const cible = findUnit(etat, id)!;
+      findUnit(etat, 'maitre')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'maitre', abilityId: 'fils', at: cible.pos });
+      if (findUnit(etat, id)!.statuses.some((s) => s.key === 'controle')) break;
+    }
+    findUnit(etat, 'maitre')!.actionUsed = false;
+    return etat;
+  };
+
+  it('exige un jet de toucher, contrairement aux sorts sans dégâts', () => {
+    // Un sort qui ne blesse pas porte d'office — sauf celui-ci, qui s'impose.
+    expect(fils.requiresHit).toBe(true);
+    expect(fils.autoHit).toBe(false);
+    expect(fils.precisionPenalty).toBe(25);
+    expect(aims(fils)).toBe(true);
+  });
+
+  it('relève le seuil de toucher à proportion de son exigence', () => {
+    const enc = scene();
+    const maitre = findUnit(enc, 'maitre')!;
+    const garde = findUnit(enc, 'garde')!;
+    const nu = hitThreshold(maitre, { ...fils, precisionPenalty: 0 }, garde);
+    expect(hitThreshold(maitre, fils, garde)).toBe(nu + 25 / PRECISION_PER_STEP);
+  });
+
+  it('prend le contrôle et retourne le pantin contre les siens', () => {
+    const enc = nouer(scene(), 'garde');
+    const garde = findUnit(enc, 'garde')!;
+    expect(garde.statuses.find((s) => s.key === 'controle')?.sourceId).toBe('maitre');
+    // Il reste ennemi sur la fiche, mais plus dans le camp qu'il sert.
+    expect(garde.team).toBe('ennemis');
+    expect(allegianceOf(enc, garde)).toBe('allies');
+    expect(controllerOf(enc, garde)?.id).toBe('maitre');
+    // Et il peut désormais frapper son ancien compagnon, mais plus son maître.
+    const coup = flatHit();
+    expect(isValidTarget(enc, coup, garde, findUnit(enc, 'sbire')!)).toBe(true);
+    expect(isValidTarget(enc, coup, garde, findUnit(enc, 'ami')!)).toBe(false);
+  });
+
+  it('occupe une main par pantin, et pas une de plus', () => {
+    const un = nouer(scene(), 'garde');
+    const maitre = findUnit(un, 'maitre')!;
+    expect(handsBound(un, maitre)).toBe(1);
+    // Une main prise : la main faible ne sert plus, la main directrice si.
+    expect(cannotUse(un, maitre, maitre.abilities[1], { x: 2, y: 1 })).toContain('main faible');
+    expect(cannotUse(un, maitre, maitre.abilities[2], { x: 2, y: 1 })).toBeNull();
+
+    const deux = nouer(un, 'sbire');
+    const charge = findUnit(deux, 'maitre')!;
+    expect(handsBound(deux, charge)).toBe(CASTER_HANDS);
+    // Les deux prises : plus rien que le déplacement.
+    expect(cannotUse(deux, charge, charge.abilities[2], { x: 2, y: 1 })).toContain('se déplacer');
+    // Et pas de troisième pantin, faute de main pour le tenir.
+    const troisieme = applyAction(deux, {
+      type: 'use',
+      actorId: 'maitre',
+      abilityId: 'fils',
+      at: { x: 0, y: 0 },
+    });
+    expect(findUnit(troisieme, 'ami')!.statuses).toHaveLength(0);
+  });
+
+  it('laisse le pantin refuser un ordre sur une réussite de sagesse', () => {
+    const enc = nouer(scene(), 'garde');
+    findUnit(enc, 'garde')!.abilities = [flatHit({ id: 'coup' })];
+    // Sagesse écrasante : il refuse à tous les coups, et l'ordre se perd.
+    findUnit(enc, 'garde')!.attributes = ATTRS({ sagesse: 20 });
+    findUnit(enc, 'garde')!.proficiency = 12;
+    const ordre = applyAction(enc, {
+      type: 'use',
+      actorId: 'garde',
+      abilityId: 'coup',
+      at: { x: 1, y: 2 },
+    });
+    expect(ordre.log.some((l) => l.text.includes('refuse d’obéir'))).toBe(true);
+    expect(findUnit(ordre, 'sbire')!.hp).toBe(findUnit(enc, 'sbire')!.hp);
+    // Il reste tenu : refuser n'est pas se libérer.
+    expect(findUnit(ordre, 'garde')!.statuses.some((s) => s.key === 'controle')).toBe(true);
+  });
+
+  it('libère le pantin sur un 20 naturel', () => {
+    const enc = nouer(scene(), 'garde');
+    findUnit(enc, 'garde')!.abilities = [flatHit({ id: 'coup' })];
+    let libre = enc;
+    for (let seed = 1; seed <= 80; seed++) {
+      const essai = { ...enc, seed, rollCount: 0 };
+      findUnit(essai, 'garde')!.actionUsed = false;
+      const joue = applyAction(essai, {
+        type: 'use',
+        actorId: 'garde',
+        abilityId: 'coup',
+        at: { x: 1, y: 2 },
+      });
+      if (joue.log.some((l) => l.text.includes('se libère'))) {
+        libre = joue;
+        break;
+      }
+    }
+    expect(libre.log.some((l) => l.text.includes('se libère'))).toBe(true);
+    expect(findUnit(libre, 'garde')!.statuses.some((s) => s.key === 'controle')).toBe(false);
+  });
+
+  it('rompt les fils quand le maître encaisse un coup et perd sa concentration', () => {
+    const enc = nouer(scene(), 'garde');
+    // Un maître peu sage : sa concentration cède au premier coup sérieux.
+    findUnit(enc, 'maitre')!.attributes = ATTRS({ intelligence: 20, sagesse: 1 });
+    findUnit(enc, 'maitre')!.proficiency = 0;
+    findUnit(enc, 'sbire')!.abilities = [
+      flatHit({ id: 'coup', damages: [{ min: 60, max: 60, type: 'slashing' }] }),
+    ];
+    const frappe = applyAction(enc, {
+      type: 'use',
+      actorId: 'sbire',
+      abilityId: 'coup',
+      at: { x: 1, y: 1 },
+    });
+    expect(frappe.log.some((l) => l.text.includes('concentration'))).toBe(true);
+    expect(findUnit(frappe, 'garde')!.statuses.some((s) => s.key === 'controle')).toBe(false);
+  });
+
+  it('libère le pantin poussé hors de la portée effective', () => {
+    const enc = nouer(scene(), 'garde');
+    expect(findUnit(enc, 'garde')!.statuses[0].tetherMeters).toBe(10);
+    // 10 m de fil = un peu moins de 7 cases. On l'envoie à 10.
+    const loin = structuredClone(enc);
+    findUnit(loin, 'garde')!.pos = { x: 11, y: 1 };
+    const apres = applyAction(loin, { type: 'endTurn' });
+    expect(findUnit(apres, 'garde')!.statuses).toHaveLength(0);
+  });
+
+  it('lâche tout ce qu’il tenait quand le marionnettiste tombe', () => {
+    const enc = nouer(scene(), 'garde');
+    const acheve = structuredClone(enc);
+    const maitre = findUnit(acheve, 'maitre')!;
+    maitre.hp = 0;
+    maitre.down = true;
+    const apres = applyAction(acheve, { type: 'endTurn' });
+    expect(findUnit(apres, 'garde')!.statuses).toHaveLength(0);
+  });
+});
+
+/* ── L'onglet d'actions affiché ────────────────────────────────────────────
+   Un onglet est un réglage global ; les familles d'action, elles, dépendent du
+   combattant. Rester sur « Magie » en passant la main à un garde qui n'a qu'une
+   épée vidait le panneau — et comme un onglet vide n'est pas affiché, il n'y
+   avait rien à cliquer pour en sortir : le combattant paraissait réduit au
+   déplacement. C'est ce que ces trois lignes empêchent de revenir.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('onglet d’actions visible', () => {
+  const ordre = ['attaque', 'competences', 'magie', 'objets', 'garde'];
+  const table = (rempli: Record<string, number>): Map<string, unknown[]> =>
+    new Map(ordre.map((k) => [k, Array.from({ length: rempli[k] ?? 0 }, () => ({}))]));
+
+  it('garde l’onglet choisi tant qu’il a quelque chose dedans', () => {
+    expect(visibleGroup(ordre, table({ attaque: 1, magie: 3 }), 'magie')).toBe('magie');
+  });
+
+  it('retombe sur la première famille garnie quand le sien est vide', () => {
+    // Le cas du pantin : le MJ venait de lancer un sort, l'onglet est resté sur
+    // « Magie », et le garde qu'il pilote n'a qu'une épée.
+    expect(visibleGroup(ordre, table({ attaque: 1 }), 'magie')).toBe('attaque');
+    expect(visibleGroup(ordre, table({ garde: 1 }), 'magie')).toBe('garde');
+  });
+
+  it('ne change rien quand le combattant n’a aucune action', () => {
+    expect(visibleGroup(ordre, table({}), 'magie')).toBe('magie');
+  });
+});
+
+/* ── L'échange à deux marques, et le corps qu'on met sous le coup ──────────
+   Deux règles que la première version ratait : un échange se fait entre DEUX
+   porteurs — le lanceur compris —, et le corps qu'on jette dans la ligne de
+   mire encaisse vraiment, même s'il appartient au camp de l'attaquant.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('change-place — les deux bouts du fil', () => {
+  const spells = new SpellsService();
+  const node = (key: string, index = 0) => {
+    const page = spells.bySlug(key)!;
+    return spellAbility(page, page.spell.progression!.nodes[index]);
+  };
+
+  const marque = node('space-marque-spatiale');
+  /** Palier III : réaction, et prise sur les ennemis. */
+  const changePlace = node('space-change-place', 2);
+
+  /** Le mage en (0,0), une brute au contact, un second assaillant derrière elle. */
+  const table = () => {
+    const enc = emptyEncounter('Deux marques');
+    enc.seed = 3;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 0, y: 0 },
+        abilities: [
+          { ...marque, id: 'marque' },
+          { ...changePlace, id: 'change' },
+        ],
+        mana: 80,
+        attributes: ATTRS({ dexterite: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({
+        id: 'brute',
+        name: 'Brute',
+        team: 'ennemis',
+        pos: { x: 1, y: 0 },
+        abilities: [flatHit({ id: 'coup' })],
+      }),
+      mkUnit({ id: 'complice', name: 'Complice', team: 'ennemis', pos: { x: 2, y: 0 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  /** Pose la marque du mage sur `id`, en réessayant sur un ennemi qui se débat. */
+  const marquer = (enc: Encounter, id: string): Encounter => {
+    const depart = { ...findUnit(enc, 'mage')!.pos };
+    let etat = structuredClone(enc);
+    for (let essai = 0; essai < 30; essai++) {
+      const cible = findUnit(etat, id)!;
+      findUnit(etat, 'mage')!.pos = id === 'mage' ? depart : { x: cible.pos.x - 1, y: cible.pos.y };
+      findUnit(etat, 'mage')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: cible.pos });
+      if (findUnit(etat, id)!.statuses.some((s) => s.key === 'marque-spatiale')) break;
+    }
+    findUnit(etat, 'mage')!.pos = depart;
+    findUnit(etat, 'mage')!.actionUsed = false;
+    return etat;
+  };
+
+  it('refuse l’échange tant que le LANCEUR ne porte pas sa propre marque', () => {
+    // La brute est marquée, le mage non : il manque un bout au fil.
+    const enc = marquer(table(), 'brute');
+    const mage = findUnit(enc, 'mage')!;
+    expect(mage.statuses).toHaveLength(0);
+    expect(swapAnchorMissing(mage, mage.abilities[1])).toContain('sa propre');
+    expect(swapPartnerAt(enc, mage, mage.abilities[1], { x: 1, y: 0 })).toBeUndefined();
+
+    const rate = applyAction(enc, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'change',
+      at: { x: 1, y: 0 },
+    });
+    expect(findUnit(rate, 'mage')!.pos).toEqual({ x: 0, y: 0 });
+    expect(rate.log.some((l) => l.text.includes('sa propre'))).toBe(true);
+  });
+
+  it('l’autorise dès que les deux portent la marque', () => {
+    const enc = marquer(marquer(table(), 'brute'), 'mage');
+    const mage = findUnit(enc, 'mage')!;
+    expect(mage.statuses.some((s) => s.key === 'marque-spatiale')).toBe(true);
+    expect(swapAnchorMissing(mage, mage.abilities[1])).toBeNull();
+
+    const fait = applyAction(enc, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'change',
+      at: { x: 1, y: 0 },
+    });
+    expect(findUnit(fait, 'mage')!.pos).toEqual({ x: 1, y: 0 });
+    expect(findUnit(fait, 'brute')!.pos).toEqual({ x: 0, y: 0 });
+  });
+
+  it('fait ENCAISSER le coup à l’ennemi jeté sous la lame, fût-ce par les siens', () => {
+    // Le complice porte la marque ; c'est lui qu'on met à sa place sous le coup
+    // de la brute — son propre camp le frappe.
+    const enc = marquer(marquer(table(), 'complice'), 'mage');
+    const avant = findUnit(enc, 'complice')!.hp;
+
+    let attaque = enc;
+    for (let seed = 1; seed <= 40 && !attaque.pendingReaction; seed++) {
+      attaque = applyAction(
+        { ...enc, seed, rollCount: 0 },
+        { type: 'use', actorId: 'brute', abilityId: 'coup', at: { x: 0, y: 0 } },
+      );
+    }
+    expect(attaque.pendingReaction?.actorId).toBe('mage');
+
+    const reagi = applyAction(attaque, {
+      type: 'react',
+      abilityId: 'change',
+      at: { x: 2, y: 0 },
+    });
+    // Les deux ont permuté : le complice se retrouve sous la lame.
+    expect(findUnit(reagi, 'mage')!.pos).toEqual({ x: 2, y: 0 });
+    expect(findUnit(reagi, 'complice')!.pos).toEqual({ x: 0, y: 0 });
+    // Et il l'encaisse, bien qu'il soit du camp de l'attaquant.
+    expect(findUnit(reagi, 'complice')!.hp).toBeLessThan(avant);
+    expect(findUnit(reagi, 'mage')!.hp).toBe(findUnit(enc, 'mage')!.hp);
+  });
+
+  it('ne laisse pas le passe-droit survivre à l’action qu’il servait', () => {
+    // `inTheWay` est une exception le temps d'un coup, pas une porte ouverte au
+    // tir fratricide : elle ne doit rien laisser derrière elle.
+    const enc = marquer(marquer(table(), 'complice'), 'mage');
+    const fait = applyAction(enc, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'change',
+      at: { x: 2, y: 0 },
+    });
+    expect(fait.inTheWay).toBeUndefined();
+  });
+});
+
+/* ── Le trajet, et pas seulement son prix ──────────────────────────────────
+   `reachableCells` savait ce qu'une case coûte ; elle ne savait pas par où
+   l'on passe. C'est pourtant le trajet qui coûte — contourner un mur double
+   parfois l'addition — et le joueur ne le découvrait qu'après avoir cliqué.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('trajet de déplacement', () => {
+  const marcheur = (over: Partial<Combatant> = {}) =>
+    mkUnit({ id: 'm', name: 'Marcheur', team: 'allies', pos: { x: 0, y: 0 }, ...over });
+
+  const plateau = (over: Partial<Encounter> = {}): Encounter => {
+    const enc = emptyEncounter('Trajet');
+    enc.grid = { width: 8, height: 8 };
+    enc.combatants = [marcheur()];
+    return { ...enc, ...over };
+  };
+
+  it('rend la suite des cases, départ compris', () => {
+    const enc = plateau();
+    const route = movementPath(enc, findUnit(enc, 'm')!, { x: 3, y: 0 }, 30);
+    expect(route[0]).toEqual({ x: 0, y: 0 });
+    expect(route[route.length - 1]).toEqual({ x: 3, y: 0 });
+    // Quatre cases pour trois pas : la ligne droite ne fait pas de détour.
+    expect(route).toHaveLength(4);
+  });
+
+  it('CONTOURNE ce qui bloque, et le trajet le montre', () => {
+    // Un mur plein sur la colonne 1, sauf tout en bas : la seule route passe
+    // par là, et c'est précisément ce qu'une case verte ne disait pas.
+    const enc = plateau();
+    for (let y = 0; y <= 5; y++) enc.terrain[`1,${y}`] = 'mur';
+    const route = movementPath(enc, findUnit(enc, 'm')!, { x: 2, y: 0 }, 60);
+
+    expect(route[0]).toEqual({ x: 0, y: 0 });
+    expect(route[route.length - 1]).toEqual({ x: 2, y: 0 });
+    // Aucune case du trajet ne traverse le mur…
+    expect(route.some((c) => c.x === 1 && c.y <= 5)).toBe(false);
+    // …et il descend chercher le passage plutôt que d'aller tout droit.
+    expect(Math.max(...route.map((c) => c.y))).toBeGreaterThan(0);
+  });
+
+  it('enchaîne des cases adjacentes, sans saut', () => {
+    const enc = plateau();
+    for (let y = 0; y <= 5; y++) enc.terrain[`1,${y}`] = 'mur';
+    const route = movementPath(enc, findUnit(enc, 'm')!, { x: 2, y: 0 }, 60);
+    for (let i = 1; i < route.length; i++) {
+      expect(cellDistance(route[i - 1], route[i])).toBe(1);
+    }
+  });
+
+  it('ne rend AUCUN trajet vers une case injoignable à pied', () => {
+    // C'est ce qui distingue une marche d'une téléportation sans avoir à le
+    // demander : un saut n'a pas de route, donc pas de glissement.
+    const enc = plateau();
+    const route = movementPath(enc, findUnit(enc, 'm')!, { x: 7, y: 7 }, 3);
+    expect(route).toEqual([]);
+  });
+
+  it('n’emmène pas à travers un combattant', () => {
+    const enc = plateau();
+    enc.combatants = [
+      marcheur(),
+      mkUnit({ id: 'obstacle', name: 'Obstacle', team: 'ennemis', pos: { x: 1, y: 0 } }),
+    ];
+    const route = movementPath(enc, findUnit(enc, 'm')!, { x: 2, y: 0 }, 60);
+    expect(route.some((c) => c.x === 1 && c.y === 0)).toBe(false);
+  });
+});
+
+/* ── Un pantin n'est le compagnon de personne ──────────────────────────────
+   L'allégeance seule créait une impasse : le marionnettiste et sa marionnette
+   restés seuls, plus personne n'avait le droit de la viser, et le combat ne
+   pouvait plus finir. La règle est donc asymétrique — le pantin se bat pour son
+   maître, mais son maître peut l'abattre.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('un pantin reste frappable', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('darkness-fils-du-marionnettiste')!;
+  const fils = spellAbility(page, page.spell.progression!.nodes[0]);
+
+  const coup = (id: string) => flatHit({ id, targets: ['enemy'] });
+
+  /** Le maître et son second face à un garde, qu'on va asservir. */
+  const scene = () => {
+    const enc = emptyEncounter('Impasse');
+    enc.seed = 4;
+    enc.combatants = [
+      mkUnit({
+        id: 'maitre',
+        name: 'Maitre',
+        team: 'allies',
+        pos: { x: 1, y: 1 },
+        abilities: [{ ...fils, id: 'fils' }, coup('epee')],
+        mana: 200,
+        attributes: ATTRS({ intelligence: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({
+        id: 'second',
+        name: 'Second',
+        team: 'allies',
+        pos: { x: 1, y: 2 },
+        abilities: [coup('epee')],
+      }),
+      mkUnit({
+        id: 'garde',
+        name: 'Garde',
+        team: 'ennemis',
+        pos: { x: 2, y: 1 },
+        abilities: [coup('epee')],
+      }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  const asservir = (enc: Encounter): Encounter => {
+    let etat = enc;
+    for (let essai = 0; essai < 40; essai++) {
+      findUnit(etat, 'maitre')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'maitre', abilityId: 'fils', at: { x: 2, y: 1 } });
+      if (findUnit(etat, 'garde')!.statuses.some((s) => s.key === 'controle')) break;
+    }
+    findUnit(etat, 'maitre')!.actionUsed = false;
+    return etat;
+  };
+
+  it('laisse le camp qui le tient le viser malgré l’allégeance', () => {
+    const enc = asservir(scene());
+    const garde = findUnit(enc, 'garde')!;
+    const maitre = findUnit(enc, 'maitre')!;
+    const second = findUnit(enc, 'second')!;
+
+    // Il se bat pour eux…
+    expect(allegianceOf(enc, garde)).toBe('allies');
+    // …et pourtant ils peuvent le frapper, tous les deux.
+    expect(isValidTarget(enc, coup('epee'), maitre, garde)).toBe(true);
+    expect(isValidTarget(enc, coup('epee'), second, garde)).toBe(true);
+  });
+
+  it('ne lui laisse pas pour autant frapper les alliés de son maître', () => {
+    // Asservi, pas devenu fou : c'est ce qui distingue le contrôle de la
+    // confusion, et l'exception ne doit pas jouer dans les deux sens.
+    const enc = asservir(scene());
+    const garde = findUnit(enc, 'garde')!;
+    expect(isValidTarget(enc, coup('epee'), garde, findUnit(enc, 'second')!)).toBe(false);
+    expect(isValidTarget(enc, coup('epee'), garde, findUnit(enc, 'maitre')!)).toBe(false);
+  });
+
+  it('permet donc de finir un combat où il ne reste que lui et son maître', () => {
+    let enc = asservir(scene());
+    // Le second s'en va : il ne reste que le maître et son pantin.
+    enc = structuredClone(enc);
+    enc.combatants = enc.combatants.filter((c) => c.id !== 'second');
+    expect(isOver(enc)).toBe(false);
+
+    // Le maître abat sa propre marionnette — l'attaque doit porter.
+    const garde = findUnit(enc, 'garde')!;
+    findUnit(enc, 'maitre')!.actionUsed = false;
+    expect(cannotUse(enc, findUnit(enc, 'maitre')!, coup('epee'), garde.pos)).toBeNull();
+
+    let fini = enc;
+    for (let tour = 0; tour < 20 && !isOver(fini); tour++) {
+      findUnit(fini, 'maitre')!.actionUsed = false;
+      fini = applyAction(fini, {
+        type: 'use',
+        actorId: 'maitre',
+        abilityId: 'epee',
+        at: findUnit(fini, 'garde')!.pos,
+      });
+    }
+    expect(findUnit(fini, 'garde')!.down).toBe(true);
+    expect(isOver(fini)).toBe(true);
+  });
+
+  it('mais le tacticien ne s’en prend pas de lui-même à son propre pantin', () => {
+    // La règle l'autorise, le bon sens non : tant qu'un adversaire tient
+    // debout, on ne casse pas son propre outil.
+    const enc = asservir(scene());
+    const maitre = findUnit(enc, 'maitre')!;
+    expect(enemiesOf(enc, maitre).map((c) => c.id)).not.toContain('garde');
+  });
+});
+
+/* ── Ce qui MARCHE et ce qui SAUTE ─────────────────────────────────────────
+   `walked` est le seul témoin fiable de la différence. Le déduire d'un
+   changement de case paraissait suffire et ne suffisait pas : la case d'arrivée
+   d'un pas dimensionnel est souvent joignable à pied, et l'on voyait le pion
+   marcher jusqu'à une case où il aurait dû se téléporter.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('trajet relevé par le moteur', () => {
+  const spells = new SpellsService();
+  const pas = spellAbility(
+    spells.bySlug('space-pas-dimensionnel')!,
+    spells.bySlug('space-pas-dimensionnel')!.spell.progression!.nodes[0],
+  );
+
+  const scene = () => {
+    const enc = emptyEncounter('Marche ou saut');
+    enc.grid = { width: 12, height: 12 };
+    enc.seed = 6;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 0, y: 0 },
+        abilities: [{ ...pas, id: 'pas' }],
+        mana: 50,
+      }),
+      mkUnit({ id: 'cible', name: 'Cible', team: 'ennemis', pos: { x: 11, y: 11 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  it('relève le trajet d’une marche, du départ à l’arrivée', () => {
+    const apres = applyAction(scene(), { type: 'move', actorId: 'mage', to: { x: 2, y: 0 } });
+    expect(apres.walked?.unitId).toBe('mage');
+    expect(apres.walked?.path[0]).toEqual({ x: 0, y: 0 });
+    expect(apres.walked?.path.at(-1)).toEqual({ x: 2, y: 0 });
+  });
+
+  it('n’en relève AUCUN pour une téléportation, même vers une case joignable à pied', () => {
+    // Le cœur du défaut : (2,0) est à deux pas, donc parfaitement marchable.
+    // C'est pourtant d'un bond qu'on s'y rend, et le pion ne doit pas marcher.
+    const enc = scene();
+    const aPied = applyAction(enc, { type: 'move', actorId: 'mage', to: { x: 2, y: 0 } });
+    expect(aPied.walked?.path.length).toBeGreaterThan(1);
+
+    const saut = applyAction(enc, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'pas',
+      at: { x: 2, y: 0 },
+    });
+    expect(findUnit(saut, 'mage')!.pos).toEqual({ x: 2, y: 0 });
+    expect(saut.walked).toBeUndefined();
+  });
+
+  it('ne traîne pas le trajet d’une action à la suivante', () => {
+    // Sans quoi la vue rejouerait une marche déjà faite au coup d'après.
+    const marche = applyAction(scene(), { type: 'move', actorId: 'mage', to: { x: 1, y: 1 } });
+    expect(marche.walked).toBeDefined();
+    expect(applyAction(marche, { type: 'endTurn' }).walked).toBeUndefined();
+  });
+});
+
+/* ── Où l'on peut sauter ───────────────────────────────────────────────────
+   La vue avait sa propre idée des cases atteignables par un saut, plus
+   indulgente que le moteur : elle proposait des cases occupées, et n'en
+   proposait aucune quand le sort était armé en action. `cannotUse` tranche
+   désormais seul — c'est lui que la vue interroge, case par case.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('portée d’une téléportation', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('space-pas-dimensionnel')!;
+  const pas = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'pas' };
+
+  const scene = () => {
+    const enc = emptyEncounter('Saut');
+    enc.grid = { width: 14, height: 14 };
+    enc.seed = 6;
+    enc.combatants = [
+      mkUnit({ id: 'mage', name: 'Mage', team: 'allies', pos: { x: 0, y: 0 }, abilities: [pas], mana: 50 }),
+      mkUnit({ id: 'gene', name: 'Gêneur', team: 'ennemis', pos: { x: 3, y: 0 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  it('autorise une case libre dans la distance de saut', () => {
+    const enc = scene();
+    // 10 m de saut ≈ 6 cases.
+    expect(cannotUse(enc, findUnit(enc, 'mage')!, pas, { x: 5, y: 0 })).toBeNull();
+  });
+
+  it('REFUSE une case occupée — la vue n’a plus à le deviner', () => {
+    // Le moteur le refusait déjà au moment de résoudre, mais `cannotUse` ne le
+    // disait pas : la vue surlignait donc une case où le clic échouait.
+    const enc = scene();
+    expect(cannotUse(enc, findUnit(enc, 'mage')!, pas, { x: 3, y: 0 })).toContain('quelqu’un');
+  });
+
+  it('refuse au-delà de la distance de saut, et derrière un mur', () => {
+    const enc = scene();
+    expect(cannotUse(enc, findUnit(enc, 'mage')!, pas, { x: 13, y: 0 })).toContain('Trop loin');
+
+    const mure = structuredClone(enc);
+    for (let y = 0; y <= 3; y++) mure.terrain[`2,${y}`] = 'mur';
+    expect(cannotUse(mure, findUnit(mure, 'mage')!, pas, { x: 4, y: 0 })).toContain('ligne de vue');
+  });
+
+  it('ne refuse pas le saut lui-même quand l’action du tour est déjà dépensée', () => {
+    // C'est la condition que la vue neutralise pour dessiner une réaction : le
+    // refus doit venir de l'action dépensée, et de rien d'autre.
+    const enc = scene();
+    const mage = { ...findUnit(enc, 'mage')!, actionUsed: true };
+    expect(cannotUse(enc, mage, pas, { x: 5, y: 0 })).toContain('Action déjà utilisée');
+    expect(cannotUse(enc, { ...mage, actionUsed: false }, pas, { x: 5, y: 0 })).toBeNull();
+  });
+});
+
+/* ── Le seuil annoncé sur le bouton ────────────────────────────────────────
+   La vue avait recopié la formule du seuil. La copie ignorait
+   `precisionPenalty`, donc elle annonçait un sort exigeant au prix d'un sort
+   ordinaire — et elle taisait complètement le seuil des sorts qui VISENT sans
+   blesser, qui sont justement ceux dont on veut connaître la chance avant de
+   payer. Une seule formule désormais, et ces tests la tiennent.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('seuil annoncé avant la cible', () => {
+  const spells = new SpellsService();
+  const node = (key: string, index = 0) => {
+    const page = spells.bySlug(key)!;
+    return spellAbility(page, page.spell.progression!.nodes[index]);
+  };
+
+  const lanceur = () =>
+    mkUnit({
+      id: 'l',
+      name: 'Lanceur',
+      team: 'allies',
+      attributes: ATTRS({ intelligence: 20 }),
+      proficiency: 6,
+    });
+
+  it('annonce un seuil aux sorts qui VISENT sans blesser', () => {
+    // Marque spatiale et Fils du marionnettiste ne font aucun dégât, mais
+    // s'imposent : ils jettent le dé, donc ils doivent afficher leur chance.
+    for (const key of ['space-marque-spatiale', 'darkness-fils-du-marionnettiste']) {
+      const ability = node(key);
+      expect(ability.damages).toHaveLength(0);
+      expect(aims(ability)).toBe(true);
+      expect(announcedBreakdown(lanceur(), ability).threshold).toBeGreaterThan(0);
+    }
+  });
+
+  it('n’en annonce aucun à ce qui ne se rate pas', () => {
+    // Un soin porte toujours : pas de dé, donc pas de seuil à montrer.
+    const soin = node('life-soin-vital');
+    expect(soin.autoHit).toBe(true);
+    expect(aims(soin)).toBe(false);
+  });
+
+  it('compte la pénalité de précision du sort', () => {
+    const unit = lanceur();
+    const exigeant = node('darkness-fils-du-marionnettiste');
+    expect(exigeant.precisionPenalty).toBe(25);
+
+    const nu = announcedBreakdown(unit, { ...exigeant, precisionPenalty: 0 }).threshold;
+    // 25 points = 5 crans de dé, et le seuil doit MONTER d'autant.
+    expect(announcedBreakdown(unit, exigeant).threshold).toBe(nu + 25 / PRECISION_PER_STEP);
+    expect(announcedBreakdown(unit, exigeant).causes).toContain('sort exigeant');
+  });
+
+  it('reste d’accord avec le seuil réel, esquive de la cible en moins', () => {
+    // Le seuil annoncé est le seuil réel contre une cible sans esquive
+    // naturelle : c'est ce qui rend l'approximation honnête plutôt que fausse.
+    const unit = lanceur();
+    const ability = node('darkness-fils-du-marionnettiste');
+    const inerte = mkUnit({ id: 'c', name: 'Cible', team: 'ennemis', base: STATS({ speed: 0 }) });
+    expect(hitThreshold(unit, ability, inerte)).toBe(announcedBreakdown(unit, ability).threshold);
+  });
+});
+
+/* ── Le rayon à tête chercheuse ────────────────────────────────────────────
+   Un rayon ordinaire tant qu'il vise ; un trait qui ne manque jamais dès qu'il
+   suit une marque. Son seul contre est l'absence de CHEMIN — pas l'absence de
+   vue, qu'il contourne, mais quatre murs pleins.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('rayon à tête chercheuse', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('space-rayon-chercheur')!;
+  const rayon = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'rayon' };
+  const marquePage = spells.bySlug('space-marque-spatiale')!;
+  const marque = { ...spellAbility(marquePage, marquePage.spell.progression!.nodes[0]), id: 'marque' };
+
+  const scene = () => {
+    const enc = emptyEncounter('Rayon');
+    enc.grid = { width: 14, height: 14 };
+    enc.seed = 5;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 1, y: 6 },
+        abilities: [rayon, marque],
+        mana: 90,
+        attributes: ATTRS({ intelligence: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'cible', name: 'Cible', team: 'ennemis', pos: { x: 6, y: 6 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  /** Pose la marque du mage sur la cible, en le collant le temps du sort. */
+  const marquer = (enc: Encounter): Encounter => {
+    const depart = { ...findUnit(enc, 'mage')!.pos };
+    let etat = structuredClone(enc);
+    for (let essai = 0; essai < 40; essai++) {
+      const c = findUnit(etat, 'cible')!;
+      findUnit(etat, 'mage')!.pos = { x: c.pos.x - 1, y: c.pos.y };
+      findUnit(etat, 'mage')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: c.pos });
+      if (findUnit(etat, 'cible')!.statuses.some((s) => s.key === 'marque-spatiale')) break;
+    }
+    findUnit(etat, 'mage')!.pos = depart;
+    findUnit(etat, 'mage')!.actionUsed = false;
+    return etat;
+  };
+
+  /** Enferme la cible derrière des murs pleins, sur ses huit côtés. */
+  const emmurer = (enc: Encounter): Encounter => {
+    const mure = structuredClone(enc);
+    const c = findUnit(mure, 'cible')!.pos;
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        mure.terrain[`${c.x + dx},${c.y + dy}`] = 'mur';
+      }
+    }
+    return mure;
+  };
+
+  it('reste un rayon ordinaire sur une cible NON marquée', () => {
+    const enc = scene();
+    expect(homesOn(enc, findUnit(enc, 'mage')!, rayon, findUnit(enc, 'cible')!)).toBe(false);
+    // Il vise donc, et un mur lui coupe la route comme à n'importe quel trait.
+    const mure = structuredClone(enc);
+    for (let y = 0; y <= 13; y++) mure.terrain[`3,${y}`] = 'mur';
+    expect(cannotUse(mure, findUnit(mure, 'mage')!, rayon, { x: 6, y: 6 })).toContain('ligne de vue');
+  });
+
+  it('se guide sur un marqué, et se passe alors de ligne de vue', () => {
+    // Un mur percé d'une seule ouverture : le regard ne passe pas, le trait si.
+    const enc = marquer(scene());
+    const mure = structuredClone(enc);
+    for (let y = 0; y <= 13; y++) mure.terrain[`3,${y}`] = 'mur';
+    delete mure.terrain['3,0'];
+
+    expect(hasLineOfSight({ x: 1, y: 6 }, { x: 6, y: 6 }, terrainFor(mure))).toBe(false);
+    expect(homesOn(mure, findUnit(mure, 'mage')!, rayon, findUnit(mure, 'cible')!)).toBe(true);
+    expect(cannotUse(mure, findUnit(mure, 'mage')!, rayon, { x: 6, y: 6 })).toBeNull();
+  });
+
+  it('ne peut alors PAS manquer', () => {
+    const enc = marquer(scene());
+    const avant = findUnit(enc, 'cible')!.hp;
+    // Vingt tirs de suite : aucun ne doit se perdre.
+    for (let seed = 1; seed <= 20; seed++) {
+      const essai = { ...enc, seed, rollCount: 0 };
+      findUnit(essai, 'mage')!.actionUsed = false;
+      const tir = applyAction(essai, { type: 'use', actorId: 'mage', abilityId: 'rayon', at: { x: 6, y: 6 } });
+      expect(tir.log.some((l) => l.text.includes('manque'))).toBe(false);
+      expect(findUnit(tir, 'cible')!.hp).toBeLessThan(avant);
+    }
+  });
+
+  it('perd sa prise sur une cible EMMURÉE de tous les côtés', () => {
+    // Le seul abri qui vaille : plus aucun chemin, donc plus rien à suivre.
+    const enc = emmurer(marquer(scene()));
+    expect(homesOn(enc, findUnit(enc, 'mage')!, rayon, findUnit(enc, 'cible')!)).toBe(false);
+    expect(cannotUse(enc, findUnit(enc, 'mage')!, rayon, { x: 6, y: 6 })).toContain('aucun chemin');
+  });
+
+  it('garde sa prise si une seule brèche subsiste', () => {
+    // Sept murs sur huit : il reste un interstice, et il suffit.
+    const enc = emmurer(marquer(scene()));
+    const perce = structuredClone(enc);
+    delete perce.terrain['6,5'];
+    expect(homesOn(perce, findUnit(perce, 'mage')!, rayon, findUnit(perce, 'cible')!)).toBe(true);
+  });
+
+  it('ne se laisse enfermer que par du VRAI plein', () => {
+    // Un gouffre arrête le pas mais se survole ; un fourré arrête la vue mais
+    // se traverse. Ni l'un ni l'autre n'emmure qui que ce soit.
+    const enc = marquer(scene());
+    const c = findUnit(enc, 'cible')!.pos;
+    for (const decor of ['gouffre', 'fourre']) {
+      const autour = structuredClone(enc);
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          autour.terrain[`${c.x + dx},${c.y + dy}`] = decor;
+        }
+      }
+      expect(homesOn(autour, findUnit(autour, 'mage')!, rayon, findUnit(autour, 'cible')!)).toBe(true);
+    }
+  });
+
+  it('ne se guide pas sur la marque d’un AUTRE lanceur', () => {
+    // La marque est une prise personnelle : on n'emprunte pas celle du voisin.
+    const enc = marquer(scene());
+    const vole = structuredClone(enc);
+    findUnit(vole, 'cible')!.statuses[0].sourceId = 'quelqu-un-dautre';
+    expect(homesOn(vole, findUnit(vole, 'mage')!, rayon, findUnit(vole, 'cible')!)).toBe(false);
+  });
+});
+
+/* ── Effondrement de marque ────────────────────────────────────────────────
+   Le seul sort du catalogue qui ne vise RIEN : ses cibles ont été désignées au
+   tour où on les a marquées. D'où une forme de ciblage à part (`marked`), et
+   une contrepartie qui l'empêche d'être gratuit — la marque se consume.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('effondrement de marque', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('space-effondrement-de-marque')!;
+  const boum = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'boum' };
+  const mPage = spells.bySlug('space-marque-spatiale')!;
+  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+
+  const scene = () => {
+    const enc = emptyEncounter('Effondrement');
+    enc.grid = { width: 16, height: 16 };
+    enc.seed = 8;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 1, y: 1 },
+        abilities: [boum, marque],
+        mana: 200,
+        attributes: ATTRS({ intelligence: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'proche', name: 'Proche', team: 'ennemis', pos: { x: 2, y: 1 } }),
+      // Volontairement à l'autre bout : la détonation n'a pas de portée.
+      mkUnit({ id: 'loin', name: 'Loin', team: 'ennemis', pos: { x: 14, y: 14 } }),
+      mkUnit({ id: 'neutre', name: 'Neutre', team: 'ennemis', pos: { x: 5, y: 5 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  const marquer = (enc: Encounter, id: string): Encounter => {
+    const depart = { ...findUnit(enc, 'mage')!.pos };
+    let etat = structuredClone(enc);
+    for (let essai = 0; essai < 40; essai++) {
+      const c = findUnit(etat, id)!;
+      findUnit(etat, 'mage')!.pos = id === 'mage' ? depart : { x: c.pos.x - 1, y: c.pos.y };
+      findUnit(etat, 'mage')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: c.pos });
+      if (findUnit(etat, id)!.statuses.some((s) => s.key === 'marque-spatiale')) break;
+    }
+    findUnit(etat, 'mage')!.pos = depart;
+    findUnit(etat, 'mage')!.actionUsed = false;
+    return etat;
+  };
+
+  it('se lit comme une liste de porteurs, pas comme une zone', () => {
+    expect(boum.shape).toEqual({ kind: 'marked' });
+    expect(boum.marksTargets).toBe('marque-spatiale');
+    expect(boum.consumesMark).toBe(true);
+    // Rien à viser : pas de jet de toucher non plus.
+    expect(aims(boum)).toBe(false);
+  });
+
+  it('refuse de partir quand rien n’est marqué', () => {
+    const enc = scene();
+    expect(cannotUse(enc, findUnit(enc, 'mage')!, boum, { x: 1, y: 1 })).toContain('sur qui agir');
+  });
+
+  it('frappe TOUS les marqués d’un coup, la distance n’y faisant rien', () => {
+    const enc = marquer(marquer(scene(), 'proche'), 'loin');
+    const avantProche = findUnit(enc, 'proche')!.hp;
+    const avantLoin = findUnit(enc, 'loin')!.hp;
+    const avantNeutre = findUnit(enc, 'neutre')!.hp;
+
+    const apres = applyAction(enc, { type: 'use', actorId: 'mage', abilityId: 'boum', at: { x: 1, y: 1 } });
+
+    expect(findUnit(apres, 'proche')!.hp).toBeLessThan(avantProche);
+    // À treize cases : la détonation n'a ni portée ni ligne de vue.
+    expect(findUnit(apres, 'loin')!.hp).toBeLessThan(avantLoin);
+    // Et celui qu'on n'a pas marqué ne sent rien.
+    expect(findUnit(apres, 'neutre')!.hp).toBe(avantNeutre);
+  });
+
+  it('consume les marques : le sort ne se répète pas', () => {
+    const enc = marquer(scene(), 'proche');
+    expect(findUnit(enc, 'proche')!.statuses.some((s) => s.key === 'marque-spatiale')).toBe(true);
+
+    const apres = applyAction(enc, { type: 'use', actorId: 'mage', abilityId: 'boum', at: { x: 1, y: 1 } });
+    expect(findUnit(apres, 'proche')!.statuses).toHaveLength(0);
+    expect(apres.log.some((l) => l.text.includes('se consume'))).toBe(true);
+
+    // Plus rien à faire éclater : le second lancer est refusé.
+    findUnit(apres, 'mage')!.actionUsed = false;
+    expect(cannotUse(apres, findUnit(apres, 'mage')!, boum, { x: 1, y: 1 })).toContain('sur qui agir');
+  });
+
+  it('n’emporte PAS la marque d’un autre lanceur', () => {
+    // Faire sauter ses propres ancres ne doit pas défaire celles du voisin.
+    const enc = marquer(scene(), 'proche');
+    const autre = structuredClone(enc);
+    findUnit(autre, 'loin')!.statuses.push({
+      key: 'marque-spatiale',
+      remaining: -1,
+      stacks: 1,
+      sourceId: 'quelqu-un-dautre',
+      sourcePower: { atk_phy: 0, atk_mag: 0 },
+      age: 0,
+    });
+    const avant = findUnit(autre, 'loin')!.hp;
+
+    const apres = applyAction(autre, { type: 'use', actorId: 'mage', abilityId: 'boum', at: { x: 1, y: 1 } });
+    expect(findUnit(apres, 'loin')!.hp).toBe(avant);
+    expect(findUnit(apres, 'loin')!.statuses).toHaveLength(1);
+  });
+
+  it('emporte aussi ce que le lanceur a marqué dans son propre camp', () => {
+    // C'est le prix assumé d'un sort qui ne rate pas : `targets: everyone`.
+    expect(boum.targets).toContain('everyone');
+    const enc = marquer(scene(), 'mage');
+    const avant = findUnit(enc, 'mage')!.hp;
+    const apres = applyAction(enc, { type: 'use', actorId: 'mage', abilityId: 'boum', at: { x: 1, y: 1 } });
+    expect(findUnit(apres, 'mage')!.hp).toBeLessThan(avant);
+    expect(findUnit(apres, 'mage')!.statuses).toHaveLength(0);
+  });
+});
+
+/* ── Piège d'ancrage ───────────────────────────────────────────────────────
+   Un statut qui ne retient personne sur place et interdit pourtant l'essentiel :
+   ses porteurs ne peuvent plus SE RAPPROCHER. Ils marchent, ils reculent, ils
+   contournent — mais l'écart ne se referme plus. C'est une contrainte sur la
+   VARIATION de distance, pas sur le mouvement, et c'est ce que ces tests
+   vérifient dans les deux sens.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('piège d’ancrage', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('space-piege-d-ancrage')!;
+  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+  const mPage = spells.bySlug('space-marque-spatiale')!;
+  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+
+  /** Deux ennemis distants de quatre cases, et un mage qui va les marquer. */
+  const scene = () => {
+    const enc = emptyEncounter('Ancrage');
+    enc.grid = { width: 16, height: 16 };
+    enc.seed = 9;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 1, y: 8 },
+        abilities: [piege, marque],
+        mana: 200,
+        attributes: ATTRS({ intelligence: 20, sagesse: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'gaucher', name: 'Gaucher', team: 'ennemis', pos: { x: 6, y: 8 } }),
+      mkUnit({ id: 'droitier', name: 'Droitier', team: 'ennemis', pos: { x: 9, y: 8 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  const marquer = (enc: Encounter, id: string): Encounter => {
+    const depart = { ...findUnit(enc, 'mage')!.pos };
+    let etat = structuredClone(enc);
+    for (let essai = 0; essai < 40; essai++) {
+      const c = findUnit(etat, id)!;
+      findUnit(etat, 'mage')!.pos = { x: c.pos.x - 1, y: c.pos.y };
+      findUnit(etat, 'mage')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: c.pos });
+      if (findUnit(etat, id)!.statuses.some((s) => s.key === 'marque-spatiale')) break;
+    }
+    findUnit(etat, 'mage')!.pos = depart;
+    findUnit(etat, 'mage')!.actionUsed = false;
+    return etat;
+  };
+
+  /** Marque les deux ennemis, puis referme le piège sur eux. */
+  const tendre = (): Encounter => {
+    const enc = marquer(marquer(scene(), 'gaucher'), 'droitier');
+    return applyAction(enc, { type: 'use', actorId: 'mage', abilityId: 'piege', at: { x: 1, y: 8 } });
+  };
+
+  it('pose le champ sur le LANCEUR, et laisse les marques intactes', () => {
+    // Le piège n'est pas un statut qu'on subit : c'est un champ que le mage
+    // tient. Ses victimes ne portent que leur marque — c'est elle qui commande.
+    const enc = tendre();
+    expect(findUnit(enc, 'mage')!.statuses.map((s) => s.key)).toContain('ancrage');
+    for (const id of ['gaucher', 'droitier']) {
+      const st = findUnit(enc, id)!.statuses.map((s) => s.key);
+      expect(st).toContain('marque-spatiale');
+      expect(st).not.toContain('ancrage');
+    }
+  });
+
+  it('prend un renfort marqué APRÈS COUP', () => {
+    // Le point qui distingue un champ d'une photographie : marquer quelqu'un
+    // en pleine bataille le fait entrer sous la règle sans relancer le sort.
+    const enc = tendre();
+    const tardif = structuredClone(enc);
+    tardif.combatants.push(
+      mkUnit({ id: 'renfort', name: 'Renfort', team: 'ennemis', pos: { x: 12, y: 8 } }),
+    );
+    const marque = marquer(tardif, 'renfort');
+    expect(findUnit(marque, 'renfort')!.statuses.map((s) => s.key)).toContain('marque-spatiale');
+    // Il n'a jamais été visé par le piège — il ne porte rien d'autre…
+    expect(findUnit(marque, 'renfort')!.statuses.map((s) => s.key)).not.toContain('ancrage');
+
+    // …et pourtant il est tenu. Droitier à deux cases : s'en approcher est
+    // désormais interdit, alors que le sort a été lancé avant son arrivée.
+    findUnit(marque, 'droitier')!.pos = { x: 10, y: 8 };
+    findUnit(marque, 'renfort')!.pos = { x: 12, y: 8 };
+    expect(anchorBlocker(marque, findUnit(marque, 'renfort')!, { x: 11, y: 8 })?.id).toBe('droitier');
+  });
+
+  it('élargit son écart au fil des paliers', () => {
+    // Le champ du palier III tient à 4,5 m : une ligne de front s'y disloque.
+    const trois = spellAbility(page, page.spell.progression!.nodes[2]);
+    expect(trois.anchorGapMeters).toBe(4.5);
+
+    const enc = marquer(marquer(scene(), 'gaucher'), 'droitier');
+    findUnit(enc, 'mage')!.abilities = [{ ...trois, id: 'piege' }, marque];
+    const large = applyAction(enc, { type: 'use', actorId: 'mage', abilityId: 'piege', at: { x: 1, y: 8 } });
+    // Gaucher (6,8) et Droitier (9,8) : trois cases, soit 4,5 m — le champ du
+    // palier I les laissait tranquilles, celui-ci les écarte.
+    expect(unitDistanceMeters(findUnit(large, 'gaucher')!, findUnit(large, 'droitier')!))
+      .toBeGreaterThan(4.5);
+  });
+
+  it('laisse les porteurs SE RAPPROCHER — ce n’est pas une entrave', () => {
+    // Gaucher (6,8) et Droitier (9,8) : trois cases. Se réduire à deux est
+    // parfaitement permis, le piège ne fige pas la distance.
+    const enc = tendre();
+    const gaucher = findUnit(enc, 'gaucher')!;
+    expect(anchorBlocker(enc, gaucher, { x: 7, y: 8 })).toBeUndefined();
+
+    const apres = applyAction(enc, { type: 'move', actorId: 'gaucher', to: { x: 7, y: 8 } });
+    expect(findUnit(apres, 'gaucher')!.pos).toEqual({ x: 7, y: 8 });
+  });
+
+  it('mais les empêche de venir à MOINS DE 1,5 m l’un de l’autre', () => {
+    const enc = tendre();
+    const gaucher = findUnit(enc, 'gaucher')!;
+    // (8,8) est au contact de Droitier (9,8) : c'est là que le piège mord.
+    expect(anchorBlocker(enc, gaucher, { x: 8, y: 8 })?.id).toBe('droitier');
+    // Et par la diagonale non plus : c'est la distance qui compte.
+    expect(anchorBlocker(enc, gaucher, { x: 8, y: 9 })?.id).toBe('droitier');
+
+    const apres = applyAction(enc, { type: 'move', actorId: 'gaucher', to: { x: 8, y: 8 } });
+    expect(findUnit(apres, 'gaucher')!.pos).toEqual({ x: 6, y: 8 });
+    expect(apres.log.some((l) => l.text.includes('L’ancrage retient'))).toBe(true);
+  });
+
+  it('le laisse reculer et contourner librement', () => {
+    const enc = tendre();
+    const gaucher = findUnit(enc, 'gaucher')!;
+    expect(anchorBlocker(enc, gaucher, { x: 5, y: 8 })).toBeUndefined();
+    expect(anchorBlocker(enc, gaucher, { x: 6, y: 9 })).toBeUndefined();
+
+    const apres = applyAction(enc, { type: 'move', actorId: 'gaucher', to: { x: 5, y: 8 } });
+    expect(findUnit(apres, 'gaucher')!.pos).toEqual({ x: 5, y: 8 });
+  });
+
+  it('ne fige pas ceux que le piège surprend déjà collés', () => {
+    // Sans quoi deux porteurs pris au contact dans un couloir n'auraient plus
+    // aucun pas légal : le sort les paralyserait au lieu de les écarter.
+    const enc = tendre();
+    const colles = structuredClone(enc);
+    findUnit(colles, 'droitier')!.pos = { x: 7, y: 8 };
+    const gaucher = findUnit(colles, 'gaucher')!;
+    // Rester à la même distance : permis. S'éloigner : permis.
+    expect(anchorBlocker(colles, gaucher, { x: 6, y: 9 })).toBeUndefined();
+    expect(anchorBlocker(colles, gaucher, { x: 5, y: 8 })).toBeUndefined();
+  });
+
+  it('retire du calque de déplacement ce qu’il refusera', () => {
+    // Une case verte sur laquelle le clic échoue est un mensonge : le calque
+    // doit déjà exclure ce que le piège interdit.
+    const enc = tendre();
+    const gaucher = findUnit(enc, 'gaucher')!;
+    const cases = movementOverlay(enc, gaucher);
+    expect(cases.has('8,8')).toBe(false);
+    expect(cases.has('7,8')).toBe(true);
+    expect(cases.has('5,8')).toBe(true);
+  });
+
+  it('ne retient pas un marqué SEUL — il faut être deux', () => {
+    // Le champ n'est pas une entrave : sans second marqué, il n'interdit rien.
+    const enc = marquer(scene(), 'gaucher');
+    const seul = applyAction(enc, { type: 'use', actorId: 'mage', abilityId: 'piege', at: { x: 1, y: 8 } });
+    expect(findUnit(seul, 'mage')!.statuses.map((s) => s.key)).toContain('ancrage');
+    expect(anchorBlocker(seul, findUnit(seul, 'gaucher')!, { x: 8, y: 8 })).toBeUndefined();
+  });
+
+  it('cède quand le lanceur perd sa concentration', () => {
+    const enc = tendre();
+    // Un mage peu sage, et un gros coup.
+    const fragile = structuredClone(enc);
+    findUnit(fragile, 'mage')!.attributes = ATTRS({ intelligence: 20, sagesse: 1 });
+    findUnit(fragile, 'mage')!.proficiency = 0;
+    findUnit(fragile, 'droitier')!.pos = { x: 2, y: 8 };
+    findUnit(fragile, 'droitier')!.abilities = [
+      flatHit({ id: 'coup', damages: [{ min: 60, max: 60, type: 'slashing' }] }),
+    ];
+
+    const frappe = applyAction(fragile, {
+      type: 'use',
+      actorId: 'droitier',
+      abilityId: 'coup',
+      at: { x: 1, y: 8 },
+    });
+    expect(frappe.log.some((l) => l.text.includes('concentration'))).toBe(true);
+    for (const id of ['gaucher', 'droitier']) {
+      expect(findUnit(frappe, id)!.statuses.map((s) => s.key)).not.toContain('ancrage');
+    }
+  });
+
+  it('ne gouverne que les marques de SON lanceur', () => {
+    // La marque d'un autre mage n'entre pas dans mon champ : deux réseaux
+    // d'ancres se croisent sans se tenir.
+    const enc = tendre();
+    const separe = structuredClone(enc);
+    const droitier = findUnit(separe, 'droitier')!;
+    droitier.statuses = droitier.statuses.map((s) =>
+      s.key === 'marque-spatiale' ? { ...s, sourceId: 'un-autre-mage' } : s,
+    );
+    expect(anchorBlocker(separe, findUnit(separe, 'gaucher')!, { x: 8, y: 8 })).toBeUndefined();
+  });
+});
+
+/* ── Le piège se fait respecter tout de suite ──────────────────────────────
+   Interdire l'avenir ne suffit pas : ceux que le sort surprend au contact
+   doivent s'écarter sur-le-champ. Ce recul est SUBI — ni coût, ni budget de
+   mouvement, et surtout aucune attaque d'opportunité : on ne punit pas
+   quelqu'un d'avoir été poussé.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('piège d’ancrage — mise en conformité', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('space-piege-d-ancrage')!;
+  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+  const mPage = spells.bySlug('space-marque-spatiale')!;
+  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+
+  /** Deux ennemis COLLÉS l'un à l'autre, loin du mage. */
+  const scene = () => {
+    const enc = emptyEncounter('Conformité');
+    enc.grid = { width: 16, height: 16 };
+    enc.seed = 12;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 1, y: 8 },
+        abilities: [piege, marque],
+        mana: 200,
+        attributes: ATTRS({ intelligence: 20, sagesse: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'un', name: 'Un', team: 'ennemis', pos: { x: 7, y: 8 } }),
+      mkUnit({ id: 'deux', name: 'Deux', team: 'ennemis', pos: { x: 8, y: 8 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  const marquer = (enc: Encounter, id: string): Encounter => {
+    const depart = { ...findUnit(enc, 'mage')!.pos };
+    let etat = structuredClone(enc);
+    for (let essai = 0; essai < 40; essai++) {
+      const c = findUnit(etat, id)!;
+      findUnit(etat, 'mage')!.pos = { x: c.pos.x, y: c.pos.y - 1 };
+      findUnit(etat, 'mage')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: c.pos });
+      if (findUnit(etat, id)!.statuses.some((s) => s.key === 'marque-spatiale')) break;
+    }
+    findUnit(etat, 'mage')!.pos = depart;
+    findUnit(etat, 'mage')!.actionUsed = false;
+    return etat;
+  };
+
+  const tendre = (): Encounter => {
+    const enc = marquer(marquer(scene(), 'un'), 'deux');
+    // Ils se touchent au moment où le piège tombe.
+    expect(unitDistanceMeters(findUnit(enc, 'un')!, findUnit(enc, 'deux')!)).toBe(1.5);
+    return applyAction(enc, { type: 'use', actorId: 'mage', abilityId: 'piege', at: { x: 1, y: 8 } });
+  };
+
+  it('écarte sur-le-champ ceux qu’il surprend au contact', () => {
+    const apres = tendre();
+    const un = findUnit(apres, 'un')!;
+    const deux = findUnit(apres, 'deux')!;
+    expect(unitDistanceMeters(un, deux)).toBeGreaterThan(1.5);
+    expect(apres.log.some((l) => l.text.includes('repoussé par l’ancrage'))).toBe(true);
+  });
+
+  it('ne repousse QUE ce qu’il faut : un seul des deux bouge', () => {
+    // Écarter le premier suffit à mettre le second en règle ; personne ne
+    // recule pour rien.
+    const avant = scene();
+    const apres = tendre();
+    const bouges = ['un', 'deux'].filter(
+      (id) => !samePos(findUnit(avant, id)!.pos, findUnit(apres, id)!.pos),
+    );
+    expect(bouges).toHaveLength(1);
+  });
+
+  it('recule au plus court', () => {
+    const avant = scene();
+    const apres = tendre();
+    for (const id of ['un', 'deux']) {
+      const parcouru = unitDistanceMeters(findUnit(avant, id)!, findUnit(apres, id)!);
+      // Une case suffit à sortir du contact : on n'en fait pas plus.
+      expect(parcouru).toBeLessThanOrEqual(1.5);
+    }
+  });
+
+  it('ne provoque AUCUNE attaque d’opportunité', () => {
+    // Le point qui compte : on ne punit pas quelqu'un d'avoir été poussé. Un
+    // garde tient les deux sous son allonge, et ne doit rien pouvoir en tirer.
+    const enc = marquer(marquer(scene(), 'un'), 'deux');
+    const garde = structuredClone(enc);
+    garde.combatants.push(
+      mkUnit({
+        id: 'garde',
+        name: 'Garde',
+        team: 'allies',
+        pos: { x: 8, y: 9 },
+        abilities: [flatHit({ id: 'epee', reaction: ['leave-reach'] })],
+      }),
+    );
+
+    const apres = applyAction(garde, { type: 'use', actorId: 'mage', abilityId: 'piege', at: { x: 1, y: 8 } });
+    expect(apres.pendingReaction).toBeUndefined();
+    expect(apres.suspended).toBeUndefined();
+    expect(apres.log.some((l) => l.text.includes('quitte l’allonge'))).toBe(false);
+  });
+
+  it('ne coûte ni endurance ni budget de déplacement', () => {
+    const avant = scene();
+    const apres = tendre();
+    for (const id of ['un', 'deux']) {
+      expect(findUnit(apres, id)!.endurance).toBe(findUnit(avant, id)!.endurance);
+      expect(findUnit(apres, id)!.moved).toBe(0);
+    }
+  });
+
+  it('le dit plutôt que de déménager quelqu’un quand la place manque', () => {
+    // Emmurés ensemble : le piège ne peut pas les séparer, et il l'annonce
+    // au lieu d'expédier l'un à l'autre bout du plateau.
+    const enc = marquer(marquer(scene(), 'un'), 'deux');
+    const boite = structuredClone(enc);
+    for (let x = 6; x <= 9; x++) {
+      for (let y = 7; y <= 9; y++) {
+        if (y === 8 && (x === 7 || x === 8)) continue;
+        boite.terrain[`${x},${y}`] = 'mur';
+      }
+    }
+    const apres = applyAction(boite, { type: 'use', actorId: 'mage', abilityId: 'piege', at: { x: 1, y: 8 } });
+    expect(apres.log.some((l) => l.text.includes('ne trouve pas où s’écarter'))).toBe(true);
+    expect(findUnit(apres, 'un')!.pos).toEqual({ x: 7, y: 8 });
+    expect(findUnit(apres, 'deux')!.pos).toEqual({ x: 8, y: 8 });
+  });
+});
+
+/* ── L'entretien d'un sort maintenu ────────────────────────────────────────
+   Un sort qu'on garde ouvert doit coûter tant qu'il dure : sans cela, rien
+   n'incite jamais à le relâcher, et une réserve pleine au premier tour
+   financerait tout le combat. À sec, le lien se rompt de lui-même — le lanceur
+   ne choisit pas, il ne peut simplement plus suivre.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('entretien des sorts maintenus', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('space-piege-d-ancrage')!;
+  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+
+  /** Un mage tenant déjà son champ, avec la réserve qu'on lui donne. */
+  const enTrain = (mana: number): Encounter => {
+    const enc = emptyEncounter('Entretien');
+    enc.seed = 14;
+    enc.combatants = [
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 1, y: 1 },
+        abilities: [piege],
+        mana,
+        attributes: ATTRS({ intelligence: 20, sagesse: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'autre', name: 'Autre', team: 'ennemis', pos: { x: 8, y: 8 } }),
+    ];
+    const debut = applyAction(enc, { type: 'start' });
+    findUnit(debut, 'mage')!.statuses.push({
+      key: 'ancrage',
+      remaining: -1,
+      stacks: 1,
+      sourceId: 'mage',
+      sourcePower: { atk_phy: 0, atk_mag: 0 },
+      age: 0,
+    });
+    return debut;
+  };
+
+  /** Fait tourner l'initiative jusqu'à ce que le tour du mage se rouvre. */
+  const tourSuivant = (enc: Encounter): Encounter => {
+    let etat = enc;
+    for (let i = 0; i < 12; i++) {
+      etat = applyAction(etat, { type: 'endTurn' });
+      if (etat.order[etat.turnIndex] === 'mage') break;
+    }
+    return etat;
+  };
+
+  it('déclare un entretien moins cher que l’incantation', () => {
+    const def = statusByKey('ancrage')!;
+    expect(def.sustain?.upkeep).toBe(2);
+    expect(def.sustain!.upkeep!).toBeLessThan(piege.manaCost);
+  });
+
+  it('prélève le mana à l’ouverture du tour du lanceur', () => {
+    const enc = enTrain(30);
+    const apres = tourSuivant(enc);
+    expect(findUnit(apres, 'mage')!.mana).toBe(28);
+    expect(apres.log.some((l) => l.text.includes('entretient ses sorts'))).toBe(true);
+    // Et le champ tient toujours.
+    expect(findUnit(apres, 'mage')!.statuses.map((s) => s.key)).toContain('ancrage');
+  });
+
+  it('lâche le sort quand la réserve ne suit plus', () => {
+    const enc = enTrain(1);
+    const apres = tourSuivant(enc);
+    expect(findUnit(apres, 'mage')!.statuses.map((s) => s.key)).not.toContain('ancrage');
+    expect(apres.log.some((l) => l.text.includes('plus de quoi entretenir'))).toBe(true);
+    // On ne prélève pas ce qu'on ne peut pas payer.
+    expect(findUnit(apres, 'mage')!.mana).toBe(1);
+  });
+
+  it('ne prélève rien à qui ne tient rien', () => {
+    const enc = enTrain(30);
+    const sans = structuredClone(enc);
+    findUnit(sans, 'mage')!.statuses = [];
+    const apres = tourSuivant(sans);
+    expect(findUnit(apres, 'mage')!.mana).toBe(30);
+    expect(apres.log.some((l) => l.text.includes('entretient ses sorts'))).toBe(false);
+  });
+});
+
+/* ── Qui recule, quand deux sont collés ────────────────────────────────────
+   Écarter le premier dispense le second : l'ordre dans lequel on les traite
+   décide donc lequel bouge. Le champ émane du lanceur et repousse ce qui s'en
+   approche — c'est le PLUS PROCHE de lui qui recule, pas celui d'en face.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('piège d’ancrage — qui recule', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('space-piege-d-ancrage')!;
+  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+  const mPage = spells.bySlug('space-marque-spatiale')!;
+  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+
+  /**
+   * Le mage en (1,8), et deux ennemis collés en (5,8) et (6,8).
+   *
+   * `loin` est délibérément placé EN PREMIER dans le tableau : si l'ordre de
+   * la liste décidait, ce serait lui qui reculerait — c'est précisément ce
+   * qu'on ne veut pas.
+   */
+  const scene = () => {
+    const enc = emptyEncounter('Qui recule');
+    enc.grid = { width: 16, height: 16 };
+    enc.seed = 15;
+    enc.combatants = [
+      mkUnit({ id: 'loin', name: 'Loin', team: 'ennemis', pos: { x: 6, y: 8 } }),
+      mkUnit({
+        id: 'mage',
+        name: 'Mage',
+        team: 'allies',
+        pos: { x: 1, y: 8 },
+        abilities: [piege, marque],
+        mana: 200,
+        attributes: ATTRS({ intelligence: 20, sagesse: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'pres', name: 'Pres', team: 'ennemis', pos: { x: 5, y: 8 } }),
+    ];
+    return applyAction(enc, { type: 'start' });
+  };
+
+  const marquer = (enc: Encounter, id: string): Encounter => {
+    const depart = { ...findUnit(enc, 'mage')!.pos };
+    let etat = structuredClone(enc);
+    for (let essai = 0; essai < 40; essai++) {
+      const c = findUnit(etat, id)!;
+      findUnit(etat, 'mage')!.pos = { x: c.pos.x, y: c.pos.y - 1 };
+      findUnit(etat, 'mage')!.actionUsed = false;
+      etat = applyAction(etat, { type: 'use', actorId: 'mage', abilityId: 'marque', at: c.pos });
+      if (findUnit(etat, id)!.statuses.some((s) => s.key === 'marque-spatiale')) break;
+    }
+    findUnit(etat, 'mage')!.pos = depart;
+    findUnit(etat, 'mage')!.actionUsed = false;
+    return etat;
+  };
+
+  it('repousse celui qui est le plus PRÈS du lanceur', () => {
+    const avant = marquer(marquer(scene(), 'pres'), 'loin');
+    expect(unitDistanceMeters(findUnit(avant, 'pres')!, findUnit(avant, 'loin')!)).toBe(1.5);
+
+    const apres = applyAction(avant, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'piege',
+      at: { x: 1, y: 8 },
+    });
+
+    // Celui d'en face n'a pas bougé…
+    expect(findUnit(apres, 'loin')!.pos).toEqual({ x: 6, y: 8 });
+    // …c'est celui que le champ avait sous le nez qui a reculé.
+    expect(findUnit(apres, 'pres')!.pos).not.toEqual({ x: 5, y: 8 });
+    expect(
+      unitDistanceMeters(findUnit(apres, 'pres')!, findUnit(apres, 'loin')!),
+    ).toBeGreaterThan(1.5);
+  });
+
+  it('choisit QUI recule, pas dans quelle direction', () => {
+    // La nuance vaut d'être fixée : le tri désigne le reculant, puis celui-ci
+    // prend le chemin le plus court pour se dégager — quitte à se rapprocher du
+    // lanceur si c'est de ce côté que la place se trouve.
+    const avant = marquer(marquer(scene(), 'pres'), 'loin');
+    const apres = applyAction(avant, {
+      type: 'use',
+      actorId: 'mage',
+      abilityId: 'piege',
+      at: { x: 1, y: 8 },
+    });
+    const parcouru = unitDistanceMeters(findUnit(avant, 'pres')!, findUnit(apres, 'pres')!);
+    expect(parcouru).toBe(1.5);
+  });
+});
+
+
+/* ── L'entretien des fils ──────────────────────────────────────────────────
+   Un pantin ne se paie pas qu'à la prise : il se tient. Et comme l'entretien se
+   compte PAR LIEN TENU, deux pantins coûtent le double — ce qui donne enfin un
+   prix au fait d'en mener deux, là où seules les mains le limitaient.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('fils du marionnettiste — entretien', () => {
+  const spells = new SpellsService();
+  const page = spells.bySlug('darkness-fils-du-marionnettiste')!;
+  const fils = spellAbility(page, page.spell.progression!.nodes[0]);
+
+  /** Un maître tenant `pantins` marionnettes, avec la réserve qu'on lui donne. */
+  const enTrain = (pantins: number, mana: number): Encounter => {
+    const enc = emptyEncounter('Fils tenus');
+    enc.seed = 16;
+    enc.combatants = [
+      mkUnit({
+        id: 'maitre',
+        name: 'Maitre',
+        team: 'allies',
+        pos: { x: 1, y: 1 },
+        abilities: [{ ...fils, id: 'fils' }],
+        mana,
+        attributes: ATTRS({ intelligence: 20, sagesse: 20 }),
+        proficiency: 6,
+      }),
+      mkUnit({ id: 'p1', name: 'P1', team: 'ennemis', pos: { x: 2, y: 1 } }),
+      mkUnit({ id: 'p2', name: 'P2', team: 'ennemis', pos: { x: 1, y: 2 } }),
+    ];
+    const debut = applyAction(enc, { type: 'start' });
+    for (const id of ['p1', 'p2'].slice(0, pantins)) {
+      findUnit(debut, id)!.statuses.push({
+        key: 'controle',
+        remaining: -1,
+        stacks: 1,
+        sourceId: 'maitre',
+        sourcePower: { atk_phy: 0, atk_mag: 0 },
+        age: 0,
+      });
+    }
+    return debut;
+  };
+
+  const tourDuMaitre = (enc: Encounter): Encounter => {
+    let etat = enc;
+    for (let i = 0; i < 12; i++) {
+      etat = applyAction(etat, { type: 'endTurn' });
+      if (etat.order[etat.turnIndex] === 'maitre') break;
+    }
+    return etat;
+  };
+
+  it('déclare un entretien, moins cher que la prise', () => {
+    const def = statusByKey('controle')!;
+    expect(def.sustain?.upkeep).toBe(3);
+    expect(def.sustain!.upkeep!).toBeLessThan(fils.manaCost);
+  });
+
+  it('coûte le DOUBLE pour deux pantins', () => {
+    // C'est le point : l'entretien se compte par lien tenu. Mener deux corps a
+    // désormais un prix, là où seules les mains le limitaient.
+    const un = tourDuMaitre(enTrain(1, 60));
+    expect(findUnit(un, 'maitre')!.mana).toBe(57);
+
+    const deux = tourDuMaitre(enTrain(2, 60));
+    expect(findUnit(deux, 'maitre')!.mana).toBe(54);
+  });
+
+  it('lâche TOUS les pantins d’un coup quand la réserve ne suit plus', () => {
+    // On ne choisit pas lequel garder : la main s'ouvre, tout tombe.
+    const apres = tourDuMaitre(enTrain(2, 5));
+    for (const id of ['p1', 'p2']) {
+      expect(findUnit(apres, id)!.statuses.map((s) => s.key)).not.toContain('controle');
+    }
+    expect(apres.log.some((l) => l.text.includes('plus de quoi entretenir'))).toBe(true);
+    expect(findUnit(apres, 'maitre')!.mana).toBe(5);
   });
 });

@@ -38,148 +38,592 @@
             "mana": 2,
             "level": 1,
             "icon": "/resources/media/icons/domains/fire/combustion_icon.png",
-            "subdomains": ["Combustion"],
+            "subdomains": [
+                "Combustion"
+            ],
             "progression": {
                 "root": "e1",
                 "branches": [
-                    { "id": "brasier", "label": "Voie de l'incandescence", "description": "Progression offensive : dégâts et brulure, au prix d'un coût de mana croissant." },
-                    { "id": "persistante", "label": "Voie de l'économe", "description": "Efficience : les dégâts stagnent mais le coût de mana s'effondre, pour un harcèlement soutenu." }
+                    {
+                        "id": "brasier",
+                        "label": "Voie de l'incandescence",
+                        "description": "Progression offensive : dégâts et brulure, au prix d'un coût de mana croissant."
+                    },
+                    {
+                        "id": "persistante",
+                        "label": "Voie de l'économe",
+                        "description": "Efficience : les dégâts stagnent mais le coût de mana s'effondre, pour un harcèlement soutenu."
+                    }
                 ],
                 "nodes": [
                     {
-                        "id": "e1", "tier": 1, "branch": "trunk", "name": "Braises I",
+                        "id": "e1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Braises I",
                         "description": "Projette une poignée de braises incandescentes sur une cible proche.",
-                        "next": ["e2"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "8 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 10 }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
+                        "next": [
+                            "e2"
+                        ],
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 3,
+                            "range": "8 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 10
+                                }
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.09
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "e2", "tier": 2, "branch": "trunk", "name": "Braises II",
+                        "id": "e2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Braises II",
                         "description": "Les braises s'attisent : projection plus dense et plus brûlante.",
-                        "next": ["e3"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 15 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
+                        "next": [
+                            "e3"
+                        ],
+                        "stats": {
+                            "damageMin": 2,
+                            "damageMax": 4,
+                            "mana": 4,
+                            "range": "10 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 15
+                                }
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.07
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "e3", "tier": 3, "branch": "trunk", "name": "Braises III",
+                        "id": "e3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Braises III",
                         "description": "Point de scission : le foyer se stabilise et peut désormais évoluer selon deux voies.",
-                        "next": ["b4", "p4"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 5, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 20 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
+                        "next": [
+                            "b4",
+                            "p4"
+                        ],
+                        "stats": {
+                            "damageMin": 3,
+                            "damageMax": 5,
+                            "mana": 5,
+                            "range": "10 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 20
+                                }
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.07
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "b4", "tier": 4, "branch": "brasier", "name": "Braises Incandescente I",
+                        "id": "b4",
+                        "tier": 4,
+                        "branch": "brasier",
+                        "name": "Braises Incandescente I",
                         "description": "Les braises embrasent une petite zone autour de l'impact.",
-                        "usage": { "outOfCombat": "L'embrasement gagne en ampleur : de quoi défricher des broussailles ou brûler une large surface d'un coup." },
-                        "next": ["b5"],
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
+                        "usage": {
+                            "outOfCombat": "L'embrasement gagne en ampleur : de quoi défricher des broussailles ou brûler une large surface d'un coup."
+                        },
+                        "next": [
+                            "b5"
+                        ],
+                        "stats": {
+                            "damageMin": 4,
+                            "damageMax": 7,
+                            "mana": 8,
+                            "range": "12 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 50
+                                }
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.08
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "b5", "tier": 5, "branch": "brasier", "name": "Braises Incandescente II",
+                        "id": "b5",
+                        "tier": 5,
+                        "branch": "brasier",
+                        "name": "Braises Incandescente II",
                         "description": "Une multitude de braises incandescentes qui tournent autour de la cible.",
-                        "usage": { "outOfCombat": "Déchaîne un brasier tournoyant : idéal pour allumer un feu de signal visible à des kilomètres ou éclairer une vaste clairière la nuit." },
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 13, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }, { "source": "intelligence", "ratio": 0.5 }] }
+                        "usage": {
+                            "outOfCombat": "Déchaîne un brasier tournoyant : idéal pour allumer un feu de signal visible à des kilomètres ou éclairer une vaste clairière la nuit."
+                        },
+                        "stats": {
+                            "damageMin": 5,
+                            "damageMax": 9,
+                            "mana": 13,
+                            "range": "12 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 70
+                                }
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.1
+                                },
+                                {
+                                    "source": "intelligence",
+                                    "ratio": 0.5
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "p4", "tier": 4, "branch": "persistante", "name": "Braises Economes I",
+                        "id": "p4",
+                        "tier": 4,
+                        "branch": "persistante",
+                        "name": "Braises Economes I",
                         "description": "Des braises tenaces qui coûtent une bouchée de mana et brûlent longtemps.",
-                        "usage": { "outOfCombat": "Ces braises tenaces entretiennent un feu de camp toute la nuit pour presque rien : parfait en bivouac prolongé." },
-                        "next": ["p5"],
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 2, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 20 }], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
+                        "usage": {
+                            "outOfCombat": "Ces braises tenaces entretiennent un feu de camp toute la nuit pour presque rien : parfait en bivouac prolongé."
+                        },
+                        "next": [
+                            "p5"
+                        ],
+                        "stats": {
+                            "damageMin": 4,
+                            "damageMax": 7,
+                            "mana": 2,
+                            "range": "10 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 20
+                                }
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.08
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "p5", "tier": 5, "branch": "persistante", "name": "Braises Economes II",
+                        "id": "p5",
+                        "tier": 5,
+                        "branch": "persistante",
+                        "name": "Braises Economes II",
                         "description": "Une braise quasi gratuite à entretenir, idéale pour harceler sans épuiser sa réserve.",
-                        "usage": { "outOfCombat": "Une flamme quasi gratuite que l'on garde allumée des jours durant : lanterne de voyage, veilleuse, rallumage instantané d'un foyer éteint." },
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 1, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 20 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
+                        "usage": {
+                            "outOfCombat": "Une flamme quasi gratuite que l'on garde allumée des jours durant : lanterne de voyage, veilleuse, rallumage instantané d'un foyer éteint."
+                        },
+                        "stats": {
+                            "damageMin": 5,
+                            "damageMax": 9,
+                            "mana": 1,
+                            "range": "10 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 20
+                                }
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.1
+                                }
+                            ]
+                        }
                     }
                 ]
             }
         },
         {
             "key": "fire-fireball",
-            "requires": ["fire-embers"],
+            "power": "majeur",
+            "requires": [
+                "fire-embers"
+            ],
             "name": "Boule de feu",
             "description": "Projète une boule de feu qui explose au contact, causant une déflagration déstructrice",
             "mana": 10,
             "level": 5,
             "icon": "/resources/media/icons/domains/fire/combustion_icon.png",
-            "subdomains": ["Combustion"],
+            "subdomains": [
+                "Combustion"
+            ],
             "progression": {
                 "root": "f1",
                 "branches": [
-                    { "id": "deflagration", "label": "Voie de la Déflagration", "description": "Explosions de plus en plus larges qui ravagent des groupes entiers." },
-                    { "id": "plasma", "label": "Voie du Plasma focalisé", "description": "Un projectile concentré, longue portée et dégâts perforants sur cible unique." }
+                    {
+                        "id": "deflagration",
+                        "label": "Voie de la Déflagration",
+                        "description": "Explosions de plus en plus larges qui ravagent des groupes entiers."
+                    },
+                    {
+                        "id": "plasma",
+                        "label": "Voie du Plasma focalisé",
+                        "description": "Un projectile concentré, longue portée et dégâts perforants sur cible unique."
+                    }
                 ],
                 "nodes": [
                     {
-                        "id": "f1", "tier": 1, "branch": "trunk", "name": "Boule de feu I",
+                        "id": "f1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Boule de feu I",
                         "description": "Une sphère de flammes qui explose à l'impact.",
-                        "next": ["f2"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 8, "range": "14 m", "area": "Rayon 2 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }] }
+                        "next": [
+                            "f2"
+                        ],
+                        "stats": {
+                            "damageMin": 4,
+                            "damageMax": 6,
+                            "mana": 8,
+                            "range": "14 m",
+                            "area": "Rayon 2 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.09
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "f2", "tier": 2, "branch": "trunk", "name": "Boule de feu II",
+                        "id": "f2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Boule de feu II",
                         "description": "Charge accrue : l'explosion gagne en portée et en puissance.",
-                        "next": ["f3"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 10, "range": "16 m", "area": "Rayon 2 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }] }
+                        "next": [
+                            "f3"
+                        ],
+                        "stats": {
+                            "damageMin": 5,
+                            "damageMax": 9,
+                            "mana": 10,
+                            "range": "16 m",
+                            "area": "Rayon 2 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.09
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "f3", "tier": 3, "branch": "trunk", "name": "Boule de feu III",
+                        "id": "f3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Boule de feu III",
                         "description": "Point de scission : la sphère peut s'ouvrir en nappe ou se resserrer en trait.",
-                        "next": ["fa4", "fb4"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 12, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
+                        "next": [
+                            "fa4",
+                            "fb4"
+                        ],
+                        "stats": {
+                            "damageMin": 7,
+                            "damageMax": 12,
+                            "mana": 12,
+                            "range": "16 m",
+                            "area": "Rayon 3 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.11
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fa4", "tier": 4, "branch": "deflagration", "name": "Boule de feu Déflagrante I",
+                        "id": "fa4",
+                        "tier": 4,
+                        "branch": "deflagration",
+                        "name": "Boule de feu Déflagrante I",
                         "description": "Une onde de choc enflammée qui balaie une large zone.",
-                        "next": ["fa5"],
-                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 16, "range": "18 m", "area": "Rayon 4 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
+                        "next": [
+                            "fa5"
+                        ],
+                        "stats": {
+                            "damageMin": 9,
+                            "damageMax": 15,
+                            "mana": 16,
+                            "range": "18 m",
+                            "area": "Rayon 4 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.13
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fa5", "tier": 5, "branch": "deflagration", "name": "Boule de feu Déflagrante II",
+                        "id": "fa5",
+                        "tier": 5,
+                        "branch": "deflagration",
+                        "name": "Boule de feu Déflagrante II",
                         "description": "Un embrasement titanesque rasant tout un champ de bataille.",
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 22, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }, { "source": "intelligence", "ratio": 0.6 }] }
+                        "stats": {
+                            "damageMin": 11,
+                            "damageMax": 18,
+                            "mana": 22,
+                            "range": "20 m",
+                            "area": "Rayon 6 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.15
+                                },
+                                {
+                                    "source": "intelligence",
+                                    "ratio": 0.6
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fb4", "tier": 4, "branch": "plasma", "name": "Boule de feu Focalisée I",
+                        "id": "fb4",
+                        "tier": 4,
+                        "branch": "plasma",
+                        "name": "Boule de feu Focalisée I",
                         "description": "La sphère se compresse en un trait brûlant et perçant.",
-                        "next": ["fb5"],
-                        "stats": { "damageMin": 6, "damageMax": 10, "mana": 13, "range": "24 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.08 }] }
+                        "next": [
+                            "fb5"
+                        ],
+                        "stats": {
+                            "damageMin": 15,
+                            "damageMax": 24,
+                            "mana": 13,
+                            "range": "24 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.21
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fb5", "tier": 5, "branch": "plasma", "name": "Boule de feu Focalisée II",
+                        "id": "fb5",
+                        "tier": 5,
+                        "branch": "plasma",
+                        "name": "Boule de feu Focalisée II",
                         "description": "Un dard de plasma incandescent qui transperce à très longue distance.",
-                        "stats": { "damageMin": 7, "damageMax": 12, "mana": 17, "range": "30 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
+                        "stats": {
+                            "damageMin": 18,
+                            "damageMax": 30,
+                            "mana": 17,
+                            "range": "30 m",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.24
+                                }
+                            ]
+                        }
                     }
                 ]
             }
         },
         {
             "key": "fire-inferno",
-            "requires": ["fire-fireball"],
+            "power": "signature",
+            "requires": [
+                "fire-fireball"
+            ],
             "name": "Inferno",
             "description": "Concentre une enorme quantité de flammes en un point seul, puis explose en une déflagration sans precedent causant de massif dégâts, même le lanceur en est affecté.",
             "level": 15,
             "mana": 45,
             "icon": "/resources/media/icons/domains/fire/combustion_icon.png",
-            "subdomains": ["Combustion"],
+            "subdomains": [
+                "Combustion"
+            ],
             "progression": {
                 "root": "i1",
                 "nodes": [
                     {
-                        "id": "i1", "tier": 1, "branch": "trunk", "name": "Inferno I",
+                        "id": "i1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Inferno I",
                         "description": "Un cataclysme de flammes qui n'épargne pas même son invocateur.",
-                        "next": ["i2"],
-                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 45, "range": "20 m", "area": "Rayon 6 m", "inflicts": [{ "status": "brulure", "chance": 80 }], "targets": ["everyone"], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }] }
+                        "next": [
+                            "i2"
+                        ],
+                        "stats": {
+                            "damageMin": 24,
+                            "damageMax": 40,
+                            "mana": 45,
+                            "range": "20 m",
+                            "area": "Rayon 6 m",
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 80
+                                }
+                            ],
+                            "targets": [
+                                "everyone"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.17
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "i2", "tier": 2, "branch": "trunk", "name": "Inferno II",
+                        "id": "i2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Inferno II",
                         "description": "La fournaise enfle : rayon et dégâts atteignent une échelle dévastatrice.",
-                        "next": ["i3"],
-                        "stats": { "damageMin": 5, "damageMax": 8, "mana": 55, "range": "24 m", "area": "Rayon 8 m", "inflicts": [{ "status": "brulure", "chance": 100 }], "targets": ["everyone"], "scaling": [{ "source": "atk_mag", "ratio": 0.03 }, { "source": "intelligence", "ratio": 0.8 }] }
+                        "next": [
+                            "i3"
+                        ],
+                        "stats": {
+                            "damageMin": 31,
+                            "damageMax": 51,
+                            "mana": 55,
+                            "range": "24 m",
+                            "area": "Rayon 8 m",
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 100
+                                }
+                            ],
+                            "targets": [
+                                "everyone"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.23
+                                },
+                                {
+                                    "source": "intelligence",
+                                    "ratio": 0.8
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "i3", "tier": 3, "branch": "trunk", "name": "Inferno III",
+                        "id": "i3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Inferno III",
                         "description": "L'apogée du domaine : un soleil éphémère qui efface tout autour de lui.",
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 70, "range": "28 m", "area": "Rayon 10 m", "inflicts": [{ "status": "brulure","chance": 100 }], "targets": ["everyone"], "scaling": [{ "source": "atk_mag","ratio": 0.04 }, { "source":"intelligence","ratio": 1.2 }] }
+                        "stats": {
+                            "damageMin": 35,
+                            "damageMax": 59,
+                            "mana": 70,
+                            "range": "28 m",
+                            "area": "Rayon 10 m",
+                            "inflicts": [
+                                {
+                                    "status": "brulure",
+                                    "chance": 100
+                                }
+                            ],
+                            "targets": [
+                                "everyone"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.28
+                                },
+                                {
+                                    "source": "intelligence",
+                                    "ratio": 1.2
+                                }
+                            ]
+                        }
                     }
                 ]
             }
@@ -190,143 +634,639 @@
             "description": "Augmente la temperature interne du corps pour augmenter la vigueur de celui-ci",
             "level": 1,
             "mana": 3,
-            "subdomains": ["Chaleur"],
+            "subdomains": [
+                "Chaleur"
+            ],
             "progression": {
                 "root": "ech1",
                 "nodes": [
                     {
-                        "id": "ech1", "tier": 1, "branch": "trunk", "name": "Echauffement I",
+                        "id": "ech1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Echauffement I",
                         "description": "Élève la chaleur interne : la vigueur du corps s'accroît brièvement.",
-                        "next": ["ech2"],
-                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 2, "effects": [{ "stat": "speed", "value": 1, "scaling": [{ "source": "dexterite", "ratio": 0.5 }] }, { "stat": "atk_phy", "value": 1, "scaling": [{ "source": "force", "ratio": 0.4 }] }], "classBonuses": [{ "class": "pugilist", "description": "La chaleur gagne vos poings : vous portez une attaque à mains nues supplémentaire ce tour." }, { "class": "warrior", "description": "Votre discipline martiale amplifie la montée en puissance.", "effects": [{ "stat": "atk_phy", "value": 2 }] }] }
+                        "next": [
+                            "ech2"
+                        ],
+                        "stats": {
+                            "mana": 3,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 2,
+                            "effects": [
+                                {
+                                    "stat": "speed",
+                                    "value": 1,
+                                    "scaling": [
+                                        {
+                                            "source": "dexterite",
+                                            "ratio": 0.5
+                                        }
+                                    ]
+                                },
+                                {
+                                    "stat": "atk_phy",
+                                    "value": 1,
+                                    "scaling": [
+                                        {
+                                            "source": "force",
+                                            "ratio": 0.4
+                                        }
+                                    ]
+                                }
+                            ],
+                            "classBonuses": [
+                                {
+                                    "class": "pugilist",
+                                    "description": "La chaleur gagne vos poings : vous portez une attaque à mains nues supplémentaire ce tour."
+                                },
+                                {
+                                    "class": "warrior",
+                                    "description": "Votre discipline martiale amplifie la montée en puissance.",
+                                    "effects": [
+                                        {
+                                            "stat": "atk_phy",
+                                            "value": 2
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ech2", "tier": 2, "branch": "trunk", "name": "Echauffement II",
+                        "id": "ech2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Echauffement II",
                         "description": "La montée en température se prolonge et gagne en intensité.",
-                        "next": ["ech3"],
-                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "speed", "value": 2, "scaling": [{ "source": "dexterite", "ratio": 0.6 }] }, { "stat": "atk_phy", "value": 1, "scaling": [{ "source": "force", "ratio": 0.4 }] }], "classBonuses": [{ "class": "pugilist", "description": "La chaleur gagne vos poings : vous portez une attaque à mains nues supplémentaire ce tour." }, { "class": "warrior", "description": "Votre discipline martiale amplifie la montée en puissance.", "effects": [{ "stat": "atk_phy", "value": 3 }] }] }
+                        "next": [
+                            "ech3"
+                        ],
+                        "stats": {
+                            "mana": 4,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "effects": [
+                                {
+                                    "stat": "speed",
+                                    "value": 2,
+                                    "scaling": [
+                                        {
+                                            "source": "dexterite",
+                                            "ratio": 0.6
+                                        }
+                                    ]
+                                },
+                                {
+                                    "stat": "atk_phy",
+                                    "value": 1,
+                                    "scaling": [
+                                        {
+                                            "source": "force",
+                                            "ratio": 0.4
+                                        }
+                                    ]
+                                }
+                            ],
+                            "classBonuses": [
+                                {
+                                    "class": "pugilist",
+                                    "description": "La chaleur gagne vos poings : vous portez une attaque à mains nues supplémentaire ce tour."
+                                },
+                                {
+                                    "class": "warrior",
+                                    "description": "Votre discipline martiale amplifie la montée en puissance.",
+                                    "effects": [
+                                        {
+                                            "stat": "atk_phy",
+                                            "value": 3
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ech3", "tier": 3, "branch": "trunk", "name": "Echauffement III",
+                        "id": "ech3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Echauffement III",
                         "description": "Le corps entre en surchauffe maîtrisée, décuplant sa vigueur.",
-                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "speed", "value": 3, "scaling": [{ "source": "dexterite", "ratio": 0.7 }] }, { "stat": "atk_phy", "value": 2, "scaling": [{ "source": "force", "ratio": 0.5 }] }], "classBonuses": [{ "class": "pugilist", "description": "La chaleur gagne vos poings : vous portez une attaque à mains nues supplémentaire ce tour." }, { "class": "warrior", "description": "Votre discipline martiale amplifie la montée en puissance.", "effects": [{ "stat": "atk_phy", "value": 4 }] }] }
+                        "stats": {
+                            "mana": 5,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "speed",
+                                    "value": 3,
+                                    "scaling": [
+                                        {
+                                            "source": "dexterite",
+                                            "ratio": 0.7
+                                        }
+                                    ]
+                                },
+                                {
+                                    "stat": "atk_phy",
+                                    "value": 2,
+                                    "scaling": [
+                                        {
+                                            "source": "force",
+                                            "ratio": 0.5
+                                        }
+                                    ]
+                                }
+                            ],
+                            "classBonuses": [
+                                {
+                                    "class": "pugilist",
+                                    "description": "La chaleur gagne vos poings : vous portez une attaque à mains nues supplémentaire ce tour."
+                                },
+                                {
+                                    "class": "warrior",
+                                    "description": "Votre discipline martiale amplifie la montée en puissance.",
+                                    "effects": [
+                                        {
+                                            "stat": "atk_phy",
+                                            "value": 4
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     }
                 ]
             }
         },
         {
             "key": "fire-vague-de-chaleur",
-            "requires": ["fire-echauffement"],
+            "requires": [
+                "fire-echauffement"
+            ],
             "name": "Vague de chaleur",
             "description": "Élève brutalement la température autour du lanceur, épuisant et désorientant les créatures prises dans la zone.",
             "mana": 4,
             "level": 2,
-            "subdomains": ["Chaleur"],
+            "subdomains": [
+                "Chaleur"
+            ],
             "progression": {
                 "root": "vc1",
                 "branches": [
-                    { "id": "canicule", "label": "Voie de la Canicule", "description": "La chaleur devient meurtrière : dégâts de zone en forte hausse." },
-                    { "id": "epuisement", "label": "Voie de l'Épuisement", "description": "Peu de dégâts mais un coût dérisoire et un large rayon de harcèlement." }
+                    {
+                        "id": "canicule",
+                        "label": "Voie de la Canicule",
+                        "description": "La chaleur devient meurtrière : dégâts de zone en forte hausse."
+                    },
+                    {
+                        "id": "epuisement",
+                        "label": "Voie de l'Épuisement",
+                        "description": "Peu de dégâts mais un coût dérisoire et un large rayon de harcèlement."
+                    }
                 ],
                 "nodes": [
                     {
-                        "id": "vc1", "tier": 1, "branch": "trunk", "name": "Vague de chaleur I",
+                        "id": "vc1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Vague de chaleur I",
                         "description": "Une bouffée brûlante irradie autour du lanceur.",
-                        "next": ["vc2"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "Autour de soi", "area": "Rayon 3 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
+                        "next": [
+                            "vc2"
+                        ],
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 4,
+                            "range": "Autour de soi",
+                            "area": "Rayon 3 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.05
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "vc2", "tier": 2, "branch": "trunk", "name": "Vague de chaleur II",
+                        "id": "vc2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Vague de chaleur II",
                         "description": "L'air surchauffé s'étend plus loin et pèse davantage.",
-                        "next": ["vc3"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 5, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
+                        "next": [
+                            "vc3"
+                        ],
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 5,
+                            "range": "Autour de soi",
+                            "area": "Rayon 4 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.04
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "vc3", "tier": 3, "branch": "trunk", "name": "Vague de chaleur III",
+                        "id": "vc3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Vague de chaleur III",
                         "description": "Point de scission : la chaleur peut virer à la canicule ou à l'épuisement lent.",
-                        "next": ["ca4", "ep4"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 6, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
+                        "next": [
+                            "ca4",
+                            "ep4"
+                        ],
+                        "stats": {
+                            "damageMin": 2,
+                            "damageMax": 4,
+                            "mana": 6,
+                            "range": "Autour de soi",
+                            "area": "Rayon 5 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.04
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ca4", "tier": 4, "branch": "canicule", "name": "Vague de chaleur Caniculaire I",
+                        "id": "ca4",
+                        "tier": 4,
+                        "branch": "canicule",
+                        "name": "Vague de chaleur Caniculaire I",
                         "description": "Une chape de chaleur écrasante qui accable une large zone.",
-                        "next": ["ca5"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 8, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
+                        "next": [
+                            "ca5"
+                        ],
+                        "stats": {
+                            "damageMin": 3,
+                            "damageMax": 5,
+                            "mana": 8,
+                            "range": "Autour de soi",
+                            "area": "Rayon 6 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.05
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ca5", "tier": 5, "branch": "canicule", "name": "Vague de chaleur Caniculaire II",
+                        "id": "ca5",
+                        "tier": 5,
+                        "branch": "canicule",
+                        "name": "Vague de chaleur Caniculaire II",
                         "description": "L'air lui-même devient létal, cuisant tout dans un vaste rayon.",
-                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 11, "range": "Autour de soi", "area": "Rayon 8 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
+                        "stats": {
+                            "damageMin": 4,
+                            "damageMax": 6,
+                            "mana": 11,
+                            "range": "Autour de soi",
+                            "area": "Rayon 8 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.06
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ep4", "tier": 4, "branch": "epuisement", "name": "Vague de chaleur Épuisante I",
+                        "id": "ep4",
+                        "tier": 4,
+                        "branch": "epuisement",
+                        "name": "Vague de chaleur Épuisante I",
                         "description": "Une moiteur suffocante, presque gratuite, qui use les adversaires.",
-                        "next": ["ep5"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 3, "range": "Autour de soi", "area": "Rayon 6 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
+                        "next": [
+                            "ep5"
+                        ],
+                        "stats": {
+                            "damageMin": 3,
+                            "damageMax": 5,
+                            "mana": 3,
+                            "range": "Autour de soi",
+                            "area": "Rayon 6 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.05
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ep5", "tier": 5, "branch": "epuisement", "name": "Vague de chaleur Épuisante II",
+                        "id": "ep5",
+                        "tier": 5,
+                        "branch": "epuisement",
+                        "name": "Vague de chaleur Épuisante II",
                         "description": "Une torpeur ardente qui s'entretient pour un coût dérisoire.",
-                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 2, "range": "Autour de soi", "area": "Rayon 7 m", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
+                        "stats": {
+                            "damageMin": 4,
+                            "damageMax": 6,
+                            "mana": 2,
+                            "range": "Autour de soi",
+                            "area": "Rayon 7 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.06
+                                }
+                            ]
+                        }
                     }
                 ]
             }
         },
         {
             "key": "fire-physical-destruction",
-            "requires": [""],
+            "requires": [
+                ""
+            ],
             "name": "Destruction au contact",
             "description": "Concentre une energie déstructrice au niveau de la main et detruit au contact quelquonque objet de la taille d'un poing. Cela endommage l'integrité physique de la main.",
             "mana": 16,
             "level": 5,
             "icon": "/resources/media/icons/domains/fire/destruction_icon.png",
-            "subdomains": ["Destruction"],
+            "subdomains": [
+                "Destruction"
+            ],
             "progression": {
                 "root": "pd1",
                 "branches": [
-                    { "id": "demolition", "label": "Voie de la Démolition", "description": "Puissance maximale au contact, mais l'énergie ronge la main du lanceur." },
-                    { "id": "controle", "label": "Voie du Contrôle", "description": "Énergie maîtrisée : coût réduit et intégrité de la main préservée." }
+                    {
+                        "id": "demolition",
+                        "label": "Voie de la Démolition",
+                        "description": "Puissance maximale au contact, mais l'énergie ronge la main du lanceur."
+                    },
+                    {
+                        "id": "controle",
+                        "label": "Voie du Contrôle",
+                        "description": "Énergie maîtrisée : coût réduit et intégrité de la main préservée."
+                    }
                 ],
                 "nodes": [
                     {
-                        "id": "pd1", "tier": 1, "branch": "trunk", "name": "Destruction au contact I",
+                        "id": "pd1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Destruction au contact I",
                         "description": "Concentre une énergie destructrice dans la paume, pulvérisant ce qu'elle touche.",
-                        "next": ["pd2"],
-                        "stats": { "damagePercentMaxHp": { "min": 5, "max": 8 }, "mana": 12, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "recoil": { "damageMin": 2, "damageMax": 4, "note": "à la main" }, "scaling": [{ "source": "force", "ratio": 0.2 }] }
+                        "next": [
+                            "pd2"
+                        ],
+                        "stats": {
+                            "damagePercentMaxHp": {
+                                "min": 5,
+                                "max": 8
+                            },
+                            "mana": 12,
+                            "range": "Contact",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "recoil": {
+                                "damageMin": 2,
+                                "damageMax": 4,
+                                "note": "à la main"
+                            },
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.2
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "pd2", "tier": 2, "branch": "trunk", "name": "Destruction au contact II",
+                        "id": "pd2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Destruction au contact II",
                         "description": "L'énergie se densifie, brisant des matériaux plus résistants.",
-                        "next": ["pd3"],
-                        "stats": { "damagePercentMaxHp": { "min": 7, "max": 10 }, "mana": 14, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "recoil": { "damageMin": 3, "damageMax": 5, "note": "à la main" }, "scaling": [{ "source": "force", "ratio": 0.25 }] }
+                        "next": [
+                            "pd3"
+                        ],
+                        "stats": {
+                            "damagePercentMaxHp": {
+                                "min": 7,
+                                "max": 10
+                            },
+                            "mana": 14,
+                            "range": "Contact",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "recoil": {
+                                "damageMin": 3,
+                                "damageMax": 5,
+                                "note": "à la main"
+                            },
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.25
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "pd3", "tier": 3, "branch": "trunk", "name": "Destruction au contact III",
+                        "id": "pd3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Destruction au contact III",
                         "description": "Point de scission : la puissance peut être déchaînée ou raffinée.",
-                        "next": ["de4", "co4"],
-                        "stats": { "damagePercentMaxHp": { "min": 9, "max": 13 }, "mana": 16, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "recoil": { "damageMin": 4, "damageMax": 6, "note": "à la main" }, "scaling": [{ "source": "force", "ratio": 0.3 }] }
+                        "next": [
+                            "de4",
+                            "co4"
+                        ],
+                        "stats": {
+                            "damagePercentMaxHp": {
+                                "min": 9,
+                                "max": 13
+                            },
+                            "mana": 16,
+                            "range": "Contact",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "recoil": {
+                                "damageMin": 4,
+                                "damageMax": 6,
+                                "note": "à la main"
+                            },
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.3
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "de4", "tier": 4, "branch": "demolition", "name": "Destruction au contact Dévastatrice I",
+                        "id": "de4",
+                        "tier": 4,
+                        "branch": "demolition",
+                        "name": "Destruction au contact Dévastatrice I",
                         "description": "Un impact capable de fracasser la pierre et l'acier — au prix de la chair.",
-                        "next": ["de5"],
-                        "stats": { "damagePercentMaxHp": { "min": 15, "max": 20 }, "mana": 20, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "recoil": { "damageMin": 8, "damageMax": 12, "note": "à la main" }, "scaling": [{ "source": "force", "ratio": 0.4 }] }
+                        "next": [
+                            "de5"
+                        ],
+                        "stats": {
+                            "damagePercentMaxHp": {
+                                "min": 15,
+                                "max": 20
+                            },
+                            "mana": 20,
+                            "range": "Contact",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "recoil": {
+                                "damageMin": 8,
+                                "damageMax": 12,
+                                "note": "à la main"
+                            },
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.4
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "de5", "tier": 5, "branch": "demolition", "name": "Destruction au contact Dévastatrice II",
+                        "id": "de5",
+                        "tier": 5,
+                        "branch": "demolition",
+                        "name": "Destruction au contact Dévastatrice II",
                         "description": "Un coup absolu qui réduit presque tout en poussière au contact.",
-                        "stats": { "damagePercentMaxHp": { "min": 22, "max": 30 }, "mana": 26, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "recoil": { "damageMin": 12, "damageMax": 18, "note": "à la main" }, "scaling": [{ "source": "force", "ratio": 0.5 }] }
+                        "stats": {
+                            "damagePercentMaxHp": {
+                                "min": 22,
+                                "max": 30
+                            },
+                            "mana": 26,
+                            "range": "Contact",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "recoil": {
+                                "damageMin": 12,
+                                "damageMax": 18,
+                                "note": "à la main"
+                            },
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.5
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "co4", "tier": 4, "branch": "controle", "name": "Destruction au contact Maîtrisée I",
+                        "id": "co4",
+                        "tier": 4,
+                        "branch": "controle",
+                        "name": "Destruction au contact Maîtrisée I",
                         "description": "L'énergie ronge la cible sans se retourner contre le lanceur.",
-                        "next": ["co5"],
-                        "stats": { "damagePercentMaxHp": { "min": 9, "max": 13 }, "mana": 10, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "force", "ratio": 0.3 }] }
+                        "next": [
+                            "co5"
+                        ],
+                        "stats": {
+                            "damagePercentMaxHp": {
+                                "min": 9,
+                                "max": 13
+                            },
+                            "mana": 10,
+                            "range": "Contact",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.3
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "co5", "tier": 5, "branch": "controle", "name": "Destruction au contact Maîtrisée II",
+                        "id": "co5",
+                        "tier": 5,
+                        "branch": "controle",
+                        "name": "Destruction au contact Maîtrisée II",
                         "description": "Une destruction chirurgicale, économe et sans dommage pour la main.",
-                        "stats": { "damagePercentMaxHp": { "min": 10, "max": 14 }, "mana": 7, "range": "Contact", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "force", "ratio": 0.3 }] }
+                        "stats": {
+                            "damagePercentMaxHp": {
+                                "min": 10,
+                                "max": 14
+                            },
+                            "mana": 7,
+                            "range": "Contact",
+                            "area": "Cible unique",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.3
+                                }
+                            ]
+                        }
                     }
                 ]
             }
@@ -338,86 +1278,330 @@
             "mana": 2,
             "level": 3,
             "icon": "/resources/media/icons/domains/fire/rage_and_passion_icon.png",
-            "subdomains": ["Passion & rage"],
+            "subdomains": [
+                "Passion & rage"
+            ],
             "progression": {
                 "root": "ra1",
                 "branches": [
-                    { "id": "fureur", "label": "Voie de la Fureur", "description": "La colère se déchaîne : force accrue mais consommation de mana grandissante." },
-                    { "id": "maitrise", "label": "Voie de la Maîtrise", "description": "Une rage canalisée, presque gratuite, tenue sous contrôle." }
+                    {
+                        "id": "fureur",
+                        "label": "Voie de la Fureur",
+                        "description": "La colère se déchaîne : force accrue mais consommation de mana grandissante."
+                    },
+                    {
+                        "id": "maitrise",
+                        "label": "Voie de la Maîtrise",
+                        "description": "Une rage canalisée, presque gratuite, tenue sous contrôle."
+                    }
                 ],
                 "nodes": [
                     {
-                        "id": "ra1", "tier": 1, "branch": "trunk", "name": "Colère tempérée I",
+                        "id": "ra1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Colère tempérée I",
                         "description": "Éveille une colère contenue qui raidit les muscles.",
-                        "next": ["ra2"],
-                        "stats": { "mana": 2, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "force", "value": 1, "scaling": [{ "source": "constitution", "ratio": 0.4 }] }] }
+                        "next": [
+                            "ra2"
+                        ],
+                        "stats": {
+                            "mana": 2,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "effects": [
+                                {
+                                    "stat": "force",
+                                    "value": 1,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.4
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ra2", "tier": 2, "branch": "trunk", "name": "Colère tempérée II",
+                        "id": "ra2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Colère tempérée II",
                         "description": "Point de scission précoce : la colère peut s'embraser ou se discipliner.",
-                        "next": ["fu3", "ma3"],
-                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "force", "value": 1, "scaling": [{ "source": "constitution", "ratio": 0.4 }] }] }
+                        "next": [
+                            "fu3",
+                            "ma3"
+                        ],
+                        "stats": {
+                            "mana": 3,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "effects": [
+                                {
+                                    "stat": "force",
+                                    "value": 1,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.4
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fu3", "tier": 3, "branch": "fureur", "name": "Colère tempérée Ardente I",
+                        "id": "fu3",
+                        "tier": 3,
+                        "branch": "fureur",
+                        "name": "Colère tempérée Ardente I",
                         "description": "La fureur monte, décuplant la force brute.",
-                        "next": ["fu4"],
-                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "constitution", "ratio": 0.5 }] }] }
+                        "next": [
+                            "fu4"
+                        ],
+                        "stats": {
+                            "mana": 4,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "force",
+                                    "value": 2,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.5
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fu4", "tier": 4, "branch": "fureur", "name": "Colère tempérée Ardente II",
+                        "id": "fu4",
+                        "tier": 4,
+                        "branch": "fureur",
+                        "name": "Colère tempérée Ardente II",
                         "description": "Un brasier intérieur qui pousse le corps au-delà de ses limites.",
-                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "constitution", "ratio": 0.6 }] }] }
+                        "stats": {
+                            "mana": 5,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 4,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "force",
+                                    "value": 3,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.6
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ma3", "tier": 3, "branch": "maitrise", "name": "Colère tempérée Sereine I",
+                        "id": "ma3",
+                        "tier": 3,
+                        "branch": "maitrise",
+                        "name": "Colère tempérée Sereine I",
                         "description": "La colère est canalisée en une chaleur stable et peu coûteuse.",
-                        "next": ["ma4"],
-                        "stats": { "mana": 2, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "force", "value": 1, "scaling": [{ "source": "constitution", "ratio": 0.4 }] }] }
+                        "next": [
+                            "ma4"
+                        ],
+                        "stats": {
+                            "mana": 2,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 4,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "force",
+                                    "value": 1,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.4
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "ma4", "tier": 4, "branch": "maitrise", "name": "Colère tempérée Sereine II",
+                        "id": "ma4",
+                        "tier": 4,
+                        "branch": "maitrise",
+                        "name": "Colère tempérée Sereine II",
                         "description": "Une flamme intérieure paisible, entretenue pour presque rien.",
-                        "stats": { "mana": 1, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "force", "value": 1, "scaling": [{ "source": "constitution", "ratio": 0.4 }] }] }
+                        "stats": {
+                            "mana": 1,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 5,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "force",
+                                    "value": 1,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.4
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     }
                 ]
             }
         },
         {
             "key": "fire-frenzy",
-            "requires": ["fire-rage"],
+            "requires": [
+                "fire-rage"
+            ],
             "name": "Frenzy",
             "description": "Influence une à trois personne en les rendant plus irritable.",
             "level": 5,
             "mana": 7,
             "icon": "/resources/media/icons/domains/fire/rage_and_passion_icon.png",
-            "subdomains": ["Passion & rage"],
+            "subdomains": [
+                "Passion & rage"
+            ],
             "progression": {
                 "root": "fr1",
                 "nodes": [
                     {
-                        "id": "fr1", "tier": 1, "branch": "trunk", "name": "Frenzy I",
+                        "id": "fr1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Frenzy I",
                         "description": "Attise l'irritabilité d'une à trois créatures.",
-                        "next": ["fr2"],
-                        "stats": { "mana": 7, "range": "12 m", "area": "1 cible", "targets": ["enemy"], "inflicts": [{ "status": "berserk", "chance": 100, "duration": 2 }], "duration": 2, "effects": [ ] } 
+                        "next": [
+                            "fr2"
+                        ],
+                        "stats": {
+                            "mana": 7,
+                            "range": "12 m",
+                            "area": "1 cible",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "berserk",
+                                    "chance": 100,
+                                    "duration": 2
+                                }
+                            ],
+                            "duration": 2,
+                            "effects": []
+                        }
                     },
                     {
-                        "id": "fr2", "tier": 2, "branch": "trunk", "name": "Frenzy II",
+                        "id": "fr2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Frenzy II",
                         "description": "L'influence gagne en portée et touche davantage d'esprits.",
-                        "next": ["fr3"],
-                        "stats": { "mana": 9, "range": "14 m", "area": "1 à 2 cibles", "targets": ["enemy"], "inflicts": [{ "status": "berserk", "chance": 100, "duration": 4 }] }
+                        "next": [
+                            "fr3"
+                        ],
+                        "stats": {
+                            "mana": 9,
+                            "range": "14 m",
+                            "area": "1 à 2 cibles",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "berserk",
+                                    "chance": 100,
+                                    "duration": 4
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fr3", "tier": 3, "branch": "trunk", "name": "Frenzy III",
+                        "id": "fr3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Frenzy III",
                         "description": "Une rage contagieuse qui embrase tout un groupe.",
-                        "stats": { "mana": 12, "range": "16 m", "area": "1 à 5 cibles", "targets": ["enemy"], "inflicts": [{ "status": "berserk", "chance": 100, "duration": 6 }] }
+                        "stats": {
+                            "mana": 12,
+                            "range": "16 m",
+                            "area": "1 à 5 cibles",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "inflicts": [
+                                {
+                                    "status": "berserk",
+                                    "chance": 100,
+                                    "duration": 6
+                                }
+                            ]
+                        }
                     }
                 ]
             }
         },
         {
             "key": "fire-revetement-arme",
-            "requires": ["fire-revetement-poings"],
+            "requires": [
+                "fire-revetement-poings"
+            ],
             "name": "Lame ardente",
             "description": "Enrobe une arme de flammes : tant que l'enchantement dure, chaque coup inflige des dégâts de feu supplémentaires.",
             "usage": {
@@ -425,27 +1609,78 @@
             },
             "mana": 3,
             "level": 3,
-            "subdomains": ["Combustion"],
+            "subdomains": [
+                "Combustion"
+            ],
             "damageType": "fire",
             "progression": {
                 "root": "fra1",
                 "nodes": [
                     {
-                        "id": "fra1", "tier": 1, "branch": "trunk", "name": "Lame ardente I",
+                        "id": "fra1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Lame ardente I",
                         "description": "Des flammes gainent votre arme : chaque attaque au corps à corps inflige ces dégâts de feu en plus, le temps de l'enchantement.",
-                        "next": ["fra2"],
-                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.06 }] }
+                        "next": [
+                            "fra2"
+                        ],
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 3,
+                            "range": "Personnel",
+                            "duration": 3,
+                            "scaling": [
+                                {
+                                    "source": "atk_phy",
+                                    "ratio": 0.02
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fra2", "tier": 2, "branch": "trunk", "name": "Lame ardente II",
+                        "id": "fra2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Lame ardente II",
                         "description": "L'embrasement s'intensifie et dure plus longtemps.",
-                        "next": ["fra3"],
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }] }
+                        "next": [
+                            "fra3"
+                        ],
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 4,
+                            "range": "Personnel",
+                            "duration": 4,
+                            "scaling": [
+                                {
+                                    "source": "atk_phy",
+                                    "ratio": 0.03
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "fra3", "tier": 3, "branch": "trunk", "name": "Lame ardente III",
+                        "id": "fra3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Lame ardente III",
                         "description": "Une arme changée en brandon ardent, dont chaque coup brûle durablement.",
-                        "stats": { "damageMin": 4, "damageMax": 7, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.07 }] }
+                        "stats": {
+                            "damageMin": 2,
+                            "damageMax": 3,
+                            "mana": 5,
+                            "range": "Personnel",
+                            "duration": 5,
+                            "scaling": [
+                                {
+                                    "source": "atk_phy",
+                                    "ratio": 0.03
+                                }
+                            ]
+                        }
                     }
                 ]
             }
@@ -453,41 +1688,117 @@
         {
             "key": "fire-revetement-poings",
             "name": "Poings ardents",
-            "requires": ["fire-embers"],
+            "requires": [
+                "fire-embers"
+            ],
             "description": "Embrase vos poings : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de feu supplémentaires.",
             "usage": {
                 "combat": "Enflammez vos poings pour ajouter des dégâts de feu à vos attaques à mains nues, le temps de l'enchantement."
             },
             "mana": 3,
             "level": 2,
-            "subdomains": ["Combustion"],
+            "subdomains": [
+                "Combustion"
+            ],
             "damageType": "fire",
             "progression": {
                 "root": "frp1",
                 "nodes": [
                     {
-                        "id": "frp1", "tier": 1, "branch": "trunk", "name": "Poings ardents I",
+                        "id": "frp1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Poings ardents I",
                         "description": "Vos poings s'embrasent : chaque coup à mains nues inflige ces dégâts de feu en plus.",
-                        "next": ["frp2"],
-                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "next": [
+                            "frp2"
+                        ],
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 3,
+                            "range": "Personnel",
+                            "duration": 3,
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "classBonuses": [
+                                {
+                                    "class": "pugilist",
+                                    "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                                    "bonusAction": true
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "frp2", "tier": 2, "branch": "trunk", "name": "Poings ardents II",
+                        "id": "frp2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Poings ardents II",
                         "description": "La flamme mord plus fort et tient plus longtemps.",
-                        "next": ["frp3"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "next": [
+                            "frp3"
+                        ],
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 4,
+                            "range": "Personnel",
+                            "duration": 4,
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.25
+                                }
+                            ],
+                            "classBonuses": [
+                                {
+                                    "class": "pugilist",
+                                    "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                                    "bonusAction": true
+                                }
+                            ]
+                        }
                     },
                     {
-                        "id": "frp3", "tier": 3, "branch": "trunk", "name": "Poings ardents III",
+                        "id": "frp3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Poings ardents III",
                         "description": "Des poings changés en brasier, dont chaque impact calcine.",
-                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "En lançant le sort, le pugiliste porte aussitôt une attaque à mains nues enchantée, gratuitement." }] }
+                        "stats": {
+                            "damageMin": 1,
+                            "damageMax": 2,
+                            "mana": 5,
+                            "range": "Personnel",
+                            "duration": 5,
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.3
+                                }
+                            ],
+                            "classBonuses": [
+                                {
+                                    "class": "pugilist",
+                                    "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                                    "bonusAction": true
+                                }
+                            ]
+                        }
                     }
                 ]
             }
         },
         {
             "key": "fire-revetement-manteau",
-            "requires": ["fire-revetement-poings"],
+            "requires": [
+                "fire-revetement-poings"
+            ],
             "name": "Manteau de flammes",
             "description": "Enveloppe le lanceur d'un voile de flammes : sa défense magique est renforcée. Tout attaquant au corps-à-corps subit la brûlure en retour.",
             "usage": {
@@ -495,38 +1806,271 @@
             },
             "mana": 3,
             "level": 3,
-            "subdomains": ["Combustion"],
+            "subdomains": [
+                "Combustion"
+            ],
             "progression": {
                 "root": "fmt1",
                 "nodes": [
                     {
-                        "id": "fmt1", "tier": 1, "branch": "trunk", "name": "Manteau de flammes I",
+                        "id": "fmt1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Manteau de flammes I",
                         "description": "S'entoure d'un voile de flammes : la défense magique du lanceur est renforcée le temps de l'enchantement.",
-                        "next": ["fmt2"],
-                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }], "retaliate": { "trigger": "melee", "damageMin": 2, "damageMax": 4, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.2 }], "inflicts": [{ "status": "brulure", "chance": 50 }] } }
+                        "next": [
+                            "fmt2"
+                        ],
+                        "stats": {
+                            "mana": 3,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "effects": [
+                                {
+                                    "stat": "def_mag",
+                                    "value": 4,
+                                    "scaling": [
+                                        {
+                                            "source": "intelligence",
+                                            "ratio": 0.3
+                                        }
+                                    ]
+                                }
+                            ],
+                            "retaliate": {
+                                "trigger": "melee",
+                                "damageMin": 2,
+                                "damageMax": 4,
+                                "damageType": "fire",
+                                "scaling": [
+                                    {
+                                        "source": "atk_mag",
+                                        "ratio": 0.2
+                                    }
+                                ],
+                                "inflicts": [
+                                    {
+                                        "status": "brulure",
+                                        "chance": 50
+                                    }
+                                ]
+                            }
+                        }
                     },
                     {
-                        "id": "fmt2", "tier": 2, "branch": "trunk", "name": "Manteau de flammes II",
+                        "id": "fmt2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Manteau de flammes II",
                         "description": "L'enveloppe s'épaissit : protection accrue et plus durable.",
-                        "next": ["fmt3"],
-                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 6, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }], "retaliate": { "trigger": "melee", "damageMin": 3, "damageMax": 6, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.2 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
+                        "next": [
+                            "fmt3"
+                        ],
+                        "stats": {
+                            "mana": 4,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 4,
+                            "effects": [
+                                {
+                                    "stat": "def_mag",
+                                    "value": 6,
+                                    "scaling": [
+                                        {
+                                            "source": "intelligence",
+                                            "ratio": 0.4
+                                        }
+                                    ]
+                                }
+                            ],
+                            "retaliate": {
+                                "trigger": "melee",
+                                "damageMin": 3,
+                                "damageMax": 6,
+                                "damageType": "fire",
+                                "scaling": [
+                                    {
+                                        "source": "atk_mag",
+                                        "ratio": 0.2
+                                    }
+                                ],
+                                "inflicts": [
+                                    {
+                                        "status": "brulure",
+                                        "chance": 100
+                                    }
+                                ]
+                            }
+                        }
                     },
                     {
-                        "id": "fmt3", "tier": 3, "branch": "trunk", "name": "Manteau de flammes III",
+                        "id": "fmt3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Manteau de flammes III",
                         "description": "Le voile se stabilise : une protection fiable contre les sorts et attaques magiques.",
-                        "next": ["fmt4"],
-                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 8, "scaling": [{ "source": "intelligence", "ratio": 0.5 }] }], "retaliate": { "trigger": "melee", "damageMin": 5, "damageMax": 9, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.25 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
+                        "next": [
+                            "fmt4"
+                        ],
+                        "stats": {
+                            "mana": 5,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 5,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "def_mag",
+                                    "value": 8,
+                                    "scaling": [
+                                        {
+                                            "source": "intelligence",
+                                            "ratio": 0.5
+                                        }
+                                    ]
+                                }
+                            ],
+                            "retaliate": {
+                                "trigger": "melee",
+                                "damageMin": 5,
+                                "damageMax": 9,
+                                "damageType": "fire",
+                                "scaling": [
+                                    {
+                                        "source": "atk_mag",
+                                        "ratio": 0.25
+                                    }
+                                ],
+                                "inflicts": [
+                                    {
+                                        "status": "brulure",
+                                        "chance": 100
+                                    }
+                                ]
+                            }
+                        }
                     },
                     {
-                        "id": "fmt4", "tier": 4, "branch": "trunk", "name": "Manteau de flammes IV",
+                        "id": "fmt4",
+                        "tier": 4,
+                        "branch": "trunk",
+                        "name": "Manteau de flammes IV",
                         "description": "L'enveloppe atteint une densité rare et se maintient plus longtemps.",
-                        "next": ["fmt5"],
-                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 10, "scaling": [{ "source": "intelligence", "ratio": 0.6 }] }], "retaliate": { "trigger": "melee", "damageMin": 7, "damageMax": 12, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.3 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
+                        "next": [
+                            "fmt5"
+                        ],
+                        "stats": {
+                            "mana": 6,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 5,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.2
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "def_mag",
+                                    "value": 10,
+                                    "scaling": [
+                                        {
+                                            "source": "intelligence",
+                                            "ratio": 0.6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "retaliate": {
+                                "trigger": "melee",
+                                "damageMin": 7,
+                                "damageMax": 12,
+                                "damageType": "fire",
+                                "scaling": [
+                                    {
+                                        "source": "atk_mag",
+                                        "ratio": 0.3
+                                    }
+                                ],
+                                "inflicts": [
+                                    {
+                                        "status": "brulure",
+                                        "chance": 100
+                                    }
+                                ]
+                            }
+                        }
                     },
                     {
-                        "id": "fmt5", "tier": 5, "branch": "trunk", "name": "Manteau de flammes V",
+                        "id": "fmt5",
+                        "tier": 5,
+                        "branch": "trunk",
+                        "name": "Manteau de flammes V",
                         "description": "Une maîtrise totale : le meilleur rempart de la voie contre les sorts et attaques magiques.",
-                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_mag", "value": 11, "scaling": [{ "source": "intelligence", "ratio": 0.65 }] }], "retaliate": { "trigger": "melee", "damageMin": 9, "damageMax": 15, "damageType": "fire", "scaling": [{ "source": "atk_mag", "ratio": 0.35 }], "inflicts": [{ "status": "brulure", "chance": 100 }] } }
+                        "stats": {
+                            "mana": 7,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 6,
+                            "durationScaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.25
+                                }
+                            ],
+                            "effects": [
+                                {
+                                    "stat": "def_mag",
+                                    "value": 11,
+                                    "scaling": [
+                                        {
+                                            "source": "intelligence",
+                                            "ratio": 0.65
+                                        }
+                                    ]
+                                }
+                            ],
+                            "retaliate": {
+                                "trigger": "melee",
+                                "damageMin": 9,
+                                "damageMax": 15,
+                                "damageType": "fire",
+                                "scaling": [
+                                    {
+                                        "source": "atk_mag",
+                                        "ratio": 0.35
+                                    }
+                                ],
+                                "inflicts": [
+                                    {
+                                        "status": "brulure",
+                                        "chance": 100
+                                    }
+                                ]
+                            }
+                        }
                     }
                 ]
             }

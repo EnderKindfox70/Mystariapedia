@@ -1,40 +1,59 @@
 {
-    "name": "Houlette de berger",
-    "subtitle": "Outil de dressage",
-    "category": "outils",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Une hampe de noisetier de la taille d'un homme, terminée par un crochet de fer plat assez large pour saisir une bête par le jarret sans la blesser, et lestée à l'autre bout. Elle sert d'appui en montagne, de perche pour sonder un gué, et de bâton quand un chien de meute s'approche de trop près.",
-        "Le berger ne commande pas son troupeau : il le guide, et la houlette est le prolongement de ce geste. Ceux qui l'ont maniée dix ans savent en approcher n'importe quel animal — c'est un savoir-faire qui vaut, sur les routes de Mystaria, autant qu'une arme."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "1,5 kg" },
-        { "key": "type",   "label": "Type",        "value": "Outil — dressage réutilisable" },
-        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Portée de contact allongée (2 m)" },
-        { "key": "value",  "label": "Valeur",      "value": "6 pièces d'or" }
-    ],
-    "properties": [
-        "Facilite tout ce qui relève du dressage : approcher, calmer, guider ou retenir un animal non hostile.",
-        "Le crochet saisit une bête à distance d'un bras et demi, sans la blesser ni s'exposer aux sabots.",
-        "Sert de troisième appui sur un terrain instable, et de perche pour sonder la profondeur d'un gué ou la solidité d'un sol.",
-        "Arme improvisée honnête : 1 à 2 points de dégâts contondants, avec l'allonge d'un bâton.",
-        "Sans effet sur les créatures magiques, mutées ou franchement hostiles : elles ne se laissent pas guider.",
-        "Le bois travaille avec l'humidité. Une houlette laissée dehors tout un hiver finit par se fendre en deux."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chaque village en produit les siennes ; on ne les achète presque jamais, on les taille ou on en hérite.",
-            "Le crochet de fer, lui, se fait forger. Il passe souvent d'une hampe à la suivante sur trois générations."
-        ]
+  "name": "Houlette de berger",
+  "subtitle": "Outil de dressage",
+  "material": "bois",
+  "category": "outils",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Une hampe de noisetier de la taille d'un homme, terminée par un crochet de fer plat assez large pour saisir une bête par le jarret sans la blesser, et lestée à l'autre bout. Elle sert d'appui en montagne, de perche pour sonder un gué, et de bâton quand un chien de meute s'approche de trop près.",
+    "Le berger ne commande pas son troupeau : il le guide, et la houlette est le prolongement de ce geste. Ceux qui l'ont maniée dix ans savent en approcher n'importe quel animal — c'est un savoir-faire qui vaut, sur les routes de Mystaria, autant qu'une arme."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,5 kg"
     },
-    "notes": [
-        "Un berger reconnaît la houlette d'un autre à l'usure du crochet, comme un forgeron reconnaît un marteau.",
-        "Les chiens de troupeau obéissent au geste de la houlette autant qu'à la voix. Sans elle, un berger doit tout recommencer à crier."
-    ],
-    "references": [
-
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Outil — dressage réutilisable"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Portée de contact allongée (2 m)"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "6 pièces d'or"
+    }
+  ],
+  "properties": [
+    "Facilite tout ce qui relève du dressage : approcher, calmer, guider ou retenir un animal non hostile.",
+    "Le crochet saisit une bête à distance d'un bras et demi, sans la blesser ni s'exposer aux sabots.",
+    "Sert de troisième appui sur un terrain instable, et de perche pour sonder la profondeur d'un gué ou la solidité d'un sol.",
+    "Arme improvisée honnête : 1 à 2 points de dégâts contondants, avec l'allonge d'un bâton.",
+    "Sans effet sur les créatures magiques, mutées ou franchement hostiles : elles ne se laissent pas guider.",
+    "Le bois travaille avec l'humidité. Une houlette laissée dehors tout un hiver finit par se fendre en deux."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chaque village en produit les siennes ; on ne les achète presque jamais, on les taille ou on en hérite.",
+      "Le crochet de fer, lui, se fait forger. Il passe souvent d'une hampe à la suivante sur trois générations."
     ]
+  },
+  "notes": [
+    "Un berger reconnaît la houlette d'un autre à l'usure du crochet, comme un forgeron reconnaît un marteau.",
+    "Les chiens de troupeau obéissent au geste de la houlette autant qu'à la voix. Sans elle, un berger doit tout recommencer à crier."
+  ],
+  "references": []
 }

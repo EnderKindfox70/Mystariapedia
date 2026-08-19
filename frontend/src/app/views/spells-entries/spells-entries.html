@@ -360,7 +360,7 @@
                             </span>
                           }
                         </span>
-                        @if (dc.type) { <span class="se-dmg-type" [attr.data-type]="dc.type.key" [attr.data-general]="dc.type.general" [attr.title]="'Dégâts ' + dc.type.generalLabel">{{ dc.type.label }}</span>}
+                        @if (dc.type; as dt) { <span class="se-dmg-type" [class.has-tip]="!!dt.hint" [attr.tabindex]="dt.hint ? 0 : null" [attr.data-type]="dt.key" [attr.data-general]="dt.general" [attr.title]="dt.hint ? null : 'Dégâts ' + dt.generalLabel">{{ dt.label }}@if (dt.hint; as hint) {<span class="se-effect-tip" role="tooltip"><span class="se-effect-tip__row se-effect-tip__row--wrap">{{ hint }}</span></span>}</span>}
                         @if (!last) {<span class="se-box__sep"> + </span>}
                       }
                       dégâts{{ targetsPhrase(node) }}.
@@ -384,9 +384,9 @@
                       points de vie{{ targetsPhrase(node) }}.
                     }
 
-                    @if (node.stats.effects?.length) {
+                    @if (effectRows().length) {
                       {{ effectActionVerb(node) }}
-                      @for (e of node.stats.effects ?? []; track e.stat; let i = $index; let first = $first; let count = $count) {
+                      @for (e of effectRows(); track e.stat; let i = $index; let first = $first; let count = $count) {
                         @if (!first) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
                         {{ statNoun(e.stat) }} de
                         <span class="se-inline-val"
@@ -686,6 +686,65 @@
                     <span class="se-targets__label">Cibles :</span>
                     @for (t of node.stats.targets; track t) {
                       <span [class]="'se-target se-target--' + t">{{ targetLabel(t) }}</span>
+                    }
+                  </div>
+                }
+
+                <!-- Un sort qui façonne ne porte pas ses chiffres : ils viennent
+                     de la matière. Le sélecteur relit donc TOUTE la fiche —
+                     dégâts, type, défense — au lieu de juxtaposer un tableau à
+                     une description qui, elle, resterait fausse. -->
+                @if (materialChoices().length) {
+                  <div class="se-materials">
+                    <label class="se-materials__label" for="se-material">
+                      Matière façonnée — {{ shapedFamilyName() }}
+                    </label>
+                    <select
+                      id="se-material"
+                      class="se-materials__select"
+                      [value]="activeMaterial()?.key"
+                      (change)="setSheetMaterial($any($event.target).value)"
+                    >
+                      @for (m of materialChoices(); track m.key) {
+                        <option [value]="m.key">{{ m.name }} — {{ m.property }}</option>
+                      }
+                    </select>
+
+                    @if (materialValues(); as v) {
+                      <p class="se-materials__intro">
+                        Les chiffres de cette fiche sont ceux de la matière : le palier ne
+                        dit que l'ampleur façonnée. Changer de pierre change vraiment d'arme.
+                      </p>
+                      <ul class="se-materials__facts">
+                        <li>
+                          <span>{{ v.perHit ? 'Par coup' : 'Dégâts' }}</span>
+                          <b>{{ v.damageMin }}–{{ v.damageMax }} {{ dmgTypeLabel(v.material.damageType) }}</b>
+                        </li>
+                        <li><span>Défense physique</span><b>+{{ v.defense }}</b></li>
+                        <li>
+                          <span>Défense magique</span>
+                          <b>
+                            @if (v.magicDefense) { +{{ v.magicDefense }} }
+                            @else { <em class="se-materials__none">aucune</em> }
+                          </b>
+                        </li>
+                        <li><span>Vitesse</span><b>−{{ v.speedPenalty }}</b></li>
+                        @if (v.wallHp) {
+                          <li><span>Mur</span><b>{{ v.wallHp }} PV</b></li>
+                        }
+                        <li><span>Coût en mana</span><b>×{{ num(v.material.manaFactor) }}</b></li>
+                        <li><span>On en trouve</span><b>{{ v.where }}</b></li>
+                        @if (v.material.resistances?.length) {
+                          <li><span>Résiste à</span><b>{{ materialTypes(v.material.resistances) }}</b></li>
+                        }
+                        @if (v.material.weaknesses?.length) {
+                          <li><span>Fragile à</span><b>{{ materialTypes(v.material.weaknesses) }}</b></li>
+                        }
+                        @if (materialCleanses(v.material); as purge) {
+                          <li><span>Écarte</span><b>{{ purge }}</b></li>
+                        }
+                      </ul>
+                      <p class="se-materials__note">{{ v.material.effect }}</p>
                     }
                   </div>
                 }

@@ -7,7 +7,7 @@
         "La potion de mana originelle qui restaure une quantité médiane de mana."
     ],
     "effects": [
-        "Restaure une quantité de mana"
+        "Restaure 5 points de mana, plus 15 % de la réserve maximale du buveur."
     ],
     "secondary-effects": [
         "Peut provoquer une sensation de nausée si consommée en grande quantité."

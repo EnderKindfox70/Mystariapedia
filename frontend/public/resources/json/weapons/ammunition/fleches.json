@@ -1,5 +1,6 @@
 {
   "name": "Flèches",
+  "material": "fer",
   "subtitle": "Munition des arcs",
   "description": [
     "Hampe de bois, empennage de plume et pointe d'acier : la flèche est l'âme de l'arc. Sa forme détermine sa trajectoire autant que la main qui la décoche.",
@@ -7,10 +8,21 @@
   ],
   "damageType": "piercing",
   "damageBonus": 1,
-  "compatibleWith": ["shortBow", "longBow"],
+  "compatibleWith": [
+    "shortBow",
+    "longBow"
+  ],
   "info": [
-    { "key": "weight", "label": "Poids unitaire", "value": "0,05 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Commune" }
+    {
+      "key": "weight",
+      "label": "Poids unitaire",
+      "value": "0,05 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    }
   ],
   "properties": [
     "Légères, transportées par carquois",

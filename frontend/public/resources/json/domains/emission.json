@@ -7,6 +7,80 @@
     "usage-quote": "Ne retiens pas la mana en toi. Déploie-la, et fais-en un mur qui n'existe qu'un instant.",
     "description": "L'Émission est le second usage de la magie non polarisée : la mana brute projetée vers l'extérieur plutôt que retenue dans la matière. Déployée comme un voile autour de l'utilisateur, elle intercepte les sorts qui l'atteignent et en absorbe une part de la puissance avant qu'elle ne se traduise en dégâts réels. Elle ne renvoie rien, ne neutralise rien complètement — elle atténue. Comme le Renforcement, elle ne crée pas et ne dure que le temps qu'on l'alimente ; mais là où l'un durcit ce qui existe déjà, l'autre occupe l'espace vide entre le mage et ce qui le menace.",
     "subdomains": [],
+    "spells": [
+        {
+            "key": "emission-voile",
+            "name": "Voile",
+            "description": "Déploie autour de soi une pellicule de mana brute qui boit une part de tout sort qui la traverse. Elle ne bloque pas : elle atténue, tant qu'on la nourrit.",
+            "usage": {
+                "combat": "Hausse durable de la résistance magique : chaque sort reçu passe moins bien, le temps que le voile tienne.",
+                "outOfCombat": "Traverser une salle piégée d'arcanes, approcher un foyer de mana instable, dormir sous un ciel de tempête magique sans s'y consumer."
+            },
+            "mana": 3,
+            "level": 1,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "progression": {
+                "root": "vo1",
+                "nodes": [
+                    {
+                        "id": "vo1", "tier": 1, "branch": "trunk", "name": "Voile I",
+                        "description": "Une pellicule fine, à peine visible, qui émousse ce qui l'atteint.",
+                        "next": ["vo2"],
+                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_mag", "value": 3, "scaling": [{ "source": "sagesse", "ratio": 0.4 }] }] }
+                    },
+                    {
+                        "id": "vo2", "tier": 2, "branch": "trunk", "name": "Voile II",
+                        "description": "Le voile s'épaissit et tient plus longtemps sans se déchirer.",
+                        "next": ["vo3"],
+                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 5, "scaling": [{ "source": "sagesse", "ratio": 0.5 }] }] }
+                    },
+                    {
+                        "id": "vo3", "tier": 3, "branch": "trunk", "name": "Voile III",
+                        "description": "Le voile se détache assez du corps pour être posé sur un allié plutôt que sur soi.",
+                        "usage": { "combat": "Même atténuation, mais elle peut désormais couvrir un compagnon à distance." },
+                        "stats": { "mana": 6, "range": "8 m", "area": "Soi-même ou un allié", "targets": ["self", "ally"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 7, "scaling": [{ "source": "sagesse", "ratio": 0.6 }] }] }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "emission-bouclier-de-voile",
+            "requires": ["emission-voile"],
+            "name": "Bouclier de voile",
+            "description": "Ramasse tout le voile en un seul point, l'instant d'un souffle : la prochaine attaque magique reçue n'arrive plus qu'à moitié.",
+            "usage": {
+                "combat": "Un mur d'un tour : la résistance magique monte assez haut pour diviser par deux le sort qui vient. On l'ouvre au moment juste — trop tôt, il est déjà retombé.",
+                "outOfCombat": "Franchir une garde arcanique, encaisser la décharge d'un sceau brisé, tenir devant un piège qu'on savait devoir déclencher."
+            },
+            "mana": 4,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "progression": {
+                "root": "bv1",
+                "nodes": [
+                    {
+                        "id": "bv1", "tier": 1, "branch": "trunk", "name": "Bouclier de voile I",
+                        "description": "Le voile se ramasse le temps d'un souffle : le sort qui vient perd la moitié de sa force.",
+                        "next": ["bv2"],
+                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 1, "effects": [{ "stat": "def_mag", "value": 25 }] }
+                    },
+                    {
+                        "id": "bv2", "tier": 2, "branch": "trunk", "name": "Bouclier de voile II",
+                        "description": "La prise tient deux souffles au lieu d'un : on peut l'ouvrir un peu trop tôt sans le payer.",
+                        "next": ["bv3"],
+                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 2, "effects": [{ "stat": "def_mag", "value": 25, "scaling": [{ "source": "sagesse", "ratio": 0.6 }] }] }
+                    },
+                    {
+                        "id": "bv3", "tier": 3, "branch": "trunk", "name": "Bouclier de voile III",
+                        "description": "Le bouclier se pose à distance : on encaisse le sort destiné à un autre.",
+                        "stats": { "mana": 8, "range": "8 m", "area": "Soi-même ou un allié", "targets": ["self", "ally"], "duration": 2, "effects": [{ "stat": "def_mag", "value": 25, "scaling": [{ "source": "sagesse", "ratio": 1 }] }] }
+                    }
+                ]
+            }
+        }
+    ],
     "manifestations": [
         {
             "name": "Voile absorbant",

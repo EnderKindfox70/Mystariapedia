@@ -42,6 +42,17 @@ export class Rng {
     return this.die(20);
   }
 
+  /**
+   * Le d100 des tables de pourcentages (chasse, tables de rencontre).
+   *
+   * Distinct de `chance()` : celui-ci rend le JET, pas un oui/non. Une table à
+   * plusieurs issues a besoin du chiffre pour se lire — et le journal doit
+   * pouvoir montrer « d100 : 73 » plutôt qu'un verdict tombé du ciel.
+   */
+  d100(): number {
+    return this.die(100);
+  }
+
   /** `true` avec une probabilité de `percent` % (0–100). */
   chance(percent: number): boolean {
     if (percent >= 100) return true;

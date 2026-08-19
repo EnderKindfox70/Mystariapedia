@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import damageData from '../../../public/resources/json/damage_type.json';
-import { DAMAGE_LABELS } from '../combat/damage-labels';
+import { DAMAGE_LABELS, WEAPON_DAMAGE_TYPE } from '../combat/damage-labels';
 
 /** Catégorie générale d'un type de dégâts, pour le style. */
 export type DamageGeneral = 'physical' | 'magical' | 'true';
@@ -14,6 +14,14 @@ export interface ResolvedDamageType {
   general: DamageGeneral;
   /** Libellé français de la catégorie (ex. « Magique »). */
   generalLabel: string;
+  /**
+   * Explication à montrer au survol, pour un type qui ne se lit pas tout seul.
+   *
+   * Un type ordinaire n'en a pas besoin : « Feu » se comprend. Mais un type qui
+   * ne DÉSIGNE pas une nature — celui qui renvoie à l'arme portée — doit dire
+   * de quoi il dépend, sinon la fiche annonce des dégâts que rien n'explique.
+   */
+  hint?: string;
 }
 
 /** Libellés FR des types spécifiques (clés = `name` de damage_type.json). */
@@ -52,6 +60,16 @@ export class DamageTypesService {
         generalLabel: GENERAL_LABEL[general],
       });
     }
+    // Le marqueur des revêtements sans nature propre (Renforcement) n'est pas un
+    // type du catalogue : il DÉSIGNE celui de l'arme nimbée, et se résout au
+    // moment du coup. La fiche doit quand même savoir l'écrire.
+    map.set(WEAPON_DAMAGE_TYPE, {
+      key: WEAPON_DAMAGE_TYPE,
+      label: DAMAGE_LABELS[WEAPON_DAMAGE_TYPE],
+      general: 'physical',
+      generalLabel: GENERAL_LABEL['physical'],
+      hint: 'Les dégâts supplémentaires dépendent de votre arme : ils prennent son type. Une lame tranche, une masse écrase.',
+    });
     return map;
   }
 

@@ -126,6 +126,12 @@ export interface PdfSlotRow {
   lines: string[];
 }
 
+/** Une maîtrise imprimée : son libellé, et si elle vient d'un ajout manuel. */
+export interface PdfProficiency {
+  label: string;
+  manual: boolean;
+}
+
 export interface SheetPdfData {
   fileName: string;
   /**
@@ -158,6 +164,27 @@ export interface SheetPdfData {
   domains: PdfDomain[];
   attributes: { label: string; score: number; mod: string }[];
   bars: { label: string; icon: string; value: number; pct: number }[];
+  /** Jauges de survie : des crans cochés, pas un pourcentage. */
+  survival: {
+    label: string;
+    icon: string;
+    /** Crans cochés / crans totaux. */
+    filled: number;
+    segments: number;
+    /** Verdict en toutes lettres (« Affamé », « Désaltéré »…). */
+    stage: string;
+  }[];
+  /** Réserves : une proportion de points, et le verdict qui va avec. */
+  pools: {
+    label: string;
+    icon: string;
+    /** Niveau du moment / maximum calculé. */
+    current: number;
+    max: number;
+    pct: number;
+    /** Verdict en toutes lettres (« Blessé », « À bout de souffle »…). */
+    stage: string;
+  }[];
   defenses: { label: string; icon: string; spark?: string; value: number }[];
   spells: {
     cap: number;
@@ -167,6 +194,8 @@ export interface SheetPdfData {
     unlocked: PdfSpellRow[];
   };
   classSpells: { level: number; name: string; endurance: number; description: string }[];
+  /** Maîtrises d'armes et d'armures, chacune marquée « ajoutée à la main » ou non. */
+  proficiencies: { weapons: PdfProficiency[]; armors: PdfProficiency[] };
   equipment: { left: PdfSlotRow[]; right: PdfSlotRow[] };
   skills: { label: string; bonus: string; trained: boolean }[];
   inventory: { name: string; qty: number; weight: number }[];
@@ -1036,6 +1065,96 @@ function statsBlock(p: Painter, d: SheetPdfData, w: number): Block {
   };
 }
 
+/**
+ * Jauges de survie. Elles se dessinent en crans séparés — c'est ce qui les
+ * distingue des barres de réserves posées juste à côté : ici on coche des
+ * jours de réserve, on n'affiche pas une proportion.
+ */
+function survivalBlock(p: Painter, d: SheetPdfData, w: number): Block {
+  const inner = w - PAD * 2;
+  const rowH = 9.5;
+  const gap = 1;
+
+  return {
+    title: 'Survie',
+    rows: d.survival.map((g) =>
+      row(rowH, (x, y) => {
+        // Intitulé à gauche, verdict à droite : la rangée de crans passe sous
+        // les deux et court sur TOUTE la largeur du bloc.
+        p.icon(g.icon, x, y + 0.2, 4.2);
+        p.font('Spectral', 'normal', PT.small, INK);
+        p.text(g.label, x + 5.6, y + 0.7);
+        p.font('Spectral', 'normal', PT.micro, MUTED);
+        p.text(`${g.stage} (${g.filled}/${g.segments})`, x + inner, y + 1, 'right');
+
+        const segW = (inner - gap * (g.segments - 1)) / g.segments;
+        const trackY = y + 5.4;
+        const trackH = 3;
+        for (let i = 0; i < g.segments; i++) {
+          const sx = x + i * (segW + gap);
+          if (i < g.filled) {
+            p.fill(GOLD);
+            p.doc.roundedRect(sx, trackY, segW, trackH, 0.5, 0.5, 'F');
+          } else {
+            p.alpha(0.22);
+            p.fill(MUTED);
+            p.doc.roundedRect(sx, trackY, segW, trackH, 0.5, 0.5, 'F');
+            p.opaque();
+          }
+          p.stroke(MUTED);
+          p.doc.setLineWidth(0.18);
+          p.alpha(0.5);
+          p.doc.roundedRect(sx, trackY, segW, trackH, 0.5, 0.5, 'S');
+          p.opaque();
+        }
+      }),
+    ),
+  };
+}
+
+/**
+ * Réserves. Une barre continue, à l'inverse des crans de survie posés juste à
+ * côté : ici on lit bien une proportion de points, et le nombre exact se lit à
+ * droite parce qu'à la table c'est lui qu'on annonce.
+ *
+ * Dessiné à la largeur qu'on lui donne — pleine page ou colonne selon ce que la
+ * mise en page décide (cf. `Layout.run`).
+ */
+function poolsBlock(p: Painter, d: SheetPdfData, w: number): Block {
+  const inner = w - PAD * 2;
+  const rowH = 9.5;
+
+  return {
+    title: 'Réserves',
+    rows: d.pools.map((g) =>
+      row(rowH, (x, y) => {
+        p.icon(g.icon, x, y + 0.2, 4.2);
+        p.font('Spectral', 'normal', PT.small, INK);
+        p.text(g.label, x + 5.6, y + 0.7);
+        p.font('Spectral', 'normal', PT.micro, MUTED);
+        p.text(`${g.stage} (${g.current}/${g.max})`, x + inner, y + 1, 'right');
+
+        const trackY = y + 5.4;
+        const trackH = 3;
+        p.alpha(0.22);
+        p.fill(MUTED);
+        p.doc.roundedRect(x, trackY, inner, trackH, 0.5, 0.5, 'F');
+        p.opaque();
+        const fillW = Math.max(0, Math.min(1, g.pct / 100)) * inner;
+        if (fillW > 0.4) {
+          p.fill(GOLD);
+          p.doc.roundedRect(x, trackY, fillW, trackH, 0.5, 0.5, 'F');
+        }
+        p.stroke(MUTED);
+        p.doc.setLineWidth(0.18);
+        p.alpha(0.5);
+        p.doc.roundedRect(x, trackY, inner, trackH, 0.5, 0.5, 'S');
+        p.opaque();
+      }),
+    ),
+  };
+}
+
 function spellsBlock(p: Painter, d: SheetPdfData, icons: Map<string, PdfImage>, w: number): Block {
   const inner = w - PAD * 2;
   const rows: Row[] = [];
@@ -1205,6 +1324,77 @@ function equipmentBlock(p: Painter, d: SheetPdfData, figure: PdfImage | null, w:
       }
     })],
   };
+}
+
+/**
+ * Bloc Maîtrises : deux rangées de pastilles, armes puis armures. Une maîtrise
+ * ajoutée à la main se dessine en pointillé et en italique — à la table, savoir
+ * ce que la classe a donné et ce que la partie a ajouté change la discussion.
+ */
+function proficienciesBlock(p: Painter, d: SheetPdfData, w: number): Block {
+  const inner = w - PAD * 2;
+  const chipH = ptToMm(PT.small) + 1.6;
+  const gap = 1.4;
+  const rows: Row[] = [];
+
+  const group = (title: string, items: PdfProficiency[], empty: string): void => {
+    rows.push(row(lineH(PT.micro) + 1.2, (x, y) => {
+      p.font('Cinzel', 'normal', PT.micro, MUTED);
+      p.text(title.toUpperCase(), x, y);
+    }));
+
+    if (!items.length) {
+      rows.push(row(lineH(PT.small) + 1.8, (x, y) => {
+        p.font('Spectral', 'italic', PT.small, FAINT);
+        p.text(empty, x, y);
+      }));
+      return;
+    }
+
+    // Répartition en lignes calculée ici : le moteur de mise en page a besoin
+    // de la hauteur de chaque ligne AVANT de la dessiner.
+    p.font('Spectral', 'normal', PT.small);
+    const chipW = (label: string): number => p.width(label) + 3.4;
+    const lines: PdfProficiency[][] = [[]];
+    let used = 0;
+    for (const item of items) {
+      const cw = chipW(item.label);
+      if (used > 0 && used + cw > inner) {
+        lines.push([]);
+        used = 0;
+      }
+      lines[lines.length - 1].push(item);
+      used += cw + gap;
+    }
+
+    for (const line of lines) {
+      rows.push(row(chipH + 1.4, (x, y) => {
+        let cx = x;
+        for (const item of line) {
+          p.font('Spectral', item.manual ? 'italic' : 'normal', PT.small);
+          const cw = p.width(item.label) + 3.4;
+          p.alpha(item.manual ? 0.16 : 0.4);
+          p.fill(GOLD);
+          p.doc.roundedRect(cx, y, cw, chipH, chipH / 2, chipH / 2, 'F');
+          p.alpha(0.55);
+          p.stroke(MUTED);
+          p.doc.setLineWidth(0.2);
+          if (item.manual) p.doc.setLineDashPattern([0.5, 0.5], 0);
+          p.doc.roundedRect(cx, y, cw, chipH, chipH / 2, chipH / 2, 'S');
+          p.doc.setLineDashPattern([], 0);
+          p.opaque();
+          p.fill(STRONG);
+          p.text(item.label, cx + cw / 2, y + 0.8, 'center');
+          cx += cw + gap;
+        }
+      }));
+    }
+  };
+
+  group('Armes', d.proficiencies.weapons, 'Aucune — mains nues');
+  group('Armures', d.proficiencies.armors, 'Aucune — sans armure');
+
+  return { title: 'Maîtrises', rows };
 }
 
 function skillsBlock(p: Painter, d: SheetPdfData): Block {
@@ -1395,12 +1585,20 @@ export async function exportSheetPdf(data: SheetPdfData): Promise<void> {
       left: (w) => characterBlock(painter, data, portrait, icons, w),
       right: () => attributesBlock(painter, data),
     },
+    // Réserves et survie côte à côte : trois lignes chacun, et deux façons de
+    // lire le même instant — les points d'un côté, les jours de l'autre.
+    {
+      kind: 'pair',
+      left: (w) => poolsBlock(painter, data, w),
+      right: (w) => survivalBlock(painter, data, w),
+    },
     { kind: 'full', build: (w) => statsBlock(painter, data, w) },
     {
       kind: 'pair',
       left: (w) => spellsBlock(painter, data, icons, w),
       right: (w) => classSpellsBlock(painter, data, w),
     },
+    { kind: 'full', build: (w) => proficienciesBlock(painter, data, w) },
     { kind: 'full', build: (w) => equipmentBlock(painter, data, artwork, w) },
     {
       kind: 'pair',

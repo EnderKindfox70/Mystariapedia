@@ -1,5 +1,6 @@
 {
   "name": "Arbalète de poing",
+  "material": "acier",
   "subtitle": "Tir discret à une main",
   "description": [
     "Miniature mécanique, l'arbalète de poing se manie d'une seule main et se dissimule sous un manteau. Sa portée est courte, mais son carreau frappe sans prévenir.",
@@ -9,8 +10,16 @@
   "minDamage": 4,
   "maxDamage": 8,
   "info": [
-    { "key": "weight", "label": "Poids", "value": "1,3 kg" },
-    { "key": "rarity", "label": "Rareté", "value": "Peu commune" }
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "1,3 kg"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Peu commune"
+    }
   ],
   "properties": [
     "Maniable à une main et dissimulable",

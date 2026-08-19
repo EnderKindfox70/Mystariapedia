@@ -1,46 +1,75 @@
 {
-    "name": "Fioles vides",
-    "subtitle": "Contenants — lot de six",
-    "category": "recolte",
-    "image": "",
-    "icon": "",
-    "description": [
-        "Six fioles de verre épais soufflées au même gabarit, bouchées au liège cerclé, calées dans un étui de bois cloisonné et garni de paille. Le gabarit est standard d'un bout à l'autre de Mystaria : n'importe quelle fiole rentre dans n'importe quelle bandoulière d'alchimiste.",
-        "Elles ne font rien. Elles permettent tout : une potion préparée au camp n'existe que si l'on a de quoi la mettre, un venin prélevé sur un serpent fantôme se perd sans contenant, et l'eau d'une source sacrée ne se transporte pas dans les mains. C'est l'objet qu'on oublie d'acheter et qui manque toujours au mauvais moment."
-    ],
-    "info": [
-        { "key": "weight", "label": "Poids",       "value": "0,6 kg (le lot de six)" },
-        { "key": "type",   "label": "Type",        "value": "Contenants — 6 unités" },
-        { "key": "rarity", "label": "Rareté",      "value": "Commune" },
-        { "key": "usage",  "label": "Utilisation", "value": "Réutilisables après rinçage" },
-        { "key": "value",  "label": "Valeur",      "value": "6 pièces d'or le lot" }
-    ],
-    "properties": [
-        "Nécessaires pour mettre en fiole toute préparation faite sur le terrain : sans contenant, la décoction est perdue.",
-        "Permettent de prélever et de transporter un venin, une sève, une eau de source ou un échantillon liquide.",
-        "Gabarit standard : compatibles avec les logements d'une bandoulière d'alchimiste.",
-        "Réutilisables après un rinçage soigneux. Une fiole ayant contenu un venin est marquée d'une croix et ne sert plus qu'à cela.",
-        "Le verre casse. Dans un sac secoué toute la journée, une fiole sur six se brise sans l'étui cloisonné.",
-        "Une fiole brisée en sac est une catastrophe ordinaire : elle mouille les rations, ruine les parchemins et coupe les doigts qui fouillent."
-    ],
-    "location": {
-        "image": "",
-        "paragraphs": [
-            "Chez les verriers et les apothicaires de toutes les villes ; les guildes d'alchimie les vendent par caisses de trente-six à leurs membres.",
-            "Les fioles de récupération, rincées et rebouchées, valent le tiers du prix — à condition de savoir ce qu'elles ont contenu."
-        ]
+  "name": "Fioles vides",
+  "subtitle": "Contenants — lot de six",
+  "material": "verre",
+  "category": "recolte",
+  "image": "",
+  "icon": "",
+  "description": [
+    "Six fioles de verre épais soufflées au même gabarit, bouchées au liège cerclé, calées dans un étui de bois cloisonné et garni de paille. Le gabarit est standard d'un bout à l'autre de Mystaria : n'importe quelle fiole rentre dans n'importe quelle bandoulière d'alchimiste.",
+    "Elles ne font rien. Elles permettent tout : une potion préparée au camp n'existe que si l'on a de quoi la mettre, un venin prélevé sur un serpent fantôme se perd sans contenant, et l'eau d'une source sacrée ne se transporte pas dans les mains. C'est l'objet qu'on oublie d'acheter et qui manque toujours au mauvais moment."
+  ],
+  "info": [
+    {
+      "key": "weight",
+      "label": "Poids",
+      "value": "0,6 kg (le lot de six)"
     },
-    "notes": [
-        "Toujours étiqueter. Deux liquides ambrés dans deux fioles identiques, c'est une erreur qui finit à la trousse de chirurgien.",
-        "Rincer à l'eau de source, jamais à l'eau de rivière : ce que la fiole garde finit dans la préparation suivante."
-    ],
-    "references": [
-        {
-            "label": "Matériel associé",
-            "items": [
-                { "ref": "bandouliere-d-alchimiste", "collection": "equipment", "label": "Bandoulière d'alchimiste" },
-                { "ref": "mortier-et-pilon", "collection": "equipment", "label": "Mortier et pilon de voyage" }
-            ]
-        }
+    {
+      "key": "type",
+      "label": "Type",
+      "value": "Contenants — 6 unités"
+    },
+    {
+      "key": "rarity",
+      "label": "Rareté",
+      "value": "Commune"
+    },
+    {
+      "key": "usage",
+      "label": "Utilisation",
+      "value": "Réutilisables après rinçage"
+    },
+    {
+      "key": "value",
+      "label": "Valeur",
+      "value": "6 pièces d'or le lot"
+    }
+  ],
+  "properties": [
+    "Nécessaires pour mettre en fiole toute préparation faite sur le terrain : sans contenant, la décoction est perdue.",
+    "Permettent de prélever et de transporter un venin, une sève, une eau de source ou un échantillon liquide.",
+    "Gabarit standard : compatibles avec les logements d'une bandoulière d'alchimiste.",
+    "Réutilisables après un rinçage soigneux. Une fiole ayant contenu un venin est marquée d'une croix et ne sert plus qu'à cela.",
+    "Le verre casse. Dans un sac secoué toute la journée, une fiole sur six se brise sans l'étui cloisonné.",
+    "Une fiole brisée en sac est une catastrophe ordinaire : elle mouille les rations, ruine les parchemins et coupe les doigts qui fouillent."
+  ],
+  "location": {
+    "image": "",
+    "paragraphs": [
+      "Chez les verriers et les apothicaires de toutes les villes ; les guildes d'alchimie les vendent par caisses de trente-six à leurs membres.",
+      "Les fioles de récupération, rincées et rebouchées, valent le tiers du prix — à condition de savoir ce qu'elles ont contenu."
     ]
+  },
+  "notes": [
+    "Toujours étiqueter. Deux liquides ambrés dans deux fioles identiques, c'est une erreur qui finit à la trousse de chirurgien.",
+    "Rincer à l'eau de source, jamais à l'eau de rivière : ce que la fiole garde finit dans la préparation suivante."
+  ],
+  "references": [
+    {
+      "label": "Matériel associé",
+      "items": [
+        {
+          "ref": "bandouliere-d-alchimiste",
+          "collection": "equipment",
+          "label": "Bandoulière d'alchimiste"
+        },
+        {
+          "ref": "mortier-et-pilon",
+          "collection": "equipment",
+          "label": "Mortier et pilon de voyage"
+        }
+      ]
+    }
+  ]
 }
