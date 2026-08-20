@@ -1381,6 +1381,107 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "earth-veine-de-granite",
+            "name": "Veine de granite",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Terre débloqué",
+            "description": "Ce qu'il dresse est fait pour durer, pas pour blesser : ses murs tiennent le siège, ses éclats ne coupent plus.",
+            "subdomains": [
+                "Roche & sédiments"
+            ],
+            "excludes": [
+                "earth-taille-d-obsidienne"
+            ],
+            "effects": [
+                {
+                    "label": "PV des murs et armures façonnés",
+                    "value": "×1,3",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts des sorts de Terre",
+                    "value": "×0,9",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "earth-taille-d-obsidienne",
+            "name": "Taille d'obsidienne",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Terre débloqué",
+            "description": "Il choisit le fil plutôt que la masse : la pierre qu'il façonne tranche magnifiquement et se brise aussi bien.",
+            "subdomains": [
+                "Roche & sédiments"
+            ],
+            "excludes": [
+                "earth-veine-de-granite"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts tranchants des sorts de Terre",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "PV des murs et armures façonnés",
+                    "value": "×0,75",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "earth-main-du-forgeron",
+            "name": "Main du forgeron",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Terre débloqué et Façonnage du métal connu",
+            "freeWith": "Background Artisan — Forgeron",
+            "description": "Sa poigne ne distingue plus le métal posé du métal porté : une lame ennemie reste une lame, donc une matière.",
+            "subdomains": [
+                "Métal"
+            ],
+            "effects": [
+                {
+                    "label": "Cible du façonnage",
+                    "value": "Le métal porté par autrui (sauvegarde Vigueur)",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Façonnage sur la pierre",
+                    "value": "Plus disponible tant que le feat est actif",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "earth-memoire-des-strates",
+            "name": "Mémoire des strates",
+            "level": 15,
+            "kind": "unlock",
+            "prerequisite": "Palier Majeur de Terre débloqué et un sort de l'aspect Mémoire géologique connu",
+            "description": "Il pose la main au sol et lit ce que la roche a vu passer. La pierre est patiente ; lui ne l'est pas.",
+            "subdomains": [
+                "Mémoire géologique"
+            ],
+            "effects": [
+                {
+                    "label": "Lecture de l'histoire d'un lieu",
+                    "value": "Sans jet, hors combat",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût de chaque lecture",
+                    "value": "1 niveau de Fatigue",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

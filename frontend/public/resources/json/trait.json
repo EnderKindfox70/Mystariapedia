@@ -1,10 +1,25 @@
 {
+    "_note": "Catalogue unique des traits du monde. `name`/`description` : la lecture côté créature (le bestiaire y pointe par `traitIds`). `character` : le versant personnage — `acquisition` dit si le trait peut être PRIS et à quelles conditions, `grantedBy` liste qui l'accorde d'office (`race:`, `subrace:`, `background:`, `origin:`). Les races, backgrounds et origines ne déclarent plus de trait en propre : ils sont référencés ici.",
     "traits":
     [
         {
             "id": 1,
             "name": "amphibious",
-            "description": "This entity can breathe and act normally both in water and on land."
+            "description": "This entity can breathe and act normally both in water and on land.",
+            "character": {
+                "key": "amphibie",
+                "label": "Amphibie",
+                "category": "survie",
+                "description": "Respire sous l'eau comme à l'air libre.",
+                "acquisition": {
+                    "kind": "biologique",
+                    "pickable": false,
+                    "condition": "Particularité biologique : on naît avec des branchies, on ne les entraîne pas."
+                },
+                "grantedBy": [
+                    "race:deep-walker"
+                ]
+            }
         },
         {
             "id": 2,
@@ -19,7 +34,19 @@
         {
             "id": 4,
             "name": "mana sensitive",
-            "description": "This entity can detect nearby spell activity, enchanted objects, or concentrated mana."
+            "description": "This entity can detect nearby spell activity, enchanted objects, or concentrated mana.",
+            "character": {
+                "key": "sensible-au-residuel",
+                "label": "Sensible au résiduel",
+                "category": "perception",
+                "description": "Perçoit à vue une fréquence de résonance active.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
         },
         {
             "id": 5,
@@ -30,6 +57,485 @@
             "id": 6,
             "name": "regeneration",
             "description": "This entity restores a small amount of vitality at the start of its turn unless disrupted."
+        },
+        {
+            "id": 7,
+            "name": "unkillable",
+            "description": "This entity shrugs off blows that would fell its peers.",
+            "character": {
+                "key": "increvable",
+                "label": "Increvable",
+                "category": "combat",
+                "description": "+15 PV.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": [],
+                "effects": [
+                    {
+                        "key": "hp",
+                        "value": 15
+                    }
+                ]
+            }
+        },
+        {
+            "id": 8,
+            "name": "tactical composure",
+            "description": "This entity fights better when it faces a single opponent at a time.",
+            "character": {
+                "key": "sang-froid-tactique",
+                "label": "Sang-froid tactique",
+                "category": "combat",
+                "description": "+1 cran de précision quand un seul ennemi attaque à la fois.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 9,
+            "name": "last breath",
+            "description": "Once per fight, this entity holds at a sliver of vitality instead of falling.",
+            "character": {
+                "key": "dernier-souffle",
+                "label": "Dernier souffle",
+                "category": "combat",
+                "description": "Une fois par combat, reste à 1 PV au lieu de tomber à 0.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 10,
+            "name": "second chamber",
+            "description": "Once per fight, this entity gets a second attempt at a failed strike.",
+            "character": {
+                "key": "recharge",
+                "label": "Rechargé",
+                "category": "combat",
+                "description": "Une fois par combat, relance un jet raté (attaque ou compétence, jamais une sauvegarde).",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 11,
+            "name": "natural bearing",
+            "description": "This entity wears heavier protection than its training should allow.",
+            "character": {
+                "key": "port-naturel",
+                "label": "Port naturel",
+                "category": "combat",
+                "description": "Traite une catégorie d'armure de plus comme maîtrisée.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 12,
+            "name": "leather in the blood",
+            "description": "Ill-fitting protection hinders this entity half as much as it should.",
+            "character": {
+                "key": "cuir-dans-le-sang",
+                "label": "Cuir dans le sang",
+                "category": "combat",
+                "description": "Réduit de moitié la gêne de précision d'une armure non maîtrisée.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 13,
+            "name": "iron metabolism",
+            "description": "This entity goes further than others on the same food and water.",
+            "character": {
+                "key": "metabolisme-de-fer",
+                "label": "Métabolisme de fer",
+                "category": "survie",
+                "description": "Jauges Faim et Soif max +20 %, par-dessus le bonus de Constitution.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 14,
+            "name": "light sleeper",
+            "description": "This entity keeps watch without losing the benefit of its rest.",
+            "character": {
+                "key": "sommeil-leger",
+                "label": "Sommeil léger",
+                "category": "survie",
+                "description": "Un tour de garde ne coûte aucune récupération de Fatigue perdue.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 15,
+            "name": "weathered hide",
+            "description": "Extreme climates take no toll on this entity.",
+            "character": {
+                "key": "peau-tannee",
+                "label": "Peau tannée",
+                "category": "survie",
+                "description": "Aucun malus climatique en milieu extrême.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 16,
+            "name": "thick blood",
+            "description": "This entity endures deep cold without penalty.",
+            "character": {
+                "key": "sang-epais",
+                "label": "Sang épais",
+                "category": "survie",
+                "description": "Résiste au froid extrême sans pénalité.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 17,
+            "name": "highland lungs",
+            "description": "Thin air at altitude costs this entity nothing.",
+            "character": {
+                "key": "poumons-d-altitude",
+                "label": "Poumons d'altitude",
+                "category": "survie",
+                "description": "Aucun malus en haute montagne.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 18,
+            "name": "darkvision",
+            "description": "This entity sees in complete darkness.",
+            "character": {
+                "key": "vision-dans-le-noir",
+                "label": "Vision dans le noir",
+                "category": "perception",
+                "description": "Voit dans l'obscurité totale.",
+                "acquisition": {
+                    "kind": "biologique",
+                    "pickable": false,
+                    "condition": "Particularité biologique : l'œil est fait ainsi, ou il ne l'est pas."
+                },
+                "grantedBy": [
+                    "subrace:deep-dwarf"
+                ]
+            }
+        },
+        {
+            "id": 19,
+            "name": "tracking instinct",
+            "description": "This entity senses an ambush before it closes.",
+            "character": {
+                "key": "instinct-de-traque",
+                "label": "Instinct de traque",
+                "category": "perception",
+                "description": "Avantage aux jets pour détecter une embuscade.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 20,
+            "name": "frequency ear",
+            "description": "This entity hears dead zones and partial Awakenings at short range.",
+            "character": {
+                "key": "oreille-aux-frequences",
+                "label": "Oreille aux fréquences",
+                "category": "perception",
+                "description": "Détecte une zone morte ou un Réveil partiel à portée réduite, sans la compétence dédiée du Ranger.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 21,
+            "name": "steady channel",
+            "description": "This entity spends less mana on its smallest spells.",
+            "character": {
+                "key": "canal-stable",
+                "label": "Canal stable",
+                "category": "magie",
+                "description": "Coût en mana d'un sort Mineur réduit de 10 %.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 22,
+            "name": "corruption resistant",
+            "description": "Elemental corruption takes hold of this entity more slowly.",
+            "character": {
+                "key": "peau-dure-a-la-corruption",
+                "label": "Peau dure à la corruption",
+                "category": "magie",
+                "description": "+2 aux sauvegardes Vigueur contre la corruption élémentaire.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "Accordé d'office par l'origine Royaume Abandonné ; ailleurs, à prendre à la création ou sur un slot de feat."
+                },
+                "grantedBy": [
+                    "origin:royaume-abandonne"
+                ]
+            }
+        },
+        {
+            "id": 23,
+            "name": "known face",
+            "description": "A faction of the world already counts this entity as one of its own.",
+            "character": {
+                "key": "visage-reconnu",
+                "label": "Visage reconnu",
+                "category": "social",
+                "description": "Avantage aux interactions avec une faction choisie à la création.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 24,
+            "name": "tomb silence",
+            "description": "This entity holds its secrets even under mental pressure.",
+            "character": {
+                "key": "silence-tombeau",
+                "label": "Silence-tombeau",
+                "category": "social",
+                "description": "Résiste à une domination mentale légère qui chercherait à lui faire révéler une information.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 25,
+            "name": "dim vision",
+            "description": "This entity sees clearly in low light, where others only guess.",
+            "character": {
+                "key": "vision-dans-la-penombre",
+                "label": "Vision dans la pénombre",
+                "category": "perception",
+                "description": "Voit dans la pénombre comme en plein jour — l'obscurité totale reste opaque.",
+                "acquisition": {
+                    "kind": "regional",
+                    "pickable": false,
+                    "condition": "Accordé par l'origine États Souterrains : une enfance sans soleil, pas un entraînement."
+                },
+                "grantedBy": [
+                    "origin:etats-souterrains"
+                ]
+            }
+        },
+        {
+            "id": 26,
+            "name": "toughness",
+            "description": "This entity has thicker skin and a sturdier build than its peers.",
+            "character": {
+                "key": "robustesse",
+                "label": "Robustesse",
+                "category": "combat",
+                "description": "Peau épaisse et constitution dense : +5 Défense physique.",
+                "acquisition": {
+                    "kind": "biologique",
+                    "pickable": false,
+                    "condition": "Particularité biologique naine : une charpente, pas un entraînement."
+                },
+                "grantedBy": [
+                    "race:nain"
+                ],
+                "effects": [
+                    {
+                        "key": "def_phy",
+                        "value": 5
+                    }
+                ]
+            }
+        },
+        {
+            "id": 27,
+            "name": "arcane affinity",
+            "description": "This entity is born attuned to elemental magic.",
+            "character": {
+                "key": "affinite-arcanique",
+                "label": "Affinité arcanique",
+                "category": "magie",
+                "description": "Commence avec ses magies élémentaires déjà débloquées.",
+                "acquisition": {
+                    "kind": "biologique",
+                    "pickable": false,
+                    "condition": "Don de naissance elfique : l'éveil est acquis avant la première leçon."
+                },
+                "grantedBy": [
+                    "race:elf"
+                ]
+            }
+        },
+        {
+            "id": 28,
+            "name": "warding",
+            "description": "This entity carries a natural ward against spells.",
+            "character": {
+                "key": "protection-magique",
+                "label": "Protection magique",
+                "category": "magie",
+                "description": "Défense magique naturelle : +5 Défense magique.",
+                "acquisition": {
+                    "kind": "biologique",
+                    "pickable": false,
+                    "condition": "Particularité biologique elfique : le corps repousse la mana de lui-même."
+                },
+                "grantedBy": [
+                    "race:elf"
+                ],
+                "effects": [
+                    {
+                        "key": "def_mag",
+                        "value": 5
+                    }
+                ]
+            }
+        },
+        {
+            "id": 29,
+            "name": "martial training",
+            "description": "This entity has been drilled to reinforce its body with raw mana.",
+            "character": {
+                "key": "entrainement-martial",
+                "label": "Entraînement martial",
+                "category": "magie",
+                "description": "Ouvre la branche non polarisée du Renforcement.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "Accordé par le background Soldat ; sinon s'apprend sur un slot de feat (section 21)."
+                },
+                "grantedBy": [
+                    "background:soldat"
+                ]
+            }
+        },
+        {
+            "id": 30,
+            "name": "magical study",
+            "description": "This entity has studied how to weave raw mana into a veil.",
+            "character": {
+                "key": "etudes-magiques",
+                "label": "Études magiques",
+                "category": "magie",
+                "description": "Ouvre la branche non polarisée du Voile (Émission).",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "Accordé par le background Sage ; sinon s'apprend sur un slot de feat (section 21)."
+                },
+                "grantedBy": [
+                    "background:sage"
+                ]
+            }
+        },
+        {
+            "id": 31,
+            "name": "swimmer",
+            "description": "This entity crosses open water without trouble.",
+            "character": {
+                "key": "nageur",
+                "label": "Nageur",
+                "category": "survie",
+                "description": "Traverse les points d'eau à la nage, sans jet.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "N'importe qui peut apprendre à nager : accordé par les backgrounds Marin et Pêcheur, sinon à prendre à la création ou sur un slot de feat."
+                },
+                "grantedBy": [
+                    "background:sailor",
+                    "background:fisherman"
+                ]
+            }
+        },
+        {
+            "id": 32,
+            "name": "akimbo",
+            "description": "This entity fights with a full weapon in each hand, not a blade and a dagger.",
+            "character": {
+                "key": "akimbo",
+                "label": "Akimbo",
+                "category": "combat",
+                "description": "Tient n'importe quelle arme de corps à corps à une main en main faible, et pas seulement une arme légère.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
         }
     ]
 }

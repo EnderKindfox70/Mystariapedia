@@ -1226,6 +1226,111 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "darkness-ombre-affamee",
+            "name": "Ombre affamée",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Ténèbres débloqué",
+            "description": "Il nourrit son ombre de l'obscurité alentour. En pleine lumière, elle n'a rien à manger.",
+            "subdomains": [
+                "Ombre"
+            ],
+            "excludes": [
+                "darkness-voile-epais"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts d'ombre dans le noir ou la pénombre",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts d'ombre en pleine lumière",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "darkness-voile-epais",
+            "name": "Voile épais",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Ténèbres débloqué",
+            "description": "Il cesse de frapper pour cacher : ses voiles tiennent plus longtemps et couvrent ceux qui marchent avec lui.",
+            "subdomains": [
+                "Obfuscation & Secret"
+            ],
+            "excludes": [
+                "darkness-ombre-affamee"
+            ],
+            "effects": [
+                {
+                    "label": "Durée des sorts d'Obfuscation",
+                    "value": "+2 tours",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Cibles couvertes",
+                    "value": "Tout le groupe à portée",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts d'ombre",
+                    "value": "×0,85",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "darkness-terreur-persistante",
+            "name": "Terreur persistante",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Ténèbres débloqué et un sort de l'aspect Peur & terreur connu",
+            "description": "Même celui qui tient bon garde la main qui tremble — mais ce qui ne craint rien vient droit sur lui.",
+            "subdomains": [
+                "Peur & terreur"
+            ],
+            "effects": [
+                {
+                    "label": "Sauvegarde réussie contre sa Peur",
+                    "value": "−1 cran de précision pendant 1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Créatures immunisées à la Peur",
+                    "value": "Prennent le lanceur pour cible prioritaire",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "darkness-morsure-du-neant",
+            "name": "Morsure du néant",
+            "level": 20,
+            "kind": "override",
+            "prerequisite": "Palier Expert de Ténèbres débloqué et Morsure du néant connue",
+            "description": "Ce qu'il ouvre ne s'arrête pas aux protections — ni aux siennes.",
+            "subdomains": [
+                "Néant"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts de Néant",
+                    "value": "Ignorent la moitié de la Défense magique",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût de chaque lancer",
+                    "value": "10 % des PV max du lanceur",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

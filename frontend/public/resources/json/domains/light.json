@@ -356,6 +356,110 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "light-focale",
+            "name": "Lumière focale",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Lumière débloqué",
+            "description": "Il concentre tout le faisceau sur un seul point. Ce point ne survit pas longtemps ; le reste de la salle n'est même pas éclairé.",
+            "subdomains": [
+                "Illumination"
+            ],
+            "excludes": [
+                "light-diffuse"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts des sorts offensifs de Lumière",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Ciblage",
+                    "value": "Cible unique verrouillée, aucun élargissement possible",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "light-diffuse",
+            "name": "Lumière diffuse",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur de Lumière débloqué",
+            "description": "Il ouvre le faisceau jusqu'à ce qu'il n'épargne plus rien dans un rayon — et ne perce plus rien non plus.",
+            "subdomains": [
+                "Illumination"
+            ],
+            "excludes": [
+                "light-focale"
+            ],
+            "effects": [
+                {
+                    "label": "Ciblage des sorts offensifs de Lumière",
+                    "value": "Zone, rayon 3 m",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts des sorts offensifs de Lumière",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "light-force-zenith",
+            "name": "Force zénith",
+            "level": 10,
+            "kind": "multiplier",
+            "prerequisite": "Palier Médian de Lumière débloqué",
+            "description": "Son corps suit la course du soleil : au zénith il porte des montagnes, la nuit il peine à porter son arme.",
+            "effects": [
+                {
+                    "label": "Force à Midi",
+                    "value": "+2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Force la Nuit",
+                    "value": "−2",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Autres moments de la journée",
+                    "value": "Aucun effet",
+                    "tone": "neutral"
+                }
+            ]
+        },
+        {
+            "key": "light-verbe-imperatif",
+            "name": "Verbe impératif",
+            "level": 15,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Lumière débloqué et Verbe d'autorité connu",
+            "freeWith": "Background Noble — Héritier",
+            "description": "Sa parole engage ceux qui l'entendent, lui compris : commander sous la lumière, c'est se soumettre au même éclairage.",
+            "subdomains": [
+                "Ordre & Commandement",
+                "Révélation"
+            ],
+            "effects": [
+                {
+                    "label": "Cibles d'un sort de commandement",
+                    "value": "+1",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Pendant la durée du sort",
+                    "value": "Le lanceur ne peut pas mentir (Champ de vérité s'applique à lui)",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

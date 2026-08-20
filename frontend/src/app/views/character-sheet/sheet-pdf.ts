@@ -146,6 +146,9 @@ export interface SheetPdfData {
     className: string;
     level: number;
     background: string;
+    /** Origine géographique et religion, vides quand le personnage n'en a pas. */
+    origin: string;
+    religion: string;
     age: string | number;
     gold: number;
     portrait?: string;
@@ -879,6 +882,8 @@ function characterBlock(
     ['Race', d.identity.race || '—'],
     ['Classe', `${d.identity.className || '—'} — Niv. ${d.identity.level}`],
     ['Background', d.identity.background || '—'],
+    ['Origine', d.identity.origin || '—'],
+    ['Foi', d.identity.religion || '—'],
     ['Âge', `${d.identity.age || '—'}`],
     ['Or', `${d.identity.gold}`],
   ];

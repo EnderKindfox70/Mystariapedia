@@ -14,8 +14,7 @@
             "name": "Étincelle",
             "description": "Fait jaillir une étincelle au bout des doigts : une décharge minuscule, mais immédiate et presque gratuite.",
             "usage": {
-                "combat": "Projette une étincelle pour infliger de faibles dégâts de foudre à moindre coût.",
-                "outOfCombat": "Permet d'allumer une lampe, une mèche ou un feu de camp, et d'éclairer brièvement les ténèbres."
+                "combat": "Projette une étincelle pour infliger de faibles dégâts de foudre à moindre coût."
             },
             "mana": 1,
             "level": 1,
@@ -469,6 +468,112 @@
                     }
                 ]
             }
+        }
+    ],
+    "feats": [
+        {
+            "key": "electricity-arc-direct",
+            "name": "Arc direct",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Foudre débloqué",
+            "description": "Une seule ligne, du bras à la cible. Rien ne se disperse, rien ne dévie.",
+            "subdomains": [
+                "Décharge"
+            ],
+            "excludes": [
+                "electricity-arc-ramifie"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts sur cible unique",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Arcs secondaires et ricochets",
+                    "value": "Supprimés",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "electricity-arc-ramifie",
+            "name": "Arc ramifié",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur de Foudre débloqué",
+            "description": "La foudre cherche toujours un autre chemin : il arrête de l'en empêcher.",
+            "subdomains": [
+                "Décharge"
+            ],
+            "excludes": [
+                "electricity-arc-direct"
+            ],
+            "effects": [
+                {
+                    "label": "Cible supplémentaire",
+                    "value": "1 rebond à 60 % des dégâts",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts sur la cible principale",
+                    "value": "×0,85",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "electricity-conducteur",
+            "name": "Conducteur",
+            "level": 10,
+            "kind": "multiplier",
+            "prerequisite": "Palier Majeur de Foudre débloqué et un sort de l'aspect Électromagnétisme connu",
+            "freeWith": "Background Artisan — Forgeron",
+            "description": "Il lit le métal sur ses adversaires comme une invitation. Sans métal, sa décharge cherche et se perd.",
+            "subdomains": [
+                "Électromagnétisme"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts contre une cible portant du métal",
+                    "value": "×1,3",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Chance de Paralysie contre une cible métallique",
+                    "value": "+10 points",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts contre une cible sans métal",
+                    "value": "×0,9",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "electricity-surcharge-nerveuse",
+            "name": "Surcharge nerveuse",
+            "level": 20,
+            "kind": "override",
+            "prerequisite": "Palier Expert de Foudre débloqué",
+            "description": "Il tient le nerf de sa cible une seconde de plus que ce que son propre corps supporte.",
+            "subdomains": [
+                "Décharge"
+            ],
+            "effects": [
+                {
+                    "label": "Durée des étourdissements et paralysies infligés",
+                    "value": "+1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût de chaque prolongation",
+                    "value": "5 PV du lanceur",
+                    "tone": "cost"
+                }
+            ]
         }
     ],
     "magic-items-and-artifacts": [],

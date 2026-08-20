@@ -1187,6 +1187,117 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "air-souffle-tranchant",
+            "name": "Souffle tranchant",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Air débloqué",
+            "description": "Il resserre le vent jusqu'à ce qu'il coupe. Ce qui coupe ne pousse plus.",
+            "subdomains": [
+                "Vent"
+            ],
+            "excludes": [
+                "air-portance"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts des sorts de Vent",
+                    "value": "×1,2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Poussée et projection",
+                    "value": "Réduites de moitié",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "air-portance",
+            "name": "Portance",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur d'Air débloqué",
+            "description": "Le vent le porte plus qu'il ne le sert : il va partout, très vite, et ne blesse presque personne.",
+            "subdomains": [
+                "Vent",
+                "Liberté"
+            ],
+            "excludes": [
+                "air-souffle-tranchant"
+            ],
+            "effects": [
+                {
+                    "label": "Déplacement offert par un sort d'Air",
+                    "value": "+50 %",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Sorts d'Air sans dégâts",
+                    "value": "Lançables en action bonus",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts des sorts d'Air",
+                    "value": "×0,85",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "air-voix-porteuse",
+            "name": "Voix porteuse",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur d'Air débloqué et un sort de l'aspect Son connu",
+            "description": "Il cesse de viser une oreille pour remplir l'air entier — et l'air entier sait alors où il se tient.",
+            "subdomains": [
+                "Son"
+            ],
+            "effects": [
+                {
+                    "label": "Ciblage des sorts de Son",
+                    "value": "Zone, rayon 4 m",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Discrétion pendant l'incantation",
+                    "value": "Position du lanceur révélée",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "air-oeil-du-cyclone",
+            "name": "Œil du cyclone",
+            "level": 20,
+            "kind": "unlock",
+            "prerequisite": "Palier Expert d'Air débloqué et Caprice du ciel connu",
+            "description": "Il n'appelle plus la météo, il la décide. Elle ne lui demande pas de camp.",
+            "subdomains": [
+                "Météo"
+            ],
+            "effects": [
+                {
+                    "label": "Changement de météo forcé",
+                    "value": "1 fois par jour, sans coût en mana",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Effets de la météo invoquée",
+                    "value": "Alliés et ennemis, sans distinction",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Après usage",
+                    "value": "1 niveau de Fatigue",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

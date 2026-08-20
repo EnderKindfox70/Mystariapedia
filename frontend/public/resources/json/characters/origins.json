@@ -1,0 +1,80 @@
+{
+    "_note": "Origine géographique : troisième axe de création, à côté de la race (biologie) et du background (métier). Les clés region sont celles de materials.json > regions. Les traits accordés ne sont PAS listés ici : c est trait.json qui déclare, trait par trait, quelle origine le donne (champ grantedBy, référence origin:<clé>).",
+    "origins": [
+        {
+            "key": "luxarion",
+            "region": "luxarion",
+            "name": "Luxarion",
+            "climate": "Bassin tempéré, côtes ensoleillées",
+            "description": "Né sous le Royaume de la Lumière : villes de calcaire blanc, cloches du Luminarium, et un clergé qui tient les registres de tout le monde.",
+            "acclimatation": "Ignore les multiplicateurs de consommation Faim/Soif du climat tempéré côtier.",
+            "language": "Parle le solaire liturgique et connaît les usages du Clergé : ce qui se dit devant un prêtre, ce qui ne se dit pas.",
+            "factions": [
+                "Clergé Solaire"
+            ],
+            "factionNote": "Attitude de départ améliorée, sans jet ni feat.",
+            "nonPolarBranches": []
+        },
+        {
+            "key": "aldenmoor",
+            "region": "aldenmoor",
+            "name": "Royaume elfique (Aldenmoor)",
+            "climate": "Forêt tempérée humide, dorsale montagneuse",
+            "description": "Né sous l'Arbre : une théocratie où l'éveil est un sacrement et l'affinité une vocation, mesurée à l'échelle de vies très longues.",
+            "acclimatation": "Ignore les multiplicateurs de consommation Faim/Soif du climat forestier humide.",
+            "language": "Parle le haut-sylvain et connaît les rites des Enfants de la Sève, deuils compris.",
+            "factions": [
+                "Veilleurs de l'Arbre"
+            ],
+            "factionNote": "Attitude de départ améliorée, sans jet ni feat.",
+            "nonPolarBranches": []
+        },
+        {
+            "key": "royaume-abandonne",
+            "region": "royaume-abandonne",
+            "name": "Royaume Abandonné",
+            "climate": "Aride, grès et sédiments",
+            "description": "Né sur des terres que la corruption élémentaire n'a jamais tout à fait quittées : on y grandit en apprenant ce qu'il ne faut pas toucher.",
+            "acclimatation": "Ignore les multiplicateurs de consommation Faim/Soif du climat aride.",
+            "language": "Parle les dialectes tribaux du Royaume et lit les bornes laissées par ceux qui sont partis.",
+            "factions": [
+                "Dents Grises",
+                "Arc Brisé"
+            ],
+            "factionNote": "Une faction régionale au choix : attitude de départ améliorée, sans jet ni feat.",
+            "nonPolarBranches": []
+        },
+        {
+            "key": "etats-souterrains",
+            "region": "etats-souterrains",
+            "name": "États Souterrains",
+            "climate": "Souterrain, froid constant, sans soleil",
+            "description": "Né sous la roche : galeries taillées, veines de métal, et un ciel qu'on ne voit qu'en remontant.",
+            "acclimatation": "Ignore les multiplicateurs de consommation Faim/Soif du climat souterrain.",
+            "language": "Parle la langue des galeries et lit les marques de taille : propriété, danger, direction.",
+            "factions": [
+                "Pierre de Taille"
+            ],
+            "factionNote": "Attitude de départ améliorée, sans jet ni feat.",
+            "nonPolarBranches": []
+        },
+        {
+            "key": "archipel",
+            "region": "archipel",
+            "name": "Archipel de la Nuit",
+            "climate": "Océanique volcanique",
+            "description": "Né entre deux îles et trois marées : on y pratique la mana brute d'instinct, longtemps avant d'en avoir la théorie.",
+            "acclimatation": "Ignore les multiplicateurs de consommation Faim/Soif du climat océanique.",
+            "language": "Parle les parlers de bord et connaît les tabous des Gardiens du Seuil.",
+            "factions": [
+                "Gardiens du Seuil"
+            ],
+            "factionNote": "Attitude de départ améliorée, sans jet ni feat.",
+            "nonPolarBranches": [
+                "renforcement",
+                "emission"
+            ],
+            "nonPolarNote": "Pratique instinctive de la mana brute : les branches non polarisées sont ouvertes sans passer par un feat ni par un background."
+        }
+    ]
+}

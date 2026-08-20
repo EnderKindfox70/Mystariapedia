@@ -20,7 +20,9 @@ import {
   EQUIPMENT_SLOTS,
   isTwoHanded,
   poolCurrent,
+  chosenTraits,
   grantedTraits,
+  originByKey,
   proficiencyForLevel,
   purseTotal,
   SKILLS,
@@ -361,7 +363,12 @@ export class CombatantFactory {
     const race = this.races().find((r) => r.name === sheet.identity.race);
     const klass = this.classes().find((c) => c.name === sheet.identity.class);
     const background = this.backgrounds().find((b) => b.name === sheet.identity.background);
-    const traits = grantedTraits(race, sheet.identity.subrace, background);
+    // Traits accordés ET traits choisis (création, slots de feat) : le combat
+    // doit lire le même personnage que la fiche, pas seulement sa race.
+    const traits = [
+      ...grantedTraits(race, sheet.identity.subrace, background, originByKey(sheet.identity.origin)),
+      ...chosenTraits(sheet),
+    ];
 
     const attributes = computeAttributes(sheet, race, sheet.identity.subrace);
     const stats = computeStats(sheet, race, klass, traits, attributes);

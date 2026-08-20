@@ -3031,6 +3031,117 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "water-gel-profond",
+            "name": "Gel profond",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Eau débloqué",
+            "description": "Il tire l'eau vers son état le plus dur et le plus lent. Ce qu'il gèle tient ; ce qu'il fait couler traîne.",
+            "subdomains": [
+                "Glace"
+            ],
+            "excludes": [
+                "water-courant-vif"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts et immobilisation des sorts de Glace",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût des sorts de Forme de l'eau et de Vapeur",
+                    "value": "×1,2",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "water-courant-vif",
+            "name": "Courant vif",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Eau débloqué",
+            "description": "Rien ne se fige, tout circule : il paie moins cher et porte plus loin, au prix de la force du coup.",
+            "subdomains": [
+                "Forme de l'eau"
+            ],
+            "excludes": [
+                "water-gel-profond"
+            ],
+            "effects": [
+                {
+                    "label": "Coût en mana des sorts d'Eau",
+                    "value": "×0,85",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Portée des sorts d'Eau",
+                    "value": "+2 m",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts des sorts d'Eau",
+                    "value": "×0,9",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "water-eau-lustrale",
+            "name": "Eau lustrale",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur d'Eau débloqué et un sort de l'aspect purification connu",
+            "freeWith": "Background Pêcheur ou Marin",
+            "description": "Son eau lave au lieu de soigner : elle emporte le poison, la fièvre et la souillure, mais ne referme rien.",
+            "subdomains": [
+                "purification"
+            ],
+            "effects": [
+                {
+                    "label": "Statuts retirés par un sort de purification",
+                    "value": "+1",
+                    "tone": "boon"
+                },
+                {
+                    "label": "PV rendus par les sorts de purification",
+                    "value": "Aucun",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "water-etreinte-abyssale",
+            "name": "Étreinte abyssale",
+            "level": 15,
+            "kind": "multiplier",
+            "prerequisite": "Palier Majeur d'Eau débloqué et un sort de l'aspect Océan connu",
+            "description": "Il ne porte plus son eau : il emprunte celle du lieu. Encore faut-il qu'il y en ait.",
+            "subdomains": [
+                "Océan"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts d'Eau en milieu aquatique ou sous la pluie",
+                    "value": "×1,3",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût en mana en milieu aquatique",
+                    "value": "×0,9",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts d'Eau en climat aride",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

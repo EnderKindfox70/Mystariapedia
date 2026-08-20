@@ -59,6 +59,15 @@ export interface CharacterIdentity {
   class: string;
   background: string;
   subbackground: string;
+  /**
+   * Origine géographique (clé de `origins.json`) : la région où le personnage
+   * a grandi. Troisième axe de création, distinct de la race (biologie) et du
+   * background (métier) — elle ancre dans un lieu, pas dans un corps ni dans
+   * un métier.
+   */
+  origin?: string;
+  /** Religion suivie (clé de `religions.json`), vide pour un personnage sans foi. */
+  religion?: string;
   age: string;
   /** Portrait (tête) recadré et affiché, encodé en data URL (base64). */
   portrait: string;
@@ -96,6 +105,156 @@ export type StatMode = 'random' | 'mean';
 
 /** Jauges de survie tenues à la table (cf. SURVIVAL_GAUGES). */
 export type SurvivalKey = 'hunger' | 'thirst' | 'rest';
+
+/**
+ * Origine géographique : ce que la région d'enfance donne gratuitement, là où
+ * un trait équivalent coûterait un emplacement.
+ */
+export interface OriginDef {
+  key: string;
+  name: string;
+  /** Région du monde (clé de `materials.json > regions`). */
+  region: string;
+  /** Climat d'origine, celui dont les multiplicateurs de survie ne mordent plus. */
+  climate: string;
+  description: string;
+  /** Acclimatation climatique, en toutes lettres. */
+  acclimatation: string;
+  /** Langue et savoir régional acquis sans investir de compétence. */
+  language: string;
+  /** Factions régionales dont l'attitude de départ est améliorée. */
+  factions: string[];
+  factionNote?: string;
+  /** Branches non polarisées ouvertes sans feat ni background (Archipel). */
+  nonPolarBranches?: string[];
+  nonPolarNote?: string;
+}
+
+/** Un rite d'une religion : ce qu'il fait, où, et ce qu'il coûte vraiment. */
+export interface ReligionRite {
+  name: string;
+  /** Effet mécanique ou narratif, en toutes lettres. */
+  effect: string;
+  /** Lieu de culte exigé. */
+  place?: string;
+  /** Durée, quand le rite pose un effet qui court. */
+  duration?: string;
+  /** Contrepartie réelle (une vérité livrée au clergé, un objet enterré, une scène jouée). */
+  price?: string;
+}
+
+/** Religion suivie : un domaine servi, un marqueur social, et deux rites. */
+export interface ReligionDef {
+  key: string;
+  name: string;
+  /** Domaine servi (clé de MAGIC_DOMAINS). */
+  domain: string;
+  /** Région où la religion est chez elle. */
+  region?: string;
+  clergy?: string;
+  description: string;
+  /** Rite de préparation avant une exposition connue au divin. */
+  ritual?: string;
+  confession?: ReligionRite;
+  prayer?: ReligionRite;
+  /** Réserve à afficher telle quelle (religion pas encore rédigée, par ex.). */
+  note?: string;
+}
+
+/** Comment une région lit quelqu'un qui sert ce domaine. */
+export interface DomainStanding {
+  domain: string;
+  favourable: string;
+  suspicious: string;
+  note?: string;
+}
+
+/**
+ * Ce qu'un slot de feat peut acheter (paliers 5/10/15/20, un seul par palier) :
+ * le point d'attribut classique, un trait du catalogue, ou un feat domanial
+ * déclaré par une fiche de domaine.
+ */
+export type FeatPick = 'attribute' | 'trait' | 'domain';
+
+/** Le choix réellement fait à un palier de feat. */
+export interface FeatChoice {
+  /** Palier concerné (cf. FEAT_LEVELS). */
+  level: number;
+  pick: FeatPick;
+  /** `attribute` : l'attribut qui gagne son point. */
+  attribute?: AttributeKey;
+  /** `trait` : clé dans le catalogue de traits (traits.json). */
+  trait?: string;
+  /** `domain` : clé du feat domanial (champ `feats` de domains/<domain>.json). */
+  feat?: string;
+  /** `domain` : clé du domaine d'où vient le feat, pour le retrouver sans le chercher. */
+  domain?: string;
+}
+
+/** Catégorie d'un trait du catalogue — sert à grouper la liste de choix. */
+export type TraitCategory = 'combat' | 'survie' | 'perception' | 'magie' | 'social';
+
+/**
+ * Trait du catalogue général (section 16 du gameplay) : un passif isolé,
+ * indépendant de la race, choisi à la création ou pris sur un slot de feat.
+ *
+ * Dérivé de `trait.json`, la source unique des traits du monde — le même
+ * fichier que celui où le bestiaire pioche par `traitIds`. Un trait n'existe
+ * donc qu'une fois, qu'il soit porté par une créature ou par un personnage.
+ */
+export interface CatalogTrait extends TraitDef {
+  /** Id de la ligne dans `trait.json` (partagé avec le bestiaire). */
+  id: number;
+  category: TraitCategory;
+  /** Comment ce trait s'obtient — et s'il s'obtient tout court. */
+  acquisition: TraitAcquisition;
+  /**
+   * Qui l'accorde d'office, en références vers les datasets :
+   * `race:<clé>`, `subrace:<clé>`, `background:<clé>`, `origin:<clé>`.
+   * C'est ICI que le lien est stocké : races, backgrounds et origines ne
+   * déclarent aucun trait en propre, ils sont référencés depuis le catalogue.
+   */
+  grantedBy: string[];
+}
+
+/**
+ * Nature de l'obtention d'un trait :
+ * - `acquis` : ça s'apprend, donc n'importe qui peut le prendre ;
+ * - `biologique` : ça se naît avec (branchies, œil nocturne, charpente naine),
+ *   donc ça ne se prend jamais — seule une race peut l'accorder ;
+ * - `regional` : ça vient d'une enfance passée quelque part, donc seule une
+ *   origine peut l'accorder.
+ */
+export type TraitAcquisitionKind = 'acquis' | 'biologique' | 'regional';
+
+/** Conditions d'obtention d'un trait, telles qu'affichées sur la fiche. */
+export interface TraitAcquisition {
+  kind: TraitAcquisitionKind;
+  /** Vrai si le trait peut être PRIS (à la création ou sur un slot de feat). */
+  pickable: boolean;
+  /** La condition en toutes lettres. */
+  condition: string;
+}
+
+/**
+ * Feat domanial tel que déclaré par une fiche de domaine. Dupliqué du wiki
+ * (cf. `DomainFeat`) plutôt qu'importé : ce module décrit le personnage et ne
+ * doit pas dépendre du wiki.
+ */
+export interface DomainFeatDef {
+  key: string;
+  name: string;
+  level: number;
+  kind: string;
+  prerequisite: string;
+  freeWith?: string;
+  description: string;
+  subdomains?: string[];
+  excludes?: string[];
+  effects: { label: string; value: string; tone?: string }[];
+  /** Effets chiffrés réellement appliqués à la fiche (clé de stat ou d'attribut). */
+  statEffects?: StatKV[];
+}
 
 /** Modèle complet d'une fiche de personnage (le champ `data` côté backend).
  *  Les statistiques ne sont PAS stockées : elles sont recalculées à partir de
@@ -157,6 +316,16 @@ export interface CharacterSheet {
   /** Compétences choisies via la classe (clés). Le background en accorde d'autres
    *  automatiquement, en plus de celles-ci. */
   skills: string[];
+  /**
+   * Traits choisis À LA CRÉATION dans le catalogue (clés de traits.json), en
+   * plus de ceux qu'accordent la race, la sous-race et le background.
+   */
+  creationTraits?: string[];
+  /**
+   * Ce que chaque slot de feat a acheté, au plus un par palier (5/10/15/20).
+   * Un palier non encore atteint, ou laissé en attente, n'a pas d'entrée.
+   */
+  feats?: FeatChoice[];
   /** Sorts débloqués (appris) et équipés (loadout de combat) — cf. CharacterSpells. */
   spells: CharacterSpells;
   /**
@@ -264,7 +433,6 @@ export interface SubraceDef {
   key: string;
   name: string;
   attributes?: StatKV[];
-  traits?: TraitDef[];
   /** Sous-backgrounds : slug de l'arme de départ (cf. weapons/*). La tenue de
    *  départ est, elle, déduite de `key` (= slug du set d'armure correspondant). */
   startingWeapon?: string;
@@ -281,7 +449,6 @@ export interface RaceDef {
   name: string;
   subraces: SubraceDef[];
   attributes?: StatKV[];
-  traits?: TraitDef[];
   'genetics-stats'?: StatKV[];
 }
 
@@ -291,8 +458,6 @@ export interface BackgroundDef {
   subbackgrounds: SubraceDef[];
   /** Compétences accordées (+valeur) par le background. */
   subattributes?: StatKV[];
-  /** Traits accordés par le background. */
-  traits?: TraitDef[];
   /** Bornes de l'or de départ accordé par le background. */
   min_money?: number;
   max_money?: number;

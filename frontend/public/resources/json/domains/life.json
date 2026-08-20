@@ -288,6 +288,117 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "life-flux-genereux",
+            "name": "Flux généreux",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Vie débloqué",
+            "description": "Il donne sans compter, et sa réserve s'en ressent avant la fin du combat.",
+            "subdomains": [
+                "Soin & vitalité"
+            ],
+            "excludes": [
+                "life-flux-precis"
+            ],
+            "effects": [
+                {
+                    "label": "PV rendus par les sorts de Vie",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût en mana des sorts de Vie",
+                    "value": "×1,2",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "life-flux-precis",
+            "name": "Flux précis",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Vie débloqué",
+            "description": "Un soin exact, sur une seule personne, sans une goutte de mana perdue.",
+            "subdomains": [
+                "Soin & vitalité"
+            ],
+            "excludes": [
+                "life-flux-genereux"
+            ],
+            "effects": [
+                {
+                    "label": "Coût en mana des sorts de Vie",
+                    "value": "×0,75",
+                    "tone": "boon"
+                },
+                {
+                    "label": "PV rendus",
+                    "value": "×0,9",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Cibles par sort",
+                    "value": "Un seul allié",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "life-chair-obeissante",
+            "name": "Chair obéissante",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Vie débloqué et Régénération de la chair connue",
+            "freeWith": "Background Soldat — Médecin d'armée",
+            "description": "Il remet les os en place en même temps qu'il referme la plaie, et encaisse une part de ce qu'il reprend.",
+            "subdomains": [
+                "Manipulation de la chair"
+            ],
+            "effects": [
+                {
+                    "label": "Statut physique retiré par un soin",
+                    "value": "+1 (saignement, fracture)",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Contrecoup sur le lanceur",
+                    "value": "20 % des PV rendus",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "life-etincelle-partagee",
+            "name": "Étincelle partagée",
+            "level": 20,
+            "kind": "unlock",
+            "prerequisite": "Palier Expert de Vie débloqué et Étincelle vitale connue",
+            "description": "Il rappelle une âme qui partait, en payant de son propre souffle. Ça marche une fois par jour, et ça se sent jusqu'au lendemain.",
+            "subdomains": [
+                "Création d'âme"
+            ],
+            "effects": [
+                {
+                    "label": "Allié tombé",
+                    "value": "Relevé à 1 PV, 1 fois par jour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Endurance maximale du lanceur",
+                    "value": "−1 jusqu'au prochain repos long",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Après usage",
+                    "value": "1 niveau de Fatigue",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

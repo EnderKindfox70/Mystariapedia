@@ -1,11 +1,19 @@
 import {
   CharacterSheet,
   AttributeKey,
+  CatalogTrait,
+  DomainFeatDef,
+  TraitAcquisition,
+  DomainStanding,
+  FeatChoice,
+  OriginDef,
+  ReligionDef,
   StatKey,
   StatKV,
   RaceDef,
   ClassDef,
   BackgroundDef,
+  TraitCategory,
   TraitDef,
   PoolKey,
   SurvivalKey,
@@ -22,7 +30,12 @@ import lifeDomain from '../../../public/resources/json/domains/life.json';
 import deathDomain from '../../../public/resources/json/domains/death.json';
 import timeDomain from '../../../public/resources/json/domains/time.json';
 import spaceDomain from '../../../public/resources/json/domains/space.json';
+import renforcementDomain from '../../../public/resources/json/domains/renforcement.json';
+import emissionDomain from '../../../public/resources/json/domains/emission.json';
 import combinationsCatalog from '../../../public/resources/json/domains/combinations.json';
+import traitCatalog from '../../../public/resources/json/trait.json';
+import originsCatalog from '../../../public/resources/json/characters/origins.json';
+import religionsCatalog from '../../../public/resources/json/characters/religions.json';
 import weaponCategoryCatalog from '../../../public/resources/json/weapon_category.json';
 import armorCategoryCatalog from '../../../public/resources/json/armor_category.json';
 import { ArmorCategoryDef, WeaponCategoryDef } from '../wiki.types';
@@ -93,6 +106,8 @@ export interface SpellTree {
 interface RawDomain {
   /** Sorts de base du domaine (cf. tableau `spells` des fichiers domains/*.json). */
   spells?: RawSpell[];
+  /** Feats domaniaux déclarés par la fiche de domaine (cf. tableau `feats`). */
+  feats?: DomainFeatDef[];
   /** Icône du domaine, en taille d'origine (~2 Mo) — cf. `domainIcon`. */
   icon?: string;
 }
@@ -797,6 +812,8 @@ export function emptySheet(): CharacterSheet {
     statSeed: randomSeed(),
     proficiencyBonus: 2,
     skills: [],
+    creationTraits: [],
+    feats: [],
     spells: { unlocked: [], equipped: [], nodes: {} },
     extraWeaponProficiencies: [],
     extraArmorProficiencies: [],
@@ -939,6 +956,15 @@ export function statContributions(
     }
   }
 
+  // 3 bis) Feats domaniaux passifs : même traitement que les traits.
+  for (const { feat } of chosenDomainFeats(sheet)) {
+    const v = kvValue(feat.statEffects, statKey);
+    if (v) {
+      parts.push({ label: `Feat : ${feat.name}`, value: v });
+      raw += v;
+    }
+  }
+
   // 4) Plancher : une stat à 0 ou négative est ramenée à 1 (sauf les défenses,
   //    qui peuvent légitimement rester à 0).
   let total = Math.round(raw);
@@ -974,6 +1000,7 @@ export function theoreticalMaxStat(
     if (attrKey) raw += level * abilityModifier(attributes[attrKey]);
   }
   for (const t of traits) raw += kvValue(t.effects, statKey);
+  for (const { feat } of chosenDomainFeats(sheet)) raw += kvValue(feat.statEffects, statKey);
   return Math.round(raw);
 }
 
@@ -1007,18 +1034,282 @@ export function computeStats(
   return out;
 }
 
-/** Traits accordés = race + sous-race + background sélectionnés. */
+/**
+ * Traits accordés d'office par la race, la sous-race, le background et
+ * l'origine choisis.
+ *
+ * Rien n'est lu dans `races.json` ni `backgrounds.json` : ces fichiers ne
+ * déclarent plus de trait. C'est le catalogue `trait.json` qui dit, trait par
+ * trait, qui l'accorde (`grantedBy`) — un seul endroit à tenir, donc aucun
+ * risque de voir deux versions du même trait diverger.
+ */
 export function grantedTraits(
   race: RaceDef | undefined,
   subraceName: string,
   background?: BackgroundDef,
-): TraitDef[] {
+  origin?: OriginDef,
+): CatalogTrait[] {
   const sub = race?.subraces.find((s) => s.name === subraceName);
-  return [
-    ...(race?.traits ?? []),
-    ...(sub?.traits ?? []),
-    ...(background?.traits ?? []),
+  const refs = [
+    race && `race:${race.key}`,
+    sub && `subrace:${sub.key}`,
+    background && `background:${background.key}`,
+    origin && `origin:${origin.key}`,
+  ].filter((ref): ref is string => !!ref);
+  return traitsGrantedBy(refs);
+}
+
+/* ── Traits du catalogue & slots de feat (section 16 du gameplay) ─────────── */
+
+/**
+ * Paliers auxquels un slot de feat s'ouvre. Le slot se dépense EN CONCURRENCE
+ * avec le point d'attribut : c'est un seul et même choix, pas deux gains qui
+ * s'additionnent.
+ */
+export const FEAT_LEVELS = [5, 10, 15, 20];
+
+/**
+ * Traits pris à la création, en plus de ceux qu'accordent race, sous-race et
+ * background. Le gameplay pose le principe (« choisis à la création, ou via
+ * feat ») sans arrêter de nombre : un seul ici, à remonter si la table en veut
+ * davantage — tout le reste suit cette constante.
+ */
+export const CREATION_TRAIT_SLOTS = 1;
+
+/** Paliers de feat déjà ouverts pour un personnage de ce niveau. */
+export const featSlotsFor = (level: number): number[] =>
+  FEAT_LEVELS.filter((l) => l <= clampLevelValue(level));
+
+/**
+ * Une ligne de `trait.json`. Le fichier est la SOURCE UNIQUE des traits du
+ * monde : chaque ligne décrit le trait tel qu'une créature le porte (`name`,
+ * `description`, référencés par `traitIds` dans le bestiaire) et, quand un
+ * personnage peut le prendre, son versant jouable dans `character`.
+ */
+interface RawTrait {
+  id: number;
+  name: string;
+  description: string;
+  character?: {
+    key: string;
+    label: string;
+    category: TraitCategory;
+    description: string;
+    /** Conditions d'obtention : ce qui dit si le trait peut être pris. */
+    acquisition: TraitAcquisition;
+    /** Références de ce qui l'accorde d'office (`race:`, `subrace:`, `background:`, `origin:`). */
+    grantedBy: string[];
+    effects?: StatKV[];
+  };
+}
+
+/**
+ * Tous les traits qu'un personnage peut PORTER : les lignes de `trait.json` qui
+ * ont un versant `character`, qu'elles se choisissent ou qu'elles s'accordent
+ * (une origine en donne, par exemple).
+ */
+export const CHARACTER_TRAITS: CatalogTrait[] = (traitCatalog.traits as unknown as RawTrait[])
+  .filter((t): t is RawTrait & { character: NonNullable<RawTrait['character']> } => !!t.character)
+  .map((t) => ({
+    id: t.id,
+    key: t.character.key,
+    name: t.character.label,
+    description: t.character.description,
+    category: t.character.category,
+    acquisition: t.character.acquisition,
+    grantedBy: t.character.grantedBy ?? [],
+    effects: t.character.effects,
+  }));
+
+/**
+ * Traits qu'on peut CHOISIR (création ou slot de feat). Le reste ne s'apprend
+ * pas : une particularité biologique s'hérite, un sens forgé par une enfance
+ * souterraine vient avec l'origine — dans les deux cas, il n'y a rien à prendre.
+ */
+export const TRAIT_CATALOG: CatalogTrait[] = CHARACTER_TRAITS.filter(
+  (t) => t.acquisition.pickable,
+);
+
+/** Familles de traits, dans l'ordre d'affichage de la liste de choix. */
+export const TRAIT_CATEGORIES: { key: TraitCategory; label: string }[] = [
+  { key: 'combat',     label: 'Combat' },
+  { key: 'survie',     label: 'Survie' },
+  { key: 'perception', label: 'Perception' },
+  { key: 'magie',      label: 'Magie' },
+  { key: 'social',     label: 'Social' },
+];
+
+const TRAIT_BY_KEY = new Map(CHARACTER_TRAITS.map((t) => [t.key, t]));
+const TRAIT_BY_ID = new Map(CHARACTER_TRAITS.map((t) => [t.id, t]));
+
+/** Un trait portable par sa clé (accordé ou choisi). */
+export const catalogTrait = (key: string): CatalogTrait | undefined => TRAIT_BY_KEY.get(key);
+
+/** Un trait portable par son id dans `trait.json` (ce que référencent les origines). */
+export const traitById = (id: number): CatalogTrait | undefined => TRAIT_BY_ID.get(id);
+
+/** Vrai si ce trait peut être PRIS (création, slot de feat) et pas seulement porté. */
+export const isPickableTrait = (key: string): boolean =>
+  catalogTrait(key)?.acquisition.pickable === true;
+
+/**
+ * Traits que ces sources accordent d'office. Les références sont lues DANS le
+ * catalogue (`grantedBy`) : c'est le seul endroit où le lien existe.
+ */
+export const traitsGrantedBy = (refs: string[]): CatalogTrait[] => {
+  const wanted = new Set(refs);
+  return CHARACTER_TRAITS.filter((t) => t.grantedBy.some((ref) => wanted.has(ref)));
+};
+
+/* ── Origine géographique & religion (section 22 du gameplay) ─────────────── */
+
+/** Les origines géographiques ouvertes à la création, dans l'ordre du dataset. */
+export const ORIGINS = originsCatalog.origins as OriginDef[];
+
+const ORIGIN_BY_KEY = new Map(ORIGINS.map((o) => [o.key, o]));
+
+/** Une origine par sa clé. */
+export const originByKey = (key: string | undefined): OriginDef | undefined =>
+  key ? ORIGIN_BY_KEY.get(key) : undefined;
+
+/** Traits accordés d'office par une origine, résolus depuis `trait.json`. */
+export const originTraits = (origin: OriginDef | undefined): CatalogTrait[] =>
+  origin ? traitsGrantedBy([`origin:${origin.key}`]) : [];
+
+/** Les religions rédigées, dans l'ordre du dataset. */
+export const RELIGIONS = religionsCatalog.religions as ReligionDef[];
+
+const RELIGION_BY_KEY = new Map(RELIGIONS.map((r) => [r.key, r]));
+
+/** Une religion par sa clé. */
+export const religionByKey = (key: string | undefined): ReligionDef | undefined =>
+  key ? RELIGION_BY_KEY.get(key) : undefined;
+
+/**
+ * Marqueur social : comment les régions lisent quelqu'un qui sert ce domaine.
+ * Vaut même sans religion déclarée — c'est le domaine servi qui se voit, pas la
+ * carte de membre.
+ */
+export const DOMAIN_STANDING = religionsCatalog.standing as DomainStanding[];
+
+const STANDING_BY_DOMAIN = new Map(DOMAIN_STANDING.map((s) => [s.domain, s]));
+
+/** Le regard porté sur un domaine, s'il est renseigné. */
+export const standingFor = (domain: string): DomainStanding | undefined =>
+  STANDING_BY_DOMAIN.get(domain);
+
+/** Domaines qui exposent des feats : les douze, plus les deux usages non polarisés. */
+const FEAT_DOMAIN_FILES: Record<string, RawDomain> = {
+  ...DOMAIN_FILES,
+  renforcement: renforcementDomain as unknown as RawDomain,
+  emission: emissionDomain as unknown as RawDomain,
+};
+
+/**
+ * Branches non polarisées et le trait de background qui les ouvre (section 21 :
+ * Soldat donne Renforcement, Sage donne le Voile). Sans ce trait, leurs feats
+ * ne sont pas proposés : on ne spécialise pas une branche à laquelle on n'a
+ * pas accès.
+ */
+const NONPOLAR_ACCESS: Record<string, string> = {
+  renforcement: 'entrainement-martial',
+  emission: 'etudes-magiques',
+};
+
+/** Feats déclarés par une fiche de domaine. */
+export const domainFeats = (domainKey: string): DomainFeatDef[] =>
+  FEAT_DOMAIN_FILES[domainKey]?.feats ?? [];
+
+/** Un feat domanial par sa clé, avec le domaine dont il vient. */
+export const findDomainFeat = (
+  key: string,
+): { feat: DomainFeatDef; domain: string } | undefined => {
+  for (const domain of Object.keys(FEAT_DOMAIN_FILES)) {
+    const feat = domainFeats(domain).find((f) => f.key === key);
+    if (feat) return { feat, domain };
+  }
+  return undefined;
+};
+
+/**
+ * Domaines où le personnage peut prendre un feat : ses domaines d'affinité,
+ * plus les branches non polarisées que son background ou son origine lui ont
+ * ouvertes (un natif de l'Archipel les pratique d'instinct, sans feat).
+ */
+export const featDomainsFor = (sheet: CharacterSheet, traits: TraitDef[]): string[] => {
+  const owned = new Set(traits.map((t) => t.key));
+  const fromBackground = Object.keys(NONPOLAR_ACCESS).filter((d) => owned.has(NONPOLAR_ACCESS[d]));
+  const fromOrigin = originByKey(sheet.identity.origin)?.nonPolarBranches ?? [];
+  const nonPolar = [...new Set([...fromBackground, ...fromOrigin])];
+  return [...sheet.domains.filter((d) => !!FEAT_DOMAIN_FILES[d]), ...nonPolar];
+};
+
+/** Libellés des branches non polarisées, absentes de `MAGIC_DOMAINS` (elles ne
+ *  se choisissent pas comme affinité, seulement par background). */
+const NONPOLAR_LABEL: Record<string, string> = {
+  renforcement: 'Renforcement',
+  emission: 'Émission',
+};
+
+/** Nom d'un domaine porteur de feats, branches non polarisées comprises. */
+export const featDomainName = (key: string): string => NONPOLAR_LABEL[key] ?? domainName(key);
+
+/** Le choix fait à un palier donné, s'il a été fait. */
+export const featChoiceAt = (sheet: CharacterSheet, level: number): FeatChoice | undefined =>
+  (sheet.feats ?? []).find((f) => f.level === level);
+
+/**
+ * Choix de feat qui COMPTENT aujourd'hui : ceux des paliers que le niveau a
+ * réellement ouverts. Un personnage qu'on redescend en niveau suspend ses
+ * derniers choix sans les perdre — les remonter les rend tels quels.
+ */
+export const activeFeatChoices = (sheet: CharacterSheet): FeatChoice[] => {
+  const open = new Set(featSlotsFor(sheet.level));
+  return (sheet.feats ?? []).filter((f) => open.has(f.level));
+};
+
+/** Traits pris par la fiche : ceux de la création, plus ceux achetés sur un slot. */
+export function chosenTraits(sheet: CharacterSheet): CatalogTrait[] {
+  const keys = [
+    ...(sheet.creationTraits ?? []),
+    ...activeFeatChoices(sheet)
+      .filter((f) => f.pick === 'trait' && f.trait)
+      .map((f) => f.trait!),
   ];
+  return [...new Set(keys)]
+    .map((k) => catalogTrait(k))
+    .filter((t): t is CatalogTrait => !!t);
+}
+
+/** Feats domaniaux pris sur un slot, résolus depuis les fiches de domaine. */
+export function chosenDomainFeats(
+  sheet: CharacterSheet,
+): { feat: DomainFeatDef; domain: string }[] {
+  return activeFeatChoices(sheet)
+    .filter((f) => f.pick === 'domain' && f.feat)
+    .map((f) => findDomainFeat(f.feat!))
+    .filter((x): x is { feat: DomainFeatDef; domain: string } => !!x);
+}
+
+/**
+ * Effets chiffrés des feats domaniaux pris : un feat `passive` (Peau dure,
+ * Muscle renforcé…) pèse sur la fiche exactement comme les effets d'un trait.
+ */
+export function featStatEffects(sheet: CharacterSheet): StatKV[] {
+  return chosenDomainFeats(sheet).flatMap(({ feat }) => feat.statEffects ?? []);
+}
+
+/** Somme des valeurs portant une clé donnée (stat ou attribut). */
+const sumForKey = (kv: StatKV[], key: string): number =>
+  kv.reduce((total, e) => (e.key === key ? total + (Number(e.value) || 0) : total), 0);
+
+/** Points d'attribut gagnés en dépensant un slot de feat sur un attribut. */
+export function featAttributeBonuses(sheet: CharacterSheet): Record<AttributeKey, number> {
+  const out = Object.fromEntries(ATTRIBUTES.map((a) => [a.key, 0])) as Record<AttributeKey, number>;
+  for (const f of activeFeatChoices(sheet)) {
+    if (f.pick === 'attribute' && f.attribute && f.attribute in out) out[f.attribute] += 1;
+  }
+  return out;
 }
 
 /** Or de départ : tirage déterministe (lié à la graine) entre min et max du
@@ -1069,14 +1360,24 @@ export function attributeBonuses(
   return out;
 }
 
-/** Attributs finaux = base saisie + bonus de race + bonus de sous-race. */
+/**
+ * Attributs finaux = base saisie + bonus de race/sous-race + points d'attribut
+ * dépensés sur un slot de feat + effets d'attribut des feats domaniaux passifs.
+ */
 export function computeAttributes(
   sheet: CharacterSheet,
   race: RaceDef | undefined,
   subraceName: string,
 ): Record<AttributeKey, number> {
   const bonuses = attributeBonuses(race, subraceName);
+  const feats = featAttributeBonuses(sheet);
+  const featEffects = featStatEffects(sheet);
   const out = {} as Record<AttributeKey, number>;
-  for (const a of ATTRIBUTES) out[a.key] = (sheet.attributes[a.key] ?? 10) + bonuses[a.key];
+  for (const a of ATTRIBUTES)
+    out[a.key] =
+      (sheet.attributes[a.key] ?? 10) +
+      bonuses[a.key] +
+      feats[a.key] +
+      sumForKey(featEffects, a.key);
   return out;
 }

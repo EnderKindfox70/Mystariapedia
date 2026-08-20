@@ -456,6 +456,118 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "plant-seve-virulente",
+            "name": "Sève virulente",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Plantes débloqué",
+            "description": "Il pousse ses préparations du côté du poison. Ce qui guérit et ce qui tue viennent de la même plante ; il a choisi.",
+            "subdomains": [
+                "Poison & Médecine naturelle"
+            ],
+            "excludes": [
+                "plant-seve-nourriciere"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts de poison",
+                    "value": "×1,3",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Durée des poisons",
+                    "value": "+1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Soins et symbioses",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "plant-seve-nourriciere",
+            "name": "Sève nourricière",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Plantes débloqué",
+            "description": "L'autre versant du même savoir : ce qu'il fait pousser soutient, et n'empoisonne plus grand-chose.",
+            "subdomains": [
+                "Poison & Médecine naturelle",
+                "Symbiose & Parasitisme"
+            ],
+            "excludes": [
+                "plant-seve-virulente"
+            ],
+            "effects": [
+                {
+                    "label": "Effets de Médecine naturelle et de Symbiose",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts de poison",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "plant-emprise-des-ronces",
+            "name": "Emprise des ronces",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Plantes débloqué et un sort de l'aspect Croissance végétale connu",
+            "description": "Ce qu'il fait lever au sol ne se retire plus sur commande : le terrain devient un obstacle pour tout le monde.",
+            "subdomains": [
+                "Croissance végétale"
+            ],
+            "effects": [
+                {
+                    "label": "Durée des zones végétales",
+                    "value": "+2 tours",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Terrain de la zone",
+                    "value": "Difficile",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Discrimination alliés/ennemis",
+                    "value": "Aucune",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "plant-mycelium-partage",
+            "name": "Mycélium partagé",
+            "level": 15,
+            "kind": "unlock",
+            "prerequisite": "Palier Majeur de Plantes débloqué et un sort de l'aspect Spores & Mycologie connu",
+            "freeWith": "Background Nomade — Récolteur-Vagabond",
+            "description": "Il se branche sur le réseau sous ses pieds. Loin de la terre vivante, l'habitude lui manque comme un sens perdu.",
+            "subdomains": [
+                "Spores & Mycologie"
+            ],
+            "effects": [
+                {
+                    "label": "Perception en terrain végétal",
+                    "value": "Tout ce qui touche le sol dans 30 m",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Perception sur pierre nue ou en ville",
+                    "value": "−1 cran",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

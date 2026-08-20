@@ -796,6 +796,29 @@ Distincts des traits raciaux (section 11) : des passifs isolés façon Robustess
 | Sang épais | Résiste au froid extrême sans pénalité |
 | Poumons d'altitude | Aucun malus en haute montagne |
 
+### Ce que la fiche de personnage implémente
+
+Catalogue : `frontend/public/resources/json/trait.json`, **source unique des traits du monde** — celle où le bestiaire pioche déjà par `traitIds`. Une ligne = un trait, jamais deux. Chaque ligne porte sa lecture créature (`name`, `description`) et, quand un personnage peut le porter, un bloc `character` : libellé et description en français, famille, effets chiffrés, plus deux champs qui décident de tout le reste.
+
+- `acquisition` — **si le trait peut être obtenu, et à quelles conditions** :
+  - `acquis` : ça s'apprend, donc n'importe qui peut le prendre à la création ou sur un slot de feat (Nageur, Entraînement martial, les traits de la section 16) ;
+  - `biologique` : ça se naît avec, donc ça ne se prend jamais — seule une race l'accorde (Amphibie, Vision dans le noir, Robustesse naine, Affinité arcanique et Protection magique elfiques) ;
+  - `regional` : ça vient d'une enfance passée quelque part, donc seule une origine l'accorde (Vision dans la pénombre).
+  La condition est écrite en toutes lettres dans le champ `condition` et s'affiche sur la fiche.
+- `grantedBy` — **qui l'accorde d'office**, en références `race:`, `subrace:`, `background:`, `origin:`. C'est le seul endroit où ce lien existe : `races.json`, `backgrounds.json` et `origins.json` ne déclarent plus aucun trait en propre. Nageur pointe vers `background:sailor` et `background:fisherman`, Amphibie vers `race:deep-walker`, Vision dans le noir vers `subrace:deep-dwarf`, Robustesse vers `race:nain`, et ainsi de suite.
+
+Trente et un traits au total : les vingt de la section 16, les six rapatriés des races et des backgrounds, la vision régionale des États Souterrains, et les quatre traits de créature d'origine. Vingt et un sont prenables — Amphibie et Vision dans le noir en sortent, contrairement à ce que laissait entendre la mention « réutilisable » du tableau ci-dessus : ce sont des particularités biologiques, pas des entraînements.
+
+- **Trait de création** : un trait du catalogue au choix, en plus de ceux qu'accordent race, sous-race et background. Le nombre n'était pas fixé ici : la fiche en donne **un**, réglé par la constante `CREATION_TRAIT_SLOTS` — la remonter suffit si la table en veut davantage.
+- **Slots de feat** : un par palier (5, 10, 15, 20). Chaque slot achète **une** chose parmi trois, jamais deux :
+  1. un point d'attribut (+1 à l'attribut choisi) ;
+  2. un trait du catalogue ;
+  3. un feat domanial (section 24) pris dans un domaine du personnage — ou dans une branche non polarisée si son background l'a ouverte (Soldat → Renforcement, Sage → Voile).
+- Un trait déjà accordé par la race ou le background n'est pas reproposé, et aucun trait ne se prend deux fois. Un feat domanial déjà pris, ou exclu par un feat déjà pris, est refusé avec sa raison affichée.
+- Redescendre le niveau d'un personnage **suspend** les paliers qu'il n'atteint plus (leurs gains cessent de compter) sans effacer les choix : les remonter les rend tels quels.
+
+Non implémenté sur la fiche : le Contrecoup divin ci-dessous. C'est une marque imposée par le MJ (tier × domaine), pas un choix de joueur, et sa réduction d'apprentissage (−10 % à −30 % d'inspiration sur un domaine) demanderait des coûts d'inspiration fractionnaires que le système n'a pas.
+
 ### Contrecoup divin (trait acquis uniquement, jamais choisi à la création)
 
 Réutilise directement section 9 du recap (*"sévérité ∝ durée × degré d'individualité"*), appliqué à un éveil accidentel par contact divin plutôt qu'au Regard classique. Toujours une facture en échange du don obtenu, cohérent avec *"la magie ne refuse rien, elle facture"*.
@@ -1162,6 +1185,20 @@ Chaque rite de prière : accompli uniquement dans un lieu de culte reconnu, aucu
 
 **Prière-pari (Piété, jauge B — confirmée)** : gate par une jauge de Piété invisible sur la fiche, qui n'avance que par de vrais actes de dévotion joués en session (rituel accompli, quête pour la foi, offrande), jamais par le niveau. Permet de construire des archétypes façon Clerc/Paladin sans classe dédiée, une fois le seuil atteint. Le pari lui-même : sacrifie l'action complète du tour, jet de Volonté contre une sévérité élevée fixe, degrés de réussite déjà connus (Raté = rien, Partiel = effet mineur, Touche = effet notable propre au domaine, Critique = un vrai miracle).
 
+### Ce que la fiche de personnage implémente
+
+Datasets : `frontend/public/resources/json/characters/origins.json` et `.../religions.json`. Les clés de région sont celles de `materials.json > regions`, les traits accordés sont référencés par leur id dans `trait.json` (source unique, aucun trait n'est réécrit ailleurs).
+
+- **Origine** : cinquième champ d'identité, à côté de race, background et classe. Cinq origines, une par région. Chacune porte son climat, son acclimatation, son savoir régional, sa ou ses factions à réputation gratuite, et ce qu'elle accorde en dur :
+  - Royaume Abandonné → trait *Peau dure à la corruption* (id 22, celui du catalogue) ;
+  - États Souterrains → trait *Vision dans la pénombre* (id 25, accordé seulement : il ne figure pas dans la liste des traits qu'on prend sur un slot, pour ne pas doubler *Vision dans le noir*) ;
+  - Archipel de la Nuit → Renforcement et Émission ouverts sans feat ni background, exactement comme le trait Soldat ou Sage les ouvre.
+- Les traits d'origine entrent dans les traits accordés : ils comptent pour les stats, la fiche imprimée, le PDF et le simulateur de combat, au même titre qu'un trait racial.
+- **Religion** : sixième champ d'identité. Les trois religions rédigées (Zénithisme, Enfants de la Sève, Culte de Lun'a) portent leur domaine, leur clergé, leur rite de préparation, leur rite de prière et leur confession quand elle existe — Lun'a affiche sa réserve plutôt qu'une règle inventée.
+- **Marqueur social** : la table par domaine est tenue à part (`standing`), donc elle s'applique même à un personnage sans religion déclarée — c'est le domaine servi qui se voit. La fiche affiche les lignes du domaine de la religion et des domaines d'affinité.
+
+Non implémenté : la **Prière-pari** et la jauge de Piété. Le doc les laisse explicitement ouvertes (seuil, rythme, effets Touche/Critique par domaine) et pose la jauge comme invisible sur la fiche — la coder reviendrait à inventer les valeurs manquantes. L'**acclimatation climatique** est pour l'instant déclarative : le moteur de survie module la consommation par activité, pas encore par climat, donc il n'y a aucun multiplicateur à annuler.
+
 **Non résolu** : seuil exact de la jauge de Piété, rythme de progression, et effets précis par domaine pour le palier Touche/Critique de Prière-pari. Culte de Lun'a pas encore rédigé comme religion complète (structure/clergé), seul le rite de prière est posé.
 
 ## 23. MATÉRIAUX DE TERRE (MANIPULATION VS EX-NIHILO)
@@ -1285,12 +1322,20 @@ Sept économies de progression existent déjà dans ce système (Endurance, Mana
 
 Se prennent aux mêmes paliers que n'importe quel feat (5/10/15/20, en concurrence avec le point d'attribut). Exigent souvent un prérequis : un vécu compatible (background) qui le rend gratuit, ou un investissement minimal déjà fait dans le domaine concerné (une spécialisation qui modifie des sorts existants n'a pas de sens sans avoir déjà quelque chose à modifier).
 
-| Feat domanial | Prérequis | Effet |
-|---|---|---|
-| Entraînement martial | Aucun (gratuit si background Soldat) | Accès branche Renforcement |
-| Études magiques | Aucun (gratuit si background Sage) | Accès branche Voile |
-| Lumière focale | Palier Mineur Lumière débloqué | +25% dégâts sorts offensifs Lumière, cible unique verrouillée |
-| Lumière diffuse | Palier Mineur Lumière débloqué | Sorts offensifs Lumière touchent une zone (rayon 3m), −20% dégâts |
+**Source unique** : le catalogue complet vit désormais dans les fiches de domaine — champ `feats` de `frontend/public/resources/json/domains/<domaine>.json`, affiché sur la page du domaine (section « Feats domaniaux », groupée par palier). Quatre feats par domaine, les douze domaines plus Renforcement et Émission. Chaque entrée déclare son palier (`level`), sa nature mécanique (`kind`), son prérequis, le background qui le rend gratuit s'il y en a un (`freeWith`), ses exclusions mutuelles (`excludes`) et le détail chiffré ligne par ligne (`effects`, chaque ligne marquée `boon` ou `cost`).
+
+`kind` dit OÙ le feat s'applique, conformément au mécanisme ci-dessous : `multiplier` (un facteur de plus dans la chaîne météo × moment), `override` (propriété structurelle vérifiée à la résolution), `unlock` (une possibilité qui n'existait pas).
+
+Extrait de référence (Lumière) :
+
+| Feat domanial | Palier | Prérequis | Effet |
+|---|---|---|---|
+| Lumière focale | 5 | Palier Mineur Lumière débloqué | +25% dégâts sorts offensifs Lumière, cible unique verrouillée |
+| Lumière diffuse | 5 | Palier Mineur Lumière débloqué | Sorts offensifs Lumière touchent une zone (rayon 3m), −20% dégâts |
+| Force Zénith | 10 | Palier Median Lumière débloqué | Midi : +2 Force / Nuit : −2 Force |
+| Verbe impératif | 15 | Palier Majeur Lumière + Verbe d'autorité | +1 cible sur un sort de commandement, le lanceur ne peut plus mentir pendant sa durée |
+
+Règle d'écriture tenue dans tout le catalogue : aucun feat n'est un bonus pur. Chacun paie son gain par une contrepartie chiffrée ou structurelle (coût en mana, dégâts réduits, ciblage verrouillé, exposition du lanceur), en plus du slot dépensé.
 
 ### Implémentation des spécialisations de domaine (mécanisme)
 
@@ -1310,8 +1355,8 @@ Structurel (ciblage, portée, type d'effet) → override vérifié à la résolu
 
 **Force zénith** (Résonance domaniale, gratuite dès investissement) :
 ```
-Midi : +2 Attaque physique
-Nuit : −2 Attaque physique
+Midi : +2 Strength
+Nuit : −2 Strength
 ```
 Symétrique sur les deux pics déjà chiffrés section 20, jamais un bonus pur sans contrepartie.
 

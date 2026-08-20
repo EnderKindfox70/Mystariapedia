@@ -99,6 +99,100 @@
         }
     ],
     "teaching": "L'Émission demande de renoncer à l'instinct de garde-le-pour-soi. La mana projetée au-dehors est une mana qu'on ne récupère pas : chaque instant de voile est une dépense sèche. Les praticiens apprennent à ne l'ouvrir qu'au moment juste — trop tôt, on s'épuise pour rien ; trop tard, le sort est déjà passé.",
+    "feats": [
+        {
+            "key": "emission-voile-large",
+            "name": "Voile large",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Voile connu",
+            "description": "Il étire son voile jusqu'à couvrir celui qui se tient à côté, et l'étirement se paie sur l'épaisseur.",
+            "excludes": [
+                "emission-voile-serre"
+            ],
+            "effects": [
+                {
+                    "label": "Cibles du Voile",
+                    "value": "Le lanceur et un allié adjacent",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Absorption",
+                    "value": "×0,75",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "emission-voile-serre",
+            "name": "Voile serré",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Voile connu",
+            "freeWith": "Background Sage (trait Études magiques)",
+            "description": "Tout le voile sur une seule peau : très épais, et sans réponse au coup parfaitement placé.",
+            "excludes": [
+                "emission-voile-large"
+            ],
+            "effects": [
+                {
+                    "label": "Absorption du Voile",
+                    "value": "×1,3",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Cibles",
+                    "value": "Le lanceur seul",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Sur un coup critique",
+                    "value": "Le Voile se brise entièrement",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "emission-restitution",
+            "name": "Restitution",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur d'Émission débloqué et Bouclier de voile connu",
+            "description": "Ce que le voile a bu, il le recrache sur celui qui a frappé — puis il faut attendre avant d'en tisser un autre.",
+            "effects": [
+                {
+                    "label": "Voile brisé au contact",
+                    "value": "Renvoie 25 % des dégâts absorbés à l'assaillant",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Après rupture",
+                    "value": "Aucun Voile relançable pendant 1 tour",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "emission-voile-persistant",
+            "name": "Voile persistant",
+            "level": 15,
+            "kind": "unlock",
+            "prerequisite": "Palier Majeur d'Émission débloqué",
+            "description": "Son voile ne tombe plus à la fin du combat : il tient pendant la garde, le trajet, le sommeil. La mana ne revient plus au même rythme.",
+            "effects": [
+                {
+                    "label": "Voile hors combat",
+                    "value": "Persiste (garde, trajet, repos)",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Récupération de mana tant qu'il tient",
+                    "value": "Réduite de moitié",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

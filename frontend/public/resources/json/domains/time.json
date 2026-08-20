@@ -241,6 +241,95 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "time-tempo-accelere",
+            "name": "Tempo accéléré",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Temps débloqué",
+            "description": "Il pousse toujours l'aiguille dans le même sens. Le ralentissement, lui, ne lui obéit plus vraiment.",
+            "excludes": [
+                "time-tempo-etire"
+            ],
+            "effects": [
+                {
+                    "label": "Durée d'Accélération",
+                    "value": "+1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Durée de Ralentissement",
+                    "value": "−1 tour",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "time-tempo-etire",
+            "name": "Tempo étiré",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Temps débloqué",
+            "description": "L'autre sens de la même aiguille : ce qu'il freine reste figé longtemps, ce qu'il presse s'essouffle vite.",
+            "excludes": [
+                "time-tempo-accelere"
+            ],
+            "effects": [
+                {
+                    "label": "Durée de Ralentissement",
+                    "value": "+1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Durée d'Accélération",
+                    "value": "−1 tour",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "time-echo-de-l-instant",
+            "name": "Écho de l'instant",
+            "level": 10,
+            "kind": "unlock",
+            "prerequisite": "Palier Majeur de Temps débloqué",
+            "description": "Il revient d'un demi-souffle en arrière pour refaire un geste manqué. Son corps encaisse l'aller-retour.",
+            "effects": [
+                {
+                    "label": "Jet d'attaque raté",
+                    "value": "Rejoué, 1 fois par combat",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût",
+                    "value": "1 niveau de Fatigue immédiat",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "time-lecture-des-ecarts",
+            "name": "Lecture des écarts",
+            "level": 20,
+            "kind": "unlock",
+            "prerequisite": "Palier Expert de Temps débloqué et Vision temporelle connue",
+            "freeWith": "Background Sage — Astronome",
+            "description": "Il n'a plus besoin d'appeler ses visions : elles viennent, y compris quand personne ne les a demandées.",
+            "effects": [
+                {
+                    "label": "Vision temporelle hors combat",
+                    "value": "Sans coût en mana",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Visions non sollicitées",
+                    "value": "Le MJ peut en imposer une au réveil",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

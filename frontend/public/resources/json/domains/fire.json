@@ -2076,6 +2076,118 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "fire-souffle-de-fournaise",
+            "name": "Souffle de fournaise",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Feu débloqué",
+            "description": "Le lanceur pousse la combustion au-delà de ce qu'elle demande : tout brûle plus fort, et la mana part avec.",
+            "subdomains": [
+                "Combustion",
+                "Destruction"
+            ],
+            "excludes": [
+                "fire-braise-tenace"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts des sorts de Feu",
+                    "value": "×1,2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût en mana des sorts de Feu",
+                    "value": "×1,15",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "fire-braise-tenace",
+            "name": "Braise tenace",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Feu débloqué",
+            "description": "Il ne cherche plus le coup qui tue, mais l'étincelle qui reste. Ce qu'il touche continue de brûler longtemps après lui.",
+            "subdomains": [
+                "Combustion"
+            ],
+            "excludes": [
+                "fire-souffle-de-fournaise"
+            ],
+            "effects": [
+                {
+                    "label": "Chance d'infliger Brûlure",
+                    "value": "+15 points",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Durée de Brûlure",
+                    "value": "+1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts directs des sorts de Feu",
+                    "value": "×0,9",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "fire-attiseur",
+            "name": "Attiseur",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Feu débloqué et un sort de l'aspect Combustion connu",
+            "description": "Attiser un feu déjà pris est un art plus sûr que l'allumer. Sa chaleur ne fait plus la différence entre une cible et lui-même.",
+            "subdomains": [
+                "Combustion",
+                "Chaleur"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts contre une cible déjà en Brûlure",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Zones enflammées du lanceur",
+                    "value": "Le blessent comme n'importe qui",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "fire-coeur-incandescent",
+            "name": "Cœur incandescent",
+            "level": 15,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Feu débloqué et un sort de l'aspect Passion & rage connu",
+            "description": "La douleur ne l'éteint pas, elle l'alimente — mais un feu lancé ne se rappelle plus.",
+            "subdomains": [
+                "Passion & rage"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts de Feu sous 40 % de PV",
+                    "value": "×1,35",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Incantation de Feu entamée",
+                    "value": "Ne peut plus être interrompue volontairement",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Cumul avec la chaîne météo/moment",
+                    "value": "Multiplicatif",
+                    "tone": "neutral"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

@@ -140,6 +140,23 @@
 
           <div class="cs-row">
             <label class="cs-field">
+              <span>Origine</span>
+              <select name="origin" [(ngModel)]="model.identity.origin">
+                <option value="">— Choisir —</option>
+                @for (o of origins; track o.key) { <option [value]="o.key">{{ o.name }}</option> }
+              </select>
+            </label>
+            <label class="cs-field">
+              <span>Religion</span>
+              <select name="religion" [(ngModel)]="model.identity.religion">
+                <option value="">— Aucune —</option>
+                @for (r of religions; track r.key) { <option [value]="r.key">{{ r.name }}</option> }
+              </select>
+            </label>
+          </div>
+
+          <div class="cs-row">
+            <label class="cs-field">
               <span>Classe</span>
               <select name="class" [(ngModel)]="model.identity.class" (ngModelChange)="onClassChange()">
                 <option value="">— Choisir —</option>
@@ -327,17 +344,20 @@
         </fieldset>
 
         <fieldset class="cs-fieldset">
-          <legend>Traits (selon race / sous-race)</legend>
-          @if (traits.length === 0) {
+          <legend>Traits accordés (race / sous-race / background / origine)</legend>
+          @if (grantedTraitDefs.length === 0) {
             <p class="cs-stats-note">Choisis une race (et sa sous-race) pour révéler ses traits.</p>
           } @else {
             <div class="cs-traits">
-              @for (t of traits; track t.key) {
+              @for (t of grantedTraitDefs; track t.key) {
                 <div class="cs-trait">
                   <svg class="cs-trait__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="t.icon" /></svg>
                   <div class="cs-trait__body">
                     <span class="cs-trait__name">{{ t.name }}</span>
                     @if (t.description) { <span class="cs-trait__desc">{{ t.description }}</span> }
+                    @if (traitSources(t).length) {
+                      <span class="cs-trait__source">{{ traitSources(t).join(' · ') }}</span>
+                    }
                   </div>
                 </div>
               }
@@ -374,6 +394,234 @@
                 }
                 <span>{{ d.name }}</span>
               </button>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Origine &amp; foi</legend>
+          <p class="cs-stats-note">
+            Deux axes de création distincts de la race et du background : l'origine ancre le
+            personnage dans une région, la religion dans un domaine. Elles donnent gratuitement ce
+            qui coûterait sinon un trait, un feat ou une compétence.
+          </p>
+
+          @if (selectedOrigin; as o) {
+            <div class="cs-axis">
+              <div class="cs-axis__head">
+                <span class="cs-axis__name">{{ o.name }}</span>
+                <span class="cs-axis__tag">{{ o.climate }}</span>
+              </div>
+              <p class="cs-axis__desc">{{ o.description }}</p>
+              <ul class="cs-axis__grants">
+                <li><span class="cs-axis__label">Acclimatation</span> {{ o.acclimatation }}</li>
+                <li><span class="cs-axis__label">Savoir régional</span> {{ o.language }}</li>
+                @if (o.factions.length) {
+                  <li>
+                    <span class="cs-axis__label">Réputation</span>
+                    {{ o.factions.join(', ') }}@if (o.factionNote) { — {{ o.factionNote }} }
+                  </li>
+                }
+                @for (t of originTraitDefs; track t.key) {
+                  <li><span class="cs-axis__label">Trait accordé</span> {{ t.name }} — {{ t.description }}</li>
+                }
+                @if (o.nonPolarBranches?.length) {
+                  <li>
+                    <span class="cs-axis__label">Branches ouvertes</span>
+                    {{ o.nonPolarNote || 'Branches non polarisées accessibles sans feat.' }}
+                  </li>
+                }
+              </ul>
+            </div>
+          } @else {
+            <p class="cs-stats-note">Aucune origine choisie — le personnage n'a de région nulle part.</p>
+          }
+
+          @if (selectedReligion; as r) {
+            <div class="cs-axis">
+              <div class="cs-axis__head">
+                <span class="cs-axis__name">{{ r.name }}</span>
+                <span class="cs-axis__tag">{{ standingDomainName(r.domain) }}@if (r.clergy) { — {{ r.clergy }} }</span>
+              </div>
+              <p class="cs-axis__desc">{{ r.description }}</p>
+              <ul class="cs-axis__grants">
+                @if (r.ritual) {
+                  <li><span class="cs-axis__label">Rite de préparation</span> {{ r.ritual }}</li>
+                }
+                @if (r.prayer; as pr) {
+                  <li>
+                    <span class="cs-axis__label">Rite de prière</span>
+                    <b>{{ pr.name }}</b> — {{ pr.effect }}
+                    @if (pr.duration) { <em>Durée : {{ pr.duration }}.</em> }
+                    @if (pr.place) { <em>{{ pr.place }}, une fois par repos complet, sans jet ni coût.</em> }
+                  </li>
+                }
+                @if (r.confession; as cf) {
+                  <li>
+                    <span class="cs-axis__label">Confession</span>
+                    <b>{{ cf.name }}</b> — {{ cf.effect }}
+                    @if (cf.price) { <em>{{ cf.price }}</em> }
+                  </li>
+                }
+                @if (r.note) { <li><span class="cs-axis__label">Réserve</span> {{ r.note }}</li> }
+              </ul>
+            </div>
+          }
+
+          @if (standings.length) {
+            <span class="cs-axis__subhead">Marqueur social — comment les régions le lisent</span>
+            <ul class="cs-standings">
+              @for (st of standings; track st.domain) {
+                <li class="cs-standing">
+                  <span class="cs-standing__domain">{{ standingDomainName(st.domain) }}</span>
+                  <span class="cs-standing__good">{{ st.favourable }}</span>
+                  <span class="cs-standing__bad">{{ st.suspicious }}</span>
+                  @if (st.note) { <span class="cs-standing__note">{{ st.note }}</span> }
+                </li>
+              }
+            </ul>
+          }
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
+          <legend>Traits &amp; feats</legend>
+
+          <div class="cs-points" [class.is-empty]="creationTraitsLeft === 0">
+            <span>Trait{{ creationTraitSlots > 1 ? 's' : '' }} de création</span>
+            <strong>{{ creationTraitKeys.length }} / {{ creationTraitSlots }}</strong>
+          </div>
+          <p class="cs-stats-note">
+            Choisi à la création, en plus des traits de race et de background. Tout le reste du
+            catalogue s'achète ensuite sur un slot de feat — un slot par palier (niveaux 5, 10, 15
+            et 20), en concurrence avec le point d'attribut.
+          </p>
+
+          @for (group of traitGroups; track group.key) {
+            <div class="cs-trait-group">
+              <span class="cs-trait-group__label">{{ group.label }}</span>
+              <div class="cs-trait-chips">
+                @for (t of group.traits; track t.key) {
+                  <button
+                    type="button"
+                    class="cs-trait-chip"
+                    [class.is-selected]="isCreationTrait(t.key)"
+                    [disabled]="!isCreationTrait(t.key) && (creationTraitsLeft === 0 || traitUnavailable(t.key))"
+                    [title]="t.description + ' — ' + t.acquisition.condition"
+                    (click)="toggleCreationTrait(t.key)"
+                  >
+                    {{ t.name }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="cs-points" [class.is-empty]="featSlotsPending === 0">
+            <span>Slots de feat en attente</span>
+            <strong>{{ featSlotsPending }}</strong>
+          </div>
+
+          <div class="cs-feat-slots">
+            @for (slot of featSlots; track slot.level) {
+              <div class="cs-feat-slot" [class.is-locked]="!slot.open">
+                <div class="cs-feat-slot__head">
+                  <span class="cs-feat-slot__lvl">Niveau {{ slot.level }}</span>
+                  @if (!slot.open) {
+                    <span class="cs-feat-slot__lock">Verrouillé jusqu'au niveau {{ slot.level }}</span>
+                  } @else if (featPick(slot.level)) {
+                    <button
+                      type="button"
+                      class="cs-feat-slot__clear"
+                      title="Remettre ce palier en attente"
+                      (click)="setFeatPick(slot.level, '')"
+                    >✕</button>
+                  }
+                </div>
+
+                @if (slot.open) {
+                  <div class="cs-seg cs-seg--feat" role="group" [attr.aria-label]="'Choix du palier ' + slot.level">
+                    <button type="button" [class.is-active]="featPick(slot.level) === 'attribute'" (click)="setFeatPick(slot.level, 'attribute')">Point d'attribut</button>
+                    <button type="button" [class.is-active]="featPick(slot.level) === 'trait'" (click)="setFeatPick(slot.level, 'trait')">Trait</button>
+                    <button type="button" [class.is-active]="featPick(slot.level) === 'domain'" (click)="setFeatPick(slot.level, 'domain')">Feat domanial</button>
+                  </div>
+
+                  @switch (featPick(slot.level)) {
+                    @case ('attribute') {
+                      <select
+                        class="cs-feat-select"
+                        [name]="'feat-attr-' + slot.level"
+                        [ngModel]="featChoiceAt(slot.level)?.attribute ?? ''"
+                        (ngModelChange)="setFeatAttribute(slot.level, $event)"
+                      >
+                        <option value="">— Attribut à renforcer —</option>
+                        @for (a of attributes; track a.key) {
+                          <option [value]="a.key">{{ a.label }} +1</option>
+                        }
+                      </select>
+                    }
+
+                    @case ('trait') {
+                      <select
+                        class="cs-feat-select"
+                        [name]="'feat-trait-' + slot.level"
+                        [ngModel]="featChoiceAt(slot.level)?.trait ?? ''"
+                        (ngModelChange)="setFeatTrait(slot.level, $event)"
+                      >
+                        <option value="">— Trait du catalogue —</option>
+                        @for (g of traitGroups; track g.key) {
+                          <optgroup [label]="g.label">
+                            @for (t of g.traits; track t.key) {
+                              <option [value]="t.key" [disabled]="traitUnavailable(t.key, slot.level)">{{ t.name }}</option>
+                            }
+                          </optgroup>
+                        }
+                      </select>
+                      @if (traitDefAt(slot.level); as t) {
+                        <p class="cs-feat-desc">{{ t.description }}</p>
+                        <p class="cs-feat-note">{{ t.acquisition.condition }}</p>
+                      }
+                    }
+
+                    @case ('domain') {
+                      @if (featOptions(slot.level).length) {
+                        <select
+                          class="cs-feat-select"
+                          [name]="'feat-domain-' + slot.level"
+                          [ngModel]="featChoiceAt(slot.level)?.feat ?? ''"
+                          (ngModelChange)="setFeatDomainFeat(slot.level, $event)"
+                        >
+                          <option value="">— Feat domanial —</option>
+                          @for (g of featOptions(slot.level); track g.domain) {
+                            <optgroup [label]="g.label">
+                              @for (f of g.feats; track f.key) {
+                                <option [value]="f.key" [disabled]="!!featBlockedReason(f, slot.level)">
+                                  {{ f.name }} (palier {{ f.level }}){{ featBlockedReason(f, slot.level) ? ' — ' + featBlockedReason(f, slot.level) : '' }}
+                                </option>
+                              }
+                            </optgroup>
+                          }
+                        </select>
+                        @if (featDefAt(slot.level); as f) {
+                          <p class="cs-feat-desc">{{ f.description }}</p>
+                          <p class="cs-feat-req"><span>Prérequis</span> {{ f.prerequisite }}</p>
+                          @if (f.freeWith) {
+                            <p class="cs-feat-req"><span>Gratuit avec</span> {{ f.freeWith }}</p>
+                          }
+                          <ul class="cs-feat-effects">
+                            @for (e of f.effects; track e.label) {
+                              <li [class]="'cs-feat-effect is-' + (e.tone ?? 'neutral')">
+                                <span>{{ e.label }}</span><em>{{ e.value }}</em>
+                              </li>
+                            }
+                          </ul>
+                        }
+                      } @else {
+                        <p class="cs-stats-note">Choisis un domaine de magie (ou un background qui ouvre une branche non polarisée) pour accéder aux feats domaniaux.</p>
+                      }
+                    }
+                  }
+                }
+              </div>
             }
           </div>
         </fieldset>
@@ -811,6 +1059,8 @@
                 <p><strong>Race :</strong> {{ raceDisplay || '—' }}</p>
                 <p><strong>Classe :</strong> {{ model.identity.class || '—' }} <em class="sheet-level">— Niv. {{ model.level }}</em></p>
                 <p><strong>Background :</strong> {{ backgroundDisplay || '—' }}</p>
+                <p><strong>Origine :</strong> {{ selectedOrigin?.name || '—' }}</p>
+                <p><strong>Foi :</strong> {{ selectedReligion?.name || '—' }}</p>
                 <p><strong>Âge :</strong> {{ model.identity.age || '—' }}</p>
                 <p><strong>Or :</strong> {{ gold }}</p>
                 @let px = xp;
@@ -978,6 +1228,69 @@
               }
             </div>
           </section>
+
+          <!-- ORIGINE & FOI -->
+          @if (selectedOrigin || selectedReligion) {
+            <section class="sheet-block sheet-faith">
+              <h2 class="sheet-banner">Origine &amp; foi</h2>
+
+              @if (selectedOrigin; as o) {
+                <h3 class="sheet-subhead">{{ o.name }}</h3>
+                <ul class="sheet-faith-list">
+                  <li><span>Acclimatation</span> {{ o.acclimatation }}</li>
+                  <li><span>Savoir régional</span> {{ o.language }}</li>
+                  @if (o.factions.length) { <li><span>Réputation</span> {{ o.factions.join(', ') }}</li> }
+                  @for (t of originTraitDefs; track t.key) {
+                    <li><span>Trait</span> {{ t.name }} — {{ t.description }}</li>
+                  }
+                  @if (o.nonPolarBranches?.length) {
+                    <li><span>Branches</span> {{ o.nonPolarNote || 'Branches non polarisées ouvertes.' }}</li>
+                  }
+                </ul>
+              }
+
+              @if (selectedReligion; as r) {
+                <h3 class="sheet-subhead">{{ r.name }} — {{ standingDomainName(r.domain) }}</h3>
+                <ul class="sheet-faith-list">
+                  @if (r.prayer; as pr) {
+                    <li><span>Prière</span> <b>{{ pr.name }}</b> — {{ pr.effect }}@if (pr.duration) { ({{ pr.duration }}) }</li>
+                  }
+                  @if (r.confession; as cf) {
+                    <li><span>Confession</span> <b>{{ cf.name }}</b> — {{ cf.effect }}</li>
+                  }
+                  @if (r.ritual) { <li><span>Préparation</span> {{ r.ritual }}</li> }
+                </ul>
+              }
+
+              @if (standings.length) {
+                <h3 class="sheet-subhead">Marqueur social</h3>
+                <ul class="sheet-faith-list">
+                  @for (st of standings; track st.domain) {
+                    <li>
+                      <span>{{ standingDomainName(st.domain) }}</span>
+                      Favorable : {{ st.favourable }} — Méfiant : {{ st.suspicious }}
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+
+          <!-- FEATS -->
+          @if (featRows.length) {
+            <section class="sheet-block sheet-feats">
+              <h2 class="sheet-banner">Feats</h2>
+              <ul class="sheet-feats-list">
+                @for (row of featRows; track row.level) {
+                  <li class="sheet-feat">
+                    <span class="sheet-feat__lvl">Niv. {{ row.level }}</span>
+                    <span class="sheet-feat__detail">{{ row.detail }}</span>
+                    <span class="sheet-feat__label">{{ row.label }}</span>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
 
           <!-- COMPÉTENCES -->
           <section class="sheet-block sheet-skills">

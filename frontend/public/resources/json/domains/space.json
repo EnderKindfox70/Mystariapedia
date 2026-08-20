@@ -542,6 +542,113 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "space-pas-elargi",
+            "name": "Pas élargi",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Espace débloqué",
+            "description": "Chaque pas dimensionnel porte bien plus loin, et coûte à proportion.",
+            "subdomains": [
+                "Portail & teleportation",
+                "Distance & éloignement"
+            ],
+            "excludes": [
+                "space-ancrage-ferme"
+            ],
+            "effects": [
+                {
+                    "label": "Portée des téléportations",
+                    "value": "×1,5",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût de chaque téléportation",
+                    "value": "+2 mana",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "space-ancrage-ferme",
+            "name": "Ancrage ferme",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur d'Espace débloqué",
+            "description": "Il tient ses points fixes plutôt que ses trajets : ses marques survivent au combat, ses bonds raccourcissent.",
+            "subdomains": [
+                "Frontière & limite",
+                "Portail & teleportation"
+            ],
+            "excludes": [
+                "space-pas-elargi"
+            ],
+            "effects": [
+                {
+                    "label": "Marques spatiales",
+                    "value": "Persistent d'un combat à l'autre",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût des marques",
+                    "value": "×0,7",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Portée des déplacements",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "space-poids-du-vide",
+            "name": "Poids du vide",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur d'Espace débloqué et Distorsion gravitationnelle connue",
+            "description": "Il alourdit une portion d'espace entière — la sienne comprise s'il y met le pied.",
+            "subdomains": [
+                "Gravité"
+            ],
+            "effects": [
+                {
+                    "label": "Ciblage de la distorsion gravitationnelle",
+                    "value": "Zone au lieu d'une cible",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Effet sur le lanceur",
+                    "value": "Il est ralenti comme les autres dans la zone",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "space-couture-dimensionnelle",
+            "name": "Couture dimensionnelle",
+            "level": 20,
+            "kind": "unlock",
+            "prerequisite": "Palier Expert d'Espace débloqué et Faille dimensionnelle connue",
+            "description": "Sa faille devient une porte pour tout le groupe. Elle met un tour à se refermer, et n'a pas d'avis sur qui l'emprunte.",
+            "subdomains": [
+                "Dimension"
+            ],
+            "effects": [
+                {
+                    "label": "Traversée d'une faille",
+                    "value": "Le groupe entier au lieu du lanceur seul",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Après passage",
+                    "value": "Brèche ouverte 1 tour, franchissable dans les deux sens",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

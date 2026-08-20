@@ -27,9 +27,16 @@ import {
   BackgroundDef,
   CharacterSheet,
   ClassDef,
+  CatalogTrait,
   CharacterSpells,
   ClassSpell,
+  DomainFeatDef,
+  DomainStanding,
   EarthMaterialTraining,
+  FeatChoice,
+  FeatPick,
+  OriginDef,
+  ReligionDef,
   PoolKey,
   RaceDef,
   StatKey,
@@ -94,6 +101,27 @@ import {
   emptySheet,
   formatBonus,
   grantedTraits,
+  CREATION_TRAIT_SLOTS,
+  FEAT_LEVELS,
+  TRAIT_CATALOG,
+  TRAIT_CATEGORIES,
+  ORIGINS,
+  RELIGIONS,
+  catalogTrait,
+  isPickableTrait,
+  originByKey,
+  originTraits,
+  religionByKey,
+  standingFor,
+  chosenDomainFeats,
+  chosenTraits,
+  domainFeats,
+  featAttributeBonuses,
+  featChoiceAt,
+  featDomainName,
+  featDomainsFor,
+  featSlotsFor,
+  findDomainFeat,
   LEARNABLE_ARMOR_CATEGORIES,
   WEAPON_CATEGORIES,
   armorCategory,
@@ -663,11 +691,304 @@ export class CharacterSheetEditor {
     return this.classSpells.filter((s) => this.spellUnlocked(s));
   }
 
-  /** Traits accordés par la race + la sous-race + le background (icône par défaut). */
+  /* ── Origine géographique & religion (deux axes de création) ─────────────
+     L'origine ancre le personnage dans une région, la religion dans un
+     domaine. Ni l'une ni l'autre ne recouvre la race (biologie) ou le
+     background (métier) : elles donnent gratuitement ce qui coûterait sinon un
+     trait, un feat ou une compétence.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  readonly origins = ORIGINS;
+  readonly religions = RELIGIONS;
+
+  get selectedOrigin(): OriginDef | undefined {
+    return originByKey(this.model.identity.origin);
+  }
+
+  get selectedReligion(): ReligionDef | undefined {
+    return religionByKey(this.model.identity.religion);
+  }
+
+  /** Traits que l'origine accorde d'office (résistance régionale, sens adapté). */
+  get originTraitDefs(): CatalogTrait[] {
+    return originTraits(this.selectedOrigin);
+  }
+
+  /**
+   * Le regard des régions sur ce personnage : sur le domaine de sa religion
+   * d'abord, puis sur ses domaines d'affinité. C'est un marqueur social, il
+   * vaut même sans religion déclarée.
+   */
+  get standings(): DomainStanding[] {
+    const keys = [
+      ...(this.selectedReligion ? [this.selectedReligion.domain] : []),
+      ...this.model.domains,
+    ];
+    return [...new Set(keys)]
+      .map((d) => standingFor(d))
+      .filter((st): st is DomainStanding => !!st);
+  }
+
+  /** Nom lisible d'un domaine, pour les lignes de marqueur social. */
+  standingDomainName(domain: string): string {
+    return domainName(domain);
+  }
+
+  /**
+   * Ce qui accorde un trait, en clair. Les références vivent dans le catalogue
+   * (`grantedBy`) : on les résout ici contre les datasets chargés.
+   */
+  traitSources(trait: CatalogTrait): string[] {
+    return trait.grantedBy.map((ref) => {
+      const [kind, key] = ref.split(':');
+      if (kind === 'race') return `Race ${this.races().find((r) => r.key === key)?.name ?? key}`;
+      if (kind === 'subrace') {
+        const sub = this.races().flatMap((r) => r.subraces).find((x) => x.key === key);
+        return `Sous-race ${sub?.name ?? key}`;
+      }
+      if (kind === 'background') {
+        return `Background ${this.backgrounds().find((b) => b.key === key)?.name ?? key}`;
+      }
+      if (kind === 'origin') return `Origine ${originByKey(key)?.name ?? key}`;
+      return ref;
+    });
+  }
+
+  /** Traits accordés par la race + la sous-race + le background + l'origine. */
+  get grantedTraitDefs(): CatalogTrait[] {
+    return grantedTraits(
+      this.selectedRace,
+      this.model.identity.subrace,
+      this.selectedBackground,
+      this.selectedOrigin,
+    ).map((t) => ({ ...t, icon: t.icon ?? DEFAULT_TRAIT_ICON }));
+  }
+
+  /** Traits pris dans le catalogue : ceux de la création et ceux d'un slot de feat. */
+  get chosenTraitDefs(): CatalogTrait[] {
+    return chosenTraits(this.model).map((t) => ({ ...t, icon: t.icon ?? DEFAULT_TRAIT_ICON }));
+  }
+
+  /**
+   * Tout ce que le personnage porte comme trait, accordé ou choisi. C'est cette
+   * liste — et pas seulement celle de la race — qui nourrit le calcul des stats
+   * et le bloc Traits de la fiche imprimée.
+   */
   get traits(): TraitDef[] {
-    return grantedTraits(this.selectedRace, this.model.identity.subrace, this.selectedBackground).map(
-      (t) => ({ ...t, icon: t.icon ?? DEFAULT_TRAIT_ICON }),
+    return [...this.grantedTraitDefs, ...this.chosenTraitDefs];
+  }
+
+  /* ── Traits de création & slots de feat (paliers 5/10/15/20) ──────────────
+     Un slot de feat n'ajoute rien par lui-même : il ACHÈTE une chose parmi
+     trois, jamais deux (point d'attribut, trait du catalogue, feat domanial).
+     Le modèle ne garde donc qu'un seul choix par palier.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  readonly featLevels = FEAT_LEVELS;
+  readonly creationTraitSlots = CREATION_TRAIT_SLOTS;
+  readonly traitCategories = TRAIT_CATEGORIES;
+
+  /** Traits déjà accordés par la race ou le background — inutile de les reprendre. */
+  private get grantedTraitKeys(): Set<string> {
+    return new Set(this.grantedTraitDefs.map((t) => t.key));
+  }
+
+  /** Clés de traits déjà prises ailleurs (création + autres paliers). */
+  private takenTraitKeys(exceptLevel?: number): Set<string> {
+    const keys = [
+      ...(this.model.creationTraits ?? []),
+      ...(this.model.feats ?? [])
+        .filter((f) => f.pick === 'trait' && f.trait && f.level !== exceptLevel)
+        .map((f) => f.trait!),
+    ];
+    return new Set(keys);
+  }
+
+  /** Le catalogue groupé par famille, pour une liste de choix lisible. */
+  get traitGroups(): { key: string; label: string; traits: CatalogTrait[] }[] {
+    return this.traitCategories
+      .map((c) => ({
+        key: c.key,
+        label: c.label,
+        traits: TRAIT_CATALOG.filter((t) => t.category === c.key),
+      }))
+      .filter((g) => g.traits.length > 0);
+  }
+
+  /** Un trait est indisponible s'il est déjà porté (accordé, ou choisi ailleurs). */
+  traitUnavailable(key: string, exceptLevel?: number): boolean {
+    return this.grantedTraitKeys.has(key) || this.takenTraitKeys(exceptLevel).has(key);
+  }
+
+  /* Traits de création */
+
+  get creationTraitKeys(): string[] {
+    return this.model.creationTraits ?? [];
+  }
+
+  get creationTraitsLeft(): number {
+    return Math.max(0, this.creationTraitSlots - this.creationTraitKeys.length);
+  }
+
+  isCreationTrait(key: string): boolean {
+    return this.creationTraitKeys.includes(key);
+  }
+
+  /** Prend ou rend un trait de création (dans la limite des emplacements). */
+  toggleCreationTrait(key: string): void {
+    const current = [...this.creationTraitKeys];
+    const at = current.indexOf(key);
+    if (at >= 0) current.splice(at, 1);
+    else if (current.length < this.creationTraitSlots && !this.traitUnavailable(key)) current.push(key);
+    this.model.creationTraits = current;
+  }
+
+  /* Slots de feat */
+
+  /** Les quatre paliers, ouverts ou non, avec le choix qui y a été fait. */
+  get featSlots(): { level: number; open: boolean; choice: FeatChoice | undefined }[] {
+    const open = new Set(featSlotsFor(this.model.level));
+    return this.featLevels.map((level) => ({
+      level,
+      open: open.has(level),
+      choice: featChoiceAt(this.model, level),
+    }));
+  }
+
+  /** Paliers ouverts encore vides — ce qu'il reste à dépenser. */
+  get featSlotsPending(): number {
+    return this.featSlots.filter((s) => s.open && !s.choice).length;
+  }
+
+  featChoiceAt(level: number): FeatChoice | undefined {
+    return featChoiceAt(this.model, level);
+  }
+
+  /** Nature du choix fait à un palier (`''` = rien de décidé). */
+  featPick(level: number): FeatPick | '' {
+    return this.featChoiceAt(level)?.pick ?? '';
+  }
+
+  /** Fixe (ou efface) la nature du choix d'un palier, en repartant à vide. */
+  setFeatPick(level: number, pick: FeatPick | ''): void {
+    const feats = (this.model.feats ?? []).filter((f) => f.level !== level);
+    if (pick) feats.push({ level, pick });
+    this.model.feats = feats.sort((a, b) => a.level - b.level);
+  }
+
+  /** Complète le choix d'un palier (attribut, trait ou feat domanial). */
+  private patchFeat(level: number, patch: Partial<FeatChoice>): void {
+    const feats = [...(this.model.feats ?? [])];
+    const at = feats.findIndex((f) => f.level === level);
+    if (at < 0) return;
+    feats[at] = { ...feats[at], ...patch };
+    this.model.feats = feats;
+  }
+
+  setFeatAttribute(level: number, attribute: AttributeKey | ''): void {
+    this.patchFeat(level, { attribute: attribute || undefined });
+  }
+
+  setFeatTrait(level: number, trait: string): void {
+    this.patchFeat(level, { trait: trait || undefined });
+  }
+
+  setFeatDomainFeat(level: number, key: string): void {
+    const found = key ? findDomainFeat(key) : undefined;
+    this.patchFeat(level, { feat: found?.feat.key, domain: found?.domain });
+  }
+
+  /** Points d'attribut déjà achetés sur un slot, par attribut. */
+  get featAttributePoints(): Record<AttributeKey, number> {
+    return featAttributeBonuses(this.model);
+  }
+
+  /** Domaines où ce personnage peut prendre un feat (affinités + branche du background). */
+  get featDomains(): string[] {
+    return featDomainsFor(this.model, this.grantedTraitDefs);
+  }
+
+  featDomainName(key: string): string {
+    return featDomainName(key);
+  }
+
+  /** Feats proposés à un palier, groupés par domaine. */
+  featOptions(level: number): { domain: string; label: string; feats: DomainFeatDef[] }[] {
+    return this.featDomains
+      .map((domain) => ({
+        domain,
+        label: featDomainName(domain),
+        feats: domainFeats(domain).filter((f) => f.level <= level),
+      }))
+      .filter((g) => g.feats.length > 0);
+  }
+
+  /** Feats domaniaux déjà pris ailleurs (clés), palier courant exclu. */
+  private takenFeatKeys(exceptLevel?: number): Set<string> {
+    return new Set(
+      (this.model.feats ?? [])
+        .filter((f) => f.pick === 'domain' && f.feat && f.level !== exceptLevel)
+        .map((f) => f.feat!),
     );
+  }
+
+  /**
+   * Pourquoi ce feat n'est pas prenable à ce palier — chaîne vide s'il l'est.
+   * Sert autant à désactiver l'option qu'à expliquer le refus.
+   */
+  featBlockedReason(feat: DomainFeatDef, level: number): string {
+    const taken = this.takenFeatKeys(level);
+    if (taken.has(feat.key)) return 'Déjà pris';
+    const clash = (feat.excludes ?? []).filter((k) => taken.has(k));
+    if (clash.length) {
+      const names = clash.map((k) => findDomainFeat(k)?.feat.name ?? k).join(', ');
+      return 'Exclusif avec ' + names;
+    }
+    if (feat.level > level) return 'Palier ' + feat.level + ' requis';
+    return '';
+  }
+
+  /** Feat domanial choisi à un palier, résolu depuis la fiche de domaine. */
+  featDefAt(level: number): DomainFeatDef | undefined {
+    const key = this.featChoiceAt(level)?.feat;
+    return key ? findDomainFeat(key)?.feat : undefined;
+  }
+
+  /** Trait choisi à un palier, résolu depuis le catalogue. */
+  traitDefAt(level: number): CatalogTrait | undefined {
+    const key = this.featChoiceAt(level)?.trait;
+    return key ? catalogTrait(key) : undefined;
+  }
+
+  /** Feats domaniaux portés par la fiche (bloc imprimé). */
+  get sheetDomainFeats(): { feat: DomainFeatDef; domain: string }[] {
+    return chosenDomainFeats(this.model);
+  }
+
+  /** Ce que chaque palier atteint a acheté, prêt à afficher sur la fiche. */
+  get featRows(): { level: number; label: string; detail: string }[] {
+    const rows: { level: number; label: string; detail: string }[] = [];
+    for (const slot of this.featSlots) {
+      const c = slot.choice;
+      if (!slot.open || !c) continue;
+      if (c.pick === 'attribute' && c.attribute) {
+        const label = this.attributes.find((a) => a.key === c.attribute)?.label ?? c.attribute;
+        rows.push({ level: slot.level, label: "Point d'attribut", detail: label + ' +1' });
+      } else if (c.pick === 'trait') {
+        const t = c.trait ? catalogTrait(c.trait) : undefined;
+        if (t) rows.push({ level: slot.level, label: 'Trait', detail: t.name });
+      } else if (c.pick === 'domain') {
+        const found = c.feat ? findDomainFeat(c.feat) : undefined;
+        if (found) {
+          rows.push({
+            level: slot.level,
+            label: featDomainName(found.domain),
+            detail: found.feat.name,
+          });
+        }
+      }
+    }
+    return rows;
   }
 
   /* ── Ce que les mains peuvent tenir ───────────────────────────────────────
@@ -1130,6 +1451,8 @@ export class CharacterSheetEditor {
       statSeed: typeof data.statSeed === 'number' ? data.statSeed : 1,
       proficiencyBonus: data.proficiencyBonus ?? base.proficiencyBonus,
       skills: Array.isArray(data.skills) ? data.skills : [],
+      creationTraits: this.normalizeCreationTraits(data.creationTraits),
+      feats: this.normalizeFeats(data.feats),
       spells: this.normalizeSpells(data.spells),
       // Ajouts manuels : une fiche antérieure à ces champs n'en a aucun.
       extraWeaponProficiencies: normalizeKeys(data.extraWeaponProficiencies),
@@ -1144,6 +1467,49 @@ export class CharacterSheetEditor {
       earthMaterials: normalizeTraining(data.earthMaterials, levelForXp(xp)),
       notes: data.notes ?? '',
     };
+  }
+
+  /**
+   * Traits de création retenus : des clés du catalogue, sans doublon, dans la
+   * limite des emplacements. Une fiche antérieure au champ n'en a aucun.
+   */
+  private normalizeCreationTraits(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+    const keys = value.filter((k): k is string => typeof k === 'string' && isPickableTrait(k) && !!catalogTrait(k));
+    return [...new Set(keys)].slice(0, CREATION_TRAIT_SLOTS);
+  }
+
+  /**
+   * Choix de feat retenus : un par palier connu, et seulement ce que le choix
+   * exige réellement (l'attribut d'un point d'attribut, la clé d'un trait, celle
+   * d'un feat domanial). Un choix incomplet reste enregistré tel quel — la
+   * fiche affiche alors le palier comme « à terminer » plutôt que de l'effacer.
+   */
+  private normalizeFeats(value: unknown): FeatChoice[] {
+    if (!Array.isArray(value)) return [];
+    const out = new Map<number, FeatChoice>();
+    for (const raw of value) {
+      const f = (raw ?? {}) as Partial<FeatChoice>;
+      const level = Math.round(Number(f.level));
+      if (!FEAT_LEVELS.includes(level)) continue;
+      if (f.pick !== 'attribute' && f.pick !== 'trait' && f.pick !== 'domain') continue;
+      const choice: FeatChoice = { level, pick: f.pick };
+      if (f.pick === 'attribute' && ATTRIBUTES.some((a) => a.key === f.attribute)) {
+        choice.attribute = f.attribute;
+      }
+      if (f.pick === 'trait' && typeof f.trait === 'string' && catalogTrait(f.trait) && isPickableTrait(f.trait)) {
+        choice.trait = f.trait;
+      }
+      if (f.pick === 'domain' && typeof f.feat === 'string') {
+        const found = findDomainFeat(f.feat);
+        if (found) {
+          choice.feat = found.feat.key;
+          choice.domain = found.domain;
+        }
+      }
+      out.set(level, choice);
+    }
+    return [...out.values()].sort((a, b) => a.level - b.level);
   }
 
   /**
@@ -1225,9 +1591,16 @@ export class CharacterSheetEditor {
     return computeAttributes(this.model, this.selectedRace, this.model.identity.subrace);
   }
 
-  /** Bonus de race/sous-race pour un attribut (0 si aucun). */
+  /**
+   * Ce qui s'ajoute à la valeur saisie d'un attribut : race, sous-race, et les
+   * points d'attribut achetés sur un slot de feat. Doit rester d'accord avec
+   * `computeAttributes`, sinon la colonne « Total » ne s'expliquerait plus.
+   */
   attrBonus(key: AttributeKey): number {
-    return attributeBonuses(this.selectedRace, this.model.identity.subrace)[key];
+    return (
+      attributeBonuses(this.selectedRace, this.model.identity.subrace)[key] +
+      this.featAttributePoints[key]
+    );
   }
 
   // ── Achat de points des attributs (point-buy : base 8, budget 27, max 15) ──
@@ -2077,6 +2450,8 @@ export class CharacterSheetEditor {
         className: this.model.identity.class,
         level: this.model.level,
         background: this.backgroundDisplay,
+        origin: this.selectedOrigin?.name ?? '',
+        religion: this.selectedReligion?.name ?? '',
         age: this.model.identity.age,
         gold: this.gold,
         portrait: this.model.identity.portrait,
@@ -2158,11 +2533,18 @@ export class CharacterSheetEditor {
         capacity: this.carryCapacity,
         over: this.overweight,
       },
-      traits: this.traits.map((t) => ({
-        name: t.name,
-        description: t.description,
-        icon: t.icon ?? DEFAULT_TRAIT_ICON,
-      })),
+      traits: [
+        ...this.traits.map((t) => ({
+          name: t.name,
+          description: t.description,
+          icon: t.icon ?? DEFAULT_TRAIT_ICON,
+        })),
+        ...this.sheetDomainFeats.map(({ feat, domain }) => ({
+          name: feat.name,
+          description: featDomainName(domain) + ' — ' + feat.description,
+          icon: DEFAULT_TRAIT_ICON,
+        })),
+      ],
       notes: this.model.notes,
     };
   }

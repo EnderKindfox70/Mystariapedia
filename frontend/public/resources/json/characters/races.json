@@ -1,156 +1,669 @@
 [
-  {
-    "key": "humain",
-    "name": "Humain",
-    "subraces": [
-    ],
-    "attributes":
-    [
-      {"key":"strength", "value": 1},
-      {"key":"dexterity", "value": 1},
-      {"key":"constitution", "value": 1},
-      {"key":"intelligence", "value": 1},
-      {"key":"wisdom", "value": 1},
-      {"key":"charisma", "value": 1}
-    ],
-    "traits":
-    [
-
-    ],
-    "genetics-stats":
-    [
-      {"key": "hp", "value":9},
-      {"key": "atk_phy", "value":8},
-      {"key": "atk_mag", "value":8},
-      {"key": "endurance", "value":9},
-      {"key": "mana", "value":8},
-      {"key": "speed", "value":8}
-    ]
-  },
-  {
-    "key": "nain",
-    "name": "Nain",
-    "subraces": [
-      { "key": "deep-dwarf", "name": "Nain des profondeurs", "attributes": [{"key":"strength", "value": -2}, {"key": "wisdom", "value":1}, {"key": "intelligence", "value": 1}],"traits":[{"key": "dark-vision", "name": "Vision dans le noir", "description": "Peut voir dans l'obscurité totale"}] },
-      { "key": "mountain-dwarf", "name": "Nain de surface", "attributes": [{"key":"strength", "value": 1}, {"key": "dexterity", "value": 0}, {"key": "constitution", "value": 1}, {"key": "intelligence", "value": 0}, {"key": "wisdom", "value": -2}, {"key": "charisma", "value": 0}] }
-    ],
-    "attributes":
-    [
-      {"key":"strength", "value": 1},
-      {"key":"dexterity", "value": 0},
-      {"key":"constitution", "value": 2},
-      {"key":"intelligence", "value": 0},
-      {"key":"wisdom", "value": 0},
-      {"key":"charisma", "value": 0}
-    ],
-    "traits":
-    [
-      {"key": "toughness", "name": "Robustesse", "description": "Les nains ont une peau plus épaisse et une constitution plus robuste que la plupart des autres races (+5 défense physique)", "effects": [{"key": "def_phy", "value": 5}]}
-    ],
-    "genetics-stats":
-    [
-      {"key": "hp", "value":15},
-      {"key": "endurance", "value":15},
-      {"key": "atk_phy", "value":10},
-      {"key": "atk_mag", "value":2},
-      {"key": "mana", "value":3},
-      {"key": "speed", "value":5}
-    ]
-  },
-  {
-    "key": "elf",
-    "name": "Elfe",
-    "subraces": [
-      { "key": "continental-elf", "name": "Elfe continental", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 0}, {"key":"constitution", "value": -1}, {"key":"intelligence", "value": 1}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] },
-      { "key": "island-elf", "name": "Elfe des îles", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 1}, {"key":"constitution", "value": 0}, {"key":"intelligence", "value": -1}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] }
-    ],
-    "attributes":
-    [
-      {"key":"strength", "value": 0},
-      {"key":"dexterity", "value": 0},
-      {"key":"constitution", "value": 0},
-      {"key":"intelligence", "value": 1},
-      {"key":"wisdom", "value": 2},
-      {"key":"charisma", "value": 0}
-    ],
-    "traits":
-    [
-      {"key": "arcane-affinity", "name": "Affinité arcanique", "description": "Permet de commencer avec la ou les magies élémentaires débloquées"},
-      {"key": "warding", "name": "Protection magique", "description": "Défense magique naturelle (+5 défense magique)", "effects": [{"key": "def_mag", "value": 5}]}
-    ],
-    "genetics-stats":
-    [
-      {"key": "hp", "value":8},
-      {"key": "endurance", "value":4},
-      {"key": "atk_phy", "value":3},
-      {"key": "atk_mag", "value":12},
-      {"key": "mana", "value":15},
-      {"key": "speed", "value":8}
-    ]
-  },
-  {
-    "key": "beast-human",
-    "name": "Beast human",
-    "subraces": [
-      { "key": "avian", "name": "Aviaire", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 1}, {"key":"constitution", "value": -1}, {"key":"intelligence", "value": 0}, {"key":"wisdom", "value": 1}, {"key":"charisma", "value": 0}] },
-      { "key": "canine", "name": "Canin", "attributes": [{"key":"strength", "value": 1}, {"key":"dexterity", "value": 0}, {"key":"constitution", "value": 0}, {"key":"intelligence", "value": 0}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] },
-      { "key": "feline", "name": "Félin", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 1}, {"key":"constitution", "value": 0}, {"key":"intelligence", "value": -1}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 1}] },
-      { "key": "reptilian", "name": "Reptilien", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 0}, {"key":"constitution", "value": 1}, {"key":"intelligence", "value": 0}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] }
-    ],
-    "attributes":
-    [
-      {"key":"strength", "value": 0},
-      {"key":"dexterity", "value": 1},
-      {"key":"constitution", "value": 1},
-      {"key":"intelligence", "value": 0},
-      {"key":"wisdom", "value": 0},
-      {"key":"charisma", "value": 0}
-    ],
-    "traits":
-    [
-      
-    ],
-    "genetics-stats":
-    [
-      {"key": "hp", "value":8},
-      {"key": "endurance", "value":14},
-      {"key": "atk_phy", "value":14},
-      {"key": "atk_mag", "value":2},
-      {"key": "mana", "value":2},
-      {"key": "speed", "value":10}
-    ]
-  },
-  {
-    "key": "deep-walker",
-    "name": "Marcheur des profondeurs",
-    "subraces": [
-      { "key": "defensive-specialization", "name": "Spécialisation défensive", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": -1}, {"key":"constitution", "value": 2}, {"key":"intelligence", "value": 0}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] },
-      { "key": "offensive-specialization", "name": "Spécialisation offensive", "attributes": [{"key":"strength", "value": 1}, {"key":"dexterity", "value": 1}, {"key":"constitution", "value": 0}, {"key":"intelligence", "value": 0}, {"key":"wisdom", "value": -1}, {"key":"charisma", "value": 0}] },
-      { "key": "mobile-specialization", "name": "Spécialisation mobile", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 2}, {"key":"constitution", "value": -1}, {"key":"intelligence", "value": 0}, {"key":"wisdom", "value": 0}, {"key":"charisma", "value": 0}] },
-      { "key": "sensorial-specialization", "name": "Spécialisation sensorielle", "attributes": [{"key":"strength", "value": 0}, {"key":"dexterity", "value": 0}, {"key":"constitution", "value": 0}, {"key":"intelligence", "value": 0}, {"key":"wisdom", "value": 2}, {"key":"charisma", "value": 0}] },
-      {"key": "magical-specialization", "name": "Spécialisation magique", "attributes": [{"key":"strength", "value": -1}, {"key":"dexterity", "value": 0}, {"key":"constitution", "value": 0}, {"key":"intelligence", "value": 1}, {"key":"wisdom", "value": 1}, {"key":"charisma", "value": 0}] }
-    ],
-    "attributes":
-    [
-      {"key":"strength", "value": 0},
-      {"key":"dexterity", "value": 0},
-      {"key":"constitution", "value": 0},
-      {"key":"intelligence", "value": 0},
-      {"key":"wisdom", "value": 0},
-      {"key":"charisma", "value": 0}
-    ],
-    "traits":
-    [
-      {"key": "amphibious", "name": "Amphibie", "description": "Peut respirer sous l'eau et sur terre"} 
-    ],
-    "genetics-stats":
-    [
-      {"key": "hp", "value":8},
-      {"key": "endurance", "value":11},
-      {"key": "atk_phy", "value":8},
-      {"key": "atk_mag", "value":8},
-      {"key": "mana", "value":8},
-      {"key": "speed", "value":7}
-    ]
-  }
+    {
+        "key": "humain",
+        "name": "Humain",
+        "subraces": [],
+        "attributes": [
+            {
+                "key": "strength",
+                "value": 1
+            },
+            {
+                "key": "dexterity",
+                "value": 1
+            },
+            {
+                "key": "constitution",
+                "value": 1
+            },
+            {
+                "key": "intelligence",
+                "value": 1
+            },
+            {
+                "key": "wisdom",
+                "value": 1
+            },
+            {
+                "key": "charisma",
+                "value": 1
+            }
+        ],
+        "genetics-stats": [
+            {
+                "key": "hp",
+                "value": 9
+            },
+            {
+                "key": "atk_phy",
+                "value": 8
+            },
+            {
+                "key": "atk_mag",
+                "value": 8
+            },
+            {
+                "key": "endurance",
+                "value": 9
+            },
+            {
+                "key": "mana",
+                "value": 8
+            },
+            {
+                "key": "speed",
+                "value": 8
+            }
+        ]
+    },
+    {
+        "key": "nain",
+        "name": "Nain",
+        "subraces": [
+            {
+                "key": "deep-dwarf",
+                "name": "Nain des profondeurs",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": -2
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 1
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 1
+                    }
+                ]
+            },
+            {
+                "key": "mountain-dwarf",
+                "name": "Nain de surface",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 1
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 0
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 1
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": -2
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            }
+        ],
+        "attributes": [
+            {
+                "key": "strength",
+                "value": 1
+            },
+            {
+                "key": "dexterity",
+                "value": 0
+            },
+            {
+                "key": "constitution",
+                "value": 2
+            },
+            {
+                "key": "intelligence",
+                "value": 0
+            },
+            {
+                "key": "wisdom",
+                "value": 0
+            },
+            {
+                "key": "charisma",
+                "value": 0
+            }
+        ],
+        "genetics-stats": [
+            {
+                "key": "hp",
+                "value": 15
+            },
+            {
+                "key": "endurance",
+                "value": 15
+            },
+            {
+                "key": "atk_phy",
+                "value": 10
+            },
+            {
+                "key": "atk_mag",
+                "value": 2
+            },
+            {
+                "key": "mana",
+                "value": 3
+            },
+            {
+                "key": "speed",
+                "value": 5
+            }
+        ]
+    },
+    {
+        "key": "elf",
+        "name": "Elfe",
+        "subraces": [
+            {
+                "key": "continental-elf",
+                "name": "Elfe continental",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 0
+                    },
+                    {
+                        "key": "constitution",
+                        "value": -1
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 1
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 0
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "key": "island-elf",
+                "name": "Elfe des îles",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 1
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 0
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": -1
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 0
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            }
+        ],
+        "attributes": [
+            {
+                "key": "strength",
+                "value": 0
+            },
+            {
+                "key": "dexterity",
+                "value": 0
+            },
+            {
+                "key": "constitution",
+                "value": 0
+            },
+            {
+                "key": "intelligence",
+                "value": 1
+            },
+            {
+                "key": "wisdom",
+                "value": 2
+            },
+            {
+                "key": "charisma",
+                "value": 0
+            }
+        ],
+        "genetics-stats": [
+            {
+                "key": "hp",
+                "value": 8
+            },
+            {
+                "key": "endurance",
+                "value": 4
+            },
+            {
+                "key": "atk_phy",
+                "value": 3
+            },
+            {
+                "key": "atk_mag",
+                "value": 12
+            },
+            {
+                "key": "mana",
+                "value": 15
+            },
+            {
+                "key": "speed",
+                "value": 8
+            }
+        ]
+    },
+    {
+        "key": "beast-human",
+        "name": "Beast human",
+        "subraces": [
+            {
+                "key": "avian",
+                "name": "Aviaire",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 1
+                    },
+                    {
+                        "key": "constitution",
+                        "value": -1
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 1
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "key": "canine",
+                "name": "Canin",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 1
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 0
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 0
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 0
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "key": "feline",
+                "name": "Félin",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 1
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 0
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": -1
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 0
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 1
+                    }
+                ]
+            },
+            {
+                "key": "reptilian",
+                "name": "Reptilien",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 0
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 1
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 0
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            }
+        ],
+        "attributes": [
+            {
+                "key": "strength",
+                "value": 0
+            },
+            {
+                "key": "dexterity",
+                "value": 1
+            },
+            {
+                "key": "constitution",
+                "value": 1
+            },
+            {
+                "key": "intelligence",
+                "value": 0
+            },
+            {
+                "key": "wisdom",
+                "value": 0
+            },
+            {
+                "key": "charisma",
+                "value": 0
+            }
+        ],
+        "genetics-stats": [
+            {
+                "key": "hp",
+                "value": 8
+            },
+            {
+                "key": "endurance",
+                "value": 14
+            },
+            {
+                "key": "atk_phy",
+                "value": 14
+            },
+            {
+                "key": "atk_mag",
+                "value": 2
+            },
+            {
+                "key": "mana",
+                "value": 2
+            },
+            {
+                "key": "speed",
+                "value": 10
+            }
+        ]
+    },
+    {
+        "key": "deep-walker",
+        "name": "Marcheur des profondeurs",
+        "subraces": [
+            {
+                "key": "defensive-specialization",
+                "name": "Spécialisation défensive",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": -1
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 2
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 0
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "key": "offensive-specialization",
+                "name": "Spécialisation offensive",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 1
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 1
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 0
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": -1
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "key": "mobile-specialization",
+                "name": "Spécialisation mobile",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 2
+                    },
+                    {
+                        "key": "constitution",
+                        "value": -1
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 0
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "key": "sensorial-specialization",
+                "name": "Spécialisation sensorielle",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": 0
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 0
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 0
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 0
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 2
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "key": "magical-specialization",
+                "name": "Spécialisation magique",
+                "attributes": [
+                    {
+                        "key": "strength",
+                        "value": -1
+                    },
+                    {
+                        "key": "dexterity",
+                        "value": 0
+                    },
+                    {
+                        "key": "constitution",
+                        "value": 0
+                    },
+                    {
+                        "key": "intelligence",
+                        "value": 1
+                    },
+                    {
+                        "key": "wisdom",
+                        "value": 1
+                    },
+                    {
+                        "key": "charisma",
+                        "value": 0
+                    }
+                ]
+            }
+        ],
+        "attributes": [
+            {
+                "key": "strength",
+                "value": 0
+            },
+            {
+                "key": "dexterity",
+                "value": 0
+            },
+            {
+                "key": "constitution",
+                "value": 0
+            },
+            {
+                "key": "intelligence",
+                "value": 0
+            },
+            {
+                "key": "wisdom",
+                "value": 0
+            },
+            {
+                "key": "charisma",
+                "value": 0
+            }
+        ],
+        "genetics-stats": [
+            {
+                "key": "hp",
+                "value": 8
+            },
+            {
+                "key": "endurance",
+                "value": 11
+            },
+            {
+                "key": "atk_phy",
+                "value": 8
+            },
+            {
+                "key": "atk_mag",
+                "value": 8
+            },
+            {
+                "key": "mana",
+                "value": 8
+            },
+            {
+                "key": "speed",
+                "value": 7
+            }
+        ]
+    }
 ]

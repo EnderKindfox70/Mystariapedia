@@ -832,6 +832,73 @@ export interface DomainCombination {
   spells?: DomainSpellEntry[];
 }
 
+/**
+ * Palier de niveau auquel un slot de feat se dépense (en concurrence avec le
+ * point d'attribut du même palier).
+ */
+export type DomainFeatLevel = 5 | 10 | 15 | 20;
+
+/**
+ * Nature mécanique d'un feat domanial, qui dicte OÙ il s'applique à la
+ * résolution :
+ * - `multiplier` : un facteur de plus dans la chaîne déjà posée pour la météo
+ *   et le moment de la journée (dégâts/coût), jamais une valeur réécrite sort
+ *   par sort ;
+ * - `override` : une propriété structurelle (ciblage, portée, durée, type
+ *   d'effet) vérifiée au moment de la résolution, comme l'attribut d'attaque ;
+ * - `unlock` : ouvre une possibilité qui n'existait pas (branche, usage hors
+ *   combat, accès à un sort) ;
+ * - `passive` : une valeur en dur sur la fiche (stat ou attribut), lue par le
+ *   calcul de personnage via `statEffects` — rien à jouer, c'est acquis.
+ */
+export type DomainFeatKind = 'multiplier' | 'override' | 'unlock' | 'passive';
+
+/** Sens d'une ligne d'effet : ce que le feat donne, ce qu'il coûte, ou un fait neutre. */
+export type DomainFeatTone = 'boon' | 'cost' | 'neutral';
+
+/** Une ligne d'effet d'un feat : ce qui change, et de combien. */
+export interface DomainFeatEffect {
+  /** Ce qui est modifié (« Dégâts des sorts offensifs », « Ciblage »…). */
+  label: string;
+  /** La modification elle-même (« ×1,25 », « Zone, rayon 3 m »…). */
+  value: string;
+  /** Sens de la ligne. Absent = `neutral`. */
+  tone?: DomainFeatTone;
+}
+
+/**
+ * Feat domanial : un passif de portée large (il modifie tous les sorts d'un
+ * domaine ou débloque une branche entière), pris sur un slot de feat aux
+ * paliers 5/10/15/20. Les passifs plus étroits relèvent d'un nœud d'arbre de
+ * sort, d'un créneau d'étude ou d'une résonance domaniale — pas d'ici.
+ */
+export interface DomainFeat {
+  /** Identifiant stable, préfixé par le slug du domaine (`light-focale`). */
+  key: string;
+  name: string;
+  /** Palier de slot minimal auquel le feat peut être pris. */
+  level: DomainFeatLevel;
+  kind: DomainFeatKind;
+  /** Condition d'accès (palier de maîtrise atteint, aspect pratiqué, autre feat). */
+  prerequisite: string;
+  /** Background/origine qui accorde le feat sans dépenser de slot, s'il en existe un. */
+  freeWith?: string;
+  /** Ce que le feat change, en une phrase de fiction jouable. */
+  description: string;
+  /** Aspects du domaine concernés. Absent ou vide = le domaine entier. */
+  subdomains?: string[];
+  /** Clés des feats incompatibles (choix exclusif : on ne peut en avoir qu'un). */
+  excludes?: string[];
+  /** Le détail chiffré, une ligne par changement (affichage). */
+  effects: DomainFeatEffect[];
+  /**
+   * Effets appliqués POUR DE VRAI à la fiche : une clé de stat (`def_phy`,
+   * `mana`…) ou d'attribut (`force`…) et sa valeur, sommées comme celles d'un
+   * trait. `effects` reste la lecture humaine ; ceci est ce que le calcul lit.
+   */
+  statEffects?: { key: string; value: number }[];
+}
+
 export interface DomainEntry {
   name: string;
   icon: string;
@@ -843,6 +910,8 @@ export interface DomainEntry {
   subdomains: SubdomainEntry[];
   spells?: DomainSpellEntry[];
   manifestations?: DomainManifestation[];
+  /** Feats domaniaux : passifs de large portée pris sur un slot de feat. */
+  feats?: DomainFeat[];
   affinities?: DomainAffinities;
   teaching?: string;
   'magic-items-and-artifacts': CrossRef[];

@@ -7,7 +7,8 @@ import { Navbar } from '../../components/navbar/navbar';
 import { WikiLinkPipe } from '../../pipes/wiki-link-pipe';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
 import { PeopleEntry } from '../../wiki.types';
-import { RaceDef, StatKV } from '../../character/character.types';
+import { CatalogTrait, RaceDef, StatKV } from '../../character/character.types';
+import { traitsGrantedBy } from '../../character/universe-data';
 import { STATS } from '../../character/universe-data';
 import { PEOPLES, peopleColor, peopleRaceKey, peopleSigil } from '../../peoples.catalog';
 import {
@@ -66,6 +67,19 @@ export class PeopleEntryComponent {
     this.wiki.load<RaceDef[]>('characters', 'races').pipe(catchError(() => of([] as RaceDef[]))),
     { initialValue: [] as RaceDef[] },
   );
+  /**
+   * Aptitudes accordées par une race ou une sous-race. Elles ne sont plus
+   * écrites dans `races.json` : le catalogue `trait.json` déclare, trait par
+   * trait, qui l'accorde. On lit donc le catalogue par référence.
+   */
+  raceTraits(raceKey: string | undefined): CatalogTrait[] {
+    return raceKey ? traitsGrantedBy([`race:${raceKey}`]) : [];
+  }
+
+  subraceTraits(subraceKey: string | undefined): CatalogTrait[] {
+    return subraceKey ? traitsGrantedBy([`subrace:${subraceKey}`]) : [];
+  }
+
   race = computed(() => {
     const key = peopleRaceKey(this.slug());
     return this.races().find((r) => r.key === key);

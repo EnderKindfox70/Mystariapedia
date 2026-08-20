@@ -956,6 +956,107 @@
             }
         }
     ],
+    "feats": [
+        {
+            "key": "death-pourriture-lente",
+            "name": "Pourriture lente",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur de Mort débloqué",
+            "description": "Il ne tue pas d'un coup : il installe quelque chose qui travaille tout seul, tour après tour.",
+            "subdomains": [
+                "Putréfaction"
+            ],
+            "excludes": [
+                "death-frappe-necrotique"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts nécrotiques",
+                    "value": "Étalés sur 3 tours, +20 % au total",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts immédiats",
+                    "value": "×0,5",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "death-frappe-necrotique",
+            "name": "Frappe nécrotique",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Mort débloqué",
+            "description": "Tout, tout de suite, dans la main. Ce qui traîne ne l'intéresse pas.",
+            "subdomains": [
+                "Putréfaction"
+            ],
+            "excludes": [
+                "death-pourriture-lente"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts nécrotiques immédiats",
+                    "value": "×1,2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts sur la durée",
+                    "value": "Le lanceur ne peut plus en appliquer",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "death-cortege",
+            "name": "Cortège",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Mort débloqué et Relève les morts connu",
+            "description": "Il en tient deux au lieu d'un. Chacun tire sur sa réserve à chaque tour.",
+            "subdomains": [
+                "Nécromancie"
+            ],
+            "effects": [
+                {
+                    "label": "Créatures relevées simultanément",
+                    "value": "+1",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Entretien",
+                    "value": "2 mana par créature et par tour",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "death-passeur",
+            "name": "Passeur",
+            "level": 15,
+            "kind": "unlock",
+            "prerequisite": "Palier Majeur de Mort débloqué et Contact spectral connu",
+            "description": "Il parle aux morts d'un lieu sans rituel — et les choses qui s'intéressent aux âmes le repèrent de loin.",
+            "subdomains": [
+                "Mediumnité",
+                "Âme"
+            ],
+            "effects": [
+                {
+                    "label": "Dialogue avec les morts récents d'un lieu",
+                    "value": "Sans rituel ni jet",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Visibilité",
+                    "value": "Repérable par les créatures liées à l'Âme, Chasseurs d'Âmes compris",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

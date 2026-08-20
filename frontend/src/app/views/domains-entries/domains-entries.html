@@ -286,6 +286,79 @@
       </section>
     }
 
+    <!-- ── Feats domaniaux ── -->
+    @if (featTiers().length) {
+      <section class="de-section de-feats">
+        <div class="de-section-heading"><h2>Feats domaniaux</h2></div>
+        <p class="de-feats__intro">
+          Passifs de large portée : ils modifient tous les sorts du domaine ou ouvrent une branche entière.
+          Ils se prennent sur un slot de feat aux niveaux 5, 10, 15 et 20 — en concurrence avec le point
+          d'attribut du même palier — et exigent un investissement déjà fait dans {{ entry().name }}.
+        </p>
+
+        @for (tier of featTiers(); track tier.level) {
+          <div class="de-banner">
+            <span class="de-banner__orn" aria-hidden="true">✦</span>
+            <span class="de-banner__label">Palier {{ tier.level }}</span>
+            <span class="de-banner__orn" aria-hidden="true">✦</span>
+          </div>
+
+          <div class="de-feat-grid">
+            @for (feat of tier.feats; track feat.key) {
+              <article [class]="'de-feat de-feat--' + feat.kind">
+                <header class="de-feat__head">
+                  <div class="de-emblem" aria-hidden="true">
+                    @if (featIcon(feat)) {
+                      <img class="de-emblem-img" [src]="featIcon(feat)" alt="">
+                    } @else {
+                      {{ currentSigil() }}
+                    }
+                  </div>
+                  <div class="de-feat__title">
+                    <h3 class="de-feat__name">{{ feat.name }}</h3>
+                    <span class="de-feat__kind">{{ featKindLabel(feat.kind) }}</span>
+                  </div>
+                  <span class="de-lvl-box">Niv. {{ feat.level }}</span>
+                </header>
+
+                <p class="de-feat__desc">{{ feat.description }}</p>
+
+                <ul class="de-feat__effects">
+                  @for (e of feat.effects; track e.label) {
+                    <li [class]="'de-feat-effect is-' + (e.tone ?? 'neutral')">
+                      <span class="de-feat-effect__label">{{ e.label }}</span>
+                      <span class="de-feat-effect__value">{{ e.value }}</span>
+                    </li>
+                  }
+                </ul>
+
+                <footer class="de-feat__foot">
+                  <p class="de-feat__line">
+                    <span class="de-feat__tag">Prérequis</span> {{ feat.prerequisite }}
+                  </p>
+                  @if (feat.freeWith) {
+                    <p class="de-feat__line de-feat__line--free">
+                      <span class="de-feat__tag">Gratuit avec</span> {{ feat.freeWith }}
+                    </p>
+                  }
+                  @if (featExcludes(feat).length) {
+                    <p class="de-feat__line de-feat__line--excl">
+                      <span class="de-feat__tag">Exclusif avec</span> {{ featExcludes(feat).join(', ') }}
+                    </p>
+                  }
+                  @if (feat.subdomains?.length) {
+                    <p class="de-feat__line">
+                      <span class="de-feat__tag">Aspects</span> {{ feat.subdomains!.join(', ') }}
+                    </p>
+                  }
+                </footer>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+
     <!-- ── Répartition par peuple (masquée pour la magie non polarisée, sans affinité) ── -->
     @if (maxRaceShare() > 0) {
     <section class="de-section de-races">

@@ -107,10 +107,10 @@
                     </div>
                 }
 
-                @if (r.traits?.length) {
+                @if (raceTraits(r.key).length) {
                     <h3>Aptitudes raciales</h3>
                     <div class="people-traits">
-                        @for (t of r.traits; track t.key) {
+                        @for (t of raceTraits(r.key); track t.key) {
                             <article class="people-trait">
                                 <h4>{{ t.name }}</h4>
                                 @if (t.description) { <p>{{ t.description }}</p> }
@@ -139,9 +139,9 @@
                                         }
                                     </div>
                                 }
-                                @if (s.traits?.length) {
+                                @if (subraceTraits(s.key).length) {
                                     <ul class="people-list people-list--sm">
-                                        @for (t of s.traits; track t.key) {
+                                        @for (t of subraceTraits(s.key); track t.key) {
                                             <li><strong>{{ t.name }}</strong>@if (t.description) { — {{ t.description }} }</li>
                                         }
                                     </ul>

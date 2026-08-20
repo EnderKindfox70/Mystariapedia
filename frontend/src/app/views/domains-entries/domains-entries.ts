@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, computed, signal, viewChild, afterNextRe
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
-import { DomainCombination, DomainEntry, DomainSpellEntry } from '../../wiki.types';
+import { DomainCombination, DomainEntry, DomainFeat, DomainFeatKind, DomainSpellEntry } from '../../wiki.types';
 import { racesForDomain } from '../magics/domain-distribution';
 import { WikiLinkPipe } from '../../pipes/wiki-link-pipe';
 import { Navbar } from '../../components/navbar/navbar';
@@ -109,6 +109,45 @@ export class DomainEntryComponent {
     if (noSub.length) groups.push({ label: '', spells: noSub });
     return groups;
   });
+
+  /* ─────────────────────────────────────────────
+     FEATS DOMANIAUX
+  ───────────────────────────────────────────── */
+
+  /** Libellé du badge décrivant OÙ le feat s'applique à la résolution. */
+  private static readonly FEAT_KIND_LABEL: Record<DomainFeatKind, string> = {
+    multiplier: 'Multiplicateur',
+    override:   'Résolution',
+    unlock:     'Déblocage',
+    passive:    'Passif',
+  };
+
+  /** Feats du domaine, groupés par palier de slot (5/10/15/20). */
+  featTiers = computed<{ level: number; feats: DomainFeat[] }[]>(() => {
+    const feats = this.entry().feats ?? [];
+    return [...new Set(feats.map((f) => f.level))]
+      .sort((a, b) => a - b)
+      .map((level) => ({ level, feats: feats.filter((f) => f.level === level) }));
+  });
+
+  featKindLabel = (kind: DomainFeatKind): string =>
+    DomainEntryComponent.FEAT_KIND_LABEL[kind];
+
+  /** Noms des feats incompatibles, résolus depuis les clés déclarées. */
+  featExcludes = (feat: DomainFeat): string[] => {
+    const nameOf = new Map((this.entry().feats ?? []).map((f) => [f.key, f.name]));
+    return (feat.excludes ?? []).map((k) => nameOf.get(k) ?? k);
+  };
+
+  /** Icône d'un feat : celle du premier aspect qu'il touche (repli : sigil du domaine). */
+  featIcon = (feat: DomainFeat): string => {
+    const subs = this.entry().subdomains ?? [];
+    for (const name of feat.subdomains ?? []) {
+      const s = subs.find((x) => x.name === name);
+      if (s?.icon) return s.icon;
+    }
+    return this.currentIcon();
+  };
 
   /** Vrai si la page courante est un « domaine » de magie non polarisée. */
   isNonPolar = computed(() =>

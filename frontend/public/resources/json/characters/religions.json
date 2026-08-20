@@ -1,0 +1,127 @@
+{
+    "_note": "Religion : axe de création qui ancre le personnage dans un domaine. `standing` est le marqueur social (réaction par région selon le domaine servi), valable même sans religion rédigée.",
+    "religions": [
+        {
+            "key": "zenithisme",
+            "name": "Zénithisme",
+            "domain": "light",
+            "region": "luxarion",
+            "clergy": "Clergé Solaire",
+            "description": "La foi d'État de Luxarion : la lumière révèle, ordonne et enregistre. On y confesse ce qu'on cache, et le clergé garde ce qu'il a entendu.",
+            "ritual": "Rite de préparation avant une exposition connue (Réveil partiel, site divin) : avantage à la sauvegarde Volonté contre le Contrecoup divin.",
+            "confession": {
+                "name": "Rite au Luminarium",
+                "place": "Luminarium",
+                "effect": "Retire tous les statuts négatifs actifs, y compris ceux qui n'expirent pas d'eux-mêmes (Poison, Nécrose, Contrôle).",
+                "price": "Révèle une vérité cachée au clergé — de quoi alimenter la Chambre des Registres ou l'Inquisitorat. Demande une scène jouée, jamais un simple jet."
+            },
+            "prayer": {
+                "name": "Ferveur",
+                "place": "Lieu de culte zénithiste reconnu",
+                "effect": "+2 crans de précision.",
+                "duration": "Courte"
+            }
+        },
+        {
+            "key": "enfants-de-la-seve",
+            "name": "Enfants de la Sève",
+            "domain": "life",
+            "region": "aldenmoor",
+            "clergy": "Veilleurs de l'Arbre",
+            "description": "La théologie du Cycle, au Royaume elfique : ce qui meurt nourrit ce qui pousse. La Mort y est l'Ennemi du mythe — faux en réalité, mais c'est le mythe qui décide des regards.",
+            "ritual": "Rite de préparation avant une exposition connue (Réveil partiel, site divin) : avantage à la sauvegarde Volonté contre le Contrecoup divin.",
+            "confession": {
+                "name": "Rite funéraire au pied de l'Arbre",
+                "place": "Pied de l'Arbre",
+                "effect": "Retire la Nécrose en priorité, puis les statuts mentaux liés au deuil (Peur, Confusion), en enterrant symboliquement un objet.",
+                "price": "Demande une scène jouée, et l'objet enterré ne revient pas."
+            },
+            "prayer": {
+                "name": "Régénération",
+                "place": "Bosquet consacré",
+                "effect": "4 PV + Constitution × 0,3 par tour.",
+                "duration": "3 tours"
+            }
+        },
+        {
+            "key": "culte-de-luna",
+            "name": "Culte de Lun'a",
+            "domain": "darkness",
+            "region": "archipel",
+            "clergy": "Gardiens du Seuil",
+            "description": "Le culte lunaire de l'Archipel : on y honore ce qui couvre plutôt que ce qui montre. Religion encore non rédigée — structure et clergé restent à écrire.",
+            "ritual": "Rite de préparation avant une exposition connue (Réveil partiel, site divin) : avantage à la sauvegarde Volonté contre le Contrecoup divin.",
+            "prayer": {
+                "name": "Voile de Mahina",
+                "place": "Seuil lunaire",
+                "effect": "Effacement 25 % (chance d'esquiver totalement une attaque). Doublé à 50 % pendant une Conjonction lunaire.",
+                "duration": "Courte"
+            },
+            "note": "Confession/absolution non définie : la religion n'est pas encore rédigée, seul le rite de prière est posé."
+        }
+    ],
+    "_rites_note": "Chaque rite de prière : accompli uniquement dans un lieu de culte reconnu, aucun jet, aucun coût de ressource, une seule fois par repos complet. Chaque confession/absolution demande une scène jouée.",
+    "standing": [
+        {
+            "domain": "light",
+            "favourable": "Luxarion (Clergé Solaire)",
+            "suspicious": "Royaume elfique, hors culte de la Vie"
+        },
+        {
+            "domain": "life",
+            "favourable": "Royaume elfique",
+            "suspicious": "Peu ailleurs — culte périphérique hors Aldenmoor"
+        },
+        {
+            "domain": "darkness",
+            "favourable": "Archipel (Gardiens du Seuil)",
+            "suspicious": "Luxarion, qui l'associe à la Main Sans Ombre"
+        },
+        {
+            "domain": "death",
+            "favourable": "Luxarion — légitimé depuis Caelar, toujours stigmatisé",
+            "suspicious": "Royaume elfique : hostilité franche, pas un simple malaise",
+            "note": "La Mort y est théologiquement « l'Ennemi » dans le mythe des Enfants de la Sève. C'est faux — Necrovh accueille — mais socialement c'est le mythe qui compte : un dévot de la Mort y passe pour un adversaire du Cycle, pas pour un original."
+        },
+        {
+            "domain": "fire",
+            "favourable": "Neutre partout",
+            "suspicious": "—"
+        },
+        {
+            "domain": "earth",
+            "favourable": "Neutre partout",
+            "suspicious": "—"
+        },
+        {
+            "domain": "water",
+            "favourable": "Neutre partout",
+            "suspicious": "—"
+        },
+        {
+            "domain": "air",
+            "favourable": "Neutre partout",
+            "suspicious": "—"
+        },
+        {
+            "domain": "electricity",
+            "favourable": "Neutre partout",
+            "suspicious": "—"
+        },
+        {
+            "domain": "plant",
+            "favourable": "Neutre partout",
+            "suspicious": "—"
+        },
+        {
+            "domain": "time",
+            "favourable": "Curiosité chez les Chercheurs d'Ancien Art",
+            "suspicious": "Méfiance diffuse : domaine trop rare pour être lu"
+        },
+        {
+            "domain": "space",
+            "favourable": "Curiosité chez les Chercheurs d'Ancien Art",
+            "suspicious": "Méfiance diffuse : domaine trop rare pour être lu"
+        }
+    ]
+}

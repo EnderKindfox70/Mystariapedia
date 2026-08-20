@@ -282,6 +282,124 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-trait__body { display: flex; flex-direction: column; gap: 0.15rem; }
 .cs-trait__name { font-family: var(--font-title); font-size: 0.82rem; color: var(--faded-ivory); }
 .cs-trait__desc { font-size: 0.76rem; color: var(--burned-paper); }
+.cs-trait__source {
+  font-size: 0.68rem; letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--ancient-gold) 70%, transparent);
+}
+
+/* Origine & foi : une carte par axe, puis le marqueur social par domaine. */
+.cs-axis {
+  padding: 0.6rem 0.7rem; margin-bottom: 0.6rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 22%, transparent);
+  border-radius: 7px;
+}
+.cs-axis__head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem;
+  margin-bottom: 0.25rem;
+}
+.cs-axis__name { font-family: var(--font-title); font-size: 0.88rem; color: var(--faded-ivory); }
+.cs-axis__tag {
+  font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ancient-gold);
+  text-align: right;
+}
+.cs-axis__desc { margin: 0 0 0.45rem; font-size: 0.76rem; font-style: italic; color: var(--burned-paper); }
+.cs-axis__grants { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+.cs-axis__grants li { font-size: 0.76rem; line-height: 1.45; color: var(--faded-ivory); }
+.cs-axis__grants b { color: var(--ancient-gold); font-weight: 600; }
+.cs-axis__grants em { display: block; font-size: 0.72rem; color: var(--burned-paper); }
+.cs-axis__label {
+  margin-right: 0.35rem;
+  font-size: 0.66rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ancient-gold) 70%, transparent);
+}
+.cs-axis__subhead {
+  display: block; margin: 0.7rem 0 0.3rem;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--burned-paper);
+}
+.cs-standings { display: flex; flex-direction: column; gap: 0.3rem; margin: 0; padding: 0; list-style: none; }
+.cs-standing {
+  display: grid; grid-template-columns: 7rem 1fr 1fr; gap: 0.5rem;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.74rem;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 5px;
+}
+.cs-standing__domain { font-family: var(--font-title); color: var(--faded-ivory); }
+.cs-standing__good { color: #9ec27a; }
+.cs-standing__bad { color: #d99a72; }
+.cs-standing__note { grid-column: 1 / -1; font-size: 0.72rem; font-style: italic; color: var(--burned-paper); }
+
+/* Catalogue de traits (pastilles) : le trait de création se prend ici, le reste
+   du catalogue s'achète sur un slot de feat. */
+.cs-trait-group { margin-bottom: 0.6rem; }
+.cs-trait-group__label {
+  display: block; margin-bottom: 0.25rem;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--burned-paper);
+}
+.cs-trait-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.cs-trait-chip {
+  padding: 0.22rem 0.55rem;
+  font-size: 0.74rem; color: var(--faded-ivory);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 22%, transparent);
+  border-radius: 11px; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cs-trait-chip:hover:not(:disabled) { border-color: color-mix(in srgb, var(--ancient-gold) 55%, transparent); }
+.cs-trait-chip.is-selected {
+  color: var(--abyss);
+  background: linear-gradient(180deg, var(--burned-paper), var(--ancient-gold));
+  border-color: var(--ancient-gold);
+}
+.cs-trait-chip:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* Slots de feat : un palier = une carte, un seul achat par carte. */
+.cs-feat-slots { display: flex; flex-direction: column; gap: 0.5rem; }
+.cs-feat-slot {
+  padding: 0.6rem 0.7rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 22%, transparent);
+  border-radius: 7px;
+}
+.cs-feat-slot.is-locked { opacity: 0.45; }
+.cs-feat-slot__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+.cs-feat-slot__lvl {
+  font-family: var(--font-title); font-size: 0.8rem; letter-spacing: 0.06em; color: var(--ancient-gold);
+}
+.cs-feat-slot__lock { font-size: 0.72rem; font-style: italic; color: var(--burned-paper); }
+.cs-feat-slot__clear {
+  padding: 0 0.35rem; font-size: 0.78rem; line-height: 1.4;
+  color: var(--burned-paper); background: transparent;
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 25%, transparent);
+  border-radius: 5px; cursor: pointer;
+}
+.cs-feat-slot__clear:hover { color: var(--faded-ivory); }
+.cs-seg--feat { flex-wrap: wrap; }
+.cs-feat-select { width: 100%; margin-top: 0.45rem; }
+.cs-feat-desc { margin: 0.4rem 0 0; font-size: 0.76rem; font-style: italic; color: var(--burned-paper); }
+.cs-feat-note { margin: 0.2rem 0 0; font-size: 0.72rem; color: #d8a86a; }
+.cs-feat-req { margin: 0.25rem 0 0; font-size: 0.72rem; color: var(--burned-paper); }
+.cs-feat-req span {
+  margin-right: 0.3rem;
+  font-size: 0.66rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ancient-gold) 70%, transparent);
+}
+.cs-feat-effects { display: flex; flex-direction: column; gap: 0.2rem; margin: 0.45rem 0 0; padding: 0; list-style: none; }
+.cs-feat-effect {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.74rem; color: var(--burned-paper);
+  background: rgba(0, 0, 0, 0.22);
+  border-left: 3px solid transparent; border-radius: 3px;
+}
+.cs-feat-effect em { font-style: normal; font-weight: 600; color: var(--faded-ivory); }
+.cs-feat-effect.is-boon { border-left-color: #77a356; }
+.cs-feat-effect.is-cost { border-left-color: #c2683c; }
+.cs-feat-effect.is-neutral { border-left-color: color-mix(in srgb, var(--ancient-gold) 35%, transparent); }
 
 /* Attributs */
 /* Compteur de points à répartir */
@@ -675,6 +793,8 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
     "equipment equipment"
     "skills inventory"
     "traits traits"
+    "faith faith"
+    "feats feats"
     "notes notes"
     "artwork artwork";
   gap: 0.9rem;
@@ -710,6 +830,8 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .sheet-skills { grid-area: skills; }
 .sheet-inventory { grid-area: inventory; }
 .sheet-traits { grid-area: traits; }
+.sheet-faith { grid-area: faith; }
+.sheet-feats { grid-area: feats; }
 .sheet-notes { grid-area: notes; }
 .sheet-artwork { grid-area: artwork; }
 .sheet-equipment { grid-area: equipment; }
@@ -1033,6 +1155,31 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .sheet-trait__body { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; }
 .sheet-trait__name { font-family: var(--font-title); font-size: 0.8rem; color: #2a1c14; }
 .sheet-trait__desc { font-size: 0.72rem; color: #5e4632; }
+
+/* Origine & foi (fiche) : une ligne par apport, l'étiquette en petites capitales. */
+.sheet-faith-list { display: flex; flex-direction: column; gap: 0.2rem; margin: 0 0 0.3rem; padding: 0; list-style: none; }
+.sheet-faith-list li { font-size: 0.74rem; line-height: 1.45; color: #2a1c14; }
+.sheet-faith-list li > span:first-child {
+  margin-right: 0.35rem;
+  font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: #5e4632;
+}
+
+/* Feats (fiche) : un palier par ligne — niveau, ce qui a été pris, d'où ça vient. */
+.sheet-feats-list { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+.sheet-feat {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 0.5rem;
+  padding: 0.28rem 0.45rem;
+  background: rgba(255, 250, 235, 0.32);
+  border: 1px solid rgba(94, 70, 50, 0.4);
+  border-radius: 5px;
+}
+.sheet-feat__lvl {
+  font-family: var(--font-title); font-size: 0.7rem; letter-spacing: 0.06em; color: #5e4632;
+}
+.sheet-feat__detail { font-size: 0.78rem; color: #2a1c14; }
+.sheet-feat__label {
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #5e4632;
+}
 
 .sheet-domains { margin-top: 0.6rem; text-align: center; }
 .sheet-domains__label {
