@@ -8,12 +8,36 @@
         "Toxique et amer, il sert autant aux poisons des assassins qu'aux remèdes des apothicaires, qui en tirent à faible dose des antidotes et des anesthésiants."
     ],
     "info": [
-        { "key": "weight", "label": "Poids", "value": "0.05 kg" },
-        { "key": "type",    "label": "Type",        "value": "Venin / fluide" },
-        { "key": "rarity",  "label": "Rareté",      "value": "Peu commune" },
-        { "key": "source",  "label": "Provenance",  "value": "Serpent des marais" },
-        { "key": "usage",   "label": "Utilisation", "value": "Poisons, antidotes, anesthésiants" },
-        { "key": "value",   "label": "Valeur",      "value": "8 pièces d'or la fiole" }
+        {
+            "key": "weight",
+            "label": "Poids",
+            "value": "0.05 kg"
+        },
+        {
+            "key": "type",
+            "label": "Type",
+            "value": "Venin / fluide"
+        },
+        {
+            "key": "rarity",
+            "label": "Rareté",
+            "value": "Peu commune"
+        },
+        {
+            "key": "source",
+            "label": "Provenance",
+            "value": "Serpent des marais"
+        },
+        {
+            "key": "usage",
+            "label": "Utilisation",
+            "value": "Poisons, antidotes, anesthésiants"
+        },
+        {
+            "key": "value",
+            "label": "Valeur",
+            "value": "8 pièces d'or la fiole"
+        }
     ],
     "properties": [
         "Puissant toxique : provoque fièvre et paralysie progressive en cas d'ingestion.",
@@ -32,14 +56,35 @@
         {
             "label": "Provenance",
             "items": [
-                { "ref": "serpent-des-marais", "collection": "bestiary", "label": "Serpent des marais" }
+                {
+                    "ref": "serpent-des-marais",
+                    "collection": "bestiary",
+                    "label": "Serpent des marais"
+                }
             ]
         },
         {
             "label": "Domaines liés",
             "items": [
-                { "ref": "death", "collection": "domains", "label": "Mort" }
+                {
+                    "ref": "death",
+                    "collection": "domains",
+                    "label": "Mort"
+                }
             ]
         }
-    ]
+    ],
+    "tags": [
+        "venom"
+    ],
+    "venom": {
+        "coatingTurns": 3,
+        "inflicts": [
+            {
+                "status": "poison",
+                "chance": 50
+            }
+        ],
+        "note": "Enduit une arme ou des munitions : chaque coup porté peut faire passer le venin."
+    }
 }

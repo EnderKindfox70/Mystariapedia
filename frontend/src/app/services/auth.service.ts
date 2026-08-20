@@ -40,6 +40,22 @@ export class AuthService {
     return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
   }
 
+  /**
+   * Ping sans effet de bord pour sortir l'API de veille.
+   *
+   * L'instance gratuite s'endort après 15 min et met jusqu'à une minute à
+   * redémarrer. Les pages de connexion et d'inscription appellent ceci à leur
+   * ouverture : le réveil se fait pendant que l'utilisateur saisit ses
+   * identifiants, au lieu de lui être facturé au moment du clic.
+   *
+   * L'échec est ignoré : ce n'est qu'une mise en train, la vraie requête
+   * rapportera l'erreur s'il y en a une.
+   */
+  wakeUp(): void {
+    if (!this.isBrowser) return;
+    this.http.get('/api/health').subscribe({ error: () => undefined });
+  }
+
   register(username: string, email: string, password: string): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>('/api/auth/register', { username, email, password })

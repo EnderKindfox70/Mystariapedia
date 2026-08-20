@@ -1197,6 +1197,12 @@ export interface ResourceIndexEntry {
   slug: string;
   name: string;
   subtitle?: string;
+  /**
+   * Tags de la fiche, recopiés dans l'index par le générateur. `venom` marque
+   * une dépouille jouable comme revêtement d'arme : le simulateur repère les
+   * venins par là, sans charger toutes les fiches d'une collection.
+   */
+  tags?: string[];
   icon?: string;
   image?: string;
   rarity?: string;

@@ -43,6 +43,7 @@ import {
 import {
   AbilityDamage,
   AbilityScaling,
+  AbilityStatus,
   ActiveEffect,
   ActiveStatus,
   CarriedItem,
@@ -926,12 +927,29 @@ export function evadeChance(unit: Combatant): number {
  * un sort.
  */
 export function enchantsOn(unit: Combatant, ability: CombatAbility): AbilityDamage[] {
+  return activeEnchants(unit, ability)
+    .map((e) => e.damage)
+    .filter((d): d is AbilityDamage => !!d);
+}
+
+/**
+ * Enchantements qui portent sur CETTE capacité : ceux qui nimbent ce qu'elle
+ * frappe avec. Un sort n'en profite jamais.
+ */
+function activeEnchants(unit: Combatant, ability: CombatAbility): CombatEnchant[] {
   if (ability.kind !== 'weapon' && ability.kind !== 'class' && ability.kind !== 'natural') return [];
   const slot: CombatEnchant['target'] = ability.unarmed ? 'unarmed' : 'weapon';
   return unit.effects
     .map((e) => e.enchant)
-    .filter((e): e is CombatEnchant => e?.target === slot)
-    .map((e) => e.damage);
+    .filter((e): e is CombatEnchant => e?.target === slot);
+}
+
+/**
+ * Statuts que les revêtements actifs ajoutent au coup — c'est par là qu'un
+ * venin agit : il ne change pas les dégâts, il tente de passer à chaque touche.
+ */
+export function enchantStatusesOn(unit: Combatant, ability: CombatAbility): AbilityStatus[] {
+  return activeEnchants(unit, ability).flatMap((e) => e.inflicts ?? []);
 }
 
 /**
@@ -3110,8 +3128,9 @@ function resolveAgainst(
   // 6) Purge accordée par la capacité.
   for (const key of ability.cleanses ?? []) clearStatus(enc, target, key);
 
-  // 7) Statuts infligés — un par un, chacun avec sa chance.
-  for (const inflict of ability.inflicts ?? []) {
+  // 7) Statuts infligés — ceux de la capacité, puis ceux que le revêtement
+  //    ajoute à chaque coup (venin sur la lame). Même barème pour les deux.
+  for (const inflict of [...(ability.inflicts ?? []), ...enchantStatusesOn(actor, ability)]) {
     if (!rng.chance(inflict.chance)) {
       push(enc, 'status', `« ${statusByKey(inflict.status)?.name ?? inflict.status} » ne prend pas sur ${target.name}.`, {
         targetId: target.id,
@@ -3484,12 +3503,14 @@ export function applyMaterial(
     enchant: ability.enchant
       ? {
           ...ability.enchant,
-          damage: {
-            ...ability.enchant.damage,
-            min: Math.max(1, Math.round(material.damage.min * echelle * ENCHANT_SHARE)),
-            max: Math.max(2, Math.round(material.damage.max * echelle * ENCHANT_SHARE)),
-            type: material.damageType,
-          },
+          damage: ability.enchant.damage
+            ? {
+                ...ability.enchant.damage,
+                min: Math.max(1, Math.round(material.damage.min * echelle * ENCHANT_SHARE)),
+                max: Math.max(2, Math.round(material.damage.max * echelle * ENCHANT_SHARE)),
+                type: material.damageType,
+              }
+            : undefined,
         }
       : undefined,
     // Un mur vaut sa dureté, sur plusieurs épaisseurs.

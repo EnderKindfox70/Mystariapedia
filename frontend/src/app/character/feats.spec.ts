@@ -13,7 +13,7 @@ import {
   domainFeats,
   emptySheet,
   featAttributeBonuses,
-  featDomainName,
+  domainName,
   featDomainsFor,
   featSlotsFor,
   findDomainFeat,
@@ -38,8 +38,9 @@ describe('catalogue de traits (section 16)', () => {
   it('expose les traits prenables, avec leurs effets chiffrés quand il y en a', () => {
     // 18 traits de la section 16 (Amphibie et Vision dans le noir sont
     // biologiques, donc hors catalogue de choix), + Entraînement martial,
-    // Études magiques et Nageur rapatriés des backgrounds, + Akimbo.
-    expect(TRAIT_CATALOG).toHaveLength(22);
+    // Études magiques et Nageur rapatriés des backgrounds, + Akimbo, + Healer,
+    // Linguist, Poisoner et Chef (Mithridatisation est biologique).
+    expect(TRAIT_CATALOG).toHaveLength(26);
     expect(TRAIT_CATALOG.every((t) => t.acquisition.pickable)).toBe(true);
     expect(catalogTrait('increvable')?.effects).toEqual([{ key: 'hp', value: 15 }]);
     expect(catalogTrait('inconnu')).toBeUndefined();
@@ -159,7 +160,7 @@ describe('feats domaniaux sur la fiche', () => {
     expect(domainFeats('light')).toHaveLength(4);
     expect(domainFeats('emission')).toHaveLength(4);
     expect(findDomainFeat('light-focale')?.domain).toBe('light');
-    expect(featDomainName('renforcement')).toBe('Renforcement');
+    expect(domainName('renforcement')).toBe('Renforcement');
   });
 
   it('résout le feat choisi avec son domaine', () => {

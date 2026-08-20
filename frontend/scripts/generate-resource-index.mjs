@@ -74,6 +74,9 @@ function toIndexEntry(slug, data) {
   // Sans cette ligne, l'index régénéré perdait la composition — et avec elle
   // tout ce qui en dépend, à commencer par le magnétisme.
   if (data.material) entry.material = data.material;
+  // Tags de la fiche (`venom`…) : le simulateur et les traits s'en servent pour
+  // repérer un objet jouable sans charger toutes les fiches d'une collection.
+  if (data.tags?.length) entry.tags = data.tags;
   // Poids unitaire pour l'inventaire des fiches de personnage (0 si non défini).
   entry.weight = parseWeight(data);
   // Règles de portage des sacs à dos, lues dans la bande d'identité de la fiche

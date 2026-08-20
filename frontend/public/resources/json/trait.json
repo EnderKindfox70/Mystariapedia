@@ -536,6 +536,112 @@
                 },
                 "grantedBy": []
             }
+        },
+        {
+            "id": 33,
+            "name": "healer",
+            "description": "This entity patches wounds with tools and steady hands, no magic involved.",
+            "character": {
+                "key": "soigneur",
+                "label": "Soigneur",
+                "category": "survie",
+                "description": "Soigne sans magie, au kit de chirurgien : stabiliser un allié mourant lui rend aussi 1 PV au lieu de le laisser à 0. Coûte une action et une charge du kit. +1 en Médecine.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "Accordé par le sous-background Médecin d'armée ; sinon s'apprend à la création ou sur un slot de feat."
+                },
+                "grantedBy": [
+                    "subbackground:field-medic"
+                ],
+                "skillEffects": [
+                    {
+                        "key": "medicine",
+                        "value": 1
+                    }
+                ]
+            }
+        },
+        {
+            "id": 34,
+            "name": "linguist",
+            "description": "This entity speaks several tongues and writes in ciphers others cannot read.",
+            "character": {
+                "key": "linguiste",
+                "label": "Linguiste",
+                "category": "social",
+                "description": "Apprend trois langues au choix. Sait aussi rédiger des messages chiffrés, illisibles sans la clé ou une capacité de déchiffrement dédiée.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat. Exige 13 en Intelligence.",
+                    "requires": {
+                        "attribute": "intelligence",
+                        "min": 13
+                    }
+                },
+                "grantedBy": [],
+                "languageSlots": 3
+            }
+        },
+        {
+            "id": 35,
+            "name": "poisoner",
+            "description": "This entity coats blade and bolt with poison in the time others need to draw.",
+            "character": {
+                "key": "empoisonneur",
+                "label": "Empoisonneur",
+                "category": "combat",
+                "description": "Maîtrise du kit d'empoisonneur : enduit une arme ou des munitions de poison en action bonus, au lieu d'une action complète.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat. Exige 13 en Intelligence.",
+                    "requires": {
+                        "attribute": "intelligence",
+                        "min": 13
+                    }
+                },
+                "grantedBy": [
+                    "subbackground:hitman"
+                ]
+            }
+        },
+        {
+            "id": 36,
+            "name": "chef",
+            "description": "Food cooked by this entity mends those who eat it, even mid-fight.",
+            "character": {
+                "key": "chef-cuisinier",
+                "label": "Chef cuisinier",
+                "category": "survie",
+                "description": "Les repas qu'il prépare rendent de la vie, y compris en plein combat.",
+                "acquisition": {
+                    "kind": "acquis",
+                    "pickable": true,
+                    "condition": "S'apprend : à prendre à la création, ou sur un slot de feat."
+                },
+                "grantedBy": []
+            }
+        },
+        {
+            "id": 37,
+            "name": "mithridatism",
+            "description": "Venom runs off this entity without taking hold.",
+            "character": {
+                "key": "mithridatisation",
+                "label": "Mithridatisation",
+                "category": "survie",
+                "description": "Immunisé au poison.",
+                "acquisition": {
+                    "kind": "biologique",
+                    "pickable": false,
+                    "condition": "Particularité biologique des Bêtes-Humains reptiliens : le sang neutralise le venin, ça ne s'entraîne pas."
+                },
+                "grantedBy": [
+                    "subrace:reptilian"
+                ]
+            }
         }
     ]
 }

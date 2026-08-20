@@ -8,12 +8,36 @@
         "Contrairement au venin ordinaire, il n'agit pas seulement sur le corps : il cible les canaux magiques, dormants ou actifs, ce qui en fait l'ingrédient le plus rare et le plus redouté des élixirs d'éveil."
     ],
     "info": [
-        { "key": "weight", "label": "Poids", "value": "0.05 kg" },
-        { "key": "type",    "label": "Type",        "value": "Venin spectral / fluide" },
-        { "key": "rarity",  "label": "Rareté",      "value": "Rare" },
-        { "key": "source",  "label": "Provenance",  "value": "Serpent fantôme" },
-        { "key": "usage",   "label": "Utilisation", "value": "Élixirs d'éveil, rituels de mort, poisons" },
-        { "key": "value",   "label": "Valeur",      "value": "45 pièces d'or la fiole" }
+        {
+            "key": "weight",
+            "label": "Poids",
+            "value": "0.05 kg"
+        },
+        {
+            "key": "type",
+            "label": "Type",
+            "value": "Venin spectral / fluide"
+        },
+        {
+            "key": "rarity",
+            "label": "Rareté",
+            "value": "Rare"
+        },
+        {
+            "key": "source",
+            "label": "Provenance",
+            "value": "Serpent fantôme"
+        },
+        {
+            "key": "usage",
+            "label": "Utilisation",
+            "value": "Élixirs d'éveil, rituels de mort, poisons"
+        },
+        {
+            "key": "value",
+            "label": "Valeur",
+            "value": "45 pièces d'or la fiole"
+        }
     ],
     "properties": [
         "Cible spécifiquement les canaux magiques du corps, qu'ils soient dormants ou actifs.",
@@ -32,14 +56,40 @@
         {
             "label": "Provenance",
             "items": [
-                { "ref": "serpent-fantome", "collection": "bestiary", "label": "Serpent fantôme" }
+                {
+                    "ref": "serpent-fantome",
+                    "collection": "bestiary",
+                    "label": "Serpent fantôme"
+                }
             ]
         },
         {
             "label": "Domaines liés",
             "items": [
-                { "ref": "death", "collection": "domains", "label": "Mort" }
+                {
+                    "ref": "death",
+                    "collection": "domains",
+                    "label": "Mort"
+                }
             ]
         }
-    ]
+    ],
+    "tags": [
+        "venom"
+    ],
+    "venom": {
+        "coatingTurns": 3,
+        "inflicts": [
+            {
+                "status": "poison",
+                "chance": 60
+            },
+            {
+                "status": "silence",
+                "chance": 25,
+                "duration": 2
+            }
+        ],
+        "note": "Enduit une arme ou des munitions : le venin attaque les chairs ET les canaux magiques."
+    }
 }

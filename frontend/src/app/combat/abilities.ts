@@ -1,4 +1,5 @@
 import weaponCategoryCatalog from '../../../public/resources/json/weapon_category.json';
+import statusCatalog from '../../../public/resources/json/status_effects.json';
 import { AttributeKey, ClassDef, ClassSpell } from '../character/character.types';
 import {
   BestiaryAbility,
@@ -11,6 +12,7 @@ import {
   AbilityDamage,
   AbilityScaling,
   AbilityStatMod,
+  AbilityStatus,
   CombatAbility,
   CombatEnchant,
 } from './combat.types';
@@ -827,6 +829,11 @@ export function parseDice(text: string): { min: number; max: number } | undefine
 }
 
 /** Ce qu'une fiche de potion apporte au combat. */
+/** Nom lisible d'un statut, tiré du catalogue (la clé à défaut). */
+const statusLabel = (key: string): string =>
+  (statusCatalog.status_effects as { key: string; name: string }[]).find((s) => s.key === key)
+    ?.name ?? key;
+
 export interface ConsumableSource {
   name: string;
   slug?: string;
@@ -907,6 +914,67 @@ export function consumableAbility(item: ConsumableSource, statusKeys: Map<string
     // bref. Tant qu'une fiole valait une attaque, elle restait au fond du sac
     // et la potion n'existait qu'à l'inventaire.
     bonusAction: true,
+  };
+}
+
+/**
+ * Un venin du sac, tel que le wiki le déclare (bloc `venom` d'une fiche taguée
+ * `venom`).
+ */
+export interface VenomSource {
+  name: string;
+  slug?: string;
+  /** Tours pendant lesquels l'arme reste enduite. */
+  coatingTurns?: number;
+  /** Ce que chaque coup porté peut faire passer. */
+  inflicts?: AbilityStatus[];
+  /** Ligne de rappel affichée au journal. */
+  note?: string;
+}
+
+/** Durée par défaut d'un revêtement de venin, si la fiche n'en dit rien. */
+const VENOM_COATING_TURNS = 3;
+
+/**
+ * Enduire son arme d'un venin.
+ *
+ * Un venin ne frappe pas plus fort : il ne porte AUCUN dégât propre. Il pose un
+ * revêtement sur l'arme en main, et chaque coup qui touche tente d'y faire
+ * passer son statut — c'est exactement ainsi que le catalogue traite le poison
+ * (un statut, pas un type de dégâts).
+ *
+ * Le geste coûte une action pleine. Avec le trait Empoisonneur, il tient dans
+ * une action bonus : c'est tout ce que ce trait change.
+ */
+export function venomAbility(item: VenomSource, poisoner: boolean): CombatAbility {
+  const duration = Math.max(1, Math.round(item.coatingTurns ?? VENOM_COATING_TURNS));
+  const inflicts = item.inflicts ?? [];
+  const chances = inflicts
+    .map((i) => `${statusLabel(i.status)} ${i.chance} %`)
+    .join(', ');
+
+  return {
+    id: `venom:${item.slug ?? item.name}`,
+    name: `Enduire — ${item.name}`,
+    kind: 'item',
+    subtitle: 'Venin',
+    description:
+      item.note ??
+      "Enduit l'arme en main : chaque coup porté peut faire passer le venin.",
+    ref: item.slug,
+    rangeMeters: 0,
+    shape: { kind: 'single' },
+    targets: ['self'],
+    manaCost: 0,
+    enduranceCost: 0,
+    consumes: { item: item.name, qty: 1 },
+    damages: [],
+    duration,
+    // Le revêtement ne blesse pas : il ne porte que ce qu'il fait passer.
+    enchant: { target: 'weapon', inflicts },
+    autoHit: true,
+    bonusAction: poisoner,
+    manualEffects: chances ? [`Par coup porté : ${chances}.`] : undefined,
   };
 }
 

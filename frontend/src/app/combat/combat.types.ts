@@ -118,8 +118,16 @@ export interface AbilityStatMod {
 export interface CombatEnchant {
   /** Ce que l'enchantement nimbe : les poings, ou l'arme en main. */
   target: 'unarmed' | 'weapon';
-  /** Ce qu'il ajoute à chaque coup. */
-  damage: AbilityDamage;
+  /**
+   * Ce qu'il ajoute à chaque coup. Absent pour un revêtement qui ne blesse pas
+   * de lui-même : un venin ne fait pas de dégâts, il fait passer son poison.
+   */
+  damage?: AbilityDamage;
+  /**
+   * Statuts que chaque coup porté peut faire passer, avec leur chance. C'est
+   * ainsi qu'un venin agit : la lame ne frappe pas plus fort, elle empoisonne.
+   */
+  inflicts?: AbilityStatus[];
 }
 
 /** Statut infligé à l'impact, avec sa chance et sa durée éventuelle. */
@@ -536,8 +544,8 @@ export interface CarriedItem {
   qty: number;
   /** Slug de la fiche wiki, quand l'objet a été reconnu au catalogue. */
   slug?: string;
-  /** Munition, consommable utilisable en combat, ou simple bagage. */
-  kind: 'ammunition' | 'consumable' | 'other';
+  /** Munition, fiole à boire, venin à étaler, ou simple bagage. */
+  kind: 'ammunition' | 'consumable' | 'venom' | 'other';
   /**
    * Un aimant a-t-il prise dessus ? DÉRIVÉ de `material` par la fabrique — fer
    * et acier seulement. Une chevalière d'or et un astrolabe de bronze sont en

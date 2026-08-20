@@ -106,6 +106,17 @@ export type StatMode = 'random' | 'mean';
 /** Jauges de survie tenues à la table (cf. SURVIVAL_GAUGES). */
 export type SurvivalKey = 'hunger' | 'thirst' | 'rest';
 
+/** Une langue du monde (cf. `languages.json`). */
+export interface LanguageDef {
+  key: string;
+  name: string;
+  description: string;
+  /** Vrai pour la langue véhiculaire : connue de tous, sans rien dépenser. */
+  common?: boolean;
+  /** Région où elle se parle (clé de `materials.json > regions`), si elle en a une. */
+  region?: string;
+}
+
 /**
  * Origine géographique : ce que la région d'enfance donne gratuitement, là où
  * un trait équivalent coûterait un emplacement.
@@ -120,8 +131,10 @@ export interface OriginDef {
   description: string;
   /** Acclimatation climatique, en toutes lettres. */
   acclimatation: string;
-  /** Langue et savoir régional acquis sans investir de compétence. */
+  /** Langue et savoir régional acquis sans investir de compétence, en clair. */
   language: string;
+  /** Clés des langues accordées d'office par l'origine (cf. `languages.json`). */
+  languages?: string[];
   /** Factions régionales dont l'attitude de départ est améliorée. */
   factions: string[];
   factionNote?: string;
@@ -208,6 +221,10 @@ export interface CatalogTrait extends TraitDef {
   category: TraitCategory;
   /** Comment ce trait s'obtient — et s'il s'obtient tout court. */
   acquisition: TraitAcquisition;
+  /** Bonus de compétence accordés (clé de SKILLS → valeur), ex. Soigneur +1 en Médecine. */
+  skillEffects?: StatKV[];
+  /** Emplacements de langue ouverts par ce trait (Linguiste en ouvre trois). */
+  languageSlots?: number;
   /**
    * Qui l'accorde d'office, en références vers les datasets :
    * `race:<clé>`, `subrace:<clé>`, `background:<clé>`, `origin:<clé>`.
@@ -234,6 +251,12 @@ export interface TraitAcquisition {
   pickable: boolean;
   /** La condition en toutes lettres. */
   condition: string;
+  /**
+   * Score minimal exigé sur un attribut pour pouvoir le prendre (Linguist et
+   * Poisoner demandent 13 en Intelligence). Vérifié sur l'attribut FINAL, bonus
+   * de race et de feat compris.
+   */
+  requires?: { attribute: AttributeKey; min: number };
 }
 
 /**
@@ -321,6 +344,12 @@ export interface CharacterSheet {
    * plus de ceux qu'accordent la race, la sous-race et le background.
    */
   creationTraits?: string[];
+  /**
+   * Langues APPRISES, dans la limite des emplacements ouverts par les traits
+   * (Linguiste). Le commun et la langue de l'origine ne s'y trouvent pas :
+   * elles sont acquises d'office et se recalculent.
+   */
+  languages?: string[];
   /**
    * Ce que chaque slot de feat a acheté, au plus un par palier (5/10/15/20).
    * Un palier non encore atteint, ou laissé en attente, n'a pas d'entrée.

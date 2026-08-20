@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Navbar } from '../../../components/navbar/navbar';
 import { AuthService } from '../../../services/auth.service';
+import { apiErrorMessage } from '../../../services/http-error';
 
 @Component({
   selector: 'app-register',
@@ -11,7 +12,7 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './register.html',
   styleUrl: '../auth.css',
 })
-export class Register {
+export class Register implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -21,6 +22,11 @@ export class Register {
   password = '';
   readonly error = signal<string | null>(null);
   readonly submitting = signal(false);
+
+  ngOnInit(): void {
+    // Réveille l'API pendant la saisie du formulaire (voir AuthService.wakeUp).
+    this.auth.wakeUp();
+  }
 
   submit(): void {
     if (this.submitting()) return;
@@ -33,7 +39,7 @@ export class Register {
         this.router.navigateByUrl(returnUrl ?? '/');
       },
       error: (err: HttpErrorResponse) => {
-        this.error.set(err.error?.error ?? 'Inscription impossible. Réessayez.');
+        this.error.set(apiErrorMessage(err, 'Inscription impossible. Réessayez.'));
         this.submitting.set(false);
       },
     });

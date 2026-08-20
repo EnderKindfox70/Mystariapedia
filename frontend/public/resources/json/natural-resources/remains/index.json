@@ -56,6 +56,9 @@
     "subtitle": "Dépouille de créature",
     "rarity": "Peu commune",
     "image": "/resources/media/pictures/natural-resources/remains/snake_poison.png",
+    "tags": [
+      "venom"
+    ],
     "weight": 0.05
   },
   {
@@ -64,6 +67,9 @@
     "subtitle": "Dépouille de créature",
     "rarity": "Rare",
     "image": "/resources/media/pictures/natural-resources/remains/ghost_snake_poison.png",
+    "tags": [
+      "venom"
+    ],
     "weight": 0.05
   }
 ]

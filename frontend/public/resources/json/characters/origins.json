@@ -13,7 +13,10 @@
                 "Clergé Solaire"
             ],
             "factionNote": "Attitude de départ améliorée, sans jet ni feat.",
-            "nonPolarBranches": []
+            "nonPolarBranches": [],
+            "languages": [
+                "solaire-liturgique"
+            ]
         },
         {
             "key": "aldenmoor",
@@ -27,7 +30,10 @@
                 "Veilleurs de l'Arbre"
             ],
             "factionNote": "Attitude de départ améliorée, sans jet ni feat.",
-            "nonPolarBranches": []
+            "nonPolarBranches": [],
+            "languages": [
+                "haut-sylvain"
+            ]
         },
         {
             "key": "royaume-abandonne",
@@ -42,7 +48,10 @@
                 "Arc Brisé"
             ],
             "factionNote": "Une faction régionale au choix : attitude de départ améliorée, sans jet ni feat.",
-            "nonPolarBranches": []
+            "nonPolarBranches": [],
+            "languages": [
+                "dialectes-tribaux"
+            ]
         },
         {
             "key": "etats-souterrains",
@@ -56,7 +65,10 @@
                 "Pierre de Taille"
             ],
             "factionNote": "Attitude de départ améliorée, sans jet ni feat.",
-            "nonPolarBranches": []
+            "nonPolarBranches": [],
+            "languages": [
+                "langue-des-galeries"
+            ]
         },
         {
             "key": "archipel",
@@ -74,7 +86,10 @@
                 "renforcement",
                 "emission"
             ],
-            "nonPolarNote": "Pratique instinctive de la mana brute : les branches non polarisées sont ouvertes sans passer par un feat ni par un background."
+            "nonPolarNote": "Pratique instinctive de la mana brute : les branches non polarisées sont ouvertes sans passer par un feat ni par un background.",
+            "languages": [
+                "parlers-de-bord"
+            ]
         }
     ]
 }

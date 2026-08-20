@@ -6,6 +6,7 @@ import {
   TraitAcquisition,
   DomainStanding,
   FeatChoice,
+  LanguageDef,
   OriginDef,
   ReligionDef,
   StatKey,
@@ -36,6 +37,7 @@ import combinationsCatalog from '../../../public/resources/json/domains/combinat
 import traitCatalog from '../../../public/resources/json/trait.json';
 import originsCatalog from '../../../public/resources/json/characters/origins.json';
 import religionsCatalog from '../../../public/resources/json/characters/religions.json';
+import languagesCatalog from '../../../public/resources/json/characters/languages.json';
 import weaponCategoryCatalog from '../../../public/resources/json/weapon_category.json';
 import armorCategoryCatalog from '../../../public/resources/json/armor_category.json';
 import { ArmorCategoryDef, WeaponCategoryDef } from '../wiki.types';
@@ -63,7 +65,20 @@ export const MAGIC_DOMAINS: MagicDomain[] = [
   { key: 'space', name: 'Espace', sigil: '✧' },
 ];
 
-const DOMAIN_BY_KEY = new Map(MAGIC_DOMAINS.map((d) => [d.key, d]));
+/**
+ * Magie non polarisée : deux usages de la mana brute, sans dieu ni affinité.
+ * Tenus HORS de `MAGIC_DOMAINS` exprès — ils ne se tirent pas, ne se choisissent
+ * pas et ne comptent pas dans les trois affinités. Ils s'ouvrent par un vécu
+ * (background Soldat/Sage, origine de l'Archipel) ou par un feat.
+ */
+export const NONPOLAR_MAGICS: MagicDomain[] = [
+  { key: 'renforcement', name: 'Renforcement', sigil: '◈' },
+  { key: 'emission', name: 'Émission', sigil: '✵' },
+];
+
+const DOMAIN_BY_KEY = new Map(
+  [...MAGIC_DOMAINS, ...NONPOLAR_MAGICS].map((d) => [d.key, d]),
+);
 export const domainName = (key: string): string => DOMAIN_BY_KEY.get(key)?.name ?? key;
 export const domainSigil = (key: string): string => DOMAIN_BY_KEY.get(key)?.sigil ?? '◇';
 
@@ -137,6 +152,11 @@ const DOMAIN_FILES = {
   death: deathDomain,
   time: timeDomain,
   space: spaceDomain,
+  // Les deux usages non polarisés : leurs sorts, leurs feats et leur icône se
+  // lisent exactement comme ceux d'un domaine. Seul le CHOIX diffère — ils ne
+  // sont pas dans `MAGIC_DOMAINS`, donc jamais proposés comme affinité.
+  renforcement: renforcementDomain,
+  emission: emissionDomain,
 } as unknown as Record<string, RawDomain>;
 
 /**
@@ -813,6 +833,7 @@ export function emptySheet(): CharacterSheet {
     proficiencyBonus: 2,
     skills: [],
     creationTraits: [],
+    languages: [],
     feats: [],
     spells: { unlocked: [], equipped: [], nodes: {} },
     extraWeaponProficiencies: [],
@@ -1035,8 +1056,8 @@ export function computeStats(
 }
 
 /**
- * Traits accordés d'office par la race, la sous-race, le background et
- * l'origine choisis.
+ * Traits accordés d'office par la race, la sous-race, le background, le
+ * sous-background et l'origine choisis.
  *
  * Rien n'est lu dans `races.json` ni `backgrounds.json` : ces fichiers ne
  * déclarent plus de trait. C'est le catalogue `trait.json` qui dit, trait par
@@ -1048,15 +1069,56 @@ export function grantedTraits(
   subraceName: string,
   background?: BackgroundDef,
   origin?: OriginDef,
+  subbackgroundName?: string,
 ): CatalogTrait[] {
   const sub = race?.subraces.find((s) => s.name === subraceName);
+  const subBg = background?.subbackgrounds.find((s) => s.name === subbackgroundName);
   const refs = [
     race && `race:${race.key}`,
     sub && `subrace:${sub.key}`,
     background && `background:${background.key}`,
+    subBg && `subbackground:${subBg.key}`,
     origin && `origin:${origin.key}`,
   ].filter((ref): ref is string => !!ref);
   return traitsGrantedBy(refs);
+}
+
+/* ── Langues ──────────────────────────────────────────────────────────────── */
+
+/** Toutes les langues du monde, dans l'ordre du dataset. */
+export const LANGUAGES = languagesCatalog.languages as LanguageDef[];
+
+const LANGUAGE_BY_KEY = new Map(LANGUAGES.map((l) => [l.key, l]));
+
+/** Une langue par sa clé. */
+export const languageByKey = (key: string): LanguageDef | undefined => LANGUAGE_BY_KEY.get(key);
+
+/** Nom d'une langue (la clé telle quelle si elle est inconnue). */
+export const languageName = (key: string): string => LANGUAGE_BY_KEY.get(key)?.name ?? key;
+
+/**
+ * Langues acquises SANS rien dépenser : la langue véhiculaire, plus celle de
+ * l'origine. Elles ne sont pas stockées sur la fiche — elles se recalculent,
+ * comme les traits accordés.
+ */
+export const grantedLanguages = (origin: OriginDef | undefined): string[] => [
+  ...LANGUAGES.filter((l) => l.common).map((l) => l.key),
+  ...(origin?.languages ?? []).filter((k) => LANGUAGE_BY_KEY.has(k)),
+];
+
+/** Emplacements de langue ouverts par les traits portés (Linguiste en ouvre trois). */
+export const languageSlotsFrom = (traits: CatalogTrait[]): number =>
+  traits.reduce((total, t) => total + (t.languageSlots ?? 0), 0);
+
+/** Bonus de compétence accordés par les traits portés (clé de compétence → valeur). */
+export function traitSkillBonuses(traits: CatalogTrait[]): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const trait of traits) {
+    for (const { key, value } of trait.skillEffects ?? []) {
+      out.set(key, (out.get(key) ?? 0) + (Number(value) || 0));
+    }
+  }
+  return out;
 }
 
 /* ── Traits du catalogue & slots de feat (section 16 du gameplay) ─────────── */
@@ -1100,6 +1162,8 @@ interface RawTrait {
     /** Références de ce qui l'accorde d'office (`race:`, `subrace:`, `background:`, `origin:`). */
     grantedBy: string[];
     effects?: StatKV[];
+    skillEffects?: StatKV[];
+    languageSlots?: number;
   };
 }
 
@@ -1119,6 +1183,8 @@ export const CHARACTER_TRAITS: CatalogTrait[] = (traitCatalog.traits as unknown 
     acquisition: t.character.acquisition,
     grantedBy: t.character.grantedBy ?? [],
     effects: t.character.effects,
+    skillEffects: t.character.skillEffects,
+    languageSlots: t.character.languageSlots,
   }));
 
 /**
@@ -1151,6 +1217,22 @@ export const traitById = (id: number): CatalogTrait | undefined => TRAIT_BY_ID.g
 /** Vrai si ce trait peut être PRIS (création, slot de feat) et pas seulement porté. */
 export const isPickableTrait = (key: string): boolean =>
   catalogTrait(key)?.acquisition.pickable === true;
+
+/**
+ * Prérequis d'attribut non rempli, en toutes lettres — chaîne vide si le trait
+ * est à portée. On lit l'attribut FINAL : un point d'attribut dépensé sur un
+ * slot de feat compte, comme un bonus de race.
+ */
+export const traitRequirement = (
+  trait: CatalogTrait,
+  attributes: Record<AttributeKey, number>,
+): string => {
+  const need = trait.acquisition.requires;
+  if (!need) return '';
+  const score = attributes[need.attribute] ?? 0;
+  if (score >= need.min) return '';
+  return `${ATTR_LABEL.get(need.attribute) ?? need.attribute} ${need.min} requis (${score})`;
+};
 
 /**
  * Traits que ces sources accordent d'office. Les références sont lues DANS le
@@ -1198,13 +1280,6 @@ const STANDING_BY_DOMAIN = new Map(DOMAIN_STANDING.map((s) => [s.domain, s]));
 export const standingFor = (domain: string): DomainStanding | undefined =>
   STANDING_BY_DOMAIN.get(domain);
 
-/** Domaines qui exposent des feats : les douze, plus les deux usages non polarisés. */
-const FEAT_DOMAIN_FILES: Record<string, RawDomain> = {
-  ...DOMAIN_FILES,
-  renforcement: renforcementDomain as unknown as RawDomain,
-  emission: emissionDomain as unknown as RawDomain,
-};
-
 /**
  * Branches non polarisées et le trait de background qui les ouvre (section 21 :
  * Soldat donne Renforcement, Sage donne le Voile). Sans ce trait, leurs feats
@@ -1218,13 +1293,13 @@ const NONPOLAR_ACCESS: Record<string, string> = {
 
 /** Feats déclarés par une fiche de domaine. */
 export const domainFeats = (domainKey: string): DomainFeatDef[] =>
-  FEAT_DOMAIN_FILES[domainKey]?.feats ?? [];
+  DOMAIN_FILES[domainKey]?.feats ?? [];
 
 /** Un feat domanial par sa clé, avec le domaine dont il vient. */
 export const findDomainFeat = (
   key: string,
 ): { feat: DomainFeatDef; domain: string } | undefined => {
-  for (const domain of Object.keys(FEAT_DOMAIN_FILES)) {
+  for (const domain of Object.keys(DOMAIN_FILES)) {
     const feat = domainFeats(domain).find((f) => f.key === key);
     if (feat) return { feat, domain };
   }
@@ -1232,27 +1307,38 @@ export const findDomainFeat = (
 };
 
 /**
- * Domaines où le personnage peut prendre un feat : ses domaines d'affinité,
- * plus les branches non polarisées que son background ou son origine lui ont
- * ouvertes (un natif de l'Archipel les pratique d'instinct, sans feat).
+ * Branches non polarisées OUVERTES pour ce personnage, et ce qui les ouvre.
+ * Elles ne se choisissent pas : elles viennent d'un vécu (trait de background)
+ * ou d'une enfance (origine de l'Archipel, pratique instinctive).
  */
-export const featDomainsFor = (sheet: CharacterSheet, traits: TraitDef[]): string[] => {
-  const owned = new Set(traits.map((t) => t.key));
-  const fromBackground = Object.keys(NONPOLAR_ACCESS).filter((d) => owned.has(NONPOLAR_ACCESS[d]));
-  const fromOrigin = originByKey(sheet.identity.origin)?.nonPolarBranches ?? [];
-  const nonPolar = [...new Set([...fromBackground, ...fromOrigin])];
-  return [...sheet.domains.filter((d) => !!FEAT_DOMAIN_FILES[d]), ...nonPolar];
+export const nonPolarAccess = (
+  sheet: CharacterSheet,
+  traits: TraitDef[],
+): { key: string; via: string }[] => {
+  const owned = new Map(traits.map((t) => [t.key, t.name]));
+  const origin = originByKey(sheet.identity.origin);
+  const fromOrigin = new Set(origin?.nonPolarBranches ?? []);
+  const out: { key: string; via: string }[] = [];
+  for (const branch of NONPOLAR_MAGICS) {
+    const traitName = owned.get(NONPOLAR_ACCESS[branch.key]);
+    if (traitName) out.push({ key: branch.key, via: traitName });
+    else if (fromOrigin.has(branch.key)) out.push({ key: branch.key, via: `Origine ${origin!.name}` });
+  }
+  return out;
 };
 
-/** Libellés des branches non polarisées, absentes de `MAGIC_DOMAINS` (elles ne
- *  se choisissent pas comme affinité, seulement par background). */
-const NONPOLAR_LABEL: Record<string, string> = {
-  renforcement: 'Renforcement',
-  emission: 'Émission',
-};
+/** Les seules clés des branches ouvertes. */
+export const openNonPolarBranches = (sheet: CharacterSheet, traits: TraitDef[]): string[] =>
+  nonPolarAccess(sheet, traits).map((b) => b.key);
 
-/** Nom d'un domaine porteur de feats, branches non polarisées comprises. */
-export const featDomainName = (key: string): string => NONPOLAR_LABEL[key] ?? domainName(key);
+/**
+ * Domaines où le personnage peut prendre un feat : ses domaines d'affinité,
+ * plus les branches non polarisées qui lui sont ouvertes.
+ */
+export const featDomainsFor = (sheet: CharacterSheet, traits: TraitDef[]): string[] => [
+  ...sheet.domains.filter((d) => !!DOMAIN_FILES[d]),
+  ...openNonPolarBranches(sheet, traits),
+];
 
 /** Le choix fait à un palier donné, s'il a été fait. */
 export const featChoiceAt = (sheet: CharacterSheet, level: number): FeatChoice | undefined =>

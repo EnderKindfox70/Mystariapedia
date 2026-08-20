@@ -1395,11 +1395,15 @@ export class CombatView implements OnDestroy {
       chips.push(`${signe}${Math.round(mod.value)} ${this.statLabel(mod.stat)}`);
     }
     // Un revêtement porte ses dégâts dans l'enchantement, pas dans `damages`.
-    if (ability.enchant) {
-      const d = ability.enchant.damage;
+    const d = ability.enchant?.damage;
+    if (d) {
       const label = this.damageTypes.resolve(d.type)?.label ?? d.type;
       const montant = d.min === d.max ? `${d.min}` : `${d.min}–${d.max}`;
       chips.push(`${montant} ${label} / coup`);
+    }
+    // Un venin n'ajoute pas de dégâts : il annonce ce qu'il fait passer.
+    for (const inflict of ability.enchant?.inflicts ?? []) {
+      chips.push(`${statusByKey(inflict.status)?.name ?? inflict.status} ${inflict.chance} % / coup`);
     }
     if (ability.raisesWall) {
       chips.push(`mur ${ability.raisesWall.length} cases · ${ability.raisesWall.hp} PV`);

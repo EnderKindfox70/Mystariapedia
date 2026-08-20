@@ -817,6 +817,8 @@ Trente et un traits au total : les vingt de la section 16, les six rapatriés de
 - Un trait déjà accordé par la race ou le background n'est pas reproposé, et aucun trait ne se prend deux fois. Un feat domanial déjà pris, ou exclu par un feat déjà pris, est refusé avec sa raison affichée.
 - Redescendre le niveau d'un personnage **suspend** les paliers qu'il n'atteint plus (leurs gains cessent de compter) sans effacer les choix : les remonter les rend tels quels.
 
+**Venins et Empoisonneur** : une fiche de dépouille taguée `venom` (`natural-resources/remains`) porte un bloc `venom` — durée du revêtement et statuts que chaque coup tente de faire passer. Dans le simulateur, un venin du sac devient la capacité « Enduire — <venin> » : elle consomme la fiole, pose un revêtement sur l'arme en main pour la durée déclarée, et **n'ajoute aucun dégât** — le poison est un statut, pas un type de dégâts. Chaque coup d'arme qui touche tente alors de le faire passer. Le trait Empoisonneur ne change qu'une chose, exactement ce qu'il annonce : enduire tient dans une action bonus au lieu de coûter le tour.
+
 Non implémenté sur la fiche : le Contrecoup divin ci-dessous. C'est une marque imposée par le MJ (tier × domaine), pas un choix de joueur, et sa réduction d'apprentissage (−10 % à −30 % d'inspiration sur un domaine) demanderait des coûts d'inspiration fractionnaires que le système n'a pas.
 
 ### Contrecoup divin (trait acquis uniquement, jamais choisi à la création)
@@ -1145,6 +1147,8 @@ Chaque background donne : une fourchette d'argent de départ, plusieurs sous-bac
 |---|---|---|
 | Entraînement martial | Renforcement | Identique au trait Soldat |
 | Études magiques | Voile | Identique au trait Sage |
+
+**Sur la fiche de personnage** : Renforcement et Émission s'affichent sous la grille des douze domaines, dans leur propre bandeau. Rien à cocher — la fiche montre chaque branche ouverte ou fermée, avec ce qui l'ouvre (« Entraînement martial », « Origine Archipel de la Nuit ») ou ce qu'il faudrait pour l'ouvrir. Elles ne se tirent pas au jet d'affinité et **ne consomment aucun des trois emplacements de domaine**. Dès qu'une branche est ouverte, ses sorts rejoignent le pool de déblocage, et ses feats domaniaux deviennent prenables. Refermer une branche (changement de background ou d'origine) retire les sorts qu'elle fournissait. La fiche imprimée et le PDF portent une seconde ligne de médaillons, en pointillés, sous celle des affinités.
 
 ## 22. ORIGINE GÉOGRAPHIQUE ET RELIGION (AXES DE CRÉATION)
 

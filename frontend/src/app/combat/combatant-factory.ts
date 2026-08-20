@@ -10,6 +10,7 @@ import {
   ClassDef,
   RaceDef,
   StatKey,
+  TraitDef,
 } from '../character/character.types';
 import {
   abilityModifier,
@@ -45,6 +46,8 @@ import {
   AmmunitionSource,
   classSkillsFor,
   consumableAbility,
+  venomAbility,
+  type VenomSource,
   ConsumableSource,
   creatureAbility,
   guardAbility,
@@ -89,6 +92,16 @@ const POTION_COLLECTION = 'potions';
  * L'index suffit, il porte le poids et le drapeau ; inutile d'ouvrir 46 fiches.
  */
 const GEAR_COLLECTION = 'equipment';
+/** Dépouilles de créature : c'est là que vivent les venins (fiches taguées `venom`). */
+const REMAINS_COLLECTION = 'natural-resources/remains';
+/** Clé du trait qui fait passer l'enduisage en action bonus. */
+const POISONER_TRAIT = 'empoisonneur';
+
+/** Fiche de dépouille : seul son bloc `venom` intéresse le combat. */
+interface VenomEntry {
+  name?: string;
+  venom?: Omit<VenomSource, 'name' | 'slug'>;
+}
 
 /**
  * Munitions accordées d'office quand la fiche n'en porte pas au sac.
@@ -187,6 +200,8 @@ export class CombatantFactory {
   private readonly ammunition: AmmunitionSource[] = [];
   /** Consommables (potions) indexés par nom, pour reconnaître les lignes du sac. */
   private readonly consumablesByName = new Map<string, ConsumableSource>();
+  /** Venins indexés par nom : une ligne de sac taguée `venom` devient un revêtement. */
+  private readonly venomsByName = new Map<string, VenomSource>();
   /** Nom FR d'un statut → sa clé, pour lire les purges écrites sur les fioles. */
   private readonly statusKeys = new Map<string, string>(
     inject(StatusEffectsService)
@@ -296,7 +311,28 @@ export class CombatantFactory {
       .loadAll<ResourceIndexEntry>(GEAR_COLLECTION)
       .pipe(catchError(() => of([] as ResourceIndexEntry[])));
 
+    // Venins : l'index dit LESQUELS le sont (tag `venom`), la fiche dit ce
+    // qu'ils font. On ne charge donc que les fiches taguées, pas la collection.
+    const venoms$ = this.wiki.loadAll<ResourceIndexEntry>(REMAINS_COLLECTION).pipe(
+      catchError(() => of([] as ResourceIndexEntry[])),
+      map((index) => index.filter((e) => e.tags?.includes('venom'))),
+      switchMap((index) =>
+        index.length
+          ? forkJoin(
+              index.map((e) =>
+                this.wiki.load<VenomEntry>(REMAINS_COLLECTION, e.slug).pipe(
+                  map((v) => ({ name: v.name || e.name, slug: e.slug, ...(v.venom ?? {}) })),
+                  catchError(() => of(null)),
+                ),
+              ),
+            )
+          : of([] as (VenomSource | null)[]),
+      ),
+      map((list) => list.filter((v): v is VenomSource => !!v)),
+    );
+
     return forkJoin([
+      venoms$,
       weapons$,
       armor$,
       ammunition$,
@@ -306,7 +342,8 @@ export class CombatantFactory {
       this.wiki.load<ClassDef[]>('characters', 'classes').pipe(catchError(() => of([]))),
       this.wiki.load<BackgroundDef[]>('characters', 'backgrounds').pipe(catchError(() => of([]))),
     ]).pipe(
-      tap(([weapons, armors, ammunition, potions, gear, races, classes, backgrounds]) => {
+      tap(([venoms, weapons, armors, ammunition, potions, gear, races, classes, backgrounds]) => {
+        for (const venom of venoms) this.venomsByName.set(venom.name, venom);
         for (const potion of potions) this.consumablesByName.set(potion.name, potion);
         for (const weapon of weapons) this.weaponsByName.set(weapon.name, weapon);
         this.ammunition.length = 0;
@@ -366,7 +403,13 @@ export class CombatantFactory {
     // Traits accordés ET traits choisis (création, slots de feat) : le combat
     // doit lire le même personnage que la fiche, pas seulement sa race.
     const traits = [
-      ...grantedTraits(race, sheet.identity.subrace, background, originByKey(sheet.identity.origin)),
+      ...grantedTraits(
+        race,
+        sheet.identity.subrace,
+        background,
+        originByKey(sheet.identity.origin),
+        sheet.identity.subbackground,
+      ),
       ...chosenTraits(sheet),
     ];
 
@@ -434,7 +477,7 @@ export class CombatantFactory {
       reactionUsed: false,
       statuses: [],
       effects: [],
-      abilities: this.sheetAbilities(sheet, klass, inventory),
+      abilities: this.sheetAbilities(sheet, klass, inventory, traits),
       inventory,
       affinities,
       metallicArmor,
@@ -488,6 +531,7 @@ export class CombatantFactory {
     const carried: CarriedItem[] = (sheet.inventory ?? []).map((line) => {
       const ammo = this.ammunition.find((a) => a.name === line.name);
       const potion = this.consumablesByName.get(line.name);
+      const venom = this.venomsByName.get(line.name);
       const gear = this.gearByName.get(line.name);
       // Une arme rangée au sac reste une arme : on lui prépare sa capacité pour
       // qu'elle puisse être prise en main sans que le moteur ait à retrouver un
@@ -496,8 +540,8 @@ export class CombatantFactory {
       return {
         name: line.name,
         qty: Math.max(0, Math.round(line.qty ?? 0)),
-        slug: potion?.slug,
-        kind: ammo ? 'ammunition' : potion ? 'consumable' : 'other',
+        slug: potion?.slug ?? venom?.slug,
+        kind: ammo ? 'ammunition' : potion ? 'consumable' : venom ? 'venom' : 'other',
         weapon: arme ? { source: arme, ammo: this.ammunitionFor(arme) } : undefined,
         // Ce que le catalogue en dit. Une ligne de sac écrite à la main et
         // reconnue par personne n'a pas de matière : on ne la devine pas
@@ -536,6 +580,7 @@ export class CombatantFactory {
     sheet: CharacterSheet,
     klass: ClassDef | undefined,
     inventory: CarriedItem[],
+    traits: TraitDef[],
   ): CombatAbility[] {
     const abilities: CombatAbility[] = [];
 
@@ -581,10 +626,18 @@ export class CombatantFactory {
 
     abilities.push(...classSkillsFor(klass, sheet.level));
 
+    // Le trait Empoisonneur ne change qu'une chose : enduire tient dans une
+    // action bonus au lieu de coûter le tour (cf. catalogue de traits).
+    const poisoner = traits.some((t) => t.key === POISONER_TRAIT);
+
     for (const line of inventory) {
-      if (line.kind !== 'consumable') continue;
-      const source = this.consumablesByName.get(line.name);
-      if (source) abilities.push(consumableAbility(source, this.statusKeys));
+      if (line.kind === 'consumable') {
+        const source = this.consumablesByName.get(line.name);
+        if (source) abilities.push(consumableAbility(source, this.statusKeys));
+      } else if (line.kind === 'venom') {
+        const venom = this.venomsByName.get(line.name);
+        if (venom) abilities.push(venomAbility(venom, poisoner));
+      }
     }
     return abilities;
   }

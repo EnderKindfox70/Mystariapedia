@@ -10,6 +10,7 @@ import {
   catalogTrait,
   grantedTraits,
   isPickableTrait,
+  traitRequirement,
   traitsGrantedBy,
 } from './universe-data';
 
@@ -40,11 +41,12 @@ describe('catalogue unique des traits', () => {
     }
   });
 
-  it('ne référence que des races, sous-races, backgrounds et origines qui existent', () => {
+  it('ne référence que des sources qui existent vraiment', () => {
     const known = new Set<string>([
       ...RACES.map((r) => `race:${r.key}`),
       ...RACES.flatMap((r) => r.subraces.map((s) => `subrace:${s.key}`)),
       ...BACKGROUNDS.map((b) => `background:${b.key}`),
+      ...BACKGROUNDS.flatMap((b) => b.subbackgrounds.map((s) => `subbackground:${s.key}`)),
       ...ORIGINS.map((o) => `origin:${o.key}`),
     ]);
     for (const trait of CHARACTER_TRAITS) {
@@ -86,6 +88,30 @@ describe("conditions d'obtention", () => {
   });
 });
 
+describe("prérequis d'attribut", () => {
+  const attrs = (intelligence: number) => ({
+    force: 10,
+    dexterite: 10,
+    constitution: 10,
+    intelligence,
+    sagesse: 10,
+    charisme: 10,
+  });
+
+  it('exige 13 en Intelligence pour Linguiste et Empoisonneur', () => {
+    for (const key of ['linguiste', 'empoisonneur']) {
+      const trait = catalogTrait(key)!;
+      expect(trait.acquisition.requires).toEqual({ attribute: 'intelligence', min: 13 });
+      expect(traitRequirement(trait, attrs(12))).toBe('Intelligence 13 requis (12)');
+      expect(traitRequirement(trait, attrs(13))).toBe('');
+    }
+  });
+
+  it('laisse passer un trait sans prérequis', () => {
+    expect(traitRequirement(catalogTrait('chef-cuisinier')!, attrs(8))).toBe('');
+  });
+});
+
 describe('résolution des traits accordés', () => {
   it('rend les aptitudes raciales depuis le catalogue', () => {
     const nain = grantedTraits(race('nain'), 'Nain des profondeurs');
@@ -104,6 +130,29 @@ describe('résolution des traits accordés', () => {
     expect(grantedTraits(race('nain'), mountain!.name).map((t) => t.key)).not.toContain(
       'vision-dans-le-noir',
     );
+  });
+
+  it("rend le trait d'un sous-background au seul métier qui le porte", () => {
+    const soldat = background('soldat');
+    const medic = soldat?.subbackgrounds.find((s) => s.key === 'field-medic');
+    expect(medic).toBeTruthy();
+    expect(
+      grantedTraits(undefined, '', soldat, undefined, medic!.name).map((t) => t.key),
+    ).toEqual(['entrainement-martial', 'soigneur']);
+    // Un fantassin n'est pas médecin : il garde l'entraînement, pas le kit.
+    const footman = soldat?.subbackgrounds.find((s) => s.key === 'footman');
+    expect(
+      grantedTraits(undefined, '', soldat, undefined, footman!.name).map((t) => t.key),
+    ).toEqual(['entrainement-martial']);
+  });
+
+  it("rend l'immunité au poison à la seule sous-race reptilienne", () => {
+    const beast = race('beast-human');
+    const reptile = beast?.subraces.find((s) => s.key === 'reptilian');
+    expect(grantedTraits(beast, reptile!.name).map((t) => t.key)).toContain('mithridatisation');
+    const feline = beast?.subraces.find((s) => s.key === 'feline');
+    expect(grantedTraits(beast, feline!.name).map((t) => t.key)).not.toContain('mithridatisation');
+    expect(isPickableTrait('mithridatisation')).toBe(false);
   });
 
   it('rend les traits de background et cumule les sources', () => {

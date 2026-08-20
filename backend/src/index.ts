@@ -15,6 +15,17 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:4200')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Ce repli silencieux sur localhost est un piège en production : le front déployé
+// est rejeté, et le navigateur ne rapporte qu'un « No Access-Control-Allow-Origin »
+// qui n'indique nulle part que la variable manque. D'où ces deux lignes au boot.
+if (process.env.NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
+  console.warn(
+    '[backend] CORS_ORIGIN absent en production : seul http://localhost:4200 est ' +
+      'autorisé, toute requête du front déployé sera rejetée.',
+  );
+}
+console.log(`[backend] Origines autorisées : ${allowedOrigins.join(', ')}`);
+
 app.use(cors({ origin: allowedOrigins }));
 // Limite relevée : les fiches embarquent leurs images en base64. Ce n'est pas la
 // taille des fichiers importés qui compte ici (10 Mo autorisés côté éditeur) mais

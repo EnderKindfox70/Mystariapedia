@@ -141,7 +141,7 @@
           <div class="cs-row">
             <label class="cs-field">
               <span>Origine</span>
-              <select name="origin" [(ngModel)]="model.identity.origin">
+              <select name="origin" [(ngModel)]="model.identity.origin" (ngModelChange)="onMagicAccessChange()">
                 <option value="">— Choisir —</option>
                 @for (o of origins; track o.key) { <option [value]="o.key">{{ o.name }}</option> }
               </select>
@@ -396,6 +396,30 @@
               </button>
             }
           </div>
+
+          <!-- Magie non polarisée : deux usages de la mana brute, hors des douze
+               fréquences divines. Rien à cocher — c'est le vécu qui ouvre. -->
+          <span class="cs-nonpolar__label">Magie non polarisée</span>
+          <div class="cs-domains cs-domains--nonpolar">
+            @for (m of nonPolarMagics; track m.key) {
+              <div class="cs-domain cs-domain--nonpolar"
+                   [class.is-open]="m.open"
+                   [title]="m.open ? 'Ouverte : ' + m.via : 'Fermée — ' + m.via">
+                @if (domainIcon(m.key); as icon) {
+                  <img class="cs-domain__icon" [src]="icon" alt="" aria-hidden="true" loading="lazy" />
+                } @else {
+                  <span class="cs-domain__sigil" aria-hidden="true">{{ m.sigil }}</span>
+                }
+                <span>{{ m.name }}</span>
+                <span class="cs-nonpolar__via">{{ m.open ? m.via : '🔒 ' + m.via }}</span>
+              </div>
+            }
+          </div>
+          <p class="cs-stats-note">
+            Ni dieu ni affinité : elles ne se tirent pas, ne se choisissent pas et ne comptent pas
+            dans les trois domaines. Un vécu les ouvre — le trait d'un background, une enfance dans
+            l'Archipel — ou un slot de feat. Leurs sorts rejoignent alors le pool ci-dessous.
+          </p>
         </fieldset>
 
         <fieldset class="cs-fieldset">
@@ -505,9 +529,10 @@
                     type="button"
                     class="cs-trait-chip"
                     [class.is-selected]="isCreationTrait(t.key)"
-                    [disabled]="!isCreationTrait(t.key) && (creationTraitsLeft === 0 || traitUnavailable(t.key))"
-                    [title]="t.description + ' — ' + t.acquisition.condition"
-                    (click)="toggleCreationTrait(t.key)"
+                    [class.is-blocked]="!!traitBlockedReason(t)"
+                    [disabled]="!isCreationTrait(t.key) && (creationTraitsLeft === 0 || traitUnavailable(t))"
+                    [title]="t.description + ' — ' + t.acquisition.condition + (traitBlockedReason(t) ? ' [' + traitBlockedReason(t) + ']' : '')"
+                    (click)="toggleCreationTrait(t)"
                   >
                     {{ t.name }}
                   </button>
@@ -571,7 +596,9 @@
                         @for (g of traitGroups; track g.key) {
                           <optgroup [label]="g.label">
                             @for (t of g.traits; track t.key) {
-                              <option [value]="t.key" [disabled]="traitUnavailable(t.key, slot.level)">{{ t.name }}</option>
+                              <option [value]="t.key" [disabled]="traitUnavailable(t, slot.level)">
+                                {{ t.name }}{{ traitBlockedReason(t, slot.level) ? ' — ' + traitBlockedReason(t, slot.level) : '' }}
+                              </option>
                             }
                           </optgroup>
                         }
@@ -734,6 +761,48 @@
         </fieldset>
 
         <fieldset class="cs-fieldset">
+          <legend>Langues</legend>
+
+          <div class="cs-points" [class.is-empty]="languageSlotsLeft === 0">
+            <span>Emplacements de langue</span>
+            <strong>{{ learnedLanguageKeys.length }} / {{ languageSlots }}</strong>
+          </div>
+          <p class="cs-stats-note">
+            Le commun et la langue de l'origine sont acquis d'office. Les autres demandent un
+            emplacement — le trait Linguiste en ouvre trois.
+          </p>
+
+          <div class="cs-langs">
+            @for (key of grantedLanguageKeys; track key) {
+              <span class="cs-lang cs-lang--granted" [title]="languageHint(key)">
+                {{ languageName(key) }}<em>acquise</em>
+              </span>
+            }
+            @for (key of learnedLanguageKeys; track key) {
+              <span class="cs-lang" [title]="languageHint(key)">
+                {{ languageName(key) }}
+                <button type="button" class="cs-mini-del" title="Oublier cette langue"
+                        (click)="removeLanguage(key)">✕</button>
+              </span>
+            }
+          </div>
+
+          @if (languageSlotsLeft > 0) {
+            <label class="cs-field">
+              <span>Apprendre une langue</span>
+              <select name="add-language" [ngModel]="''" (ngModelChange)="addLanguage($event)">
+                <option value="">— Choisir —</option>
+                @for (l of languageOptions; track l.key) {
+                  <option [value]="l.key">{{ l.name }}</option>
+                }
+              </select>
+            </label>
+          } @else if (languageSlots === 0) {
+            <p class="cs-stats-note">Aucun emplacement : prends le trait Linguiste pour en ouvrir trois.</p>
+          }
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
           <legend>Maîtrises — armes & armures</legend>
           <p class="cs-stats-note">
             La classe donne les maîtrises de départ ; ajoute les autres à la main (entraînement en
@@ -856,8 +925,12 @@
 
         <fieldset class="cs-fieldset">
           <legend>Sorts — Déblocage & équipement</legend>
-          @if (model.domains.length === 0) {
-            <p class="cs-stats-note">Sélectionne au moins un domaine de magie pour proposer des sorts.</p>
+          @if (magicSources.length === 0) {
+            <p class="cs-stats-note">
+              Sélectionne au moins un domaine de magie — ou ouvre une branche non polarisée
+              (background Soldat/Sage, origine de l'Archipel, ou le trait correspondant) — pour
+              proposer des sorts.
+            </p>
           } @else {
             <p class="cs-spell-cap cs-inspiration" [class.is-empty]="inspirationLeft <= 0">
               <span class="cs-inspiration__spark" aria-hidden="true">✦</span>
@@ -875,8 +948,28 @@
               <b [class.is-full]="equippedSpells.length >= equippedCap">{{ equippedSpells.length }} / {{ equippedCap }}</b>
               <span class="cs-spell-cap__hint">plafond = 3 + mod. Intelligence · seuls les sorts équipés sont utilisables en combat</span>
             </p>
+            <div class="cs-spell-tabs" role="tablist" aria-label="Magies du personnage">
+              @for (tab of spellTabs; track tab.key) {
+                <button type="button"
+                        class="cs-spell-tab"
+                        role="tab"
+                        [class.is-active]="spellTab === tab.key"
+                        [attr.aria-selected]="spellTab === tab.key"
+                        [title]="tab.unlocked + ' débloqué' + (tab.unlocked > 1 ? 's' : '') + ' sur ' + tab.total"
+                        (click)="selectSpellTab(tab.key)">
+                  @if (tab.icon) {
+                    <img class="cs-spell-tab__icon" [src]="tab.icon" alt="" aria-hidden="true" loading="lazy" />
+                  } @else {
+                    <span class="cs-spell-tab__sigil" aria-hidden="true">{{ tab.sigil }}</span>
+                  }
+                  <span class="cs-spell-tab__label">{{ tab.label }}</span>
+                  <span class="cs-spell-tab__count">{{ tab.unlocked }}/{{ tab.total }}</span>
+                </button>
+              }
+            </div>
+
             <ul class="cs-spellpool">
-              @for (s of domainSpellPool; track s.key) {
+              @for (s of shownSpellPool; track s.key) {
                 <li class="cs-poolspell"
                     [class.is-unlocked]="isSpellUnlocked(s.key)"
                     [class.is-equipped]="isSpellEquipped(s.key)"
@@ -1093,6 +1186,21 @@
                   <span class="sheet-domains__none">—</span>
                 }
               </div>
+              @if (openNonPolar.length) {
+                <span class="sheet-domains__label sheet-domains__label--sub">Magie non polarisée</span>
+                <div class="sheet-domains__circles">
+                  @for (key of openNonPolar; track key) {
+                    <span class="sheet-domains__circle sheet-domains__circle--nonpolar"
+                          [title]="domainName(key)">
+                      @if (domainIcon(key); as icon) {
+                        <img [src]="icon" [alt]="domainName(key)" />
+                      } @else {
+                        {{ domainSigil(key) }}
+                      }
+                    </span>
+                  }
+                </div>
+              }
             </div>
           </section>
 
@@ -1305,6 +1413,21 @@
               }
             </ul>
           </section>
+
+          <!-- LANGUES -->
+          @if (grantedLanguageKeys.length || learnedLanguageKeys.length) {
+            <section class="sheet-block sheet-langs">
+              <h2 class="sheet-banner">Langues</h2>
+              <p class="sheet-langs__list">
+                @for (key of grantedLanguageKeys; track key) {
+                  <span class="sheet-lang">{{ languageName(key) }}</span>
+                }
+                @for (key of learnedLanguageKeys; track key) {
+                  <span class="sheet-lang sheet-lang--learned">{{ languageName(key) }}</span>
+                }
+              </p>
+            </section>
+          }
 
           <!-- SORTS -->
           <section class="sheet-block sheet-spells">

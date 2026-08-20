@@ -1,0 +1,51 @@
+{
+    "_note": "Langues du monde. `common: true` marque la langue véhiculaire, connue de tous sans rien dépenser. Les autres s'obtiennent par l'origine (champ `languages` de origins.json) ou par un emplacement ouvert par un trait (Linguiste).",
+    "languages": [
+        {
+            "key": "commun",
+            "name": "Commun des routes",
+            "common": true,
+            "description": "La langue des marchés, des ports et des routes. Tout le monde la parle, plus ou moins bien."
+        },
+        {
+            "key": "solaire-liturgique",
+            "name": "Solaire liturgique",
+            "region": "luxarion",
+            "description": "Langue de rite et d'archive du Clergé Solaire. On la parle mal en dehors des sermons, on l'écrit beaucoup dans les registres."
+        },
+        {
+            "key": "haut-sylvain",
+            "name": "Haut-sylvain",
+            "region": "aldenmoor",
+            "description": "Langue du Royaume elfique, lente et pleine de temps grammaticaux que les races brèves ne distinguent pas."
+        },
+        {
+            "key": "langue-des-galeries",
+            "name": "Langue des galeries",
+            "region": "etats-souterrains",
+            "description": "Parlée sous la roche, doublée d'un alphabet de marques de taille : propriété, danger, direction."
+        },
+        {
+            "key": "parlers-de-bord",
+            "name": "Parlers de bord",
+            "region": "archipel",
+            "description": "Mélange de dialectes d'îles et de jargon de marins. Chaque île y ajoute ses tabous."
+        },
+        {
+            "key": "dialectes-tribaux",
+            "name": "Dialectes tribaux",
+            "region": "royaume-abandonne",
+            "description": "Familles de parlers des tribus du Royaume Abandonné, très proches à l'oreille, très distincts à l'usage."
+        },
+        {
+            "key": "chant-des-profondeurs",
+            "name": "Chant des profondeurs",
+            "description": "Langue des Marcheurs des profondeurs : des modulations qui portent sous l'eau, presque inaudibles à l'air libre."
+        },
+        {
+            "key": "runique",
+            "name": "Runique",
+            "description": "Langue écrite seulement. Sert à graver, à sceller et à consigner ce qui ne doit pas se dire à voix haute."
+        }
+    ]
+}

@@ -29,6 +29,7 @@ import {
   ClassDef,
   CatalogTrait,
   CharacterSpells,
+  LanguageDef,
   ClassSpell,
   DomainFeatDef,
   DomainStanding,
@@ -105,20 +106,29 @@ import {
   FEAT_LEVELS,
   TRAIT_CATALOG,
   TRAIT_CATEGORIES,
+  NONPOLAR_MAGICS,
   ORIGINS,
   RELIGIONS,
+  nonPolarAccess,
+  openNonPolarBranches,
   catalogTrait,
   isPickableTrait,
   originByKey,
   originTraits,
   religionByKey,
   standingFor,
+  traitRequirement,
+  LANGUAGES,
+  grantedLanguages,
+  languageByKey,
+  languageName,
+  languageSlotsFrom,
+  traitSkillBonuses,
   chosenDomainFeats,
   chosenTraits,
   domainFeats,
   featAttributeBonuses,
   featChoiceAt,
-  featDomainName,
   featDomainsFor,
   featSlotsFor,
   findDomainFeat,
@@ -239,6 +249,12 @@ export interface EquippedArmor {
   /** Verdict de maîtrise — `clothing` et `unknown` ne se commentent pas. */
   mastery: ArmorMastery;
 }
+
+/** Ce qui ouvrirait une branche non polarisée encore fermée. */
+const NONPOLAR_HINT: Record<string, string> = {
+  renforcement: 'Background Soldat, origine Archipel, ou feat Entraînement martial',
+  emission: 'Background Sage, origine Archipel, ou feat Études magiques',
+};
 
 /** Catégories d'armes réservées à la main secondaire (jamais en main principale). */
 const OFFHAND_ONLY_CATEGORIES = new Set(['handCrossbow']);
@@ -577,6 +593,9 @@ export class CharacterSheetEditor {
       (s) => s.name === this.model.identity.subbackground,
     );
     if (!valid) this.model.identity.subbackground = '';
+    // Le background porte le trait qui ouvre Renforcement ou le Voile : en
+    // changer peut refermer une branche, et ses sorts avec.
+    this.onMagicAccessChange();
   }
 
   // ── Expérience ─────────────────────────────────────────────────────────────
@@ -754,13 +773,14 @@ export class CharacterSheetEditor {
     });
   }
 
-  /** Traits accordés par la race + la sous-race + le background + l'origine. */
+  /** Traits accordés par la race, la sous-race, le background, son métier et l'origine. */
   get grantedTraitDefs(): CatalogTrait[] {
     return grantedTraits(
       this.selectedRace,
       this.model.identity.subrace,
       this.selectedBackground,
       this.selectedOrigin,
+      this.model.identity.subbackground,
     ).map((t) => ({ ...t, icon: t.icon ?? DEFAULT_TRAIT_ICON }));
   }
 
@@ -815,9 +835,20 @@ export class CharacterSheetEditor {
       .filter((g) => g.traits.length > 0);
   }
 
-  /** Un trait est indisponible s'il est déjà porté (accordé, ou choisi ailleurs). */
-  traitUnavailable(key: string, exceptLevel?: number): boolean {
-    return this.grantedTraitKeys.has(key) || this.takenTraitKeys(exceptLevel).has(key);
+  /**
+   * Pourquoi ce trait n'est pas prenable — chaîne vide s'il l'est. Déjà porté,
+   * déjà pris ailleurs, ou attribut trop bas (Linguist et Poisoner demandent 13
+   * en Intelligence).
+   */
+  traitBlockedReason(trait: CatalogTrait, exceptLevel?: number): string {
+    if (this.grantedTraitKeys.has(trait.key)) return 'Déjà accordé';
+    if (this.takenTraitKeys(exceptLevel).has(trait.key)) return 'Déjà pris';
+    return traitRequirement(trait, this.finalAttributes);
+  }
+
+  /** Un trait est indisponible dès qu'une raison le bloque. */
+  traitUnavailable(trait: CatalogTrait, exceptLevel?: number): boolean {
+    return !!this.traitBlockedReason(trait, exceptLevel);
   }
 
   /* Traits de création */
@@ -835,11 +866,13 @@ export class CharacterSheetEditor {
   }
 
   /** Prend ou rend un trait de création (dans la limite des emplacements). */
-  toggleCreationTrait(key: string): void {
+  toggleCreationTrait(trait: CatalogTrait): void {
     const current = [...this.creationTraitKeys];
-    const at = current.indexOf(key);
+    const at = current.indexOf(trait.key);
     if (at >= 0) current.splice(at, 1);
-    else if (current.length < this.creationTraitSlots && !this.traitUnavailable(key)) current.push(key);
+    else if (current.length < this.creationTraitSlots && !this.traitUnavailable(trait)) {
+      current.push(trait.key);
+    }
     this.model.creationTraits = current;
   }
 
@@ -905,11 +938,11 @@ export class CharacterSheetEditor {
 
   /** Domaines où ce personnage peut prendre un feat (affinités + branche du background). */
   get featDomains(): string[] {
-    return featDomainsFor(this.model, this.grantedTraitDefs);
+    return featDomainsFor(this.model, this.traits);
   }
 
   featDomainName(key: string): string {
-    return featDomainName(key);
+    return domainName(key);
   }
 
   /** Feats proposés à un palier, groupés par domaine. */
@@ -917,7 +950,7 @@ export class CharacterSheetEditor {
     return this.featDomains
       .map((domain) => ({
         domain,
-        label: featDomainName(domain),
+        label: domainName(domain),
         feats: domainFeats(domain).filter((f) => f.level <= level),
       }))
       .filter((g) => g.feats.length > 0);
@@ -982,7 +1015,7 @@ export class CharacterSheetEditor {
         if (found) {
           rows.push({
             level: slot.level,
-            label: featDomainName(found.domain),
+            label: domainName(found.domain),
             detail: found.feat.name,
           });
         }
@@ -1452,6 +1485,9 @@ export class CharacterSheetEditor {
       proficiencyBonus: data.proficiencyBonus ?? base.proficiencyBonus,
       skills: Array.isArray(data.skills) ? data.skills : [],
       creationTraits: this.normalizeCreationTraits(data.creationTraits),
+      languages: Array.isArray(data.languages)
+        ? [...new Set(data.languages.filter((k): k is string => typeof k === 'string' && !!languageByKey(k)))]
+        : [],
       feats: this.normalizeFeats(data.feats),
       spells: this.normalizeSpells(data.spells),
       // Ajouts manuels : une fiche antérieure à ces champs n'en a aucun.
@@ -1872,8 +1908,14 @@ export class CharacterSheetEditor {
   /** Bonus total : mod. attribut + valeurs du background + maîtrise (si choisie). */
   skillBonus(skillKey: string, attribute: AttributeKey): number {
     const bg = this.backgroundSkills.get(skillKey) ?? 0;
+    const fromTraits = this.traitSkills.get(skillKey) ?? 0;
     const prof = this.isSkillChosen(skillKey) ? this.model.proficiencyBonus : 0;
-    return abilityModifier(this.finalAttributes[attribute]) + bg + prof;
+    return abilityModifier(this.finalAttributes[attribute]) + bg + fromTraits + prof;
+  }
+
+  /** Bonus de compétence accordés par les traits portés (Soigneur : +1 en Médecine). */
+  get traitSkills(): Map<string, number> {
+    return traitSkillBonuses([...this.grantedTraitDefs, ...this.chosenTraitDefs]);
   }
 
   /** Arrondi à 2 décimales (évite les flottants type 0.30000000000004). */
@@ -2077,6 +2119,50 @@ export class CharacterSheetEditor {
     return this.selectedRace?.name ?? 'moyenne des peuples';
   }
 
+  /* ── Magie non polarisée ──────────────────────────────────────────────
+     Renforcement et Émission ne sont pas des affinités : rien à choisir, rien
+     à tirer, et ils ne mangent aucun des trois emplacements de domaine. Ils
+     s'ouvrent par un vécu — le trait d'un background, ou une enfance dans
+     l'Archipel — et leurs sorts rejoignent alors le pool de la fiche.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /**
+   * Les deux branches, ouvertes ou non, avec ce qui les ouvre (ou ce qu'il
+   * faudrait). On lit TOUS les traits portés, pas seulement ceux qu'accordent
+   * race et background : Entraînement martial et Études magiques se prennent
+   * aussi à la création ou sur un slot de feat (section 21), et ouvrent alors
+   * la branche exactement pareil.
+   */
+  get nonPolarMagics(): { key: string; name: string; sigil: string; open: boolean; via: string }[] {
+    const open = new Map(nonPolarAccess(this.model, this.traits).map((b) => [b.key, b.via]));
+    return NONPOLAR_MAGICS.map((m) => ({
+      ...m,
+      open: open.has(m.key),
+      via: open.get(m.key) ?? NONPOLAR_HINT[m.key] ?? '',
+    }));
+  }
+
+  /** Clés des branches réellement ouvertes. */
+  get openNonPolar(): string[] {
+    return openNonPolarBranches(this.model, this.traits);
+  }
+
+  /**
+   * Tout ce dont le personnage tire des sorts : ses domaines d'affinité et ses
+   * branches non polarisées ouvertes.
+   */
+  get magicSources(): string[] {
+    return [...this.model.domains, ...this.openNonPolar];
+  }
+
+  /**
+   * Un changement de background ou d'origine peut FERMER une branche : les
+   * sorts qu'elle fournissait ne sont alors plus proposés, donc plus tenus.
+   */
+  onMagicAccessChange(): void {
+    this.pruneSpells();
+  }
+
   toggleDomain(key: string): void {
     const selected = this.model.domains;
     const idx = selected.indexOf(key);
@@ -2092,8 +2178,121 @@ export class CharacterSheetEditor {
 
   /** Tout le pool de sorts de base des domaines choisis (+ combinaisons), trié par niveau puis nom. */
   get domainSpellPool(): DomainSpell[] {
-    return availableSpellsFor(this.model.domains)
+    return availableSpellsFor(this.magicSources)
       .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+  }
+
+  /* ── Langues ──────────────────────────────────────────────────────────
+     Le commun et la langue de l'origine sont acquis d'office : ils se
+     recalculent, la fiche ne les stocke pas. Les autres se prennent dans les
+     emplacements qu'un trait ouvre — trois pour le Linguiste.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  readonly languages = LANGUAGES;
+
+  /** Langues acquises sans rien dépenser (commun + origine). */
+  get grantedLanguageKeys(): string[] {
+    return grantedLanguages(this.selectedOrigin);
+  }
+
+  /** Langues apprises, débarrassées de celles déjà acquises d'office. */
+  get learnedLanguageKeys(): string[] {
+    const granted = new Set(this.grantedLanguageKeys);
+    return (this.model.languages ?? []).filter((k) => !granted.has(k));
+  }
+
+  /** Emplacements ouverts par les traits portés. */
+  get languageSlots(): number {
+    return languageSlotsFrom([...this.grantedTraitDefs, ...this.chosenTraitDefs]);
+  }
+
+  get languageSlotsLeft(): number {
+    return Math.max(0, this.languageSlots - this.learnedLanguageKeys.length);
+  }
+
+  /** Langues encore proposées : ni déjà connues, ni déjà apprises. */
+  get languageOptions(): LanguageDef[] {
+    const known = new Set([...this.grantedLanguageKeys, ...this.learnedLanguageKeys]);
+    return this.languages.filter((l) => !known.has(l.key));
+  }
+
+  languageName(key: string): string {
+    return languageName(key);
+  }
+
+  languageHint(key: string): string {
+    return languageByKey(key)?.description ?? '';
+  }
+
+  /** Apprend une langue, si un emplacement reste ouvert. */
+  addLanguage(key: string): void {
+    if (!key || this.languageSlotsLeft <= 0) return;
+    const known = new Set([...this.grantedLanguageKeys, ...this.learnedLanguageKeys]);
+    if (known.has(key)) return;
+    this.model.languages = [...(this.model.languages ?? []), key];
+  }
+
+  /** Oublie une langue apprise (une langue acquise d'office ne s'oublie pas). */
+  removeLanguage(key: string): void {
+    this.model.languages = (this.model.languages ?? []).filter((k) => k !== key);
+  }
+
+  /* ── Onglets du pool de sorts ─────────────────────────────────────────
+     Trois domaines plus deux branches, c'est vite quarante lignes d'affilée.
+     Un onglet par magie ramène la liste à ce qu'on regarde vraiment ; « Tous »
+     reste à un clic pour ceux qui veulent la vue d'ensemble.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /** Clé de l'onglet « Tous » — jamais une clé de magie. */
+  readonly ALL_MAGIC = '*';
+
+  private spellTabKey = signal<string>('');
+
+  /**
+   * Onglet courant. Un onglet dont la magie a disparu (domaine retiré, branche
+   * refermée) retombe sur la première magie disponible plutôt que d'afficher
+   * une liste vide.
+   */
+  get spellTab(): string {
+    const stored = this.spellTabKey();
+    if (stored === this.ALL_MAGIC || this.magicSources.includes(stored)) return stored;
+    return this.magicSources[0] ?? this.ALL_MAGIC;
+  }
+
+  selectSpellTab(key: string): void {
+    this.spellTabKey.set(key);
+  }
+
+  /** Un onglet par magie du personnage, plus « Tous » — avec ce que chacun contient. */
+  get spellTabs(): {
+    key: string;
+    label: string;
+    icon: string | undefined;
+    sigil: string;
+    total: number;
+    unlocked: number;
+  }[] {
+    const pool = this.domainSpellPool;
+    const countFor = (key: string) =>
+      key === this.ALL_MAGIC ? pool : pool.filter((sp) => this.domainSpellKeys(sp).includes(key));
+    return [...this.magicSources, this.ALL_MAGIC].map((key) => {
+      const spells = countFor(key);
+      return {
+        key,
+        label: key === this.ALL_MAGIC ? 'Tous' : domainName(key),
+        icon: key === this.ALL_MAGIC ? undefined : domainIcon(key),
+        sigil: key === this.ALL_MAGIC ? '✧' : domainSigil(key),
+        total: spells.length,
+        unlocked: spells.filter((sp) => this.isSpellUnlocked(sp.key)).length,
+      };
+    });
+  }
+
+  /** Les sorts réellement listés : le pool filtré par l'onglet courant. */
+  get shownSpellPool(): DomainSpell[] {
+    const tab = this.spellTab;
+    if (tab === this.ALL_MAGIC) return this.domainSpellPool;
+    return this.domainSpellPool.filter((sp) => this.domainSpellKeys(sp).includes(tab));
   }
 
   /** Plafond de sorts équipés = 3 + modificateur d'Intelligence (jamais sous 3). */
@@ -2335,7 +2534,7 @@ export class CharacterSheetEditor {
 
   /** Retire des sorts débloqués/équipés/rangs ceux qui ne sont plus proposés (domaine retiré). */
   private pruneSpells(): void {
-    const valid = new Set(availableSpellsFor(this.model.domains).map((s) => s.key));
+    const valid = new Set(availableSpellsFor(this.magicSources).map((s) => s.key));
     this.model.spells.unlocked = this.model.spells.unlocked.filter((k) => valid.has(k));
     const stillUnlocked = new Set(this.model.spells.unlocked);
     this.model.spells.equipped = this.model.spells.equipped.filter((k) => stillUnlocked.has(k));
@@ -2464,7 +2663,7 @@ export class CharacterSheetEditor {
         pct: this.xp.pct,
         atMax: this.model.level >= MAX_LEVEL,
       },
-      domains: this.model.domains.map((k) => ({ name: domainName(k), icon: domainIcon(k) })),
+      domains: this.magicSources.map((k) => ({ name: domainName(k), icon: domainIcon(k) })),
       attributes: this.attributes.map((a) => ({
         label: a.label,
         score: attrs[a.key],
@@ -2541,7 +2740,7 @@ export class CharacterSheetEditor {
         })),
         ...this.sheetDomainFeats.map(({ feat, domain }) => ({
           name: feat.name,
-          description: featDomainName(domain) + ' — ' + feat.description,
+          description: domainName(domain) + ' — ' + feat.description,
           icon: DEFAULT_TRAIT_ICON,
         })),
       ],
