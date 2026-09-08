@@ -475,7 +475,7 @@
 
                     @if (cleansedStatuses().length) {
                       <span class="se-box__cleanse">
-                        Purifie tant que le manteau tient :
+                        {{ cleanseHolds() ? 'Purifie tant que le manteau tient :' : 'Lève à l’incantation :' }}
                         @for (def of cleansedStatuses(); track def.key; let i = $index; let count = $count) {
                           @if (i > 0) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
                           <span class="se-status-kw has-tip" [attr.data-cat]="def.category" tabindex="0">
@@ -489,6 +489,24 @@
                             }
                           </span>
                         }.
+                      </span>
+                    }
+
+                    <!-- Le sort porte, mais le corps doit suivre : c'est la
+                         cible qui jette, et un échec retourne le soin. -->
+                    @if (targetSave(); as save) {
+                      <span class="se-box__save">
+                        Le corps de la cible jette sa <b>{{ save.attribute }}</b> :
+                        <span class="se-inline-val">DD {{ save.dc }}</span>@if (save.casterSkill; as aide) {,
+                        aidé de <span class="se-inline-val">{{ num(aide.ratio) }} ×</span>
+                        la <b>{{ skillLabel(aide.skill) }}</b> du lanceur}.
+                        @if (save.backlash) {
+                          Sur un échec, ni soin ni purge — la chair se reconstruit de travers et la
+                          cible perd <span class="se-inline-val">{{ save.backlash * 100 }} %</span>
+                          de ce que le sort aurait rendu.
+                        } @else {
+                          Sur un échec, le sort ne prend pas.
+                        }
                       </span>
                     }
 

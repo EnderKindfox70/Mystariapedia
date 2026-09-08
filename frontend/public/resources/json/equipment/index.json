@@ -27,6 +27,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/bandage.png",
     "material": "toile",
+    "tags": [
+      "care"
+    ],
     "weight": 0.2
   },
   {
@@ -112,6 +115,7 @@
     "subtitle": "Matériel de contention",
     "category": "chasse",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/entrave.png",
     "material": "fer",
     "weight": 3
   },
@@ -121,6 +125,7 @@
     "subtitle": "Contenant blindé",
     "category": "recolte",
     "rarity": "Peu commun",
+    "image": "/resources/media/pictures/equipment/etui_isolant.png",
     "material": "fer",
     "weight": 1.5
   },
@@ -158,6 +163,7 @@
     "subtitle": "Contenants — lot de six",
     "category": "recolte",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/fioles.png",
     "material": "verre",
     "weight": 0.6
   },
@@ -167,7 +173,11 @@
     "subtitle": "Matériel de soin",
     "category": "soins",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/garrot.png",
     "material": "toile",
+    "tags": [
+      "care"
+    ],
     "weight": 0.1
   },
   {
@@ -223,6 +233,7 @@
     "subtitle": "Papier de maison de change",
     "category": "insignes",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/equipment/lettre_credit.png",
     "material": "toile",
     "weight": 0.05
   },
@@ -250,6 +261,7 @@
     "subtitle": "Outillage d'alchimiste",
     "category": "recolte",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/mortier_pilon.png",
     "material": "granite",
     "weight": 1.2
   },
@@ -259,6 +271,7 @@
     "subtitle": "Outillage d'érudit",
     "category": "erudition",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/necessaire_ecriture.png",
     "material": "bois",
     "weight": 1
   },
@@ -277,6 +290,7 @@
     "subtitle": "Outillage d'artisan",
     "category": "outils",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/forge_portative.png",
     "material": "fer",
     "weight": 4
   },
@@ -353,6 +367,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/sac_couchage.png",
     "material": "toile",
     "weight": 2.5
   },
@@ -382,6 +397,7 @@
     "subtitle": "Consommable de récolte",
     "category": "recolte",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/sel_conservation.png",
     "material": "toile",
     "weight": 0.5
   },
@@ -392,6 +408,9 @@
     "category": "soins",
     "rarity": "Peu commune",
     "material": "verre",
+    "tags": [
+      "care"
+    ],
     "weight": 0.2
   },
   {
@@ -400,6 +419,7 @@
     "subtitle": "Outil de récolte",
     "category": "recolte",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/serpe_herboriste.png",
     "material": "acier",
     "weight": 0.6
   },
@@ -409,6 +429,7 @@
     "subtitle": "Matériel d'éclairage",
     "category": "lumiere",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/torche.png",
     "material": "bois",
     "weight": 0.5
   },
@@ -419,6 +440,9 @@
     "category": "soins",
     "rarity": "Peu commune",
     "material": "acier",
+    "tags": [
+      "care"
+    ],
     "weight": 2
   },
   {

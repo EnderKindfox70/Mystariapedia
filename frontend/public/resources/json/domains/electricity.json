@@ -524,54 +524,53 @@
             ]
         },
         {
-            "key": "electricity-conducteur",
-            "name": "Conducteur",
+            "key": "electricity-paratonnerre",
+            "name": "Paratonnerre",
             "level": 10,
-            "kind": "multiplier",
-            "prerequisite": "Palier Majeur de Foudre débloqué et un sort de l'aspect Électromagnétisme connu",
-            "freeWith": "Background Artisan — Forgeron",
-            "description": "Il lit le métal sur ses adversaires comme une invitation. Sans métal, sa décharge cherche et se perd.",
+            "kind": "passive",
+            "prerequisite": "Palier Majeur de Foudre débloqué",
+            "description": "Il cesse de fuir la décharge : il l'appelle, l'encaisse et la garde. Ce que le ciel lui jette, le sort suivant le rend.",
             "subdomains": [
+                "Décharge",
                 "Électromagnétisme"
             ],
+            "excludes": [],
             "effects": [
                 {
-                    "label": "Dégâts contre une cible portant du métal",
-                    "value": "×1,3",
+                    "label": "Dégâts de Foudre subis",
+                    "value": "Résistance permanente ×0,5",
                     "tone": "boon"
                 },
                 {
-                    "label": "Chance de Paralysie contre une cible métallique",
-                    "value": "+10 points",
+                    "label": "Prochain sort de Foudre après une décharge encaissée",
+                    "value": "Mana ×0,5",
                     "tone": "boon"
                 },
                 {
-                    "label": "Dégâts contre une cible sans métal",
-                    "value": "×0,9",
+                    "label": "Sorts de Foudre qui le visent, par temps d'orage",
+                    "value": "Seuil de toucher −3 crans",
                     "tone": "cost"
                 }
-            ]
-        },
-        {
-            "key": "electricity-surcharge-nerveuse",
-            "name": "Surcharge nerveuse",
-            "level": 20,
-            "kind": "override",
-            "prerequisite": "Palier Expert de Foudre débloqué",
-            "description": "Il tient le nerf de sa cible une seconde de plus que ce que son propre corps supporte.",
-            "subdomains": [
-                "Décharge"
             ],
-            "effects": [
+            "passives": [
                 {
-                    "label": "Durée des étourdissements et paralysies infligés",
-                    "value": "+1 tour",
-                    "tone": "boon"
+                    "resistance": "lightning",
+                    "label": "Paratonnerre : la décharge suit le métal et non la chair"
                 },
                 {
-                    "label": "Coût de chaque prolongation",
-                    "value": "5 PV du lanceur",
-                    "tone": "cost"
+                    "key": "electricity-paratonnerre-charge",
+                    "chargedBy": "lightning",
+                    "manaFactor": 0.5,
+                    "domains": ["electricity"],
+                    "damageTypes": ["lightning"],
+                    "label": "Charge captée : le prochain sort de Foudre coûte moitié moins"
+                },
+                {
+                    "when": { "weather": "storm" },
+                    "incomingPrecision": 15,
+                    "domains": ["electricity"],
+                    "damageTypes": ["lightning"],
+                    "label": "Orage : il est le point haut du champ, et la foudre le sait"
                 }
             ]
         }

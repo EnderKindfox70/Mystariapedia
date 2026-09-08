@@ -1,8 +1,15 @@
 import type { AmmunitionSource, WeaponSource } from './abilities';
 import type { EarthMaterialTraining } from '../character/character.types';
 import type { MaterialFamilyKey } from '../wiki.types';
+import { DomainFeatPassive } from '../wiki.types';
 import { AttributeKey, StatKey, SurvivalKey } from '../character/character.types';
-import { SpellRetaliate, SpellScalingSource, SpellTarget } from '../wiki.types';
+import {
+  SpellRetaliate,
+  SpellScalingSource,
+  SpellSkillContribution,
+  SpellTarget,
+  SpellTargetSave,
+} from '../wiki.types';
 import { EncounterClock } from './clock';
 import { LootDrop, LootItem } from './loot';
 import { SurvivalState } from './survival';
@@ -242,6 +249,42 @@ export interface CombatAbility {
   percentCurrentHp?: { min: number; max: number };
   heal?: number;
   healScaling?: AbilityScaling[];
+  /**
+   * Soin tiré aux dés, en plus du forfait `heal`. C'est ainsi que soigne le
+   * matériel : un bandage rend 1d4, pas un montant fiable — la fiole, elle,
+   * garde son forfait.
+   */
+  healDice?: { min: number; max: number };
+  /**
+   * Attribut du BLESSÉ dont le modificateur s'ajoute au soin. « Le modificateur
+   * employé est celui du blessé, non celui de qui pose le bandage : c'est le
+   * corps soigné qui fait le travail. »
+   */
+  healTargetAttribute?: AttributeKey;
+  /**
+   * Scaling du soin porté par le BLESSÉ : `healScaling` mesure ce que le
+   * soigneur apporte, celui-ci ce que le corps soigné fournit. Résolu contre la
+   * cible, donc jamais interchangeable avec l'autre.
+   */
+  healTargetScaling?: AbilityScaling[];
+  /**
+   * Compétence du lanceur qui s'ajoute au soin (cf. `SpellSkillContribution`) :
+   * son savoir, lu sur `skills`, et non sa puissance brute.
+   */
+  healCasterSkill?: SpellSkillContribution;
+  /**
+   * Jet imposé à la cible pour que le sort prenne (cf. `SpellTargetSave`). Sur
+   * un échec : ni soin, ni purge, et le retour de flamme s'applique.
+   */
+  targetSave?: SpellTargetSave;
+  /** Plancher de soin, quand la fiche en pose un (« minimum 1 point de vie »). */
+  healMinimum?: number;
+  /**
+   * La capacité STABILISE une cible à terre : elle cesse de décliner, sans se
+   * relever. Sans soin joint, c'est tout ce qu'elle fait — et c'est déjà ce qui
+   * sépare un blessé d'un mort.
+   */
+  stabilizes?: boolean;
 
   /** Durée en tours des effets posés (buffs, malus). */
   duration?: number;
@@ -256,6 +299,12 @@ export interface CombatAbility {
   recoil?: AbilityRecoil;
   /** Météo invoquée (clé de `weathers.json`). */
   weather?: string;
+  /**
+   * La capacité REND le ciel neutre : elle chasse la météo en cours au lieu
+   * d'en appeler une autre. Neutre, ici, c'est l'absence de météo — plus aucun
+   * multiplicateur, plus aucun statut d'ambiance.
+   */
+  clearsWeather?: boolean;
   /**
    * Niveau auquel le sort s'apprend. C'est lui qui décide de l'érosion du
    * scaling : un vieux sort reste utile sans rester redoutable (cf.
@@ -544,8 +593,8 @@ export interface CarriedItem {
   qty: number;
   /** Slug de la fiche wiki, quand l'objet a été reconnu au catalogue. */
   slug?: string;
-  /** Munition, fiole à boire, venin à étaler, ou simple bagage. */
-  kind: 'ammunition' | 'consumable' | 'venom' | 'other';
+  /** Munition, fiole à boire, venin à étaler, matériel de soin, ou simple bagage. */
+  kind: 'ammunition' | 'consumable' | 'venom' | 'care' | 'other';
   /**
    * Un aimant a-t-il prise dessus ? DÉRIVÉ de `material` par la fabrique — fer
    * et acier seulement. Une chevalière d'or et un astrolabe de bronze sont en
@@ -718,6 +767,27 @@ export interface Combatant {
   abilities: CombatAbility[];
   /** Le sac : munitions et consommables, décomptés à l'usage. */
   inventory: CarriedItem[];
+  /**
+   * Passifs conditionnels accordés par ses feats domaniaux (cf. `passives` des
+   * fiches de domaine) : un statut tant qu'une condition tient, des dégâts
+   * inclinés par la météo, une faiblesse assumée.
+   */
+  featPassives?: DomainFeatPassive[];
+  /** Stabilisé : à terre, mais il ne décline plus (trousse de chirurgien). */
+  stabilized?: boolean;
+  /**
+   * Statuts actuellement portés PARCE QU'un passif de feat les accorde. On les
+   * suit à part pour ne retirer que ceux-là quand la condition tombe : un sort
+   * qui aurait posé le même statut ne doit pas sauter avec.
+   */
+  featStatuses?: string[];
+  /**
+   * Charges de feat ARMÉES, par `key` de passif (cf. `chargedBy`) : le
+   * paratonnerre qui vient d'encaisser sa foudre et la garde pour le prochain
+   * sort. On les suit sur le combattant parce qu'elles traversent les tours et
+   * ne se déduisent d'aucun état — ni statut, ni météo, ni réserve.
+   */
+  featCharges?: string[];
   /**
    * Porte-t-il une armure de métal ? Plaques, mailles, brigandine — pas des
    * bottes ferrées.
@@ -905,6 +975,15 @@ export interface Encounter {
 
   /** Météo active (clé de `weathers.json`), ou vide. */
   weather?: string;
+  /**
+   * Rounds qu'il reste à la météo avant de retomber. Compté à rebours à chaque
+   * round, la météo se dissipe à zéro.
+   *
+   * Absent = elle ne s'arrête pas d'elle-même : c'est le cas des ciels de fond
+   * (Nuit magique, Ciel radieux), qui tiennent tant que personne n'en décide
+   * autrement — le catalogue ne leur donne d'ailleurs aucune durée.
+   */
+  weatherRounds?: number;
   /**
    * Moment de la journée (clé de `daytime.json`). Il se cumule à la météo : une
    * tempête de nuit incline le monde deux fois dans le même sens.

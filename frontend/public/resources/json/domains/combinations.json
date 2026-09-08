@@ -34,7 +34,7 @@
                 "level": 3,
                 "subdomains": ["Sécheresse"],
                 "weather": "drought",
-                "requires": ["fire-vague-de-chaleur", "air-caprice-du-ciel"],
+                "requires": ["fire-vague-de-chaleur", "air-temps-calme"],
                 "progression": {
                     "root": "ar1",
                     "nodes": [
@@ -58,7 +58,7 @@
                 "level": 3,
                 "subdomains": ["Boue"],
                 "damageType": "earth",
-                "requires": ["water-manipulation-aquatique", "earth-mur-de-pierre"],
+                "requires": ["water-jet-d-eau", "earth-mur-de-pierre"],
                 "progression": {
                     "root": "en1",
                     "nodes": [
@@ -82,7 +82,7 @@
                 "level": 2,
                 "subdomains": ["Pluie"],
                 "weather": "rain",
-                "requires": ["water-manipulation-aquatique", "air-caprice-du-ciel"],
+                "requires": ["water-jet-d-eau", "air-temps-calme"],
                 "progression": {
                     "root": "pl1",
                     "nodes": [
@@ -107,7 +107,7 @@
                 "subdomains": ["Neige & blizzard"],
                 "weather": "blizzard",
                 "damageType": "ice",
-                "requires": ["water-prison-de-glace", "air-caprice-du-ciel"],
+                "requires": ["water-prison-de-glace", "air-temps-calme"],
                 "progression": {
                     "root": "bz1",
                     "nodes": [
@@ -132,7 +132,7 @@
                 "subdomains": ["Tempête"],
                 "weather": "storm",
                 "damageType": "lightning",
-                "requires": ["water-appel-des-marees", "air-caprice-du-ciel", "electricity-eclair"],
+                "requires": ["water-appel-des-marees", "air-temps-calme", "electricity-eclair"],
                 "progression": {
                     "root": "te1",
                     "nodes": [

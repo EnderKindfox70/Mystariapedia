@@ -490,11 +490,15 @@
             }
         },
         {
-            "key": "air-caprice-du-ciel",
-            "name": "Caprice du ciel",
-            "description": "Infléchit le temps local — brume, rafales ou éclaircie — sur une zone pendant un moment.",
-            "mana": 5,
-            "level": 4,
+            "key": "air-temps-calme",
+            "name": "Temps calme",
+            "description": "Défait ce que le ciel avait entrepris. La tempête tombe, la brume se lève, la canicule reflue : il ne reste qu'un temps ordinaire, qui ne favorise plus personne.",
+            "usage": {
+                "combat": "Dissipe la météo en cours : ses multiplicateurs et les statuts qu'elle imposait cessent aussitôt. N'inflige aucun dégât.",
+                "outOfCombat": "Ouvre une fenêtre de temps praticable — traverser un col, appareiller, faire sécher un camp trempé."
+            },
+            "mana": 6,
+            "level": 5,
             "subdomains": [
                 "Météo"
             ],
@@ -508,97 +512,54 @@
                         "id": "ac1",
                         "tier": 1,
                         "branch": "trunk",
-                        "name": "Caprice du ciel I",
-                        "description": "Convoque une brume rampante qui trouble la vue sur une zone.",
+                        "name": "Temps calme I",
+                        "description": "Le vent retombe autour du lanceur : l'intempérie lâche prise sur le champ de bataille.",
                         "next": [
                             "ac2"
                         ],
                         "stats": {
-                            "damageMin": 1,
-                            "damageMax": 2,
-                            "mana": 5,
-                            "range": "20 m",
-                            "area": "Rayon 5 m",
+                            "mana": 6,
+                            "range": "Autour de soi",
+                            "area": "Rayon 12 m",
                             "targets": [
-                                "enemy"
+                                "everyone"
                             ],
-                            "inflicts": [
-                                {
-                                    "status": "aveuglement",
-                                    "chance": 40
-                                }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.03
-                                }
-                            ]
+                            "clearsWeather": true
                         }
                     },
                     {
                         "id": "ac2",
                         "tier": 2,
                         "branch": "trunk",
-                        "name": "Caprice du ciel II",
-                        "description": "Le ciel se couvre : la brume s'épaissit et s'étend.",
+                        "name": "Temps calme II",
+                        "description": "Le calme gagne du terrain et tient plus longtemps avant que le ciel ne se reprenne.",
                         "next": [
                             "ac3"
                         ],
                         "stats": {
-                            "damageMin": 2,
-                            "damageMax": 3,
-                            "mana": 6,
-                            "range": "22 m",
-                            "area": "Rayon 7 m",
+                            "mana": 5,
+                            "range": "Autour de soi",
+                            "area": "Rayon 20 m",
                             "targets": [
-                                "enemy"
+                                "everyone"
                             ],
-                            "inflicts": [
-                                {
-                                    "status": "aveuglement",
-                                    "chance": 55
-                                }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.03
-                                }
-                            ]
+                            "clearsWeather": true
                         }
                     },
                     {
                         "id": "ac3",
                         "tier": 3,
                         "branch": "trunk",
-                        "name": "Caprice du ciel III",
-                        "description": "Une intempérie capricieuse qui aveugle et déroute tout un secteur.",
+                        "name": "Temps calme III",
+                        "description": "Le ciel entier revient à l'ordinaire, et il faudra le convaincre longuement pour qu'il change d'avis.",
                         "stats": {
-                            "damageMin": 3,
-                            "damageMax": 4,
-                            "mana": 8,
-                            "range": "24 m",
-                            "area": "Rayon 9 m",
+                            "mana": 4,
+                            "range": "Autour de soi",
+                            "area": "Champ de bataille entier",
                             "targets": [
-                                "enemy"
+                                "everyone"
                             ],
-                            "inflicts": [
-                                {
-                                    "status": "aveuglement",
-                                    "chance": 70
-                                },
-                                {
-                                    "status": "ralentissement",
-                                    "chance": 35
-                                }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.04
-                                }
-                            ]
+                            "clearsWeather": true
                         }
                     }
                 ]
@@ -1274,7 +1235,7 @@
             "name": "Œil du cyclone",
             "level": 20,
             "kind": "unlock",
-            "prerequisite": "Palier Expert d'Air débloqué et Caprice du ciel connu",
+            "prerequisite": "Palier Expert d'Air débloqué et Temps calme connu",
             "description": "Il n'appelle plus la météo, il la décide. Elle ne lui demande pas de camp.",
             "subdomains": [
                 "Météo"

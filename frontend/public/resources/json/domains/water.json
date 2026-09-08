@@ -33,9 +33,11 @@
     ],
     "spells": [
         {
-            "key": "water-manipulation-aquatique",
-            "name": "Manipulation aquatique",
-            "description": "Façonne et déplace une masse d'eau existante, la modelant en fouet, en bouclier ou en courant.",
+            "key": "water-jet-d-eau",
+            "name": "Jet d'eau",
+            "description": "Projette un trait d'eau sous pression qui balaie tout ce qui se tient sur sa ligne.",
+            "usage": {
+                "combat": "Frappe en ligne droite : tout ce qui se trouve sur le trajet prend l'eau, à faible coût."            },
             "mana": 2,
             "level": 1,
             "subdomains": [
@@ -43,25 +45,13 @@
             ],
             "progression": {
                 "root": "wa1",
-                "branches": [
-                    {
-                        "id": "fouet",
-                        "label": "Voie du Fouet liquide",
-                        "description": "Frappes tranchantes qui lacèrent et font saigner une cible unique."
-                    },
-                    {
-                        "id": "courant",
-                        "label": "Voie du Courant",
-                        "description": "Balaie et ralentit les ennemis en ligne, à moindre coût."
-                    }
-                ],
                 "nodes": [
                     {
                         "id": "wa1",
                         "tier": 1,
                         "branch": "trunk",
-                        "name": "Manipulation aquatique I",
-                        "description": "Modèle l'eau en un fouet liquide qui cingle une cible proche.",
+                        "name": "Jet d'eau I",
+                        "description": "Un trait d'eau court et net, qui bouscule plus qu'il ne blesse.",
                         "next": [
                             "wa2"
                         ],
@@ -70,155 +60,9 @@
                             "damageMax": 2,
                             "mana": 2,
                             "range": "8 m",
-                            "area": "Cible unique",
+                            "area": "Ligne 6 m",
                             "targets": [
                                 "enemy"
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.09
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "id": "wa2",
-                        "tier": 2,
-                        "branch": "trunk",
-                        "name": "Manipulation aquatique II",
-                        "description": "La masse d'eau gagne en densité : frappe plus loin et plus fort.",
-                        "next": [
-                            "wa3"
-                        ],
-                        "stats": {
-                            "damageMin": 2,
-                            "damageMax": 4,
-                            "mana": 3,
-                            "range": "10 m",
-                            "area": "Cible unique",
-                            "targets": [
-                                "enemy"
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.07
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "id": "wa3",
-                        "tier": 3,
-                        "branch": "trunk",
-                        "name": "Manipulation aquatique III",
-                        "description": "Point de scission : l'eau peut se durcir en lame ou s'étaler en courant.",
-                        "next": [
-                            "waf4",
-                            "wac4"
-                        ],
-                        "stats": {
-                            "damageMin": 3,
-                            "damageMax": 5,
-                            "mana": 4,
-                            "range": "10 m",
-                            "area": "Cible unique",
-                            "targets": [
-                                "enemy"
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.07
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "id": "waf4",
-                        "tier": 4,
-                        "branch": "fouet",
-                        "name": "Fouet lacérant",
-                        "description": "Le fouet s'affûte comme une lame liquide qui ouvre les chairs.",
-                        "next": [
-                            "waf5"
-                        ],
-                        "stats": {
-                            "damageMin": 4,
-                            "damageMax": 7,
-                            "mana": 6,
-                            "range": "12 m",
-                            "area": "Cible unique",
-                            "targets": [
-                                "enemy"
-                            ],
-                            "inflicts": [
-                                {
-                                    "status": "saignement",
-                                    "chance": 30
-                                }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.08
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "id": "waf5",
-                        "tier": 5,
-                        "branch": "fouet",
-                        "name": "Cravache des abysses",
-                        "description": "Une lanière d'eau noire et tranchante qui déchire tout sur son passage.",
-                        "stats": {
-                            "damageMin": 5,
-                            "damageMax": 9,
-                            "mana": 9,
-                            "range": "12 m",
-                            "area": "Cible unique",
-                            "targets": [
-                                "enemy"
-                            ],
-                            "inflicts": [
-                                {
-                                    "status": "saignement",
-                                    "chance": 45
-                                }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.1
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "id": "wac4",
-                        "tier": 4,
-                        "branch": "courant",
-                        "name": "Courant maîtrisé",
-                        "description": "L'eau s'étale en un courant qui balaie et freine une ligne d'ennemis.",
-                        "next": [
-                            "wac5"
-                        ],
-                        "stats": {
-                            "damageMin": 3,
-                            "damageMax": 4,
-                            "mana": 4,
-                            "range": "12 m",
-                            "area": "Ligne 8 m",
-                            "targets": [
-                                "enemy"
-                            ],
-                            "inflicts": [
-                                {
-                                    "status": "ralentissement",
-                                    "chance": 40
-                                }
                             ],
                             "scaling": [
                                 {
@@ -229,30 +73,102 @@
                         }
                     },
                     {
-                        "id": "wac5",
-                        "tier": 5,
-                        "branch": "courant",
-                        "name": "Torrent balayeur",
-                        "description": "Un torrent maîtrisé qui emporte et englue tout un front à peu de frais.",
+                        "id": "wa2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Jet d'eau II",
+                        "description": "Le trait gagne en pression et porte plus loin.",
+                        "next": [
+                            "wa3"
+                        ],
                         "stats": {
-                            "damageMin": 3,
-                            "damageMax": 5,
-                            "mana": 5,
-                            "range": "14 m",
-                            "area": "Ligne 10 m",
+                            "damageMin": 2,
+                            "damageMax": 3,
+                            "mana": 3,
+                            "range": "10 m",
+                            "area": "Ligne 7 m",
                             "targets": [
                                 "enemy"
                             ],
-                            "inflicts": [
+                            "scaling": [
                                 {
-                                    "status": "ralentissement",
-                                    "chance": 55
+                                    "source": "atk_mag",
+                                    "ratio": 0.05
                                 }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "wa3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Jet d'eau III",
+                        "description": "La ligne s'allonge et le jet ne faiblit plus en chemin.",
+                        "next": [
+                            "wa4"
+                        ],
+                        "stats": {
+                            "damageMin": 2,
+                            "damageMax": 4,
+                            "mana": 4,
+                            "range": "10 m",
+                            "area": "Ligne 8 m",
+                            "targets": [
+                                "enemy"
                             ],
                             "scaling": [
                                 {
                                     "source": "atk_mag",
                                     "ratio": 0.06
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "wa4",
+                        "tier": 4,
+                        "branch": "trunk",
+                        "name": "Jet d'eau IV",
+                        "description": "Une lame liquide continue, qui traverse un rang entier.",
+                        "next": [
+                            "wa5"
+                        ],
+                        "stats": {
+                            "damageMin": 3,
+                            "damageMax": 5,
+                            "mana": 5,
+                            "range": "12 m",
+                            "area": "Ligne 9 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.06
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "wa5",
+                        "tier": 5,
+                        "branch": "trunk",
+                        "name": "Jet d'eau V",
+                        "description": "Un trait tendu d'un bout à l'autre du champ, qui ne s'arrête à rien.",
+                        "stats": {
+                            "damageMin": 3,
+                            "damageMax": 6,
+                            "mana": 6,
+                            "range": "12 m",
+                            "area": "Ligne 10 m",
+                            "targets": [
+                                "enemy"
+                            ],
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.07
                                 }
                             ]
                         }
@@ -602,33 +518,32 @@
             }
         },
         {
-            "key": "water-voile-de-vapeur",
-            "name": "Voile de vapeur",
-            "description": "Vaporise l'eau en un nuage brûlant qui masque la vue et ébouillante ceux qui le traversent.",
-            "mana": 3,
-            "level": 2,
+            "key": "water-voile-de-brume",
+            "name": "Voile de brume",
+            "description": "Tire de l'eau une brume épaisse qui noie les contours : ceux qui s'y trouvent ne voient plus rien. Elle ne blesse personne.",
+            "usage": {
+                "combat": "Aveugle ce qui se tient dans le nuage. Aucun dégât : c'est un sort de couverture, pas d'attaque."            },
+            "mana": 2,
+            "level": 1,
             "subdomains": [
                 "Vapeur"
             ],
             "requires": [
-                "water-manipulation-aquatique"
             ],
             "progression": {
-                "root": "wv1",
+                "root": "wb1",
                 "nodes": [
                     {
-                        "id": "wv1",
+                        "id": "wb1",
                         "tier": 1,
                         "branch": "trunk",
-                        "name": "Voile de vapeur I",
-                        "description": "Un nuage de vapeur brûlante qui brouille la vue autour du lanceur.",
+                        "name": "Voile de brume I",
+                        "description": "Un banc de brume se lève autour du lanceur.",
                         "next": [
-                            "wv2"
+                            "wb2"
                         ],
                         "stats": {
-                            "damageMin": 1,
-                            "damageMax": 2,
-                            "mana": 3,
+                            "mana": 2,
                             "range": "Autour de soi",
                             "area": "Rayon 3 m",
                             "targets": [
@@ -639,28 +554,20 @@
                                     "status": "aveuglement",
                                     "chance": 40
                                 }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.05
-                                }
                             ]
                         }
                     },
                     {
-                        "id": "wv2",
+                        "id": "wb2",
                         "tier": 2,
                         "branch": "trunk",
-                        "name": "Voile de vapeur II",
-                        "description": "La vapeur s'étend et brûle davantage ceux qui la traversent.",
+                        "name": "Voile de brume II",
+                        "description": "La brume s'épaissit et gagne du terrain.",
                         "next": [
-                            "wv3"
+                            "wb3"
                         ],
                         "stats": {
-                            "damageMin": 1,
-                            "damageMax": 2,
-                            "mana": 4,
+                            "mana": 3,
                             "range": "Autour de soi",
                             "area": "Rayon 4 m",
                             "targets": [
@@ -671,25 +578,17 @@
                                     "status": "aveuglement",
                                     "chance": 55
                                 }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.04
-                                }
                             ]
                         }
                     },
                     {
-                        "id": "wv3",
+                        "id": "wb3",
                         "tier": 3,
                         "branch": "trunk",
-                        "name": "Voile de vapeur III",
-                        "description": "Une nappe bouillonnante et aveuglante qui noie tout un champ de vision.",
+                        "name": "Voile de brume III",
+                        "description": "Une nappe compacte où plus personne ne distingue son voisin.",
                         "stats": {
-                            "damageMin": 2,
-                            "damageMax": 4,
-                            "mana": 5,
+                            "mana": 4,
                             "range": "Autour de soi",
                             "area": "Rayon 5 m",
                             "targets": [
@@ -699,12 +598,6 @@
                                 {
                                     "status": "aveuglement",
                                     "chance": 70
-                                }
-                            ],
-                            "scaling": [
-                                {
-                                    "source": "atk_mag",
-                                    "ratio": 0.04
                                 }
                             ]
                         }
@@ -717,12 +610,12 @@
             "name": "Eau purificatrice",
             "description": "Invoque une eau claire qui nettoie les poisons, souillures et maladies au contact.",
             "mana": 3,
-            "level": 2,
+            "level": 4,
             "subdomains": [
                 "purification"
             ],
             "requires": [
-                "water-manipulation-aquatique"
+                "water-purification-eau"
             ],
             "progression": {
                 "root": "wp1",
@@ -1188,6 +1081,9 @@
             "usage": {
                 "combat": "Enchantez vos poings pour ajouter des dégâts d'eau à vos attaques à mains nues, le temps de l'enchantement."
             },
+            "requires": [
+                "water-jet-d-eau"
+            ],
             "mana": 3,
             "level": 2,
             "subdomains": [
@@ -1294,6 +1190,7 @@
             "usage": {
                 "combat": "Givrez vos poings pour ajouter des dégâts de glace à vos attaques à mains nues et ralentir vos cibles."
             },
+            "requires":["water_ice_shard"],
             "mana": 3,
             "level": 2,
             "subdomains": [
@@ -1575,6 +1472,9 @@
             "usage": {
                 "combat": "Enveloppez vos poings de brume pour ajouter des dégâts d'eau à vos attaques à mains nues et gêner la vue de l'adversaire."
             },
+            "requires":["water-voile-de-brume"
+
+            ],
             "mana": 3,
             "level": 2,
             "subdomains": [
@@ -1842,7 +1742,7 @@
                 "outOfCombat": "Retire boue, sédiments, toxines et agents pathogènes d'une eau souillée pour la rendre potable."
             },
             "mana": 1,
-            "level": 1,
+            "level": 2,
             "subdomains": [
                 "purification"
             ],

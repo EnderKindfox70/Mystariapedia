@@ -76,6 +76,25 @@ export interface SpellScaling {
   affects?: SpellScalingAffects;
 }
 
+/**
+ * Contribution d'une COMPÉTENCE du lanceur.
+ *
+ * Distincte du `scaling`, et pas par coquetterie : un scaling lit une valeur
+ * d'attribut ou de stat (une sagesse de 14 vaut 14), une compétence lit un
+ * BONUS déjà composé — modificateur d'attribut, apport du background, maîtrise
+ * si elle est apprise (cf. `skillBonuses`). Deux échelles sans rapport, donc
+ * deux champs, et des ratios qu'on ne peut pas confondre.
+ *
+ * C'est ce qui permet à un sort de récompenser le SAVOIR : recoudre une plaie
+ * demande d'avoir étudié la médecine, pas d'être sage.
+ */
+export interface SpellSkillContribution {
+  /** Clé de compétence (cf. `SKILLS` : `medicine`, `athletism`…). */
+  skill: string;
+  /** Multiplicateur appliqué au bonus de compétence. */
+  ratio: number;
+}
+
 /** Application d'un statut par un nœud de sort, avec sa chance à l'impact. */
 export interface SpellStatusApplication {
   /** Clé du statut infligé (cf. status_effects.json). */
@@ -233,6 +252,36 @@ export interface SpellChoice {
   duration?: number;
 }
 
+/**
+ * Jet imposé à la CIBLE d'un sort qui travaille son corps.
+ *
+ * Ce n'est pas un jet de toucher — le sort porte, la question est de savoir si
+ * la chair suit. C'est donc l'attribut du PATIENT qui décide, et rien d'autre :
+ * ni la maîtrise du lanceur, ni celle du soigné (un os ne se ressoude pas mieux
+ * parce qu'on s'y est entraîné). Le DD baisse de palier en palier : mieux on
+ * maîtrise le remodelage, moins il y a de chances de le rater.
+ */
+export interface SpellTargetSave {
+  /** Attribut de la cible qui porte le jet. */
+  attribute: StatusSaveAttribute;
+  /** Score à atteindre (d20 + modificateur de l'attribut). */
+  dc: number;
+  /**
+   * Compétence du LANCEUR qui s'ajoute au jet de la cible. C'est la main qui
+   * guide : un corps ne se remodèle pas mieux tout seul parce qu'on a étudié,
+   * mais il se remodèle mieux QUAND on a étudié.
+   */
+  casterSkill?: SpellSkillContribution;
+  /**
+   * Part de ce que le sort aurait rendu, retournée en dégâts sur un échec. La
+   * chair se reconstruit de travers : le soin devient blessure. 0 = le sort
+   * rate sans faire de mal.
+   */
+  backlash: number;
+  /** Nature des dégâts du retour de flamme (cf. damage_type.json). */
+  damageType?: string;
+}
+
 /** Bloc de statistiques explicites d'un nœud de progression. */
 export interface SpellNodeStats {
   /** Dégâts de base (min/max) — forme simple, un seul type. Absent pour un sort non offensif. */
@@ -280,6 +329,8 @@ export interface SpellNodeStats {
   targets?: SpellTarget[];
   /** Météo invoquée par le sort (cf. weathers.json : storm, blizzard, rain…). */
   weather?: string;
+  /** Ce palier REND le ciel neutre : il chasse la météo en cours. */
+  clearsWeather?: boolean;
   /** Durée de base de l'effet, en tours (buffs, altérations, dégâts sur la durée). */
   duration?: number;
   /** Scaling chiffré de la durée : chaque entrée ajoute `ratio × valeur(source)` aux tours. */
@@ -295,6 +346,22 @@ export interface SpellNodeStats {
    * et ne peuvent pas se réinstaller. Clés de `status_effects.json`.
    */
   cleanses?: string[];
+  /**
+   * Scaling du soin porté par la CIBLE et non par le lanceur : c'est le corps
+   * soigné qui fournit la matière. Même grammaire que `scaling`, résolu contre
+   * un autre combattant — d'où un champ à part plutôt qu'un `affects` de plus.
+   */
+  healTargetScaling?: SpellScaling[];
+  /**
+   * Compétence du lanceur qui s'ajoute au soin : ce qu'il SAIT faire de la
+   * matière que le corps soigné lui fournit.
+   */
+  healCasterSkill?: SpellSkillContribution;
+  /**
+   * Jet que la cible doit tenir pour que le sort prenne. Sur un échec, ni soin
+   * ni purge : le `backlash` seul s'applique.
+   */
+  targetSave?: SpellTargetSave;
   /** Chance (0–100 %) d'annuler complètement une attaque subie tant que le buff est actif. */
   evadeChance?: number;
   /**
@@ -773,6 +840,11 @@ export interface DomainSpellEntry {
   /** Météo invoquée par le sort (cf. weathers.json) ; surchargeable par nœud. */
   weather?: string;
   /**
+   * Le sort REND le ciel neutre au lieu d'appeler une météo : il chasse celle
+   * qui régnait, quelle qu'elle soit. Surchargeable par nœud.
+   */
+  clearsWeather?: boolean;
+  /**
    * Clés des sorts requis pour débloquer celui-ci (prérequis d'arbre de sorts).
    * La relation inverse (« débloque ») est dérivée automatiquement.
    */
@@ -853,6 +925,86 @@ export type DomainFeatLevel = 5 | 10 | 15 | 20;
  */
 export type DomainFeatKind = 'multiplier' | 'override' | 'unlock' | 'passive';
 
+/**
+ * Condition d'un passif de feat : ce qui doit être vrai pour qu'il s'applique.
+ * Absente, le passif vaut en permanence.
+ *
+ * Les clés sont celles des catalogues existants — `status_effects.json` et
+ * `weathers.json` : un passif ne crée jamais son propre vocabulaire.
+ */
+export interface DomainFeatCondition {
+  /** Statut que le porteur doit avoir (`wet`, `brulure`…). */
+  status?: string;
+  /** Météo qui doit régner (`drought`, `rain`…). */
+  weather?: string;
+  /**
+   * Moment de la journée exigé (`midi`, `nuit`… cf. `daytime.json`).
+   *
+   * Le soleil se lit ici et non dans la météo : le ciel dit s'il pleut ou s'il
+   * grêle, l'heure dit si l'astre est haut. Les deux se cumulent quand un
+   * passif les demande tous les deux.
+   */
+  daytime?: string;
+}
+
+/**
+ * Passif d'un feat domanial : ce qu'il fait au personnage, en dehors des
+ * valeurs plates de `statEffects`.
+ *
+ * Trois formes seulement, chacune branchée sur un mécanisme qui existait déjà :
+ * accorder un STATUT du catalogue, incliner les DÉGÂTS comme le fait la météo,
+ * ou ajouter une FAIBLESSE à un type de dégâts.
+ */
+export interface DomainFeatPassive {
+  /**
+   * Identifiant du passif. Requis pour les seuls passifs que le combat doit
+   * SUIVRE d'un tour à l'autre — une charge captée qui attend d'être dépensée.
+   * Les autres se lisent à chaque fois et n'ont rien à retenir.
+   */
+  key?: string;
+  /** Quand ce passif s'applique. Absent = toujours. */
+  when?: DomainFeatCondition;
+  /** Statut accordé tant que la condition tient (clé de `status_effects.json`). */
+  grantsStatus?: string;
+  /**
+   * Facteur appliqué aux dégâts, dans la même chaîne que la météo et le moment
+   * de la journée. Restreint aux domaines listés par `domains`, sinon tout.
+   */
+  damageFactor?: number;
+  /**
+   * Facteur appliqué au COÛT EN MANA, dans la même chaîne que les modificateurs
+   * de coût de la météo. Restreint comme `damageFactor` par `domains`.
+   */
+  manaFactor?: number;
+  /**
+   * Type de dégâts qui ARME ce passif. Tant que le porteur n'en a pas encaissé,
+   * `manaFactor` ne s'applique pas ; le premier sort concerné le consomme. Un
+   * passif armé de la sorte doit porter une `key`, sinon rien ne le suit.
+   */
+  chargedBy?: string;
+  /** Domaines concernés par `damageFactor`, `manaFactor` et `incomingPrecision`. */
+  domains?: string[];
+  /**
+   * Types de dégâts concernés par `incomingPrecision`, en plus de `domains` :
+   * l'un OU l'autre suffit à faire correspondre une capacité. Ce qui permet de
+   * viser à la fois « les sorts de Foudre » (domaine) et « ce qui frappe en
+   * foudre » (type), y compris quand l'assaillant n'est pas un mage.
+   */
+  damageTypes?: string[];
+  /**
+   * Précision OFFERTE à qui vise le porteur, sur l'échelle fine du jet de
+   * toucher (cf. `PRECISION_PER_STEP`). Positif = plus facile à toucher. C'est
+   * le pendant exact de l'esquive naturelle, du côté de celui qui encaisse.
+   */
+  incomingPrecision?: number;
+  /** Résistance permanente accordée au porteur (clé de type de dégâts). */
+  resistance?: string;
+  /** Faiblesse permanente ajoutée au porteur (clé de type de dégâts). */
+  weakness?: string;
+  /** Ce qu'on en dit sur la fiche et au journal. */
+  label: string;
+}
+
 /** Sens d'une ligne d'effet : ce que le feat donne, ce qu'il coûte, ou un fait neutre. */
 export type DomainFeatTone = 'boon' | 'cost' | 'neutral';
 
@@ -897,6 +1049,12 @@ export interface DomainFeat {
    * trait. `effects` reste la lecture humaine ; ceci est ce que le calcul lit.
    */
   statEffects?: { key: string; value: number }[];
+  /**
+   * Passifs conditionnels joués par le moteur : statut accordé sous condition,
+   * dégâts inclinés par la météo, faiblesse assumée. `effects` les annonce en
+   * français ; ceci est ce que le combat lit.
+   */
+  passives?: DomainFeatPassive[];
 }
 
 export interface DomainEntry {

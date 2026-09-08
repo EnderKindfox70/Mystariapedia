@@ -4,7 +4,15 @@ import statusCatalog from '../../../public/resources/json/status_effects.json';
 import weatherCatalog from '../../../public/resources/json/weathers.json';
 import { AttributeKey, StatKey, SurvivalKey } from '../character/character.types';
 import { abilityModifier, STATS, SURVIVAL_GAUGES } from '../character/universe-data';
-import { Daytime, SpellRetaliate, SpellScalingSource, StatusEffect, Weather } from '../wiki.types';
+import {
+  Daytime,
+  DomainFeatPassive,
+  SpellRetaliate,
+  SpellScalingSource,
+  SpellSkillContribution,
+  StatusEffect,
+  Weather,
+} from '../wiki.types';
 import {
   cellsWithinReach,
   dropOnGround,
@@ -445,6 +453,24 @@ export function sourceValue(unit: Combatant, source: SpellScalingSource): number
     : effectiveStat(unit, source as StatKey);
 }
 
+/**
+ * Ce qu'une COMPÉTENCE du porteur apporte à un sort.
+ *
+ * `skills` porte des bonus déjà composés (modificateur d'attribut + background
+ * + maîtrise apprise, cf. `skillBonuses`), là où `resolveScaling` lit des
+ * valeurs brutes. Les deux échelles n'ont rien à voir : les mélanger dans la
+ * même fonction reviendrait à comparer une sagesse de 14 à un +4 de Médecine.
+ *
+ * Une créature n'a pas de compétences : elle n'apporte rien, et c'est juste.
+ */
+export function skillContribution(
+  unit: Combatant,
+  contribution: SpellSkillContribution | undefined,
+): number {
+  if (!contribution) return 0;
+  return Math.round((unit.skills?.[contribution.skill] ?? 0) * contribution.ratio);
+}
+
 /** Total d'un jeu de contributions de scaling. */
 export function resolveScaling(
   unit: Combatant,
@@ -682,8 +708,13 @@ export const isProficientWith = (
  * Exportée parce que la vue l'affiche AVANT que le joueur ne s'engage : décider
  * d'une action sans savoir ce qu'elle risque n'est pas un choix, c'est un pari.
  */
-export function hitThreshold(actor: Combatant, ability: CombatAbility, target: Combatant): number {
-  return hitBreakdown(actor, ability, target).threshold;
+export function hitThreshold(
+  actor: Combatant,
+  ability: CombatAbility,
+  target: Combatant,
+  enc?: Encounter,
+): number {
+  return hitBreakdown(actor, ability, target, enc).threshold;
 }
 
 /** Le détail d'un seuil : d'où il part, ce qui l'a bougé, où il arrive. */
@@ -715,18 +746,28 @@ export function hitBreakdown(
   actor: Combatant,
   ability: CombatAbility,
   target: Combatant,
+  /**
+   * La rencontre, quand on l'a : elle seule dit le ciel et l'heure, donc elle
+   * seule permet de lire les passifs de la cible qui en dépendent (un
+   * paratonnerre n'appelle la foudre que sous l'orage). Absente, ces passifs
+   * sont ignorés — le seuil reste celui d'avant, jamais un seuil inventé.
+   */
+  enc?: Encounter,
 ): Breakdown {
   const gene = isDisadvantaged(actor, ability, target) ? DISADVANTAGE_PRECISION : 0;
   const evade = naturalEvade(target);
+  // Ce que la cible OFFRE : l'inverse de l'esquive, et il entre au même endroit.
+  const offerte = enc ? featIncomingPrecision(enc, target, ability) : 0;
 
   const socle = announcedBreakdown(actor, ability);
   const causes = [...socle.causes];
   if (evade) causes.push('esquive');
   if (gene) causes.push('tir gêné');
+  if (offerte) causes.push('cible exposée');
   // La maîtrise s'ajoute en CRANS, après conversion du reste : c'est la seule
   // contribution qui ne passe pas par l'échelle fine (cf. `masterySteps`).
   return toThreshold(
-    socle.points - evade - gene,
+    socle.points - evade - gene + offerte,
     causes,
     masterySteps(actor, ability),
   );
@@ -1136,6 +1177,20 @@ export function allegianceOf(enc: Encounter, unit: Combatant): Team {
 /* ── Cibles valides ────────────────────────────────────────────────────────── */
 
 /** Une capacité peut-elle légitimement affecter cette unité ? */
+/**
+ * Une capacité peut-elle atteindre un corps à TERRE ?
+ *
+ * Non, sauf si elle STABILISE. C'est volontairement étroit : un mourant à 0 PV
+ * ne se rattrape pas au bandage ni aux sels — les fiches le disent elles-mêmes
+ * (« il ne se réveille pas aux sels, il se stabilise à la trousse ») — et un
+ * soin ordinaire ne relève pas davantage. Seule la trousse de chirurgien va le
+ * chercher, et seul un Soigneur y ajoute le point de vie qui le remet debout.
+ *
+ * Le soin seul ne suffit donc pas à ouvrir cette porte : sinon le premier
+ * rouleau de toile venu ressusciterait un compagnon tombé.
+ */
+export const reachesDowned = (ability: CombatAbility): boolean => !!ability.stabilizes;
+
 export function isValidTarget(
   enc: Encounter,
   ability: CombatAbility,
@@ -1187,14 +1242,17 @@ export function unitsInEffect(
     const ids = (explicitIds ?? []).slice(0, ability.shape.count);
     return ids
       .map((id) => findUnit(enc, id))
-      .filter((u): u is Combatant => !!u && !u.down && isValidTarget(enc, ability, actor, u));
+      .filter(
+        (u): u is Combatant =>
+          !!u && (!u.down || reachesDowned(ability)) && isValidTarget(enc, ability, actor, u),
+      );
   }
 
   const cells = new Set(
     cellsInShape(ability.shape, actor.pos, at, enc.grid).map((c) => `${c.x},${c.y}`),
   );
   return enc.combatants.filter((u) => {
-    if (u.down) return false;
+    if (u.down && !reachesDowned(ability)) return false;
     // Le coup était déjà parti vers cette case : qui s'y est fait pousser le
     // prend, allégeance ou pas. C'est ce qui donne son mordant au Change-place
     // joué en parade — sinon il ne servirait qu'à fuir.
@@ -1266,6 +1324,10 @@ function dealDamage(
 ): { applied: number; raw: number; detail: string } {
   if (amount <= 0) return { applied: 0, raw: 0, detail: 'aucun dégât' };
   const raw = Math.round(amount);
+  // Le coup est arrivé : ce qui se charge de cette nature-là se charge, avant
+  // même de savoir ce qu'il en coûtera. Un paratonnerre qui encaisse la foudre
+  // la garde, que sa résistance l'ait amortie ou non.
+  armFeatCharges(enc, target, type);
   const outcome = applyAffinity(target, amount, type);
   /** Ce qui a modifié le coup entre le brut et le réel. Rien de plus. */
   const notes: string[] = outcome.detail ? [outcome.detail] : [];
@@ -1296,6 +1358,7 @@ function dealDamage(
   target.hp = Math.max(0, target.hp - outcome.applied);
   if (target.hp === 0 && !target.down) {
     target.down = true;
+    target.stabilized = false;
     push(enc, 'death', `${target.name} tombe hors de combat.`, { targetId: target.id });
   }
 
@@ -1316,9 +1379,11 @@ function heal(enc: Encounter, target: Combatant, amount: number): { applied: num
   const detail = reduction
     ? `${amount} soin −${Math.round(reduction * 100)} % (anti-soin) = ${effective}`
     : `${effective} soin`;
-  // Un combattant à terre remis au-dessus de 0 se relève.
+  // Un combattant à terre remis au-dessus de 0 se relève — et n'a plus besoin
+  // d'être tenu stable : la stabilisation ne concerne qu'un corps à terre.
   if (target.down && target.hp > 0) {
     target.down = false;
+    target.stabilized = false;
     push(enc, 'heal', `${target.name} se relève.`, { targetId: target.id });
   }
   return { applied: target.hp - before, detail };
@@ -1752,6 +1817,37 @@ const signed = (value: number): string => (value >= 0 ? `+${value}` : `${value}`
 
 /* ── Météo ─────────────────────────────────────────────────────────────────── */
 
+/**
+ * Installe une météo — ou rend le ciel neutre — en repartant de sa durée.
+ *
+ * Passage obligé : c'est ici, et nulle part ailleurs, que `weather` et le
+ * compte de rounds restent d'accord. Une météo sans durée au catalogue (les
+ * ciels de fond) s'installe sans compteur et tient jusqu'à ce qu'on la change.
+ */
+export function setWeather(enc: Encounter, key: string | undefined, note?: string): void {
+  const def = key ? WEATHER_BY_KEY.get(key) : undefined;
+  enc.weather = def ? key : undefined;
+  const duration = def?.defaultDuration;
+  enc.weatherRounds = def && duration && duration > 0 ? duration : undefined;
+  if (note) push(enc, 'info', note);
+}
+
+/**
+ * Fait vieillir la météo d'un round. À zéro, le ciel se dégage tout seul.
+ *
+ * Sans ce décompte, une tempête appelée au round 2 tenait jusqu'à la fin des
+ * temps — alors que le catalogue lui donne trois rounds depuis toujours.
+ */
+function ageWeather(enc: Encounter): void {
+  if (!enc.weather || enc.weatherRounds === undefined) return;
+  enc.weatherRounds -= 1;
+  if (enc.weatherRounds > 0) return;
+  const nom = weatherByKey(enc.weather)?.name ?? enc.weather;
+  enc.weather = undefined;
+  enc.weatherRounds = undefined;
+  push(enc, 'info', `${nom} retombe : le ciel redevient ordinaire.`);
+}
+
 /** Applique la météo à tous les combattants debout, au début d'un round. */
 function runWeather(enc: Encounter, rng: Rng): void {
   const weather = enc.weather ? WEATHER_BY_KEY.get(enc.weather) : undefined;
@@ -1802,6 +1898,180 @@ export function ambienceManaFactor(enc: Encounter, domains: string[] | undefined
   return factorFor(weather?.costModifiers, domains) * factorFor(daytime?.costModifiers, domains);
 }
 
+/**
+ * Facteur de dégâts apporté par les passifs de feat du LANCEUR, dans la même
+ * chaîne que la météo (cf. section 24 du gameplay : un feat numérique est un
+ * multiplicateur de plus, jamais une valeur réécrite capacité par capacité).
+ *
+ * Un passif restreint à des domaines ne s'applique qu'aux capacités de ces
+ * domaines : le soleil qui nourrit les plantes ne rend pas un coup d'épée plus
+ * dur.
+ */
+export function featDamageFactor(
+  enc: Encounter,
+  unit: Combatant,
+  domains: string[] | undefined,
+): number {
+  let factor = 1;
+  for (const passive of unit.featPassives ?? []) {
+    if (passive.damageFactor === undefined) continue;
+    if (!conditionHolds(enc, unit, passive.when)) continue;
+    if (passive.domains?.length && !passive.domains.some((d) => domains?.includes(d))) continue;
+    factor *= passive.damageFactor;
+  }
+  return factor;
+}
+
+/**
+ * Ce passif vise-t-il CETTE capacité ?
+ *
+ * Deux listes, et l'une OU l'autre suffit : le domaine dit de quel art le sort
+ * relève, le type de dégâts dit de quelle nature le coup est. Il faut les deux
+ * pour tenir la promesse d'un paratonnerre — « les éclairs, et les autres sorts
+ * électriques » — car la foudre d'un monstre ne déclare aucun domaine, et un
+ * sort d'Électricité qui paralyse n'inflige aucune foudre. Sans liste, le
+ * passif porte sur tout.
+ */
+function passiveCovers(passive: DomainFeatPassive, ability: CombatAbility): boolean {
+  const parDomaine = passive.domains ?? [];
+  const parType = passive.damageTypes ?? [];
+  if (!parDomaine.length && !parType.length) return true;
+  if (parDomaine.some((d) => ability.domains?.includes(d))) return true;
+  return parType.some((t) => ability.damages.some((c) => c.type === t));
+}
+
+/**
+ * Les passifs de coût en mana qui jouent ICI, maintenant, pour ce sort-là.
+ *
+ * Un passif ARMÉ (`chargedBy`) ne compte que si la charge a été captée : le
+ * paratonnerre doit avoir pris la foudre avant de la rendre. Une seule liste
+ * pour deux usages — annoncer le prix et le consommer — sinon le bouton
+ * afficherait une remise que la résolution ne saurait pas retirer.
+ */
+function manaPassives(
+  enc: Encounter,
+  unit: Combatant,
+  ability: CombatAbility,
+): DomainFeatPassive[] {
+  return (unit.featPassives ?? []).filter((passive) => {
+    if (passive.manaFactor === undefined) return false;
+    if (!conditionHolds(enc, unit, passive.when)) return false;
+    if (!passiveCovers(passive, ability)) return false;
+    return !passive.chargedBy || !!(passive.key && unit.featCharges?.includes(passive.key));
+  });
+}
+
+/** Facteur de coût en mana apporté par les passifs de feat du lanceur. */
+export function featManaFactor(
+  enc: Encounter,
+  unit: Combatant,
+  ability: CombatAbility,
+): number {
+  return manaPassives(enc, unit, ability).reduce((f, p) => f * p.manaFactor!, 1);
+}
+
+/**
+ * ARME les charges qu'un coup encaissé apporte.
+ *
+ * Appelé sur la CIBLE, avec la nature du coup : le paratonnerre se charge de ce
+ * qui le frappe. La charge est posée même si l'affinité a tout absorbé — c'est
+ * bien le fait d'avoir pris la foudre qui compte, pas ce qu'elle a coûté.
+ */
+function armFeatCharges(enc: Encounter, target: Combatant, type: string): void {
+  const nature = normalizeDamageType(type);
+  for (const passive of target.featPassives ?? []) {
+    if (!passive.chargedBy || !passive.key) continue;
+    if (normalizeDamageType(passive.chargedBy) !== nature) continue;
+    if (!conditionHolds(enc, target, passive.when)) continue;
+    if (target.featCharges?.includes(passive.key)) continue;
+    target.featCharges = [...(target.featCharges ?? []), passive.key];
+    push(enc, 'status', `${target.name} — ${passive.label}.`, { targetId: target.id });
+  }
+}
+
+/**
+ * DÉPENSE les charges que ce sort vient d'utiliser.
+ *
+ * À appeler une fois la mana payée : le prix a déjà été calculé avec la remise,
+ * il ne reste qu'à retirer ce qui l'a permise.
+ */
+export function consumeFeatCharges(
+  enc: Encounter,
+  unit: Combatant,
+  ability: CombatAbility,
+): void {
+  for (const passive of manaPassives(enc, unit, ability)) {
+    if (!passive.chargedBy || !passive.key) continue;
+    unit.featCharges = (unit.featCharges ?? []).filter((k) => k !== passive.key);
+    push(enc, 'status', `${unit.name} — charge dépensée : ${passive.label}.`, {
+      targetId: unit.id,
+    });
+  }
+}
+
+/**
+ * Précision OFFERTE aux assaillants par les passifs de la cible.
+ *
+ * L'exact pendant de l'esquive naturelle, du côté de celui qui encaisse : un
+ * paratonnerre sous l'orage n'esquive pas la foudre, il l'appelle. Rendue sur
+ * l'échelle fine, comme tout ce qui entre dans un seuil (cf. `toThreshold`).
+ */
+export function featIncomingPrecision(
+  enc: Encounter,
+  target: Combatant,
+  ability: CombatAbility,
+): number {
+  let points = 0;
+  for (const passive of target.featPassives ?? []) {
+    if (!passive.incomingPrecision) continue;
+    if (!conditionHolds(enc, target, passive.when)) continue;
+    if (!passiveCovers(passive, ability)) continue;
+    points += passive.incomingPrecision;
+  }
+  return points;
+}
+
+/** La condition d'un passif tient-elle en l'état ? Absente, elle tient toujours. */
+function conditionHolds(
+  enc: Encounter,
+  unit: Combatant,
+  when: DomainFeatPassive['when'],
+): boolean {
+  if (!when) return true;
+  if (when.weather && enc.weather !== when.weather) return false;
+  if (when.daytime && enc.daytime !== when.daytime) return false;
+  if (when.status && !unit.statuses.some((s) => s.key === when.status)) return false;
+  return true;
+}
+
+/**
+ * Accorde (ou retire) les statuts que les passifs de feat conditionnent.
+ *
+ * Appelé à l'ouverture de chaque tour : la condition peut tomber entre deux
+ * tours (on sèche, la météo tourne). Seuls les statuts posés PAR un feat sont
+ * retirés — celui qu'un sort aurait posé en plus ne saute pas avec.
+ */
+export function syncFeatPassives(enc: Encounter, unit: Combatant): void {
+  const granted = new Set(unit.featStatuses ?? []);
+  for (const passive of unit.featPassives ?? []) {
+    const key = passive.grantsStatus;
+    if (!key) continue;
+    const holds = conditionHolds(enc, unit, passive.when);
+    const carried = unit.statuses.some((s) => s.key === key);
+    if (holds && !carried) {
+      // Durée volontairement laissée au catalogue : le passif entretient le
+      // statut tour après tour tant que la condition tient.
+      applyStatus(enc, unit, key, unit);
+      granted.add(key);
+      push(enc, 'status', `${unit.name} — ${passive.label}.`, { targetId: unit.id });
+    } else if (!holds && carried && granted.has(key)) {
+      clearStatus(enc, unit, key);
+      granted.delete(key);
+    }
+  }
+  unit.featStatuses = [...granted];
+}
+
 /** Facteur de dégâts d'un sort, météo et heure du jour cumulées. */
 export function ambienceDamageFactor(enc: Encounter, domains: string[] | undefined): number {
   if (!domains?.length) return 1;
@@ -1809,9 +2079,24 @@ export function ambienceDamageFactor(enc: Encounter, domains: string[] | undefin
   return factorFor(weather?.damageModifiers, domains) * factorFor(daytime?.damageModifiers, domains);
 }
 
-/** Coût en mana d'une capacité une fois l'ambiance appliquée. */
-export function effectiveManaCost(enc: Encounter, ability: CombatAbility): number {
-  return Math.max(0, Math.round(ability.manaCost * ambienceManaFactor(enc, ability.domains)));
+/**
+ * Coût en mana d'une capacité une fois l'ambiance appliquée — et, si l'on sait
+ * QUI lance, les passifs de feat du lanceur dans la même chaîne (une charge
+ * captée qui allège le prochain sort).
+ *
+ * Le lanceur est optionnel parce qu'un coût s'annonce parfois sans lui (un
+ * barème, un test) ; passé, l'annonce et la dépense ne peuvent plus diverger.
+ */
+export function effectiveManaCost(
+  enc: Encounter,
+  ability: CombatAbility,
+  caster?: Combatant,
+): number {
+  const feat = caster ? featManaFactor(enc, caster, ability) : 1;
+  return Math.max(
+    0,
+    Math.round(ability.manaCost * ambienceManaFactor(enc, ability.domains) * feat),
+  );
 }
 
 export const daytimeByKey = (key: string): Daytime | undefined => DAYTIME_BY_KEY.get(key);
@@ -2370,6 +2655,9 @@ function beginTurn(enc: Encounter, rng: Rng): void {
 
   recoverEndurance(enc, unit);
   runStatusPhase(enc, unit, rng);
+  // Les passifs conditionnels se revérifient ici : on a pu sécher, ou le ciel
+  // a pu tourner, depuis le tour précédent.
+  syncFeatPassives(enc, unit);
   // Ce qu'on tient se paie à l'ouverture de son tour, avant d'agir : un sort
   // maintenu doit coûter tant qu'il dure.
   payUpkeep(enc, unit);
@@ -2401,6 +2689,9 @@ function advance(enc: Encounter, rng: Rng): void {
       // de beaucoup, mais il assèche : `COMBAT_ACTIVITY` use la soif trois fois
       // plus vite que la marche, et vingt rounds finissent par se voir.
       passTime(enc, ROUND_SECONDS, COMBAT_ACTIVITY, { silent: true });
+      // Le ciel vieillit d'abord : une météo à bout de course ne frappe pas un
+      // round de plus avant de se dissiper.
+      ageWeather(enc);
       runWeather(enc, rng);
     }
     const next = findUnit(enc, enc.order[enc.turnIndex]);
@@ -2725,7 +3016,7 @@ export function cannotUse(
 ): string | null {
   const depense = slotSpent(unit, ability);
   if (depense) return depense;
-  const unaffordable = cannotAfford(enc, unit, ability, effectiveManaCost(enc, ability));
+  const unaffordable = cannotAfford(enc, unit, ability, effectiveManaCost(enc, ability, unit));
   if (unaffordable) return unaffordable;
   // On ne noue pas plus de fils qu'on n'a de mains pour les tenir.
   const trop = handsNeeded(enc, unit, ability);
@@ -2741,7 +3032,7 @@ export function cannotUse(
     }
     // Le coût réel est celui de la MATIÈRE : un granite conjuré loin de tout
     // n'a pas le prix d'un grès façonné sur place.
-    const cout = cannotAfford(enc, unit, forme.ability, effectiveManaCost(enc, forme.ability));
+    const cout = cannotAfford(enc, unit, forme.ability, effectiveManaCost(enc, forme.ability, unit));
     if (cout) return cout;
   }
 
@@ -2835,10 +3126,100 @@ export function abilityDamageRanges(actor: Combatant, ability: CombatAbility): D
   });
 }
 
-/** Soin effectivement rendu par une capacité, scaling compris. */
-export function abilityHealAmount(actor: Combatant, ability: CombatAbility): number {
-  if (!ability.heal) return 0;
-  return Math.round(ability.heal + resolveScaling(actor, ability.healScaling));
+/**
+ * Le corps de la cible tient-il ce que le sort lui demande ?
+ *
+ * Rien à voir avec un jet de toucher : le sort porte, une main est posée sur le
+ * patient. La question est de savoir si la chair suit le remodelage. C'est donc
+ * l'attribut du PATIENT qui décide, seul — pas de maîtrise ajoutée, parce qu'on
+ * ne s'entraîne pas à laisser ses os se ressouder. Le DD baisse de palier en
+ * palier : c'est le lanceur qui progresse, pas le corps qui change.
+ *
+ * Retourne `true` quand le sort prend. Sur un échec, l'appelant coupe le soin
+ * ET la purge ; le retour de flamme, lui, est infligé ici — c'est le seul
+ * endroit qui connaît le jet.
+ *
+ * Sans `targetSave`, tout passe : l'immense majorité des sorts ne demandent
+ * rien au corps qu'ils touchent.
+ */
+function resolveTargetSave(
+  enc: Encounter,
+  actor: Combatant,
+  ability: CombatAbility,
+  target: Combatant,
+  rng: Rng,
+): boolean {
+  const save = ability.targetSave;
+  if (!save) return true;
+
+  const roll = rng.d20();
+  const mod = abilityModifier(effectiveAttribute(target, save.attribute));
+  // Le savoir du lanceur guide le remodelage : il ne change pas le corps, il
+  // change la façon dont on s'y prend.
+  const savoir = skillContribution(actor, save.casterSkill);
+  const total = roll + mod + savoir;
+  const detail =
+    `d20 ${roll} ${signed(mod)} (${save.attribute} de la cible)` +
+    (save.casterSkill ? ` ${signed(savoir)} (${save.casterSkill.skill} du lanceur)` : '') +
+    ` = ${total} vs DD ${save.dc}`;
+
+  if (total >= save.dc) {
+    push(enc, 'save', `${target.name} — le corps suit : ${ability.name} prend.`, {
+      actorId: actor.id,
+      targetId: target.id,
+      details: [detail],
+    });
+    return true;
+  }
+
+  push(enc, 'save', `${target.name} — le corps ne suit pas : ${ability.name} tourne mal.`, {
+    actorId: actor.id,
+    targetId: target.id,
+    details: [detail],
+  });
+
+  // Le retour de flamme se mesure à ce que le sort AURAIT rendu : plus le
+  // remodelage était ambitieux, plus la chair se reconstruit de travers.
+  const backlash = Math.round(abilityHealAmount(actor, ability, target) * (save.backlash ?? 0));
+  if (backlash > 0) {
+    const done = dealDamage(enc, target, backlash, save.damageType ?? 'life');
+    push(enc, 'damage', `${target.name} perd ${done.applied} PV — la chair se reconstruit de travers.`, {
+      actorId: actor.id,
+      targetId: target.id,
+      details: [done.detail],
+    });
+  }
+  return false;
+}
+
+/**
+ * Soin rendu par une capacité — forfait, scaling du lanceur, et ce que le
+ * matériel de soin y ajoute : des dés (comptés à leur moyenne pour l'annonce)
+ * plus le modificateur d'un attribut DU BLESSÉ.
+ *
+ * `target` vaut le lanceur dans le cas ordinaire : on se panse soi-même.
+ */
+export function abilityHealAmount(
+  actor: Combatant,
+  ability: CombatAbility,
+  target: Combatant = actor,
+): number {
+  if (!ability.heal && !ability.healDice) return 0;
+  const dice = ability.healDice ? (ability.healDice.min + ability.healDice.max) / 2 : 0;
+  const fromTarget = ability.healTargetAttribute
+    ? abilityModifier(effectiveAttribute(target, ability.healTargetAttribute))
+    : 0;
+  const total =
+    (ability.heal ?? 0) +
+    dice +
+    fromTarget +
+    resolveScaling(actor, ability.healScaling) +
+    // Ce que le corps soigné fournit : résolu contre la CIBLE, jamais contre
+    // le lanceur (cf. `healTargetScaling`).
+    resolveScaling(target, ability.healTargetScaling) +
+    // Ce que le lanceur SAIT en faire.
+    skillContribution(actor, ability.healCasterSkill);
+  return Math.max(ability.healMinimum ?? 0, Math.round(total));
 }
 
 /**
@@ -2943,7 +3324,7 @@ function resolveAgainst(
   }
 
   if (mustHit && aims(ability) && !teleguide) {
-    const breakdown = hitBreakdown(actor, ability, target);
+    const breakdown = hitBreakdown(actor, ability, target, enc);
     const { outcome, roll, detail } = resolveHitRoll(breakdown.threshold, rng, breakdown);
     hitFactor = HIT_FACTORS[outcome];
     hitOutcome = outcome;
@@ -2974,8 +3355,10 @@ function resolveAgainst(
   //    coup d'un enchaînement la subit à l'identique — rien à répartir.
   // Les buffs de poing ne profitent QU'aux attaques à mains nues : durcir ses
   // poings ne rend pas une épée plus tranchante.
-  // Météo et heure du jour inclinent la puissance d'un sort selon son domaine.
-  const ambient = ambienceDamageFactor(enc, ability.domains);
+  // Météo et heure du jour inclinent la puissance d'un sort selon son domaine —
+  // et les passifs de feat du lanceur s'ajoutent à la même chaîne.
+  const ambient =
+    ambienceDamageFactor(enc, ability.domains) * featDamageFactor(enc, actor, ability.domains);
   // Tir à bout portant : la gêne se paie maintenant sur la précision, pas sur
   // la puissance (cf. `DISADVANTAGE_PRECISION`). On le dit quand même ici, pour
   // que le journal explique un jet qui vient de partir bas.
@@ -3037,10 +3420,51 @@ function resolveAgainst(
     );
   }
 
-  // 5) Soin.
-  if (ability.heal) {
-    const amount = ability.heal + resolveScaling(actor, ability.healScaling);
-    const done = heal(enc, target, Math.round(amount));
+  // 4 bis) Stabilisation : un blessé à terre cesse de décliner. Sans soin
+  //        joint, il ne se relève pas — c'est ce que dit la trousse.
+  if (ability.stabilizes) {
+    if (!target.down) {
+      push(enc, 'info', `${target.name} tient debout : rien à stabiliser.`, {
+        actorId: actor.id,
+        targetId: target.id,
+      });
+    } else if (!target.stabilized) {
+      target.stabilized = true;
+      push(enc, 'heal', `${actor.name} stabilise ${target.name} : il ne décline plus.`, {
+        actorId: actor.id,
+        targetId: target.id,
+      });
+    }
+  }
+
+  // 4 ter) Le corps tient-il le remodelage ? Un sort qui refait la chair ne se
+  //        rate pas au lancer : il se rate SUR ce corps-là. C'est donc la cible
+  //        qui jette, et un échec transforme le soin en blessure.
+  const saveFailed = !resolveTargetSave(enc, actor, ability, target, rng);
+
+  // 5) Soin. Forfait, dés du matériel, modificateur du BLESSÉ — et ce que son
+  //    corps fournit. Un sort qui remodèle la chair peut échouer sur ce corps-là
+  //    (cf. `resolveTargetSave`) : alors il ne soigne pas, il blesse.
+  if ((ability.heal || ability.healDice) && !saveFailed) {
+    const dice = ability.healDice ? rng.int(ability.healDice.min, ability.healDice.max) : 0;
+    const fromTarget = ability.healTargetAttribute
+      ? abilityModifier(effectiveAttribute(target, ability.healTargetAttribute))
+      : 0;
+    const raw =
+      (ability.heal ?? 0) +
+      dice +
+      fromTarget +
+      resolveScaling(actor, ability.healScaling) +
+      resolveScaling(target, ability.healTargetScaling) +
+      skillContribution(actor, ability.healCasterSkill);
+    const amount = Math.max(ability.healMinimum ?? 0, Math.round(raw));
+    const done = heal(enc, target, amount);
+    if (ability.healDice) {
+      details.push(
+        `${dice} (dé ${ability.healDice.min}–${ability.healDice.max})` +
+          (fromTarget ? ` ${signed(fromTarget)} (mod. du blessé)` : ''),
+      );
+    }
     details.push(done.detail);
     push(enc, 'heal', `${actor.name} soigne ${target.name} de ${done.applied} PV.`, {
       actorId: actor.id,
@@ -3125,8 +3549,11 @@ function resolveAgainst(
     });
   }
 
-  // 6) Purge accordée par la capacité.
-  for (const key of ability.cleanses ?? []) clearStatus(enc, target, key);
+  // 6) Purge accordée par la capacité. Un remodelage manqué ne ressoude rien :
+  //    l'os reste cassé, et le sort a coûté sa mana pour de la douleur.
+  if (!saveFailed) {
+    for (const key of ability.cleanses ?? []) clearStatus(enc, target, key);
+  }
 
   // 7) Statuts infligés — ceux de la capacité, puis ceux que le revêtement
   //    ajoute à chaque coup (venin sur la lame). Même barème pour les deux.
@@ -4490,8 +4917,16 @@ function resolveUse(
     }
   }
 
-  // Le coût réel dépend de l'ambiance : un sort de ténèbres coûte moins la nuit.
-  const manaSpent = effectiveManaCost(enc, ability);
+  // Le coût réel dépend de l'ambiance : un sort de ténèbres coûte moins la
+  // nuit — et des charges que les feats du lanceur ont pu capter.
+  const manaSpent = effectiveManaCost(enc, ability, actor);
+  /** D'où vient l'écart au prix affiché : l'ambiance, une charge, ou les deux. */
+  const manaWhy = [
+    ambienceManaFactor(enc, ability.domains) !== 1 ? 'ambiance' : '',
+    featManaFactor(enc, actor, ability) !== 1 ? 'charge captée' : '',
+  ]
+    .filter(Boolean)
+    .join(' et ') || 'ambiance';
 
   // Échange de place : les deux corps permutent. Jouée en réaction, c'est ce
   // qui met le lanceur au-devant du coup destiné à un allié — ou qui arrache
@@ -4532,6 +4967,9 @@ function resolveUse(
   const targets = unitsInEffect(enc, actor, ability, at, targetIds);
 
   actor.mana -= manaSpent;
+  // La remise est déjà dans le prix : il ne reste qu'à retirer la charge qui
+  // l'a permise, une fois la mana versée.
+  consumeFeatCharges(enc, actor, ability);
   actor.endurance -= ability.enduranceCost;
   // Reprendre haleine (la garde) : la réserve remonte, plafonnée au maximum.
   if (ability.restoreEndurance) {
@@ -4560,7 +4998,7 @@ function resolveUse(
       details: [
         manaSpent
           ? `−${manaSpent} mana (reste ${actor.mana})` +
-            (manaSpent !== ability.manaCost ? ` — base ${ability.manaCost}, ambiance` : '')
+            (manaSpent !== ability.manaCost ? ` — base ${ability.manaCost}, ${manaWhy}` : '')
           : '',
         ability.enduranceCost ? `−${ability.enduranceCost} endurance (reste ${actor.endurance})` : '',
         stockLine,
@@ -4705,8 +5143,26 @@ function resolveUse(
   }
 
   if (ability.weather) {
-    enc.weather = ability.weather;
-    push(enc, 'info', `La météo change : ${weatherByKey(ability.weather)?.name ?? ability.weather}.`);
+    const nom = weatherByKey(ability.weather)?.name ?? ability.weather;
+    const tours = WEATHER_BY_KEY.get(ability.weather)?.defaultDuration;
+    setWeather(
+      enc,
+      ability.weather,
+      `La météo change : ${nom}${tours && tours > 0 ? ` (${tours} rounds)` : ''}.`,
+    );
+  }
+
+  // Rendre le ciel neutre, c'est retirer la météo — pas en poser une autre.
+  // Tout ce qu'elle inclinait (dégâts, coûts, statuts d'ambiance) cesse.
+  if (ability.clearsWeather) {
+    const partie = enc.weather ? weatherByKey(enc.weather)?.name ?? enc.weather : '';
+    setWeather(enc, undefined);
+    push(
+      enc,
+      'info',
+      partie ? `Le ciel se calme : ${partie} se dissipe.` : 'Le ciel est déjà calme.',
+      { actorId: actor.id },
+    );
   }
 }
 
@@ -4913,16 +5369,21 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
       break;
     }
 
-    case 'setWeather':
-      enc.weather = action.weather || undefined;
-      push(
+    case 'setWeather': {
+      // Le MJ pose la météo : elle repart pour sa durée pleine, comme si elle
+      // venait de se lever. Sans ça, changer de ciel héritait du compteur du
+      // précédent — une tempête posée au round 9 se dissipait aussitôt.
+      const tours = action.weather ? WEATHER_BY_KEY.get(action.weather)?.defaultDuration : 0;
+      setWeather(
         enc,
-        'info',
+        action.weather || undefined,
         action.weather
-          ? `Météo : ${weatherByKey(action.weather)?.name ?? action.weather}.`
+          ? `Météo : ${weatherByKey(action.weather)?.name ?? action.weather}` +
+              (tours && tours > 0 ? ` (${tours} rounds).` : '.')
           : 'Le ciel se dégage.',
       );
       break;
+    }
 
     case 'setDaytime': {
       enc.daytime = action.daytime || undefined;

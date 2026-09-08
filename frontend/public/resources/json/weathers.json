@@ -85,30 +85,6 @@
             "defaultDuration": 3
         },
         {
-            "id": 8,
-            "key": "magical-night",
-            "name": "Nuit magique",
-            "icon": "",
-            "description": "Une obscurité surnaturelle qui nourrit les ténèbres et étouffe la lumière.",
-            "appliesStatus": [],
-            "randomDamage": null,
-            "costModifiers": [],
-            "damageModifiers": [ { "domain": "darkness", "factor": 1.3 }, { "domain": "light", "factor": 0.7 } ],
-            "defaultDuration": 5
-        },
-        {
-            "id": 9,
-            "key": "radiant-sky",
-            "name": "Ciel radieux",
-            "icon": "",
-            "description": "Une lumière éclatante qui magnifie la lumière et repousse les ombres.",
-            "appliesStatus": [],
-            "randomDamage": null,
-            "costModifiers": [],
-            "damageModifiers": [ { "domain": "light", "factor": 1.3 }, { "domain": "darkness", "factor": 0.7 } ],
-            "defaultDuration": 5
-        },
-        {
             "id": 10,
             "key": "hail",
             "name": "Grêle",

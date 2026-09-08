@@ -700,6 +700,51 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-spell-cap b.is-full { color: var(--ancient-gold); }
 .cs-spell-cap__hint { display: block; font-size: 0.68rem; color: var(--dust-brown); }
 
+/* Affinités (formulaire) : quatre colonnes côte à côte, de ce qui protège le
+   mieux à ce qui expose. Chaque type porte son glyphe, comme les domaines. */
+.cs-aff-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem;
+}
+.cs-aff-col {
+  display: flex; flex-direction: column; gap: 0.3rem;
+  padding: 0.45rem 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 18%, transparent);
+  border-top: 2px solid var(--aff-tint, var(--ancient-gold));
+  border-radius: 5px;
+}
+.cs-aff-col__head {
+  display: flex; flex-direction: column; gap: 0.05rem;
+  font-family: var(--font-title); font-size: 0.76rem; color: var(--faded-ivory);
+}
+.cs-aff-col__head em {
+  font-style: normal; font-size: 0.62rem; letter-spacing: 0.04em; color: var(--burned-paper);
+}
+.cs-aff-col__list { display: flex; flex-direction: column; gap: 0.2rem; margin: 0; padding: 0; list-style: none; }
+.cs-aff-col__empty { font-size: 0.8rem; color: color-mix(in srgb, var(--burned-paper) 70%, transparent); }
+.cs-aff-type {
+  display: flex; align-items: center; gap: 0.35rem;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.74rem; color: var(--faded-ivory);
+  background: color-mix(in srgb, var(--aff-tint, var(--ancient-gold)) 12%, transparent);
+  border-radius: 4px;
+}
+.cs-aff-type__sigil {
+  width: 1rem; text-align: center;
+  font-size: 0.9rem; line-height: 1; color: var(--aff-tint, var(--ancient-gold));
+}
+.cs-aff-type__label { min-width: 0; overflow-wrap: anywhere; }
+
+/* Une teinte par lecture : elle colore le liseré, le glyphe et le fond. */
+.cs-aff-col.is-absorptions { --aff-tint: #77a356; }
+.cs-aff-col.is-immunities  { --aff-tint: #d8c17a; }
+.cs-aff-col.is-resistances { --aff-tint: #6f9ec2; }
+.cs-aff-col.is-weaknesses  { --aff-tint: #c2683c; }
+
+@media (max-width: 720px) {
+  .cs-aff-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* Langues : pastilles, les acquises d'office marquées, les apprises retirables. */
 .cs-langs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
 .cs-lang {
@@ -863,6 +908,7 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
     "mastery mastery"
     "equipment equipment"
     "skills inventory"
+    "affinities affinities"
     "langs langs"
     "traits traits"
     "faith faith"
@@ -901,6 +947,7 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .sheet-classpells { grid-area: classpells; }
 .sheet-skills { grid-area: skills; }
 .sheet-inventory { grid-area: inventory; }
+.sheet-affinities { grid-area: affinities; }
 .sheet-langs { grid-area: langs; }
 .sheet-traits { grid-area: traits; }
 .sheet-faith { grid-area: faith; }
@@ -1253,6 +1300,35 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .sheet-feat__label {
   font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #5e4632;
 }
+
+/* Affinités (fiche) : quatre colonnes, glyphe puis nom du type. */
+.sheet-aff-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
+.sheet-aff-col {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  padding: 0.35rem 0.45rem;
+  background: rgba(255, 250, 235, 0.28);
+  border: 1px solid rgba(94, 70, 50, 0.35);
+  border-top: 2px solid var(--aff-tint, #5e4632);
+  border-radius: 4px;
+}
+.sheet-aff-col__head {
+  display: flex; flex-direction: column;
+  font-family: var(--font-title); font-size: 0.72rem; color: #2a1c14;
+}
+.sheet-aff-col__head em { font-style: normal; font-size: 0.62rem; color: #5e4632; }
+.sheet-aff-col__empty { font-size: 0.75rem; color: #6b5340; }
+.sheet-aff__type {
+  display: flex; align-items: center; gap: 0.3rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.72rem; color: #2a1c14;
+  background: color-mix(in srgb, var(--aff-tint, #5e4632) 16%, transparent);
+  border-radius: 3px;
+}
+.sheet-aff__type b { color: var(--aff-tint, #5e4632); font-weight: 400; }
+.sheet-aff-col.is-absorptions { --aff-tint: #4f7a2f; }
+.sheet-aff-col.is-immunities  { --aff-tint: #9a7440; }
+.sheet-aff-col.is-resistances { --aff-tint: #3d79a8; }
+.sheet-aff-col.is-weaknesses  { --aff-tint: #b8482b; }
 
 /* Langues (fiche) : une ligne de pastilles, les apprises en plein. */
 .sheet-langs__list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0; }

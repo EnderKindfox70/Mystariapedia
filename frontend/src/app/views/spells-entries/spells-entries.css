@@ -1277,6 +1277,15 @@
   font-weight: 600;
   color: #3f8f7a;
 }
+/* Clause de jet imposé au corps de la cible (le sort peut se retourner) */
+.se-box__save {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(168, 90, 61, .4);
+  font-weight: 600;
+  color: #a85a3d;
+}
 /* Clause d'esquive (chance d'annuler une attaque) */
 .se-box__evade {
   display: block;

@@ -277,6 +277,26 @@ export interface DomainFeatDef {
   effects: { label: string; value: string; tone?: string }[];
   /** Effets chiffrés réellement appliqués à la fiche (clé de stat ou d'attribut). */
   statEffects?: StatKV[];
+  /**
+   * Passifs conditionnels joués par le moteur de combat (statut accordé sous
+   * condition, dégâts inclinés par la météo, faiblesse assumée). Structure
+   * dupliquée du wiki (`DomainFeatPassive`) pour ne pas coupler le personnage
+   * au module wiki.
+   */
+  passives?: {
+    key?: string;
+    when?: { status?: string; weather?: string; daytime?: string };
+    grantsStatus?: string;
+    damageFactor?: number;
+    manaFactor?: number;
+    chargedBy?: string;
+    domains?: string[];
+    damageTypes?: string[];
+    incomingPrecision?: number;
+    resistance?: string;
+    weakness?: string;
+    label: string;
+  }[];
 }
 
 /** Modèle complet d'une fiche de personnage (le champ `data` côté backend).

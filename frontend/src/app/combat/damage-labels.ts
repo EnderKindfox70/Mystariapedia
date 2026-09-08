@@ -30,6 +30,43 @@ export const DAMAGE_LABELS: Record<string, string> = {
 };
 
 /**
+ * Glyphe de chaque type de dégâts, pour le lire d'un coup d'œil.
+ *
+ * Repris des sigils de domaine quand le type en a un (le Feu garde ♨, la Foudre
+ * ϟ) : une même nature ne doit pas changer de signe selon la page. Les types
+ * physiques, eux, n'ont pas de domaine — leur glyphe dit l'outil.
+ *
+ * Caractères Unicode, donc réservés à l'écran : les polices embarquées dans le
+ * PDF ne les portent pas, l'export continue d'écrire les noms.
+ */
+export const DAMAGE_SIGILS: Record<string, string> = {
+  bludgeoning: '⚒',
+  piercing: '➤',
+  slashing: '⚔',
+  fire: '♨',
+  ice: '❄',
+  lightning: 'ϟ',
+  water: '≋',
+  earth: '△',
+  wind: '☲',
+  plant: '✥',
+  dark: '◉',
+  light: '☼',
+  life: '♧',
+  death: '☠',
+  space: '✧',
+  time: '⌛',
+  // Le poison n'est pas au catalogue des types, mais le statut du même nom
+  // inflige ses dégâts sous ce nom : il lui faut donc un signe.
+  poison: '☣',
+  weapon: '❖',
+};
+
+/** Glyphe d'un type de dégâts, chaîne vide s'il n'en a pas. */
+export const damageSigil = (key: string | undefined): string =>
+  (key && DAMAGE_SIGILS[key]) || '';
+
+/**
  * Type de dégâts SPÉCIAL : « celui de l'arme que l'on nimbe ».
  *
  * Les revêtements élémentaires ajoutent leur propre nature au coup — une lame

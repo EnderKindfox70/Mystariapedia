@@ -387,6 +387,16 @@ const toScaling = (
     .filter((s) => (s.affects ?? 'damage') === affects)
     .map((s) => ({ source: s.source, ratio: s.ratio }));
 
+/**
+ * Scaling d'un champ qui ne porte QUE ça (`healTargetScaling`) : pas de tri par
+ * `affects`, le nom du champ a déjà tranché. Exiger `affects: 'heal'` en plus
+ * n'aurait servi qu'à faire échouer en silence ceux qui l'oublient.
+ */
+const toOwnScaling = (
+  list: { source: AbilityScaling['source']; ratio: number }[] | undefined,
+): AbilityScaling[] | undefined =>
+  list?.length ? list.map((s) => ({ source: s.source, ratio: s.ratio })) : undefined;
+
 const toMods = (list: SpellNodeStats['effects']): AbilityStatMod[] =>
   (list ?? []).map((e) => ({
     stat: e.stat,
@@ -546,6 +556,7 @@ export function spellAbility(
       spellLevel: page.spell.level,
       reaction: stats.reaction,
       weather: stats.weather ?? page.spell.weather,
+      clearsWeather: stats.clearsWeather ?? page.spell.clearsWeather,
       autoHit: true,
       // Un revêtement de Terre façonne de la matière comme n'importe quel autre
       // sort du domaine. Cette branche a son propre `return` : tout ce qu'on
@@ -589,6 +600,11 @@ export function spellAbility(
       : undefined,
     heal,
     healScaling: toScaling(stats.scaling, 'heal'),
+    // Ce que le CORPS SOIGNÉ fournit, par opposition à ce que le soigneur
+    // apporte : résolu contre la cible, donc porté par son propre champ.
+    healTargetScaling: toOwnScaling(stats.healTargetScaling),
+    healCasterSkill: stats.healCasterSkill,
+    targetSave: stats.targetSave,
     duration: choice?.duration ?? stats.duration,
     // Les modificateurs de stats du nœud, plus ceux que la classe ajoute.
     mods: [...toMods(choice?.effects ?? stats.effects), ...toMods(bonus?.effects)],
@@ -606,6 +622,7 @@ export function spellAbility(
         }
       : undefined,
     weather: stats.weather ?? page.spell.weather,
+    clearsWeather: stats.clearsWeather ?? page.spell.clearsWeather,
     // Les domaines du sort : c'est par eux que la météo et l'heure du jour
     // agissent sur sa puissance et son coût.
     domains: page.domains,
@@ -975,6 +992,85 @@ export function venomAbility(item: VenomSource, poisoner: boolean): CombatAbilit
     autoHit: true,
     bonusAction: poisoner,
     manualEffects: chances ? [`Par coup porté : ${chances}.`] : undefined,
+  };
+}
+
+/**
+ * Matériel de soin du sac, tel que le wiki le déclare (bloc `care` d'une fiche
+ * taguée `care` : bandages, garrot, sels odorants, trousse de chirurgien).
+ */
+export interface CareSource {
+  name: string;
+  slug?: string;
+  /** Le rouleau part avec la plaie ; un garrot, non. */
+  consumed?: boolean;
+  /** Doses par flacon, quand la fiche en compte. */
+  charges?: number;
+  /** Soin rendu, tiré aux dés et calé sur le blessé. */
+  heal?: { min: number; max: number; targetAttribute?: AttributeKey; minimum?: number };
+  /** Ce que la trousse ajoute au soin d'un bandage. */
+  kitBonus?: number;
+  /** Statuts levés (clés de `status_effects.json`). */
+  cleanses?: string[];
+  /** La pièce stabilise un allié à terre (trousse). */
+  stabilizes?: boolean;
+  /** Cette pièce EST la trousse : elle améliore les bandages posés avec. */
+  isKit?: boolean;
+  /** Rappel affiché sous la capacité. */
+  note?: string;
+}
+
+/**
+ * Une pièce de matériel de soin devient une action.
+ *
+ * Rien de magique ici : ce que la fiche écrit en français est ce qui se joue.
+ * Deux choses modulent le geste et une seule vient du personnage :
+ *  - porter une TROUSSE améliore le bandage (le catalogue le dit lui-même) ;
+ *  - le trait Soigneur fait qu'une stabilisation rend en plus 1 PV — donc, dans
+ *    ce moteur, remet le blessé debout au lieu de le laisser à terre.
+ */
+export function careAbility(
+  item: CareSource,
+  opts: { hasKit?: boolean; healer?: boolean } = {},
+): CombatAbility {
+  const bonus = opts.hasKit ? (item.kitBonus ?? 0) : 0;
+  const manual: string[] = [];
+  if (item.note) manual.push(item.note);
+  if (item.charges) manual.push(`${item.charges} doses par flacon.`);
+  if (bonus) manual.push(`Trousse de chirurgien en main : +${bonus} au soin.`);
+  if (item.stabilizes && opts.healer) {
+    manual.push('Soigneur : la stabilisation rend 1 PV, le blessé se relève.');
+  }
+
+  const heal = item.heal;
+  return {
+    id: `care:${item.slug ?? item.name}`,
+    name: item.name,
+    kind: 'item',
+    subtitle: 'Matériel de soin',
+    description: item.note,
+    ref: item.slug,
+    // Un pansement se pose à bout de bras : soi-même ou un voisin immédiat.
+    rangeMeters: CELL_METERS,
+    shape: { kind: 'single' },
+    targets: ['self', 'ally'],
+    manaCost: 0,
+    enduranceCost: 0,
+    consumes: item.consumed ? { item: item.name, qty: 1 } : undefined,
+    damages: [],
+    heal: heal ? bonus || undefined : undefined,
+    healDice: heal ? { min: heal.min, max: heal.max } : undefined,
+    healTargetAttribute: heal?.targetAttribute,
+    healMinimum: heal?.minimum,
+    cleanses: item.cleanses?.length ? item.cleanses : undefined,
+    // Le Soigneur transforme la stabilisation en 1 PV : dans ce moteur, un
+    // point suffit à remettre debout, ce que dit exactement le trait.
+    stabilizes: item.stabilizes,
+    ...(item.stabilizes && opts.healer ? { heal: 1 } : {}),
+    manualEffects: manual.length ? manual : undefined,
+    autoHit: true,
+    // Poser un bandage occupe le tour : la fiche l'écrit noir sur blanc.
+    bonusAction: false,
   };
 }
 

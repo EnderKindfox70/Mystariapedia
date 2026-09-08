@@ -29,6 +29,7 @@ import {
 } from '../../combat/materials';
 import { enchantTargetOf } from '../../combat/abilities';
 import { ENCHANT_SHARE, WALL_THICKNESS } from '../../combat/rules';
+import { SKILLS } from '../../character/universe-data';
 import {
   domainColor as colorOf,
   domainIcon as iconOf,
@@ -487,11 +488,34 @@ export class SpellEntryComponent {
     return this.damageTypes.resolve(key);
   });
 
-  /** Décomposition du soin (base + formules de scaling), pour le survol. */
+  /** Nom français d'une compétence, sa clé à défaut. */
+  skillLabel = (key: string): string => SKILLS.find((sk) => sk.key === key)?.label ?? key;
+
+  /**
+   * Décomposition du soin (base + formules), pour le survol.
+   *
+   * Trois origines à ne pas confondre, d'où l'étiquette qui dit CHEZ QUI se lit
+   * chaque terme : la puissance du lanceur, le corps du soigné, et ce que le
+   * lanceur sait faire de ses mains. Sans cette mention, une fiche qui scale sur
+   * la constitution laisse croire que c'est celle du mage.
+   */
   healBreakdown = computed(() => {
     const s = this.selectedNode()?.stats;
     if (!s || s.heal === undefined) return null;
-    return { base: s.heal, parts: this.scalingParts('heal') };
+    const parts = [
+      ...this.scalingParts('heal'),
+      ...(s.healTargetScaling ?? []).map((sc) => ({
+        label: `${this.sourceLabel(sc.source)} de la cible`,
+        ratio: sc.ratio,
+      })),
+    ];
+    if (s.healCasterSkill) {
+      parts.push({
+        label: `${this.skillLabel(s.healCasterSkill.skill)} du lanceur`,
+        ratio: s.healCasterSkill.ratio,
+      });
+    }
+    return { base: s.heal, parts };
   });
 
   /** Décomposition du contre-coup (base + formules de scaling). */
@@ -633,6 +657,18 @@ export class SpellEntryComponent {
   cleansedStatuses = computed(() =>
     (this.selectedNode()?.stats.cleanses ?? []).map((key) => this.statusService.byKey(key) ?? { key } as StatusEffect)
   );
+
+  /**
+   * La purge TIENT-elle, ou passe-t-elle une fois pour toutes ?
+   *
+   * Un manteau écarte les statuts tant qu'il dure ; un sort instantané les lève
+   * et s'en va. Sans cette distinction la fiche promettait « tant que le manteau
+   * tient » à un soin au contact, qui ne tient rien du tout.
+   */
+  cleanseHolds = computed<boolean>(() => !!this.selectedNode()?.stats.duration);
+
+  /** Jet imposé au corps de la cible par le nœud sélectionné, s'il y en a un. */
+  targetSave = computed(() => this.selectedNode()?.stats.targetSave);
 
   /**
    * Vrai si tous les statuts infligés le sont à coup sûr (100 %). Pilote la

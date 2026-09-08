@@ -1385,6 +1385,63 @@ export function featStatEffects(sheet: CharacterSheet): StatKV[] {
   return chosenDomainFeats(sheet).flatMap(({ feat }) => feat.statEffects ?? []);
 }
 
+/** Les quatre lectures d'un type de dégâts sur un personnage. */
+export interface CharacterAffinities {
+  immunities: string[];
+  resistances: string[];
+  weaknesses: string[];
+  absorptions: string[];
+}
+
+/** Ce qu'une pièce portée apporte en affinités. */
+export interface AffinitySource {
+  resistances?: string[];
+  weaknesses?: string[];
+  immunities?: string[];
+  absorptions?: string[];
+}
+
+/**
+ * Affinités d'un personnage : ce que l'équipement porté lui donne, plus ce que
+ * ses feats domaniaux lui font assumer (Croissance végétale et sa faiblesse au
+ * feu).
+ *
+ * Source unique : la fiche l'affiche, la fabrique de combattants la joue. Les
+ * deux passent par ici, donc le tableau imprimé ne peut pas annoncer autre
+ * chose que ce que le combat appliquera. Ce qui vient d'un STATUT (Trempé et sa
+ * faiblesse à la foudre) n'y figure pas : ça ne dure pas au-delà du combat.
+ */
+export function characterAffinities(
+  sheet: CharacterSheet,
+  worn: AffinitySource[],
+): CharacterAffinities {
+  const out: CharacterAffinities = {
+    immunities: [],
+    resistances: [],
+    weaknesses: [],
+    absorptions: [],
+  };
+  const add = (list: string[], keys: string[] | undefined) => {
+    for (const key of keys ?? []) if (key && !list.includes(key)) list.push(key);
+  };
+  for (const piece of worn) {
+    add(out.resistances, piece.resistances);
+    add(out.weaknesses, piece.weaknesses);
+    add(out.immunities, piece.immunities);
+    add(out.absorptions, piece.absorptions);
+  }
+  for (const passive of featPassives(sheet)) {
+    if (passive.resistance) add(out.resistances, [passive.resistance]);
+    if (passive.weakness) add(out.weaknesses, [passive.weakness]);
+  }
+  return out;
+}
+
+/** Passifs conditionnels des feats domaniaux pris (lus par le moteur de combat). */
+export function featPassives(sheet: CharacterSheet): NonNullable<DomainFeatDef['passives']> {
+  return chosenDomainFeats(sheet).flatMap(({ feat }) => feat.passives ?? []);
+}
+
 /** Somme des valeurs portant une clé donnée (stat ou attribut). */
 const sumForKey = (kv: StatKV[], key: string): number =>
   kv.reduce((total, e) => (e.key === key ? total + (Number(e.value) || 0) : total), 0);

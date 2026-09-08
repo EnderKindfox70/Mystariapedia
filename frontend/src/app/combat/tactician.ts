@@ -82,8 +82,15 @@ const alliesOf = (enc: Encounter, unit: Combatant): Combatant[] =>
  * grosse frappe hasardeuse au coup sûr — et le rapport mesurerait un jeu que
  * personne ne jouerait ainsi.
  */
-function expectedDamage(actor: Combatant, ability: CombatAbility, target: Combatant): number {
-  const accuracy = aims(ability) ? expectedHitFactor(hitThreshold(actor, ability, target)) : 1;
+function expectedDamage(
+  enc: Encounter,
+  actor: Combatant,
+  ability: CombatAbility,
+  target: Combatant,
+): number {
+  const accuracy = aims(ability)
+    ? expectedHitFactor(hitThreshold(actor, ability, target, enc))
+    : 1;
   let total = 0;
   for (const range of abilityDamageRanges(actor, ability)) {
     const avg = (range.min + range.max) / 2;
@@ -286,7 +293,7 @@ export function bestPlay(enc: Encounter, unit: Combatant, allowSupport = true): 
           // Une zone qui prend ses propres alliés se paie : c'est ce qui rend
           // un souffle moins évident qu'il n'en a l'air sur la fiche.
           const sign = allegianceOf(enc, hit) === allegianceOf(enc, unit) ? -1.2 : 1;
-          value += sign * expectedDamage(unit, ability, hit);
+          value += sign * expectedDamage(enc, unit, ability, hit);
         }
         if (value > 0) {
           keep({
@@ -296,7 +303,7 @@ export function bestPlay(enc: Encounter, unit: Combatant, allowSupport = true): 
             raw: rawDamage(unit, ability) * Math.max(1, touched.length),
             soaked:
               rawDamage(unit, ability) * Math.max(1, touched.length) -
-              touched.reduce((s, h) => s + expectedDamage(unit, ability, h), 0),
+              touched.reduce((s, h) => s + expectedDamage(enc, unit, ability, h), 0),
           });
         }
       }

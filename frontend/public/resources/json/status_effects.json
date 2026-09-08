@@ -506,6 +506,32 @@
             "defaultDuration": -1,
             "stackable": false,
             "ends": "Tient tant que le lanceur se concentre ET peut payer l'entretien : prend fin s'il perd sa concentration en encaissant un coup, s'il tombe à court de mana, ou s'il tombe tout court."
+        },
+        {
+            "id": 28,
+            "key": "fracture",
+            "name": "Fracture",
+            "icon": "",
+            "category": "debuff",
+            "description": "Un os rompu, un membre qui ne répond plus : la cible tient encore debout, mais chaque geste se paie.",
+            "effect": "Vitesse et attaque physique fortement réduites. Ne s'arrange pas d'elle-même : il faut ressouder l'os.",
+            "tick": null,
+            "statEffects": [
+                {
+                    "stat": "speed",
+                    "value": -5
+                },
+                {
+                    "stat": "atk_phy",
+                    "value": -5
+                }
+            ],
+            "preventsAction": false,
+            "preventsMovement": false,
+            "preventsCasting": false,
+            "defaultDuration": -1,
+            "stackable": false,
+            "ends": "Ne s'estompe pas d'elle-même (durée infinie) : il faut une magie qui refasse la chair — Régénération de la chair — ou des semaines d'immobilisation."
         }
     ]
 }

@@ -22,6 +22,9 @@ import {
   isTwoHanded,
   poolCurrent,
   chosenTraits,
+  characterAffinities,
+  featPassives,
+  type AffinitySource,
   grantedTraits,
   originByKey,
   proficiencyForLevel,
@@ -45,8 +48,10 @@ import {
 import {
   AmmunitionSource,
   classSkillsFor,
+  careAbility,
   consumableAbility,
   venomAbility,
+  type CareSource,
   type VenomSource,
   ConsumableSource,
   creatureAbility,
@@ -96,6 +101,14 @@ const GEAR_COLLECTION = 'equipment';
 const REMAINS_COLLECTION = 'natural-resources/remains';
 /** Clé du trait qui fait passer l'enduisage en action bonus. */
 const POISONER_TRAIT = 'empoisonneur';
+/** Clé du trait qui fait qu'une stabilisation rend aussi 1 PV. */
+const HEALER_TRAIT = 'soigneur';
+
+/** Fiche d'équipement : seul son bloc `care` intéresse le combat. */
+interface CareEntry {
+  name?: string;
+  care?: Omit<CareSource, 'name' | 'slug'>;
+}
 
 /** Fiche de dépouille : seul son bloc `venom` intéresse le combat. */
 interface VenomEntry {
@@ -202,6 +215,8 @@ export class CombatantFactory {
   private readonly consumablesByName = new Map<string, ConsumableSource>();
   /** Venins indexés par nom : une ligne de sac taguée `venom` devient un revêtement. */
   private readonly venomsByName = new Map<string, VenomSource>();
+  /** Matériel de soin indexé par nom : bandages, garrot, sels, trousse. */
+  private readonly careByName = new Map<string, CareSource>();
   /** Nom FR d'un statut → sa clé, pour lire les purges écrites sur les fioles. */
   private readonly statusKeys = new Map<string, string>(
     inject(StatusEffectsService)
@@ -311,6 +326,26 @@ export class CombatantFactory {
       .loadAll<ResourceIndexEntry>(GEAR_COLLECTION)
       .pipe(catchError(() => of([] as ResourceIndexEntry[])));
 
+    // Matériel de soin : même lecture que les venins. L'index dit lesquels le
+    // sont (tag `care`), la fiche dit ce qu'ils font.
+    const care$ = this.wiki.loadAll<ResourceIndexEntry>(GEAR_COLLECTION).pipe(
+      catchError(() => of([] as ResourceIndexEntry[])),
+      map((index) => index.filter((e) => e.tags?.includes('care'))),
+      switchMap((index) =>
+        index.length
+          ? forkJoin(
+              index.map((e) =>
+                this.wiki.load<CareEntry>(GEAR_COLLECTION, e.slug).pipe(
+                  map((c) => ({ name: c.name || e.name, slug: e.slug, ...(c.care ?? {}) })),
+                  catchError(() => of(null)),
+                ),
+              ),
+            )
+          : of([] as (CareSource | null)[]),
+      ),
+      map((list) => list.filter((c): c is CareSource => !!c)),
+    );
+
     // Venins : l'index dit LESQUELS le sont (tag `venom`), la fiche dit ce
     // qu'ils font. On ne charge donc que les fiches taguées, pas la collection.
     const venoms$ = this.wiki.loadAll<ResourceIndexEntry>(REMAINS_COLLECTION).pipe(
@@ -332,6 +367,7 @@ export class CombatantFactory {
     );
 
     return forkJoin([
+      care$,
       venoms$,
       weapons$,
       armor$,
@@ -342,7 +378,8 @@ export class CombatantFactory {
       this.wiki.load<ClassDef[]>('characters', 'classes').pipe(catchError(() => of([]))),
       this.wiki.load<BackgroundDef[]>('characters', 'backgrounds').pipe(catchError(() => of([]))),
     ]).pipe(
-      tap(([venoms, weapons, armors, ammunition, potions, gear, races, classes, backgrounds]) => {
+      tap(([care, venoms, weapons, armors, ammunition, potions, gear, races, classes, backgrounds]) => {
+        for (const piece of care) this.careByName.set(piece.name, piece);
         for (const venom of venoms) this.venomsByName.set(venom.name, venom);
         for (const potion of potions) this.consumablesByName.set(potion.name, potion);
         for (const weapon of weapons) this.weaponsByName.set(weapon.name, weapon);
@@ -420,9 +457,10 @@ export class CombatantFactory {
     // le fait la fiche. Une arme à deux mains fait sauter tout l'emplacement de
     // la main faible — bouclier compris : on ne pare pas avec un poing qui
     // tient déjà un manche.
-    const affinities = EMPTY_AFFINITIES();
+    const passives = featPassives(sheet);
     const bothHands = this.bothHandsTaken(sheet);
     let metallicArmor = false;
+    const worn: AffinitySource[] = [];
     for (const slot of EQUIPMENT_SLOTS) {
       if (bothHands && slot.key === OFFHAND_SLOT) continue;
       const name = sheet.equipment[slot.key];
@@ -431,9 +469,11 @@ export class CombatantFactory {
       if (isFerromagnetic(piece.material)) metallicArmor = true;
       stats.def_phy += piece.physicalArmor;
       stats.def_mag += piece.magicalProtection;
-      for (const r of piece.resistances) if (!affinities.resistances.includes(r)) affinities.resistances.push(r);
-      for (const w of piece.weaknesses) if (!affinities.weaknesses.includes(w)) affinities.weaknesses.push(w);
+      worn.push({ resistances: piece.resistances, weaknesses: piece.weaknesses });
     }
+    // Même assemblage que la fiche (cf. `characterAffinities`) : ce que le
+    // tableau imprimé annonce est exactement ce que le combat applique.
+    const affinities = { ...EMPTY_AFFINITIES(), ...characterAffinities(sheet, worn) };
 
     const inventory = this.carriedFrom(sheet);
 
@@ -480,6 +520,8 @@ export class CombatantFactory {
       abilities: this.sheetAbilities(sheet, klass, inventory, traits),
       inventory,
       affinities,
+      // Ce que les feats domaniaux jouent au combat, et non sur la fiche.
+      featPassives: passives.length ? passives : undefined,
       metallicArmor,
       // Ce que le personnage a APPRIS à manier : sa classe, plus ses maîtrises
       // supplémentaires. C'est ce qui permet de rejuger la maîtrise quand une
@@ -532,6 +574,7 @@ export class CombatantFactory {
       const ammo = this.ammunition.find((a) => a.name === line.name);
       const potion = this.consumablesByName.get(line.name);
       const venom = this.venomsByName.get(line.name);
+      const care = this.careByName.get(line.name);
       const gear = this.gearByName.get(line.name);
       // Une arme rangée au sac reste une arme : on lui prépare sa capacité pour
       // qu'elle puisse être prise en main sans que le moteur ait à retrouver un
@@ -540,8 +583,16 @@ export class CombatantFactory {
       return {
         name: line.name,
         qty: Math.max(0, Math.round(line.qty ?? 0)),
-        slug: potion?.slug ?? venom?.slug,
-        kind: ammo ? 'ammunition' : potion ? 'consumable' : venom ? 'venom' : 'other',
+        slug: potion?.slug ?? venom?.slug ?? care?.slug,
+        kind: ammo
+          ? 'ammunition'
+          : potion
+            ? 'consumable'
+            : venom
+              ? 'venom'
+              : care
+                ? 'care'
+                : 'other',
         weapon: arme ? { source: arme, ammo: this.ammunitionFor(arme) } : undefined,
         // Ce que le catalogue en dit. Une ligne de sac écrite à la main et
         // reconnue par personne n'a pas de matière : on ne la devine pas
@@ -630,6 +681,15 @@ export class CombatantFactory {
     // action bonus au lieu de coûter le tour (cf. catalogue de traits).
     const poisoner = traits.some((t) => t.key === POISONER_TRAIT);
 
+    // Le trait Soigneur ne change qu'une chose : stabiliser rend aussi 1 PV —
+    // donc, dans ce moteur, remet le blessé debout.
+    const healer = traits.some((t) => t.key === HEALER_TRAIT);
+    // Une trousse dans le sac améliore les bandages posés avec, comme le dit
+    // le catalogue : elle n'a pas besoin d'être « équipée » pour ça.
+    const hasKit = inventory.some(
+      (line) => line.qty > 0 && this.careByName.get(line.name)?.isKit,
+    );
+
     for (const line of inventory) {
       if (line.kind === 'consumable') {
         const source = this.consumablesByName.get(line.name);
@@ -637,6 +697,9 @@ export class CombatantFactory {
       } else if (line.kind === 'venom') {
         const venom = this.venomsByName.get(line.name);
         if (venom) abilities.push(venomAbility(venom, poisoner));
+      } else if (line.kind === 'care') {
+        const piece = this.careByName.get(line.name);
+        if (piece) abilities.push(careAbility(piece, { hasKit, healer }));
       }
     }
     return abilities;

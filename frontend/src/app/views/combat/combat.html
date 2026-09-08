@@ -497,6 +497,13 @@
                 </option>
               }
             </select>
+            <!-- Combien de rounds le ciel tient encore : une météo a une durée,
+                 et la voir filer change les plans du tour. -->
+            @if (encounter().weatherRounds; as tours) {
+              <span class="cb-weather-left" [title]="'La météo se dissipe dans ' + tours + ' round' + (tours > 1 ? 's' : '')">
+                ⏳ {{ tours }}
+              </span>
+            }
             <!-- Ce que le sol offre : c'est lui qui décide de ce qu'un mage de
                  Terre vaut ici, avant qu'il n'ouvre la bouche. -->
             <button
@@ -1356,8 +1363,9 @@
                         <em>+{{ mana }} mana</em>
                       }
                       <em>{{ ability.rangeMeters }} m</em>
-                      <!-- Coût RÉEL : la météo et l'heure du jour le modulent. -->
-                      @if (manaCost(ability); as cost) {
+                      <!-- Coût RÉEL : la météo, l'heure du jour et les charges
+                           captées par les feats du lanceur le modulent. -->
+                      @if (manaCost(unit, ability); as cost) {
                         <em [class.cb-stock]="cost !== ability.manaCost">{{ cost }} mana</em>
                       }
                       @if (ability.enduranceCost) { <em>{{ ability.enduranceCost }} end.</em> }

@@ -761,6 +761,38 @@
         </fieldset>
 
         <fieldset class="cs-fieldset">
+          <legend>Affinités aux dégâts</legend>
+          <p class="cs-stats-note">
+            Dérivées de l'équipement porté et des feats domaniaux pris — rien à saisir. Le
+            simulateur applique exactement ces lignes.
+          </p>
+          <div class="cs-aff-grid">
+            @for (col of affinityColumns; track col.key) {
+              <div [class]="'cs-aff-col is-' + col.key">
+                <span class="cs-aff-col__head">
+                  {{ col.label }}
+                  <em>{{ col.note }}</em>
+                </span>
+                @if (col.types.length) {
+                  <ul class="cs-aff-col__list">
+                    @for (type of col.types; track type.key) {
+                      <li class="cs-aff-type">
+                        @if (type.sigil) {
+                          <span class="cs-aff-type__sigil" aria-hidden="true">{{ type.sigil }}</span>
+                        }
+                        <span class="cs-aff-type__label">{{ type.label }}</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <span class="cs-aff-col__empty">—</span>
+                }
+              </div>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="cs-fieldset">
           <legend>Langues</legend>
 
           <div class="cs-points" [class.is-empty]="languageSlotsLeft === 0">
@@ -1413,6 +1445,32 @@
               }
             </ul>
           </section>
+
+          <!-- AFFINITÉS -->
+          @if (hasAffinities) {
+            <section class="sheet-block sheet-affinities">
+              <h2 class="sheet-banner">Affinités aux dégâts</h2>
+              <div class="sheet-aff-grid">
+                @for (col of affinityColumns; track col.key) {
+                  <div [class]="'sheet-aff-col is-' + col.key">
+                    <span class="sheet-aff-col__head">{{ col.label }}<em>{{ col.note }}</em></span>
+                    @if (col.types.length) {
+                      @for (type of col.types; track type.key) {
+                        <span class="sheet-aff__type">
+                          @if (type.sigil) {
+                            <b aria-hidden="true">{{ type.sigil }}</b>
+                          }
+                          {{ type.label }}
+                        </span>
+                      }
+                    } @else {
+                      <span class="sheet-aff-col__empty">—</span>
+                    }
+                  </div>
+                }
+              </div>
+            </section>
+          }
 
           <!-- LANGUES -->
           @if (grantedLanguageKeys.length || learnedLanguageKeys.length) {

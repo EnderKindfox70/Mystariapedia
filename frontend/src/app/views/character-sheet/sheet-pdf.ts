@@ -204,6 +204,15 @@ export interface SheetPdfData {
   inventory: { name: string; qty: number; weight: number }[];
   weight: { total: number; capacity: number; over: boolean };
   traits: { name: string; description?: string; icon: string }[];
+  /**
+   * Affinités aux dégâts : une COLONNE par lecture, dans l'ordre absorptions,
+   * immunités, résistances, faiblesses. Les types sont déjà en français.
+   *
+   * La valeur (×0,5, ×1,5…) n'y figure pas : elle appartient au réglage du
+   * moteur, pas à la fiche qu'on pose sur la table — les colonnes disent déjà
+   * dans quel sens ça penche. Vide = le personnage encaisse tout pareil.
+   */
+  affinities: { label: string; types: string[] }[];
   notes: string;
 }
 
@@ -1458,6 +1467,54 @@ function inventoryBlock(p: Painter, d: SheetPdfData): Block {
   return { title: 'Sac', rows };
 }
 
+/**
+ * Affinités : une colonne par lecture, côte à côte, comme sur l'aperçu.
+ *
+ * Chaque colonne est un panneau avec son titre en capitales et ses types
+ * empilés dessous ; une colonne sans rien affiche un tiret plutôt que de
+ * disparaître, sinon les quatre ne s'alignent plus d'une fiche à l'autre. Pas
+ * de glyphe ici : les polices embarquées ne portent pas ces caractères.
+ */
+function affinitiesBlock(p: Painter, d: SheetPdfData, w: number): Block {
+  const inner = w - PAD * 2;
+  const cols = d.affinities.length || 1;
+  const gap = 2.2;
+  const colW = (inner - gap * (cols - 1)) / cols;
+  const textW = colW - 4;
+  const lineHeight = lineH(PT.small);
+
+  // Hauteur commune : on mesure d'abord, on dessine ensuite — le moteur de mise
+  // en page réclame la hauteur de la ligne avant de la peindre.
+  p.font('Spectral', 'normal', PT.small);
+  const cells = d.affinities.map((col) => {
+    const lines = col.types.length
+      ? col.types.flatMap((type) => p.wrap(type, textW))
+      : ['—'];
+    return { label: col.label, lines };
+  });
+  const bodyH = Math.max(...cells.map((c) => c.lines.length)) * lineHeight;
+  const headH = lineH(PT.micro) + 1;
+  const panelH = headH + bodyH + 3;
+
+  return {
+    title: 'Affinités aux dégâts',
+    rows: [
+      row(panelH + 1.5, (x, y) => {
+        cells.forEach((cell, i) => {
+          const cx = x + i * (colW + gap);
+          p.panel(cx, y, colW, panelH, 1.4);
+          p.font('Cinzel', 'normal', PT.micro, MUTED);
+          p.text(p.ellipsis(cell.label.toUpperCase(), textW), cx + 2, y + 1.6);
+          p.font('Spectral', 'normal', PT.small, INK);
+          cell.lines.forEach((line, l) => {
+            p.text(line, cx + 2, y + 1.6 + headH + l * lineHeight);
+          });
+        });
+      }),
+    ],
+  };
+}
+
 function traitsBlock(p: Painter, d: SheetPdfData, w: number): Block {
   const inner = w - PAD * 2;
   if (!d.traits.length) {
@@ -1611,6 +1668,9 @@ export async function exportSheetPdf(data: SheetPdfData): Promise<void> {
       right: () => inventoryBlock(painter, data),
     },
     { kind: 'full', build: (w) => traitsBlock(painter, data, w) },
+    ...(data.affinities.length
+      ? [{ kind: 'full' as const, build: (w: number) => affinitiesBlock(painter, data, w) }]
+      : []),
     { kind: 'full', build: (w) => notesBlock(painter, data, w) },
     { kind: 'full', build: (w) => artworkBlock(painter, artwork, w) },
   ]);

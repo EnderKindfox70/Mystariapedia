@@ -348,6 +348,348 @@
                     }
                 ]
             }
+        },
+        {
+            "key": "renforcement-tendons",
+            "requires": [
+                "renforcement-corps"
+            ],
+            "name": "Tendons renforcés",
+            "description": "Toute la mana part dans les tendons et les attaches, là où le geste se déclenche. Rien ne frappe plus fort, rien n'encaisse mieux — mais tout arrive plus tôt.",
+            "usage": {
+                "combat": "Le renfort de celui qui veut choisir où se tient le combat : il agit plus tôt et couvre plus de terrain, sans rien gagner à l'échange de coups.",
+                "outOfCombat": "Courir un relais sans souffler, franchir un éboulis d'appui en appui, rattraper une monture lancée."
+            },
+            "mana": 3,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "progression": {
+                "root": "rt1",
+                "nodes": [
+                    {
+                        "id": "rt1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Tendons renforcés I",
+                        "description": "Les attaches se resserrent : la foulée part plus tôt et la garde se replace avant que le coup ne revienne.",
+                        "next": [
+                            "rt2"
+                        ],
+                        "stats": {
+                            "mana": 3,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "effects": [
+                                {
+                                    "stat": "speed",
+                                    "value": 3,
+                                    "scaling": [
+                                        {
+                                            "source": "dexterite",
+                                            "ratio": 0.35
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "rt2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Tendons renforcés II",
+                        "description": "Le corps n'attend plus la décision : il l'a déjà suivie. Le renfort tient un échange de plus.",
+                        "next": [
+                            "rt3"
+                        ],
+                        "stats": {
+                            "mana": 4,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 4,
+                            "effects": [
+                                {
+                                    "stat": "speed",
+                                    "value": 4,
+                                    "scaling": [
+                                        {
+                                            "source": "dexterite",
+                                            "ratio": 0.45
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "rt3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Tendons renforcés III",
+                        "description": "Chaque tendon rend toute l'énergie qu'on lui confie. Là où les autres se déplacent, celui-ci est déjà arrivé.",
+                        "usage": {
+                            "outOfCombat": "Une poursuite sur les toits, une descente de falaise à mains nues, un message porté avant la nuit : la vitesse tient assez longtemps pour changer une course."
+                        },
+                        "stats": {
+                            "mana": 6,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 5,
+                            "effects": [
+                                {
+                                    "stat": "speed",
+                                    "value": 6,
+                                    "scaling": [
+                                        {
+                                            "source": "dexterite",
+                                            "ratio": 0.55
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "renforcement-peau",
+            "requires": [
+                "renforcement-corps"
+            ],
+            "name": "Peau renforcée",
+            "description": "La mana se dépose sous la peau et s'y étale en couche serrée. Le corps ne gagne ni force ni vitesse : il devient simplement difficile à ouvrir.",
+            "usage": {
+                "combat": "Une armure de mana par-dessus l'armure : ce qui portait entame moins, et les longs échanges cessent de saigner.",
+                "outOfCombat": "Traverser un roncier, saisir un fer chaud à mains nues, encaisser une chute sur la roche sans rien se rompre."
+            },
+            "mana": 3,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "progression": {
+                "root": "rp1",
+                "nodes": [
+                    {
+                        "id": "rp1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Peau renforcée I",
+                        "description": "La peau se durcit en profondeur : les coups glissent là où ils mordaient.",
+                        "next": [
+                            "rp2"
+                        ],
+                        "stats": {
+                            "mana": 3,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "effects": [
+                                {
+                                    "stat": "def_phy",
+                                    "value": 4,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.35
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "rp2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Peau renforcée II",
+                        "description": "La couche s'épaissit sans rien coûter à la souplesse. Rien ne ralentit, tout tient mieux.",
+                        "next": [
+                            "rp3"
+                        ],
+                        "stats": {
+                            "mana": 4,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 4,
+                            "effects": [
+                                {
+                                    "stat": "def_phy",
+                                    "value": 6,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.45
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "rp3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Peau renforcée III",
+                        "description": "Une peau qu'il faut vouloir ouvrir. Elle n'arrête pas tout — elle fait payer chaque tentative.",
+                        "usage": {
+                            "outOfCombat": "Une nuit de gel, un éboulement, une remontée à travers les broussailles : le renfort tient assez longtemps pour ramener tout le monde entier."
+                        },
+                        "stats": {
+                            "mana": 6,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 5,
+                            "effects": [
+                                {
+                                    "stat": "def_phy",
+                                    "value": 8,
+                                    "scaling": [
+                                        {
+                                            "source": "constitution",
+                                            "ratio": 0.55
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "key": "renforcement-biceps",
+            "requires": [
+                "renforcement-corps"
+            ],
+            "name": "Biceps renforcés",
+            "description": "Toute la trame se concentre dans les bras et les épaules. Le geste ne part pas plus vite et le corps n'encaisse pas mieux — mais ce qu'il touche cède.",
+            "usage": {
+                "combat": "Le renfort de celui qui n'a besoin que d'une chose : que le coup passe l'armure. Il ne protège de rien pendant ce temps.",
+                "outOfCombat": "Forcer une porte barrée, soulever une herse, planter un grappin deux fois plus haut qu'à l'ordinaire."
+            },
+            "mana": 3,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "progression": {
+                "root": "rb1",
+                "nodes": [
+                    {
+                        "id": "rb1",
+                        "tier": 1,
+                        "branch": "trunk",
+                        "name": "Biceps renforcés I",
+                        "description": "Le muscle se densifie jusqu'à l'attache : le coup pèse plus lourd qu'il ne devrait.",
+                        "next": [
+                            "rb2"
+                        ],
+                        "stats": {
+                            "mana": 3,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 3,
+                            "effects": [
+                                {
+                                    "stat": "atk_phy",
+                                    "value": 4,
+                                    "scaling": [
+                                        {
+                                            "source": "force",
+                                            "ratio": 0.35
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "rb2",
+                        "tier": 2,
+                        "branch": "trunk",
+                        "name": "Biceps renforcés II",
+                        "description": "L'épaule suit le bras : toute la masse du corps passe dans la frappe.",
+                        "next": [
+                            "rb3"
+                        ],
+                        "stats": {
+                            "mana": 4,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 4,
+                            "effects": [
+                                {
+                                    "stat": "atk_phy",
+                                    "value": 6,
+                                    "scaling": [
+                                        {
+                                            "source": "force",
+                                            "ratio": 0.45
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "rb3",
+                        "tier": 3,
+                        "branch": "trunk",
+                        "name": "Biceps renforcés III",
+                        "description": "Une force que la chair ne devrait pas porter. Les armes s'usent plus vite que le porteur.",
+                        "usage": {
+                            "outOfCombat": "Déplacer une pierre de taille, briser une chaîne d'ancre, tenir un pont-levis à deux : ce qui demandait une équipe demande un homme."
+                        },
+                        "stats": {
+                            "mana": 6,
+                            "range": "Personnel",
+                            "area": "Soi-même",
+                            "targets": [
+                                "self"
+                            ],
+                            "duration": 5,
+                            "effects": [
+                                {
+                                    "stat": "atk_phy",
+                                    "value": 8,
+                                    "scaling": [
+                                        {
+                                            "source": "force",
+                                            "ratio": 0.55
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
         }
     ],
     "manifestations": [

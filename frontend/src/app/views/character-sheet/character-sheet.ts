@@ -5,6 +5,7 @@ import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { Navbar } from '../../components/navbar/navbar';
 import { CharacterSheetService } from '../../services/character-sheet.service';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
+import { damageLabel, damageSigil } from '../../combat/damage-labels';
 import {
   ArmorEntry,
   MaterialFamilyKey,
@@ -118,6 +119,8 @@ import {
   religionByKey,
   standingFor,
   traitRequirement,
+  characterAffinities,
+  type CharacterAffinities,
   LANGUAGES,
   grantedLanguages,
   languageByKey,
@@ -270,6 +273,10 @@ interface EquipmentStat {
   weight: number;
   /** Catégorie du set dont la pièce provient (cf. armor_category.json). */
   armorCategory?: string;
+  /** Types de dégâts auxquels le set résiste (déclarés sur le set, pas la pièce). */
+  resistances?: string[];
+  /** Types de dégâts auxquels le set rend vulnérable. */
+  weaknesses?: string[];
 }
 
 /**
@@ -501,6 +508,10 @@ export class CharacterSheetEditor {
             // La catégorie se déclare sur le set, pas sur la pièce : un heaume
             // de plaques est lourd parce que l'armure dont il vient l'est.
             armorCategory: item.set?.armorCategory,
+            // Les affinités aussi : une cotte de mailles protège pareil de la
+            // coiffe aux solerets.
+            resistances: item.set?.resistances ?? [],
+            weaknesses: item.set?.weaknesses ?? [],
           });
         }
       }
@@ -2182,6 +2193,54 @@ export class CharacterSheetEditor {
       .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
   }
 
+  /* ── Affinités : ce que le personnage encaisse mal, bien, ou pas du tout ──
+     Assemblées par la MÊME fonction que la fabrique de combattants : ce que le
+     tableau annonce est exactement ce que le simulateur appliquera.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /** Les quatre colonnes du tableau, de ce qui protège le mieux à ce qui expose. */
+  readonly affinityRows: { key: keyof CharacterAffinities; label: string; note: string }[] = [
+    { key: 'absorptions', label: 'Absorptions', note: 'soigne au lieu de blesser' },
+    { key: 'immunities', label: 'Immunités', note: 'aucun dégât' },
+    { key: 'resistances', label: 'Résistances', note: '×0,5' },
+    { key: 'weaknesses', label: 'Faiblesses', note: '×1,5' },
+  ];
+
+  /** Les colonnes prêtes à afficher : type, nom français et glyphe. */
+  get affinityColumns(): {
+    key: string;
+    label: string;
+    note: string;
+    types: { key: string; label: string; sigil: string }[];
+  }[] {
+    const all = this.affinities;
+    return this.affinityRows.map((row) => ({
+      key: row.key,
+      label: row.label,
+      note: row.note,
+      types: all[row.key].map((type) => ({
+        key: type,
+        label: damageLabel(type),
+        sigil: damageSigil(type),
+      })),
+    }));
+  }
+
+  /** Affinités du personnage : ce que l'équipement porté donne, plus ses feats. */
+  get affinities(): CharacterAffinities {
+    const worn = EQUIPMENT_SLOTS.filter((slot) => !this.slotBlocked(slot.key))
+      .map((slot) => this.equipmentStats().get(this.itemIn(slot.key)))
+      .filter((piece): piece is EquipmentStat => !!piece)
+      .map((piece) => ({ resistances: piece.resistances, weaknesses: piece.weaknesses }));
+    return characterAffinities(this.model, worn);
+  }
+
+  /** Vrai si le personnage a au moins une affinité à montrer. */
+  get hasAffinities(): boolean {
+    const all = this.affinities;
+    return this.affinityRows.some((row) => all[row.key].length > 0);
+  }
+
   /* ── Langues ──────────────────────────────────────────────────────────
      Le commun et la langue de l'origine sont acquis d'office : ils se
      recalculent, la fiche ne les stocke pas. Les autres se prennent dans les
@@ -2744,6 +2803,14 @@ export class CharacterSheetEditor {
           icon: DEFAULT_TRAIT_ICON,
         })),
       ],
+      // Les quatre colonnes partent entières : c'est leur alignement qui rend
+      // le tableau lisible, pas la présence de contenu dans chacune.
+      affinities: this.hasAffinities
+        ? this.affinityColumns.map((col) => ({
+            label: col.label,
+            types: col.types.map((type) => type.label),
+          }))
+        : [],
       notes: this.model.notes,
     };
   }

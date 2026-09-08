@@ -1352,3 +1352,14 @@
   color: var(--faded-ivory);
 }
 .cb-shape__trait { font-style: normal; opacity: .6; }
+
+/* Rounds restants à la météo, à côté de son sélecteur : une tempête qui va
+   tomber ne se joue pas comme une qui vient de se lever. */
+.cb-weather-left {
+  display: inline-flex; align-items: center; gap: 0.2rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.72rem; color: var(--ancient-gold);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 35%, transparent);
+  border-radius: 999px;
+  white-space: nowrap;
+}

@@ -1486,11 +1486,12 @@ export class CombatView implements OnDestroy {
   }
 
   /**
-   * Coût en mana réellement payé, météo et heure du jour comprises. Un sort de
-   * ténèbres coûte moins la nuit : le bouton doit le dire.
+   * Coût en mana réellement payé : météo, heure du jour et charges captées par
+   * les feats du lanceur comprises. Un sort de ténèbres coûte moins la nuit, un
+   * paratonnerre chargé rend sa foudre à moitié prix — le bouton doit le dire.
    */
-  manaCost(ability: CombatAbility): number {
-    return effectiveManaCost(this.encounter(), ability);
+  manaCost(unit: Combatant, ability: CombatAbility): number {
+    return effectiveManaCost(this.encounter(), ability, unit);
   }
 
   /** Soin annoncé par une capacité (0 si elle n'en accorde pas). */
