@@ -96,10 +96,7 @@ import {
   domainSigil,
   availableSpellsFor,
   findDomainSpell,
-  spellMaxTier,
-  spellTree,
   type DomainSpell,
-  type SpellTreeNode,
   emptySheet,
   formatBonus,
   grantedTraits,
@@ -178,6 +175,9 @@ const INVENTORY_COLLECTIONS = [
   'weapons/ammunition',
   'weapons/armor',
   'weapons/shield',
+  'artifacts/simple',
+  'artifacts/complex',
+  'artifacts/soul',
 ];
 
 /** Collections d'armes proposées dans les emplacements d'arme (main/secondaire). */
@@ -185,6 +185,14 @@ const WEAPON_COLLECTIONS = ['weapons/melee', 'weapons/ranged'];
 
 /** Collections de sets (armures, vêtements, boucliers) dont on tire les pièces équipables. */
 const ARMOR_COLLECTIONS = ['weapons/armor', 'weapons/shield'];
+
+/**
+ * Catalogues d'objets magiques. Contrairement aux armures, ils ne se rangent pas
+ * par pièce : chaque fiche déclare elle-même l'emplacement où elle se porte
+ * (`slot`), ce qui permet à un pendentif d'aller à l'amulette sans que la fiche
+ * de personnage ait à connaître les artefacts un par un.
+ */
+const ARTIFACT_COLLECTIONS = ['artifacts/simple', 'artifacts/complex', 'artifacts/soul'];
 
 /** Emplacement de pièce d'armure (cf. ArmorPiece.slot) → emplacement d'équipement. */
 const PIECE_TO_EQUIP_SLOT: Record<string, string> = {
@@ -271,6 +279,8 @@ interface EquipmentStat {
   physicalArmor: number;
   magicalProtection: number;
   weight: number;
+  /** Bonus de stats accordés tant que l'objet est porté (talismans, anneaux…). */
+  statEffects?: { key: string; value: number }[];
   /** Catégorie du set dont la pièce provient (cf. armor_category.json). */
   armorCategory?: string;
   /** Types de dégâts auxquels le set résiste (déclarés sur le set, pas la pièce). */
@@ -455,7 +465,17 @@ export class CharacterSheetEditor {
       map((index) => index.filter(isBag)),
     );
 
-    forkJoin([weapons$, armorSets$, bags$]).subscribe(([weapons, sets, bags]) => {
+    // Objets magiques portés : l'index suffit, il porte le nom, le poids et
+    // l'emplacement déclaré par la fiche.
+    const artifacts$ = forkJoin(
+      ARTIFACT_COLLECTIONS.map((col) =>
+        this.wiki
+          .loadAll<ResourceIndexEntry>(col)
+          .pipe(catchError(() => of([] as ResourceIndexEntry[]))),
+      ),
+    ).pipe(map((lists) => lists.flat()));
+
+    forkJoin([weapons$, armorSets$, bags$, artifacts$]).subscribe(([weapons, sets, bags, artifacts]) => {
       const opts: Record<string, string[]> = {
         head: [], chest: [], legs: [], feet: [],
         weapon: [], offhand: [], amulet: [], ring: [], bag: [],
@@ -514,6 +534,20 @@ export class CharacterSheetEditor {
             weaknesses: item.set?.weaknesses ?? [],
           });
         }
+      }
+
+      // Objets magiques : chacun va dans l'emplacement que sa fiche déclare. Un
+      // emplacement inconnu est ignoré plutôt que créé — la liste des
+      // emplacements appartient au paperdoll, pas au catalogue.
+      for (const item of artifacts) {
+        if (!item.name || !item.slot || !(item.slot in opts)) continue;
+        push(item.slot, item.name);
+        stats.set(item.name, {
+          physicalArmor: 0,
+          magicalProtection: 0,
+          weight: item.weight ?? 0,
+          statEffects: item.statEffects,
+        });
       }
 
       for (const key of Object.keys(opts)) {
@@ -1097,6 +1131,25 @@ export class CharacterSheetEditor {
     return { def_phy: defPhy, def_mag: defMag, weight: this.round2(weight) };
   }
 
+  /**
+   * Bonus de stats accordés par ce qui est PORTÉ, une ligne par objet et par
+   * stat. L'objet est nommé plutôt que fondu dans un « Équipement » anonyme :
+   * l'infobulle sert à vérifier un total, donc à savoir d'où vient chaque point.
+   */
+  private get wornStatEffects(): { label: string; key: string; value: number }[] {
+    const stats = this.equipmentStats();
+    const out: { label: string; key: string; value: number }[] = [];
+    for (const slot of EQUIPMENT_SLOTS) {
+      const name = this.itemIn(slot.key);
+      const worn = name ? stats.get(name) : undefined;
+      for (const effect of worn?.statEffects ?? []) {
+        const value = Number(effect.value) || 0;
+        if (value) out.push({ label: name, key: effect.key, value });
+      }
+    }
+    return out;
+  }
+
   /** Détail combat des armes équipées (main + secondaire), pour l'affichage de la fiche. */
   get equippedWeapons(): EquippedWeapon[] {
     const info = this.weaponInfo();
@@ -1158,6 +1211,12 @@ export class CharacterSheetEditor {
     const eq = this.equipmentBonus;
     stats.def_phy += eq.def_phy;
     stats.def_mag += eq.def_mag;
+    // Bonus des objets portés (talismans, anneaux…). Une clé hors des stats de
+    // combat est ignorée ici : un objet qui prétendrait relever la Force ne peut
+    // pas le faire par ce chemin, les attributs se calculent ailleurs.
+    for (const { key, value } of this.wornStatEffects) {
+      if (key in stats) stats[key as StatKey] += value;
+    }
     return stats;
   }
 
@@ -1175,6 +1234,9 @@ export class CharacterSheetEditor {
       const eq = this.equipmentBonus;
       const value = statKey === 'def_phy' ? eq.def_phy : eq.def_mag;
       if (value) parts.push({ label: 'Équipement', value });
+    }
+    for (const effect of this.wornStatEffects) {
+      if (effect.key === statKey) parts.push({ label: effect.label, value: effect.value });
     }
     return parts;
   }
@@ -1577,58 +1639,25 @@ export class CharacterSheetEditor {
       : uniqStrings((Array.isArray(rec.known) ? rec.known : []).map((x) => (x as { key?: unknown })?.key));
     const unlocked = unlockedRaw.filter((k) => !!findDomainSpell(k));
 
-    const nodesSrc = (rec.nodes && typeof rec.nodes === 'object' ? rec.nodes : {}) as Record<string, unknown>;
-    const ranksSrc = (rec.ranks && typeof rec.ranks === 'object' ? rec.ranks : {}) as Record<string, unknown>;
-
+    // Les paliers enregistrés par l'ancien système (`nodes`, `ranks`) ne sont
+    // plus lus : un sort débloqué l'est, et son niveau se paiera en XP.
     const nodes: Record<string, string[]> = {};
-    for (const k of unlocked) {
-      if (Array.isArray(nodesSrc[k])) {
-        nodes[k] = this.sanitizeNodeSet(k, (nodesSrc[k] as unknown[]).filter((x): x is string => typeof x === 'string'));
-      } else if (typeof ranksSrc[k] === 'number') {
-        nodes[k] = this.trunkPath(k, Math.max(1, Math.round(Number(ranksSrc[k])))); // migration rang → chemin de tronc
-      } else {
-        nodes[k] = this.sanitizeNodeSet(k, []); // racine seule
-      }
-    }
+    for (const k of unlocked) nodes[k] = this.sanitizeNodeSet();
 
     const equipped = uniqStrings(rec.equipped).filter((k) => unlocked.includes(k));
     return { unlocked, equipped, nodes };
   }
 
-  /** Nettoie un ensemble de nœuds : garde ceux de l'arbre, force la racine, élague les orphelins. */
-  private sanitizeNodeSet(key: string, ids: string[]): string[] {
-    const tree = spellTree(key);
-    if (!tree) return ['__root__'];
-    const valid = new Set(tree.nodes.map((n) => n.id));
-    const set = new Set(ids.filter((id) => valid.has(id)));
-    set.add(tree.root);
-    const parentOf = new Map<string, string>();
-    for (const n of tree.nodes) for (const c of n.next ?? []) parentOf.set(c, n.id);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const id of [...set]) {
-        if (id === tree.root) continue;
-        const p = parentOf.get(id);
-        if (!p || !set.has(p)) { set.delete(id); changed = true; }
-      }
-    }
-    return [...set];
-  }
-
-  /** Chemin du tronc (racine puis premier enfant à répétition) sur `count` nœuds — pour la migration des rangs. */
-  private trunkPath(key: string, count: number): string[] {
-    const tree = spellTree(key);
-    if (!tree) return ['__root__'];
-    const path = [tree.root];
-    let cur = tree.root;
-    while (path.length < count) {
-      const nxt = tree.nodes.find((n) => n.id === cur)?.next?.[0];
-      if (!nxt) break;
-      path.push(nxt);
-      cur = nxt;
-    }
-    return path;
+  /**
+   * Un sort débloqué occupe une entrée, et une seule.
+   *
+   * Les fiches n'ont plus de paliers : un sort se règle par budget, et son
+   * niveau se paie en XP. Les ensembles enregistrés par l'ancien système sont
+   * ramenés à cette racine fictive — rien n'est perdu de ce qui compte encore
+   * (le sort EST débloqué), et la mise à niveau vers l'XP pourra repartir de là.
+   */
+  private sanitizeNodeSet(): string[] {
+    return ['__root__'];
   }
 
   // ── Valeurs calculées (appelées dans le template) ──────────────────────────
@@ -2369,116 +2398,18 @@ export class CharacterSheetEditor {
   get inspirationTotal(): number {
     return this.inspirationPerLevel * this.model.level;
   }
-  /** Points dépensés = nombre total de nœuds débloqués (1 nœud = 1 point). */
+  /** Points dépensés = nombre de sorts débloqués (1 sort = 1 point). */
   get inspirationSpent(): number {
-    return this.model.spells.unlocked.reduce((sum, k) => sum + this.unlockedNodes(k).length, 0);
+    return this.model.spells.unlocked.length;
   }
   /** Points disponibles. */
   get inspirationLeft(): number {
     return this.inspirationTotal - this.inspirationSpent;
   }
 
-  /* ── Amélioration par nœuds / choix de branche ── */
-
-  /** Ids des nœuds débloqués d'un sort (inclut la racine si le sort est débloqué). */
+  /** Ids des entrées enregistrées pour un sort (une seule depuis la fin des paliers). */
   unlockedNodes(key: string): string[] {
     return this.model.spells.nodes[key] ?? [];
-  }
-  isNodeUnlocked(key: string, id: string): boolean {
-    return this.unlockedNodes(key).includes(id);
-  }
-
-  /** Nœuds de l'arbre d'un sort, triés par palier puis par nom (pour l'affichage). */
-  spellNodes(key: string): SpellTreeNode[] {
-    return [...(spellTree(key)?.nodes ?? [])].sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
-  }
-  /** Libellé de la branche d'un nœud (`trunk` → « Tronc commun »). */
-  branchLabel(key: string, node: SpellTreeNode): string {
-    if (!node.branch || node.branch === 'trunk') return 'Tronc commun';
-    const b = spellTree(key)?.branches?.find((x) => x.id === node.branch);
-    return b?.label ?? node.branch;
-  }
-
-  /** Parent d'un nœud dans l'arbre (le nœud dont `next` le contient), ou undefined si racine. */
-  private nodeParent(key: string, id: string): string | undefined {
-    return (spellTree(key)?.nodes ?? []).find((n) => (n.next ?? []).includes(id))?.id;
-  }
-  /** La racine est-elle ce nœud ? */
-  isRootNode(key: string, id: string): boolean {
-    return spellTree(key)?.root === id;
-  }
-
-  /** Branches sœurs : les autres enfants du même parent (choix alternatifs à une scission). */
-  private nodeSiblings(key: string, id: string): string[] {
-    const parent = this.nodeParent(key, id);
-    if (!parent) return [];
-    const p = (spellTree(key)?.nodes ?? []).find((n) => n.id === parent);
-    return (p?.next ?? []).filter((c) => c !== id);
-  }
-  /** Une branche sœur a-t-elle déjà été choisie (verrouille ce palier) ? */
-  isBranchExcluded(key: string, id: string): boolean {
-    return !this.isNodeUnlocked(key, id) && this.nodeSiblings(key, id).some((sib) => this.isNodeUnlocked(key, sib));
-  }
-
-  /**
-   * Peut-on débloquer ce palier ? Non déjà pris, parent débloqué (ou racine d'un
-   * sort déjà débloqué), aucune branche sœur déjà choisie, et au moins 1 point
-   * d'inspiration disponible.
-   */
-  canUnlockNode(key: string, id: string): boolean {
-    if (!this.isSpellUnlocked(key) || this.isNodeUnlocked(key, id) || this.inspirationLeft < 1) return false;
-    if (this.isRootNode(key, id)) return true; // la racine vient avec le déblocage
-    const parent = this.nodeParent(key, id);
-    return !!parent && this.isNodeUnlocked(key, parent) && !this.isBranchExcluded(key, id);
-  }
-  unlockNode(key: string, id: string): void {
-    if (this.canUnlockNode(key, id)) this.model.spells.nodes[key] = [...this.unlockedNodes(key), id];
-  }
-
-  /** Un palier débloqué a-t-il un enfant débloqué (empêche son retrait) ? */
-  private nodeHasUnlockedChild(key: string, id: string): boolean {
-    const node = (spellTree(key)?.nodes ?? []).find((n) => n.id === id);
-    return (node?.next ?? []).some((c) => this.isNodeUnlocked(key, c));
-  }
-  /** Peut-on retirer ce palier ? Débloqué, non racine, sans enfant débloqué. */
-  canRemoveNode(key: string, id: string): boolean {
-    return this.isNodeUnlocked(key, id) && !this.isRootNode(key, id) && !this.nodeHasUnlockedChild(key, id);
-  }
-  removeNode(key: string, id: string): void {
-    if (this.canRemoveNode(key, id)) {
-      this.model.spells.nodes[key] = this.unlockedNodes(key).filter((n) => n !== id);
-    }
-  }
-
-  /** Rang affiché = plus haut palier débloqué (indicateur de puissance). */
-  spellRank(key: string): number {
-    const tiers = this.unlockedNodes(key)
-      .map((id) => (spellTree(key)?.nodes ?? []).find((n) => n.id === id)?.tier ?? 1);
-    return tiers.length ? Math.max(...tiers) : 1;
-  }
-
-  /**
-   * Nom du palier courant d'un sort (le nom du nœud débloqué le plus avancé) —
-   * plus reconnaissable que le nom de base. Repli sur le nom du sort si aucun arbre.
-   */
-  spellCurrentName(key: string): string {
-    const tree = spellTree(key);
-    const fallback = findDomainSpell(key)?.name ?? key;
-    if (!tree) return fallback;
-    const unlocked = this.unlockedNodes(key);
-    let best: SpellTreeNode | undefined;
-    for (const n of tree.nodes) {
-      if (unlocked.includes(n.id) && (!best || n.tier > best.tier)) best = n;
-    }
-    return best?.name ?? fallback;
-  }
-  /** Rang maximal = nombre de paliers du sort. */
-  spellMaxRank(key: string): number {
-    return spellMaxTier(key);
-  }
-  /** Le sort a-t-il un arbre d'amélioration (plusieurs paliers) ? */
-  hasSpellTree(key: string): boolean {
-    return this.spellMaxRank(key) > 1;
   }
 
   isSpellUnlocked(key: string): boolean {
@@ -2526,9 +2457,7 @@ export class CharacterSheetEditor {
   unlockSpell(spell: DomainSpell): void {
     if (!this.canUnlock(spell)) return;
     this.model.spells.unlocked.push(spell.key);
-    // Ouvre le nœud racine (= 1 point d'inspiration) ; sans arbre, une racine « fictive ».
-    const root = spellTree(spell.key)?.root ?? '__root__';
-    this.model.spells.nodes[spell.key] = [root];
+    this.model.spells.nodes[spell.key] = this.sanitizeNodeSet();
   }
 
   /** Un sort débloqué a-t-il des dépendants débloqués (qui le requièrent) ? */
@@ -2665,8 +2594,8 @@ export class CharacterSheetEditor {
 
     const spellRow = (s: DomainSpell): PdfSpellRow => ({
       level: s.level,
-      name: this.spellCurrentName(s.key),
-      rank: this.hasSpellTree(s.key) ? `R${this.spellRank(s.key)}` : undefined,
+      name: s.name,
+      rank: undefined,
       mana: s.mana,
       domainIcons: this.domainSpellKeys(s)
         .map((k) => domainIcon(k))

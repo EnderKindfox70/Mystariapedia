@@ -1,0 +1,607 @@
+{
+    "name": "Tenèbres",
+    "icon": "/resources/media/icons/domains/darkness/darkness_icon.png",
+    "banner": "",
+    "first-quote": "Je suis le silence dans lequel tu te caches. Je suis l'ombre que tu fuis. Je suis la peur que tu ressens.",
+    "usage-quote": "Dissimule d'abord ta propre présence. Ce que tu ne peux pas cacher en toi, tu ne peux pas cacher ailleurs.",
+    "subdomains": [
+        {
+            "name": "Ombre",
+            "icon": "",
+            "quote": "Je suis la preuve qu'il y avait une lumière."
+        },
+        {
+            "name": "Obfuscation & Secret",
+            "icon": "",
+            "quote": "Ce que nul ne voit, nul ne peut le reprendre."
+        },
+        {
+            "name": "Sommeil & Rêve",
+            "icon": "",
+            "quote": "Ferme les yeux : je connais le chemin par cœur."
+        },
+        {
+            "name": "Peur & terreur",
+            "icon": "",
+            "quote": "Je n'ai pas besoin de frapper. J'attends que tu t'effondres."
+        },
+        {
+            "name": "Néant",
+            "icon": "",
+            "quote": "Avant tout, il y avait moi. Après tout, il n'y aura que moi."
+        }
+    ],
+    "spells": [
+        {
+            "key": "darkness-decharge-ombre",
+            "name": "Décharge d'ombre",
+            "description": "Tire une masse d'ombre concentrée sur un ennemi.",
+            "mana": 4,
+            "level": 1,
+            "subdomains": [
+                "Ombre"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 4,
+                "range": "14 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.09
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.1, "anchor": "treeMax" } }
+                ],
+                "statusUnlock": { "eligible": ["vulnerabilite", "affaiblissement"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-murmure-de-terreur",
+            "name": "Murmure de terreur",
+            "description": "Insinue une peur primale dans l'esprit de la cible, la poussant à fuir ou à se figer d'effroi.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Peur & terreur"
+            ],
+            "requires": [],
+            "baseStats": {
+                "mana": 3,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "peur",
+                        "chance": 45
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 14, "anchor": "tier3" } },
+                    { "id": "peurChance", "kind": "chance", "label": "Chance de Peur", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 70, "anchor": "tier3" } }
+                ]
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-dark-mist",
+            "name": "Brouillard d'ombre",
+            "description": "Déploie une épaisse brume d'ombre de 5 mètres de rayon, où l'on ne peut rien discerner à l'intérieur.",
+            "mana": 1,
+            "level": 1,
+            "subdomains": [
+                "Obfuscation & Secret"
+            ],
+            "baseStats": {
+                "mana": 1,
+                "range": "12 m",
+                "area": "Rayon 5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "aveuglement",
+                        "chance": 60
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 9, "anchor": "tier3" } },
+                    { "id": "aveuglementChance", "kind": "chance", "label": "Chance de Aveuglement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 90, "anchor": "tier3" } }
+                ],
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-voile-du-secret",
+            "name": "Voile du secret",
+            "description": "Dérobe un objet, un lieu ou une information aux sens et à la mémoire de ceux qui les cherchent.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Obfuscation & Secret"
+            ],
+            "requires": [
+                "darkness-dark-mist"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Contact",
+                "area": "Rayon 2 m",
+                "targets": [
+                    "self"
+                ],
+                "duration": 4
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0, "cap": { "value": 12, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 6, "anchor": "tier3" } },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 10, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-voile-de-sommeil",
+            "name": "Voile de sommeil",
+            "description": "Tisse un voile onirique qui plonge les créatures épuisées dans un sommeil profond.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Sommeil & Rêve"
+            ],
+            "requires": [
+                "darkness-dark-mist"
+            ],
+            "baseStats": {
+                "mana": 4,
+                "range": "12 m",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "sommeil",
+                        "chance": 45
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 6, "anchor": "tier3" } },
+                    { "id": "sommeilChance", "kind": "chance", "label": "Chance de Sommeil", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 75, "anchor": "tier3" } }
+                ],
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-morsure-du-neant",
+            "name": "Morsure du néant",
+            "description": "Ouvre une brèche de néant qui ronge et efface la matière et la magie qu'elle effleure.",
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Néant"
+            ],
+            "requires": [
+                "darkness-decharge-ombre"
+            ],
+            "baseStats": {
+                "damageMin": 2,
+                "damageMax": 4,
+                "mana": 6,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "silence",
+                        "chance": 45
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.06
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 14, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0 },
+                    { "id": "silenceChance", "kind": "chance", "label": "Chance de Silence", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 80, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-fils-du-marionnettiste",
+            "name": "Fils du marionnettiste",
+            "description": "Le lanceur pose la main sur un ennemi et lui noue aux membres des fils d'ombre : le corps bouge encore, mais ce n'est plus lui qui décide. Il faut être **au contact** pour les nouer, et viser très juste — l'espace d'un geste, tout se joue. Une fois pris, on ne s'en défait pratiquement pas : à chaque ordre, la victime peut tenter un jet de sagesse pour refuser d'obéir, et seul un 20 naturel brise les fils pour de bon. Le sort ne s'épuise pas avec le temps, mais il se paie sans cesse : une **concentration entière**, qu'un coup encaissé peut rompre, et **3 mana par tour et par pantin** pour tenir les fils. Une marionnette poussée hors de la portée effective se libère, et un marionnettiste à sec les lâche toutes.",
+            "usage": {
+                "combat": "Une main, un pantin — donc **deux au maximum**, et pas un de plus. Avec un pantin, le lanceur garde sa main directrice pour attaquer mais perd l'usage de sa main faible ; avec deux, il ne peut plus rien faire d'autre que se déplacer, et l'entretien lui coûte 6 mana par tour. La marionnette se bat dans le camp de son maître, contre les siens — et n'est le compagnon de personne : les deux camps peuvent la frapper.",
+                "outOfCombat": "Faire ouvrir une porte, congédier une garde, signer un ordre : la victime agit de sa propre main, aux yeux de tous, et personne ne voit les fils."
+            },
+            "mana": 10,
+            "level": 10,
+            "power": "majeur",
+            "subdomains": [
+                "Ombre"
+            ],
+            "requires": [
+                "darkness-murmure-de-terreur"
+            ],
+            "baseStats": {
+                "mana": 10,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "requiresHit": true,
+                "precisionPenalty": 25,
+                "tetherRange": "10 m",
+                "inflicts": [
+                    {
+                        "status": "controle",
+                        "chance": 100,
+                        "duration": -1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "controleChance", "kind": "chance", "label": "Chance de Contrôle", "path": "inflicts.0.chance", "min": 0, "max": 100 }
+                ]
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-revetement-arme",
+            "name": "Lame d'ombre",
+            "description": "Nimbe une arme de ténèbres : tant que l'enchantement dure, chaque coup inflige des dégâts de ténèbres supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts de ténèbres à chacune de vos attaques au corps à corps, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "damageType": "dark",
+            "subdomains": [
+                "Ombre"
+            ],
+            "requires": [
+                "darkness-revetement-poings"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "rogue",
+                        "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 3, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Attaque physique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.03, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-revetement-poings",
+            "name": "Poings d'ombre",
+            "description": "Nimbe vos poings de ténèbres : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de ténèbres supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts de ténèbres à vos attaques à mains nues, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 2,
+            "damageType": "dark",
+            "subdomains": [
+                "Ombre"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "force",
+                        "ratio": 0.2
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                        "bonusAction": true
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1 },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "forceRatio", "kind": "ratio", "label": "Ratio Force", "path": "scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "darkness-revetement-manteau",
+            "name": "Manteau d'ombre",
+            "description": "Enveloppe le lanceur d'un voile de ténèbres : sa défense magique est renforcée. Les ténèbres ne ripostent pas : elles engloutissent, et restent le plus solide des remparts magiques.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile de ténèbres pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Ombre"
+            ],
+            "requires": [
+                "darkness-revetement-poings"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 6,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.35
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "defMagValue", "kind": "effect", "label": "Défense magique", "path": "effects.0.value", "min": 0, "cap": { "value": 14, "anchor": "treeMax" } },
+                    { "id": "intelligenceDefmagRatio", "kind": "ratio", "label": "Ratio Intelligence → Défense magique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.55, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["death", "space", "earth"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        }
+    ],
+    "feats": [
+        {
+            "key": "darkness-ombre-affamee",
+            "name": "Ombre affamée",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Ténèbres débloqué",
+            "description": "Il nourrit son ombre de l'obscurité alentour. En pleine lumière, elle n'a rien à manger.",
+            "subdomains": [
+                "Ombre"
+            ],
+            "excludes": [
+                "darkness-voile-epais"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts d'ombre dans le noir ou la pénombre",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts d'ombre en pleine lumière",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "darkness-voile-epais",
+            "name": "Voile épais",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Ténèbres débloqué",
+            "description": "Il cesse de frapper pour cacher : ses voiles tiennent plus longtemps et couvrent ceux qui marchent avec lui.",
+            "subdomains": [
+                "Obfuscation & Secret"
+            ],
+            "excludes": [
+                "darkness-ombre-affamee"
+            ],
+            "effects": [
+                {
+                    "label": "Durée des sorts d'Obfuscation",
+                    "value": "+2 tours",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Cibles couvertes",
+                    "value": "Tout le groupe à portée",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts d'ombre",
+                    "value": "×0,85",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "darkness-terreur-persistante",
+            "name": "Terreur persistante",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Ténèbres débloqué et un sort de l'aspect Peur & terreur connu",
+            "description": "Même celui qui tient bon garde la main qui tremble — mais ce qui ne craint rien vient droit sur lui.",
+            "subdomains": [
+                "Peur & terreur"
+            ],
+            "effects": [
+                {
+                    "label": "Sauvegarde réussie contre sa Peur",
+                    "value": "−1 cran de précision pendant 1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Créatures immunisées à la Peur",
+                    "value": "Prennent le lanceur pour cible prioritaire",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "darkness-morsure-du-neant",
+            "name": "Morsure du néant",
+            "level": 20,
+            "kind": "override",
+            "prerequisite": "Palier Expert de Ténèbres débloqué et Morsure du néant connue",
+            "description": "Ce qu'il ouvre ne s'arrête pas aux protections — ni aux siennes.",
+            "subdomains": [
+                "Néant"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts de Néant",
+                    "value": "Ignorent la moitié de la Défense magique",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût de chaque lancer",
+                    "value": "10 % des PV max du lanceur",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

@@ -30,6 +30,97 @@
             "level": 1,
             "icon": "/resources/media/icons/domains/life/vitality_icon.png",
             "subdomains": ["Soin & vitalité"],
+            "baseStats": {
+                "heal": 2,
+                "mana": 3,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ],
+                "scaling": [
+                    {
+                        "source": "sagesse",
+                        "ratio": 0.3,
+                        "affects": "heal"
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "heal",
+                        "kind": "heal",
+                        "label": "Soin",
+                        "path": "heal",
+                        "min": 1,
+                        "cap": {
+                            "value": 28,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "wisRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Sagesse (soin)",
+                        "path": "scaling.0.ratio",
+                        "min": 0,
+                        "cap": {
+                            "value": 1.0,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "self"
+                    ]
+                },
+                "extraTargets": {
+                    "base": 1,
+                    "label": "allié(s) soigné(s)"
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "sagesse",
+                            "intelligence",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "s1",
                 "branches": [
@@ -92,6 +183,120 @@
             "level": 3,
             "icon": "/resources/media/icons/domains/life/flesh_manipulation_icon.png",
             "subdomains": ["Manipulation de la chair"],
+            "baseStats": {
+                "heal": 5,
+                "mana": 6,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "self",
+                    "ally"
+                ],
+                "healTargetScaling": [
+                    {
+                        "source": "constitution",
+                        "ratio": 0.2
+                    }
+                ],
+                "healCasterSkill": {
+                    "skill": "medicine",
+                    "ratio": 0.8
+                },
+                "cleanses": [
+                    "fracture"
+                ],
+                "targetSave": {
+                    "attribute": "constitution",
+                    "dc": 6,
+                    "casterSkill": {
+                        "skill": "medicine",
+                        "ratio": 0.5
+                    },
+                    "backlash": 0.5,
+                    "damageType": "life"
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "heal",
+                        "kind": "heal",
+                        "label": "Soin",
+                        "path": "heal",
+                        "min": 1,
+                        "cap": {
+                            "value": 19,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "risk",
+                        "kind": "risk",
+                        "label": "Risque (DC du patient)",
+                        "path": "targetSave.dc",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "treeMin"
+                        }
+                    },
+                    {
+                        "id": "medicine",
+                        "kind": "ratio",
+                        "label": "Ratio Médecine (soin)",
+                        "path": "healCasterSkill.ratio",
+                        "step": 0.1,
+                        "min": 0,
+                        "cap": {
+                            "value": 1.5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "conRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Constitution du patient",
+                        "path": "healTargetScaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "cleanses.0",
+                    "reason": "Ressouder l'os EST le geste : la fracture se lève toujours."
+                },
+                {
+                    "field": "range",
+                    "reason": "Une main posée sur le blessé : la chair se recoud au contact, jamais à distance."
+                },
+                {
+                    "field": "targetSave.backlash",
+                    "reason": "Sur un échec, le soin devient blessure : c'est le prix de la chair forcée, il ne s'achète pas."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rg1",
                 "nodes": [
@@ -136,6 +341,95 @@
             "level": 5,
             "icon": "/resources/media/icons/domains/life/vitality_icon.png",
             "subdomains": ["Soin & vitalité"],
+            "baseStats": {
+                "heal": 10,
+                "mana": 7,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ],
+                "scaling": [
+                    {
+                        "source": "sagesse",
+                        "ratio": 0.5,
+                        "affects": "heal"
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "heal",
+                        "kind": "heal",
+                        "label": "Soin",
+                        "path": "heal",
+                        "min": 1,
+                        "cap": {
+                            "value": 42,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "wisRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Sagesse (soin)",
+                        "path": "scaling.0.ratio",
+                        "min": 0,
+                        "cap": {
+                            "value": 1.1,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "self"
+                    ]
+                },
+                "scalingUnlock": {
+                    "eligible": [
+                        "charisme"
+                    ],
+                    "field": "scaling",
+                    "affects": "heal",
+                    "ratioCap": {
+                        "value": 0.6,
+                        "anchor": "tier3",
+                        "path": "scaling.1.ratio"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ev1",
                 "nodes": [
@@ -171,6 +465,113 @@
             "level": 3,
             "subdomains": ["Soin & vitalité"],
             "damageType": "life",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "warrior",
+                        "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vitalité accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "light",
+                    "water",
+                    "plant"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -206,6 +607,112 @@
             "level": 2,
             "subdomains": ["Soin & vitalité"],
             "damageType": "life",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de vitalité de chaque frappe est accru.",
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "light",
+                    "water",
+                    "plant"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -240,6 +747,126 @@
             "mana": 3,
             "level": 3,
             "subdomains": ["Soin & vitalité"],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.06
+                            }
+                        ]
+                    }
+                ],
+                "inflicts": [
+                    {
+                        "status": "regeneration",
+                        "chance": 100
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.1
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "light",
+                    "water",
+                    "plant"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "La régénération EST le manteau vital : elle ne se marchande pas."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "lman1",
                 "nodes": [

@@ -19,6 +19,98 @@
             "mana": 1,
             "level": 1,
             "subdomains": ["Décharge"],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 1,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.03
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.06,
+                            "anchor": "tier3"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "paralysie",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "water",
+                    "air"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "et1",
                 "nodes": [
@@ -53,6 +145,130 @@
             "mana": 4,
             "level": 3,
             "subdomains": ["Décharge"],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 4,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "paralysie",
+                        "chance": 15
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "paraChance",
+                        "kind": "chance",
+                        "label": "Chance de Paralysie",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 50,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.07,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "affaiblissement",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "water",
+                    "air"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le choc vise les nerfs : la paralysie EST le sort."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "cn1",
                 "nodes": [
@@ -84,6 +300,112 @@
             "mana": 6,
             "level": 5,
             "subdomains": ["Décharge"],
+            "baseStats": {
+                "damageMin": 3,
+                "damageMax": 5,
+                "mana": 7,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.08
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 19,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 24,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.15,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "paralysie"
+                    ],
+                    "chanceCap": {
+                        "value": 60,
+                        "anchor": "treeMax",
+                        "path": "inflicts.0.chance"
+                    }
+                },
+                "extraTargets": {
+                    "base": 1,
+                    "label": "cible(s) en chaîne"
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "water",
+                    "air"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "el1",
                 "branches": [
@@ -142,6 +464,122 @@
             "level": 3,
             "subdomains": ["Électromagnétisme"],
             "requires": ["electricity-etincelle"],
+            "baseStats": {
+                "mana": 4,
+                "range": "6 m",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "self",
+                    "ally"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "defPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Intelligence → Défense physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du champ",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "cm1",
                 "nodes": [
@@ -174,9 +612,147 @@
                 "combat": "Arrachez une arme, un bouclier ou une pièce d'équipement métallique à un adversaire ; il résiste par un jet de Force. Visez une case **libre** et c'est le sol que vous aimantez : toute ferraille qui y traîne vient à vous sans que vous ayez à vous déplacer. Ce que vous prenez tombe dans votre sac — et **directement dans votre main si elle est vide**.",
                 "outOfCombat": "Récupère à distance une clé, un trousseau, une lame tombée dans une crevasse ou un objet métallique hors d'atteinte."
             },
+            "liveText": {
+                "lead": "Un objet métallique libre — au sol comme au sac — file jusqu'à votre main, s'il ne pèse pas plus de {weight} (soit {weight:comparison}). Tenu au poing, il ne cède que si son porteur rate un jet de Force contre {pullDc}.",
+                "combat": "Attire jusqu'à {weight} de métal, soit {weight:comparison}. Arrachez une arme, un bouclier ou une pièce d'équipement métallique à un adversaire ; il résiste par un jet de Force. Visez une case **libre** et c'est le sol que vous aimantez : toute ferraille qui y traîne vient à vous sans que vous ayez à vous déplacer. Ce que vous prenez tombe dans votre sac — et **directement dans votre main si elle est vide**."
+            },
             "mana": 3,
             "level": 2,
             "subdomains": ["Électromagnétisme"],
+            "baseStats": {
+                "mana": 4,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy",
+                    "ally",
+                    "self"
+                ],
+                "pullsMetal": true,
+                "pullDc": 10,
+                "weight": 100
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "weight",
+                        "kind": "weight",
+                        "label": "Puissance",
+                        "path": "weight",
+                        "growth": "1-2-5",
+                        "min": 10,
+                        "cap": {
+                            "value": 20000
+                        },
+                        "comparisons": [
+                            {
+                                "upTo": 20,
+                                "text": "une pièce de monnaie"
+                            },
+                            {
+                                "upTo": 50,
+                                "text": "une clé"
+                            },
+                            {
+                                "upTo": 100,
+                                "text": "un trousseau de clés"
+                            },
+                            {
+                                "upTo": 200,
+                                "text": "un poignard"
+                            },
+                            {
+                                "upTo": 500,
+                                "text": "une dague"
+                            },
+                            {
+                                "upTo": 1000,
+                                "text": "une épée courte"
+                            },
+                            {
+                                "upTo": 2000,
+                                "text": "une épée longue"
+                            },
+                            {
+                                "upTo": 5000,
+                                "text": "un bouclier de fer"
+                            },
+                            {
+                                "upTo": 10000,
+                                "text": "une cotte de mailles"
+                            },
+                            {
+                                "upTo": 20000,
+                                "text": "une armure d'écailles"
+                            },
+                            {
+                                "upTo": 50000,
+                                "text": "une armure de plates complète"
+                            },
+                            {
+                                "upTo": 100000,
+                                "text": "une enclume"
+                            },
+                            {
+                                "upTo": 200000,
+                                "text": "une cloche de chapelle"
+                            },
+                            {
+                                "upTo": 500000,
+                                "text": "une herse de fer"
+                            },
+                            {
+                                "text": "des masses de métal dignes d'un pont-levis"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "dc",
+                        "kind": "dc",
+                        "label": "DC (jet de Force)",
+                        "path": "pullDc",
+                        "min": 1,
+                        "cap": {
+                            "value": 18,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 18,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "pullsMetal",
+                    "reason": "Saisir le métal EST le sort : le transformer changerait le sort lui-même."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "am1",
                 "nodes": [
@@ -211,9 +787,178 @@
             "usage": {
                 "combat": "Choisissez un objet ferreux de votre sac, l'arme que vous tenez, **ou n'importe quelle ferraille tombée à vos pieds**, et projetez-le : ses dégâts et son type sont les siens. L'objet quitte votre inventaire ; une arme projetée quitte votre main. **Si le coup porte, l'objet retombe aux pieds de la cible ; s'il manque, il file au-delà** — rater coûte donc deux fois, le coup et la marche pour aller le reprendre. N'importe qui peut le ramasser en se baissant (action bonus)."
             },
+            "liveText": {
+                "lead": "Le champ saisit un objet ferreux que vous portez, jusqu'à {weight} (soit {weight:comparison}), et le décoche. Sans rien de métallique sur soi, le sort n'a rien à lancer.",
+                "combat": "Projette jusqu'à {weight} de métal, soit {weight:comparison}. Choisissez un objet ferreux de votre sac, l'arme que vous tenez, **ou n'importe quelle ferraille tombée à vos pieds**, et projetez-le : ses dégâts et son type sont les siens. L'objet quitte votre inventaire ; une arme projetée quitte votre main. **Si le coup porte, l'objet retombe aux pieds de la cible ; s'il manque, il file au-delà** — rater coûte donc deux fois, le coup et la marche pour aller le reprendre. N'importe qui peut le ramasser en se baissant (action bonus)."
+            },
             "mana": 5,
             "level": 4,
             "subdomains": ["Électromagnétisme"],
+            "baseStats": {
+                "mana": 6,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "throwsMetal": true,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.06
+                    }
+                ],
+                "weight": 500
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "weight",
+                        "kind": "weight",
+                        "label": "Puissance",
+                        "path": "weight",
+                        "growth": "1-2-5",
+                        "min": 10,
+                        "cap": {
+                            "value": 20000
+                        },
+                        "comparisons": [
+                            {
+                                "upTo": 20,
+                                "text": "une pièce de monnaie"
+                            },
+                            {
+                                "upTo": 50,
+                                "text": "une clé"
+                            },
+                            {
+                                "upTo": 100,
+                                "text": "un trousseau de clés"
+                            },
+                            {
+                                "upTo": 200,
+                                "text": "un poignard"
+                            },
+                            {
+                                "upTo": 500,
+                                "text": "une dague"
+                            },
+                            {
+                                "upTo": 1000,
+                                "text": "une épée courte"
+                            },
+                            {
+                                "upTo": 2000,
+                                "text": "une épée longue"
+                            },
+                            {
+                                "upTo": 5000,
+                                "text": "un bouclier de fer"
+                            },
+                            {
+                                "upTo": 10000,
+                                "text": "une cotte de mailles"
+                            },
+                            {
+                                "upTo": 20000,
+                                "text": "une armure d'écailles"
+                            },
+                            {
+                                "upTo": 50000,
+                                "text": "une armure de plates complète"
+                            },
+                            {
+                                "upTo": 100000,
+                                "text": "une enclume"
+                            },
+                            {
+                                "upTo": 200000,
+                                "text": "une cloche de chapelle"
+                            },
+                            {
+                                "upTo": 500000,
+                                "text": "une herse de fer"
+                            },
+                            {
+                                "text": "des masses de métal dignes d'un pont-levis"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.02,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.2,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 18,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "paralysie"
+                    ],
+                    "chanceCap": {
+                        "value": 35,
+                        "anchor": "tier3",
+                        "path": "inflicts.0.chance"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Objet projeté",
+                    "reason": "Les dégâts et leur nature sont ceux de l'objet lancé : une lame taille, une enclume écrase."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "throwsMetal",
+                    "reason": "Lancer le métal EST le sort."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "pm1",
                 "nodes": [
@@ -262,6 +1007,65 @@
             "mana": 6,
             "level": 5,
             "subdomains": ["Électromagnétisme"],
+            "baseStats": {
+                "mana": 7,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "anchorGap": "1,5 m",
+                "inflicts": [
+                    {
+                        "status": "repulsion-magnetique",
+                        "chance": 100,
+                        "duration": -1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "gap",
+                        "kind": "range",
+                        "label": "Écart imposé",
+                        "path": "anchorGap",
+                        "min": 1.5,
+                        "step": 1.5,
+                        "cap": {
+                            "value": 4.5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "Tenir le fer à distance EST le bouclier : ni plus, ni autre chose."
+                },
+                {
+                    "field": "targets",
+                    "reason": "Le champ entoure son lanceur, et lui seul."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "be1",
                 "nodes": [
@@ -298,6 +1102,123 @@
             "level": 3,
             "subdomains": ["Décharge"],
             "damageType": "lightning",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "ranger",
+                        "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "paralysie",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "water",
+                    "air"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -332,6 +1253,117 @@
             "level": 2,
             "subdomains": ["Décharge"],
             "damageType": "lightning",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.",
+                        "manaFactor": 0.5
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "paralysie",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "water",
+                    "air"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -366,6 +1398,184 @@
             "mana": 3,
             "level": 3,
             "subdomains": ["Décharge"],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.06
+                            }
+                        ]
+                    }
+                ],
+                "retaliate": {
+                    "trigger": "melee",
+                    "damageMin": 2,
+                    "damageMax": 4,
+                    "damageType": "lightning",
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.2
+                        }
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "etourdissement",
+                            "chance": 20
+                        }
+                    ]
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.1
+                        }
+                    },
+                    {
+                        "id": "riposteDamage",
+                        "kind": "damage",
+                        "label": "Dégâts de riposte",
+                        "path": "retaliate.damageMax",
+                        "shift": [
+                            "retaliate.damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "riposteEtourdissement",
+                        "kind": "chance",
+                        "label": "Étourdissement en riposte",
+                        "path": "retaliate.inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 50,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "riposteRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique (riposte)",
+                        "path": "retaliate.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.35,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    },
+                    {
+                        "path": "retaliate.scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "water",
+                    "air"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "retaliate.trigger",
+                    "reason": "La riposte ne répond qu'aux coups portés au corps à corps : c'est l'identité du manteau."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "elmt1",
                 "nodes": [
@@ -412,6 +1622,154 @@
             "mana": 5,
             "level": 5,
             "subdomains": ["Décharge"],
+            "baseStats": {
+                "mana": 5,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "atk_phy",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.3
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "speed",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "dexterite",
+                                "ratio": 0.15
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "atkPhy",
+                        "kind": "effect",
+                        "label": "Attaque physique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Force → Attaque physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.1.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "speedRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Dextérité → Vitesse",
+                        "path": "effects.1.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.2,
+                        "anchor": "tier3",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "force",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    },
+                    {
+                        "path": "effects.1.scaling.0",
+                        "eligible": [
+                            "dexterite",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "targets",
+                    "reason": "La tension monte dans SES muscles : c'est un sort du corps du lanceur."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "sut1",
                 "nodes": [
@@ -446,6 +1804,154 @@
             "mana": 5,
             "level": 5,
             "subdomains": ["Décharge"],
+            "baseStats": {
+                "mana": 5,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "speed",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "dexterite",
+                                "ratio": 0.3
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "atk_mag",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 7,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "speedRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Dextérité → Vitesse",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMag",
+                        "kind": "effect",
+                        "label": "Attaque magique",
+                        "path": "effects.1.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Intelligence → Attaque magique",
+                        "path": "effects.1.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.2,
+                        "anchor": "tier3",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "dexterite",
+                            "constitution"
+                        ]
+                    },
+                    {
+                        "path": "effects.1.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "targets",
+                    "reason": "Le courant circule dans SON corps : c'est un sort du corps du lanceur."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "sui1",
                 "nodes": [

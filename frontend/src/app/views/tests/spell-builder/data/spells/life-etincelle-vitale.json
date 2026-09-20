@@ -1,0 +1,40 @@
+{
+    "_test": "COPIE DE TEST — jamais lue par l'application. Socle = nœud racine réel, plafonds ancrés sur la fiche d'origine (vérifiés par test/data.test.mjs).",
+    "_notes": [
+        "Test de référence du document : plafond ancré sur le tier 3 RÉEL du sort plutôt qu'un gabarit générique.",
+        "Cible « soi-même » débloquable : ancrée sur Étincelle vitale III (ev3). Charisme débloquable : ancré sur ev2/ev3."
+    ],
+    "source": { "file": "domains/life.json", "key": "life-etincelle-vitale", "rootNode": "ev1", "capNode": "ev3" },
+    "key": "life-etincelle-vitale",
+    "name": "Étincelle vitale",
+    "description": "Ranime une étincelle de vie chez une créature à l'agonie, la ramenant du seuil de la mort.",
+    "domain": "life",
+    "subdomains": ["Soin & vitalité"],
+    "level": 5,
+    "power": "standard",
+    "requires": ["life-soin-vital"],
+    "baseStats": {
+        "heal": 15,
+        "mana": 6,
+        "range": "Contact",
+        "area": "Cible unique",
+        "targets": ["ally"],
+        "scaling": [{ "source": "sagesse", "ratio": 0.6, "affects": "heal" }]
+    },
+    "customization": {
+        "params": [
+            { "id": "heal", "kind": "heal", "label": "Soin", "path": "heal", "min": 1, "cap": { "value": 42, "anchor": "tier3" } },
+            { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0, "cap": { "value": 5, "anchor": "tier3" } },
+            { "id": "wisRatio", "kind": "ratio", "label": "Ratio Sagesse (soin)", "path": "scaling.0.ratio", "min": 0, "cap": { "value": 1.1, "anchor": "tier3" } },
+            { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 6, "anchor": "treeMin" } }
+        ],
+        "targetUnlock": { "eligible": ["self"] },
+        "scalingUnlock": { "eligible": ["charisme"], "field": "scaling", "affects": "heal", "ratioCap": { "value": 0.6, "anchor": "tier3", "path": "scaling.1.ratio" } }
+    },
+    "swapOptions": null,
+    "crossDomain": null,
+    "domainGoverned": [],
+    "lockedFields": [
+        { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+    ]
+}

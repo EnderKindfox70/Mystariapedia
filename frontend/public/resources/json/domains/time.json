@@ -13,6 +13,109 @@
             "mana": 3,
             "level": 2,
             "subdomains": [],
+            "baseStats": {
+                "mana": 4,
+                "range": "Contact",
+                "area": "Rayon 5 m",
+                "targets": [
+                    "self"
+                ],
+                "duration": 1,
+                "grades": {
+                    "vision": 0
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "vision",
+                        "kind": "grade",
+                        "label": "Profondeur de la vision",
+                        "path": "grades.vision",
+                        "min": 0,
+                        "max": 2,
+                        "ladder": [
+                            {
+                                "label": "Échos",
+                                "action": "d'entrevoir des échos",
+                                "description": "des impressions confuses de ce qui vient de se passer ici."
+                            },
+                            {
+                                "label": "Scènes",
+                                "action": "de revoir les scènes",
+                                "description": "le passé proche se rejoue sous les yeux du lanceur, net et lisible."
+                            },
+                            {
+                                "label": "Présages",
+                                "action": "de lire les présages",
+                                "description": "les futurs immédiats du lieu s'entrouvrent, brève avance sur ce qui va venir."
+                            }
+                        ],
+                        "cap": {
+                            "value": 2
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue de la vision",
+                        "path": "area",
+                        "min": 2,
+                        "growth": "1-2-5",
+                        "cap": {
+                            "value": 40,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "tv1",
                 "nodes": [
@@ -44,6 +147,75 @@
             "level": 3,
             "subdomains": [],
             "requires": ["time-vision-temporelle"],
+            "baseStats": {
+                "mana": 5,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "ralentissement",
+                        "chance": 30
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "slowChance",
+                        "kind": "chance",
+                        "label": "Chance de Ralentissement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 90,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 18,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusTypeSwap": {
+                    "eligible": [
+                        "paralysie"
+                    ]
+                },
+                "extraTargets": {
+                    "base": 1,
+                    "label": "cible(s) enlisée(s)"
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "tr1",
                 "branches": [
@@ -102,6 +274,121 @@
             "level": 4,
             "subdomains": [],
             "requires": ["time-ralentissement"],
+            "baseStats": {
+                "mana": 6,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "self",
+                    "ally"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "speed",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "speedRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Intelligence → Vitesse",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "hate"
+                    ],
+                    "chanceCap": {
+                        "value": 100,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "dexterite",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ta1",
                 "nodes": [
@@ -137,6 +424,123 @@
             "level": 3,
             "subdomains": [],
             "damageType": "time",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "rogue",
+                        "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts temporels accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "ralentissement",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "space",
+                    "light",
+                    "death"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -171,6 +575,117 @@
             "level": 2,
             "subdomains": [],
             "damageType": "time",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.",
+                        "manaFactor": 0.5
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "ralentissement",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "space",
+                    "light",
+                    "death"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -205,6 +720,126 @@
             "mana": 3,
             "level": 3,
             "subdomains": [],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 5,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.06
+                            }
+                        ]
+                    }
+                ],
+                "inflicts": [
+                    {
+                        "status": "hate",
+                        "chance": 100
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.13
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "space",
+                    "light",
+                    "death"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "La hâte EST le manteau temporel : elle ne se marchande pas."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "tmt1",
                 "nodes": [

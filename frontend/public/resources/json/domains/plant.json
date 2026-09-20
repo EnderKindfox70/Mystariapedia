@@ -36,6 +36,125 @@
             "subdomains": [
                 "Poison & Médecine naturelle"
             ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 2,
+                "range": "6 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "poison",
+                        "chance": 20
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.07
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "poisonChance",
+                        "kind": "chance",
+                        "label": "Chance d'infliger",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 95,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 9,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.1,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "extraTargets": {
+                    "base": 1,
+                    "label": "cible(s) touchée(s)"
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death"
+                ]
+            },
+            "domainGoverned": [
+                {
+                    "field": "statusType",
+                    "mechanic": "Plante équipée (domaine des Plantes)",
+                    "reason": "La plante équipée change la nature de ce qu'on inflige : ni swap ni déblocage de statut ne s'achètent en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "pt1",
                 "branches": [
@@ -285,6 +404,137 @@
             "requires": [
                 "plant-toxine-vegetale"
             ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 3,
+                "range": "10 m",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "enracinement",
+                        "chance": 30
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "rootChance",
+                        "kind": "chance",
+                        "label": "Chance d'Enracinement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 90,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue des ronces",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.05,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "areaShapeSwap": {
+                    "shapes": [
+                        "Rayon",
+                        "Rectangle"
+                    ]
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "life",
+                    "water"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Les ronces enserrent : l'enracinement EST le sort."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "pr1",
                 "nodes": [
@@ -395,6 +645,140 @@
             ],
             "requires": [
                 "plant-toxine-vegetale"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 3,
+                "range": "Autour de soi",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "duration": 2,
+                "lingers": "ground",
+                "inflicts": [
+                    {
+                        "status": "affaiblissement",
+                        "chance": 20
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "sporeChance",
+                        "kind": "chance",
+                        "label": "Chance d'infliger",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 70,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du nuage",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée du nuage",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.05,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "life",
+                    "water"
+                ]
+            },
+            "domainGoverned": [
+                {
+                    "field": "statusType",
+                    "mechanic": "Plante équipée (domaine des Plantes)",
+                    "reason": "La plante équipée change la nature de ce qu'on inflige : ni swap ni déblocage de statut ne s'achètent en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "ps1",
@@ -510,6 +894,156 @@
             ],
             "requires": [
                 "plant-ronces-etreignantes"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 6,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "poison",
+                        "chance": 25
+                    }
+                ],
+                "effects": [
+                    {
+                        "stat": "force",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.05
+                            }
+                        ]
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.05
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "poisonChance",
+                        "kind": "chance",
+                        "label": "Chance d'infliger",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 70,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "drain",
+                        "kind": "effect",
+                        "label": "Vigueur drainée (Force)",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "drainRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → vigueur drainée",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.07,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 7,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.07,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death"
+                ]
+            },
+            "domainGoverned": [
+                {
+                    "field": "statusType",
+                    "mechanic": "Plante équipée (domaine des Plantes)",
+                    "reason": "La plante équipée change la nature de ce qu'on inflige : ni swap ni déblocage de statut ne s'achètent en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "pg1",
@@ -661,6 +1195,170 @@
             ],
             "requires": [
                 "plant-toxine-vegetale"
+            ],
+            "baseStats": {
+                "mana": 5,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "choices": [
+                    {
+                        "name": "Ronces",
+                        "mana": 4,
+                        "duration": 2,
+                        "description": "Des ronces couvrent vos membres : vos attaques infligent davantage de dégâts, mais leurs épines vous blessent à chaque tour.",
+                        "effects": [
+                            {
+                                "stat": "atk_phy",
+                                "value": 1
+                            }
+                        ],
+                        "recoil": {
+                            "damageMin": 2,
+                            "damageMax": 3,
+                            "note": "par tour"
+                        }
+                    },
+                    {
+                        "name": "Lierre régénérant",
+                        "mana": 5,
+                        "duration": 2,
+                        "description": "Un lierre nourricier vous enlace et referme vos blessures à chaque tour.",
+                        "heal": 2
+                    },
+                    {
+                        "name": "Écorce protectrice",
+                        "mana": 4,
+                        "duration": 2,
+                        "description": "Votre peau se couvre d'écorce, absorbant une partie des coups.",
+                        "effects": [
+                            {
+                                "stat": "def_phy",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Vrille véloce",
+                        "mana": 4,
+                        "duration": 2,
+                        "description": "Des vrilles nerveuses propulsent vos mouvements : vous gagnez en vitesse.",
+                        "effects": [
+                            {
+                                "stat": "speed",
+                                "value": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "ronces",
+                        "kind": "effect",
+                        "label": "Ronces : Attaque physique",
+                        "path": "choices.0.effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "roncesRecoil",
+                        "kind": "recoil",
+                        "label": "Ronces : épines qui blessent",
+                        "path": "choices.0.recoil.damageMax",
+                        "shift": [
+                            "choices.0.recoil.damageMin"
+                        ],
+                        "min": 0,
+                        "cap": {
+                            "value": 1
+                        }
+                    },
+                    {
+                        "id": "lierre",
+                        "kind": "heal",
+                        "label": "Lierre : soin par tour",
+                        "path": "choices.1.heal",
+                        "min": 0,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "ecorce",
+                        "kind": "effect",
+                        "label": "Écorce : Défense physique",
+                        "path": "choices.2.effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "vrille",
+                        "kind": "effect",
+                        "label": "Vrille : Vitesse",
+                        "path": "choices.3.effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée de la symbiose",
+                        "path": "choices.0.duration",
+                        "min": 1,
+                        "shift": [
+                            "choices.1.duration",
+                            "choices.2.duration",
+                            "choices.3.duration"
+                        ],
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "targets",
+                    "reason": "Le lanceur fusionne avec la plante : la symbiose ne se prête pas."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "sv1",
@@ -1259,6 +1957,107 @@
                 "Croissance végétale"
             ],
             "damageType": "plant",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "life",
+                    "water"
+                ]
+            },
+            "domainGoverned": [
+                {
+                    "field": "statusType",
+                    "mechanic": "Plante équipée (domaine des Plantes)",
+                    "reason": "La plante équipée change la nature de ce qu'on inflige : ni swap ni déblocage de statut ne s'achètent en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -1380,6 +2179,113 @@
                 "Croissance végétale"
             ],
             "damageType": "plant",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                        "bonusAction": true
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "life",
+                    "water"
+                ]
+            },
+            "domainGoverned": [
+                {
+                    "field": "statusType",
+                    "mechanic": "Plante équipée (domaine des Plantes)",
+                    "reason": "La plante équipée change la nature de ce qu'on inflige : ni swap ni déblocage de statut ne s'achètent en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Bonus du Pugiliste : propre à l'identité de la classe, jamais dans le budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -1502,6 +2408,196 @@
             "level": 3,
             "subdomains": [
                 "Croissance végétale"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.05
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.11
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 7,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.3,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "ownEffects": [
+                    {
+                        "id": "epines",
+                        "label": "Épines",
+                        "cost": 4,
+                        "description": "L'écorce se hérisse : qui frappe au corps à corps s'empale.",
+                        "grants": {
+                            "set": {
+                                "retaliate": {
+                                    "trigger": "melee",
+                                    "damageMin": 2,
+                                    "damageMax": 4,
+                                    "damageType": "piercing",
+                                    "scaling": [
+                                        {
+                                            "source": "atk_phy",
+                                            "ratio": 0.2
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "id": "epines-sanglantes",
+                        "label": "Épines sanglantes",
+                        "cost": 6,
+                        "description": "Des épines qui déchirent : l'attaquant saigne.",
+                        "grants": {
+                            "set": {
+                                "retaliate": {
+                                    "trigger": "melee",
+                                    "damageMin": 2,
+                                    "damageMax": 4,
+                                    "damageType": "piercing",
+                                    "scaling": [
+                                        {
+                                            "source": "atk_phy",
+                                            "ratio": 0.2
+                                        }
+                                    ],
+                                    "inflicts": [
+                                        {
+                                            "status": "saignement",
+                                            "chance": 40
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "id": "epines-venimeuses",
+                        "label": "Épines venimeuses",
+                        "cost": 6,
+                        "description": "Des épines suçées de sève : l'attaquant s'empoisonne.",
+                        "grants": {
+                            "set": {
+                                "retaliate": {
+                                    "trigger": "melee",
+                                    "damageMin": 2,
+                                    "damageMax": 4,
+                                    "damageType": "piercing",
+                                    "scaling": [
+                                        {
+                                            "source": "atk_phy",
+                                            "ratio": 0.2
+                                        }
+                                    ],
+                                    "inflicts": [
+                                        {
+                                            "status": "poison",
+                                            "chance": 40
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "constitution",
+                            "force",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "life",
+                    "water"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "plar1",

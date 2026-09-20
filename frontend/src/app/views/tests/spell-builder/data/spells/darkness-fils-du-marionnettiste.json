@@ -1,0 +1,49 @@
+{
+    "_test": "COPIE DE TEST — jamais lue par l'application. Socle = nœud racine réel, plafonds ancrés sur la fiche d'origine (vérifiés par test/data.test.mjs).",
+    "_notes": [
+        "Test de référence du document : précision du LANCEUR (pénalité) distincte du DC de la CIBLE.",
+        "baseExtras : 3 mana par tour et par pantin (description du vrai sort) ; un seul pantin à la base, la Famille 3 en lie d'autres jusqu'au plafond absolu.",
+        "Swap de cible ennemi → allié : prendre un allié en main (le tirer d'une Peur, d'un Charme). Pas de jet de toucher sur un allié (§7.13)."
+    ],
+    "source": { "file": "domains/darkness.json", "key": "darkness-fils-du-marionnettiste", "rootNode": "dfm1", "capNode": "dfm3" },
+    "key": "darkness-fils-du-marionnettiste",
+    "name": "Fils du marionnettiste",
+    "description": "Le lanceur pose la main sur un ennemi et lui noue aux membres des fils d'ombre : le corps bouge encore, mais ce n'est plus lui qui décide.",
+    "domain": "darkness",
+    "subdomains": ["Ombre"],
+    "level": 10,
+    "power": "majeur",
+    "requires": ["darkness-murmure-de-terreur"],
+    "baseStats": {
+        "mana": 10,
+        "range": "Contact",
+        "area": "Cible unique",
+        "targets": ["enemy"],
+        "requiresHit": true,
+        "precisionPenalty": 25,
+        "tetherRange": "10 m",
+        "inflicts": [{ "status": "controle", "chance": 100, "duration": -1 }]
+    },
+    "baseExtras": {
+        "upkeep": 3,
+        "maxPuppets": 1
+    },
+    "customization": {
+        "params": [
+            { "id": "precision", "kind": "precision", "label": "Pénalité de précision", "path": "precisionPenalty", "min": 0, "cap": { "value": 15, "anchor": "tier3" } },
+            { "id": "tether", "kind": "range", "label": "Portée des fils (tether)", "path": "tetherRange", "min": 1, "cap": { "value": 35, "anchor": "tier3" } },
+            { "id": "upkeep", "kind": "upkeep", "label": "Entretien par pantin", "path": "upkeep", "min": 1, "cap": null },
+            { "id": "mana", "kind": "mana", "label": "Mana (nouer)", "path": "mana", "min": 1, "cap": { "value": 10, "anchor": "treeMin" } }
+        ],
+        "extraTargets": { "base": 1, "field": "maxPuppets", "label": "pantin(s) lié(s)" },
+        "defaultTargetSwap": { "pair": ["enemy", "ally"] }
+    },
+    "swapOptions": null,
+    "crossDomain": null,
+    "domainGoverned": [],
+    "lockedFields": [
+        { "field": "inflicts", "reason": "Contrôle à 100 % : c'est l'identité du sort, le transformer changerait le sort lui-même." },
+        { "field": "narrativeResistance", "reason": "Résistance narrative extrême : seul un 20 naturel brise les fils — plafond narratif." },
+        { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+    ]
+}

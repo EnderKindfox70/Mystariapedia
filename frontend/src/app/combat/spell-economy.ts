@@ -171,6 +171,19 @@ export function areaMultiplier(area: string | undefined): number {
   if (raw.startsWith('ligne')) {
     return Math.min(2.5, 1 + (nombre / CELL) * 0.25);
   }
+  // Rectangle et anneau : ramenés au rayon qui couvrirait autant de cases.
+  if (raw.startsWith('rectangle') || raw.startsWith('anneau')) {
+    const mesures = (raw.replace(/,/g, '.').match(/\d+(\.\d+)?/g) ?? []).map(Number);
+    let cases: number;
+    if (raw.startsWith('rectangle')) {
+      const [largeur = CELL, profondeur = largeur] = mesures;
+      cases = Math.max(1, Math.round(largeur / CELL)) * Math.max(1, Math.round(profondeur / CELL));
+    } else {
+      cases = 8 * Math.max(1, Math.floor((mesures[0] ?? CELL) / CELL));
+    }
+    const rayonEquivalent = (Math.sqrt(cases) - 1) / 2;
+    return Math.min(3.5, 1 + rayonEquivalent * 0.45);
+  }
   if (raw.includes('cible') && nombre > 1) return 1 + (nombre - 1) * 0.6;
   return 1;
 }
@@ -273,8 +286,11 @@ export function spellPower(stats: SpellNodeStats, ctx: SpellContext = {}): Power
   }
   damage += meilleurChoix;
 
-  // ── Soin.
-  const heal = stats.heal ? (stats.heal + scaled(stats.scaling, 'heal')) * HEAL_WEIGHT : 0;
+  // ── Soin. Le drain compte ici, et non dans les dégâts : ce qu'il rend au
+  //    lanceur vaut du soin, à ceci près qu'il vit de ce que le sort porte.
+  const heal =
+    (stats.heal ? (stats.heal + scaled(stats.scaling, 'heal')) * HEAL_WEIGHT : 0) +
+    (stats.drain ? damage * stats.drain * HEAL_WEIGHT : 0);
 
   // ── Statuts infligés : leur valeur dépend de ce qu'ils privent.
   let statuses = 0;

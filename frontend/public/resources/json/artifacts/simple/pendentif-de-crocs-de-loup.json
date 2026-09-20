@@ -1,0 +1,52 @@
+{
+    "name": "Pendentif de crocs de loup",
+    "subtitle": "Objet magique simple",
+    "image": "/resources/media/pictures/natural-resources/remains/croc_de_loup.png",
+    "icon": "",
+    "slot": "amulet",
+    "statEffects": [
+        { "key": "atk_phy", "value": 3 }
+    ],
+    "description": [
+        "Trois crocs prélevés sur un même loup gris, percés à la base et enfilés sur une lanière de cuir. L'enchantement tient en une seule idée, répétée sur chaque dent : ce qui a mordu doit mordre encore.",
+        "Porté à même la peau, il durcit le geste de celui qui frappe. Les chasseurs du nord disent qu'on ne le sent pas quand tout va bien, et qu'on le sent très bien quand il faut abattre quelque chose."
+    ],
+    "info": [
+        { "key": "type",   "label": "Type",          "value": "Amulette" },
+        { "key": "rarity", "label": "Rareté",        "value": "Peu commun" },
+        { "key": "weight", "label": "Poids",         "value": "0.2 kg" },
+        { "key": "value",  "label": "Valeur",        "value": "60 pièces d'or" }
+    ],
+    "properties": [
+        "Effet permanent et passif : rien à activer, rien à dépenser.",
+        "Les crocs doivent provenir d'une même bête ; trois dents de trois loups ne tiennent aucun enchantement.",
+        "La lanière s'use : un pendentif mal entretenu finit par perdre une dent, et l'effet avec elle."
+    ],
+    "location": {
+        "image": "",
+        "paragraphs": [
+            "Façonné par les enchanteurs de village des plaines du nord, qui achètent les crocs aux chasseurs de meute.",
+            "Fabrication : trois crocs de loup d'une même dépouille, une lanière de cuir, et un enchantement de renforcement posé sur l'ensemble."
+        ]
+    },
+    "references": [
+        {
+            "label": "Matériaux",
+            "items": [
+                { "ref": "croc-de-loup", "collection": "resources/remains", "label": "Croc de loup" }
+            ]
+        },
+        {
+            "label": "Provenance",
+            "items": [
+                { "ref": "loup-gris", "collection": "bestiary", "label": "Loup Gris" }
+            ]
+        },
+        {
+            "label": "Domaines liés",
+            "items": [
+                { "ref": "renforcement", "collection": "domains", "label": "Renforcement" }
+            ]
+        }
+    ]
+}

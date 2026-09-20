@@ -1,8 +1,20 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Navbar } from '../../components/navbar/navbar';
+import { SpellWorkshop } from '../../components/spell-workshop/spell-workshop';
+import {
+  BuilderContext,
+  DEFAULT_RULES,
+  assessAtLevel,
+  emptyBuild,
+  fillTemplate,
+  measureLines,
+  fromSpellEntry,
+  getAt,
+  readNum,
+} from '../../combat/spell-customization';
 import { SpellsService } from '../../services/spells.service';
 import { StatusEffectsService } from '../../services/status-effects.service';
 import { DamageTypesService } from '../../services/damage-types.service';
@@ -36,15 +48,6 @@ import {
   domainLabel as labelOf,
   domainSigil as sigilOf,
 } from '../../domains.catalog';
-
-/** Dimensions de la grille de l'arbre (unités du repère SVG/pixels). */
-const COL_W = 200;
-const ROW_H = 122;
-const NODE_W = 158;
-const NODE_H = 90;
-
-/** Palette d'accents des branches (le tronc utilise la couleur du domaine). */
-const BRANCH_PALETTE = ['#c47a2c', '#3d79a8', '#7a9a3d', '#9a5bb0'];
 
 /** Libellés FR des sources de scaling (stats de combat + attributs). */
 const SOURCE_LABELS: Record<SpellScalingSource, string> = {
@@ -124,39 +127,17 @@ const STAT_NOUN: Record<SpellScalingSource, string> = {
   charisme: 'le charisme',
 };
 
-/** Un nœud positionné dans le repère de l'arbre. */
-interface LaidOutNode {
-  node: SpellNode;
-  col: number;
-  lane: number;
-  x: number;
-  y: number;
-}
-
-/** Une arête parent → enfant, avec ses extrémités et son tracé de courbe. */
-interface LaidOutEdge {
-  from: string;
-  to: string;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  /** Attribut `d` d'une courbe de Bézier reliant les deux nœuds. */
-  d: string;
-}
-
 /**
  * Page auto-générée et interactive d'un sort (`/magics/spell/:spell`).
  *
- * Quand le sort porte un arbre d'amélioration (`progression`), la fiche affiche
- * un arbre cliquable : chaque nœud est un palier aux stats explicites, l'arbre
- * se scinde en branches, et un simulateur calcule les valeurs effectives selon
- * les stats/attributs d'un personnage hypothétique. Sans `progression`, la fiche
- * reste une simple carte descriptive.
+ * Un sort se lit par sa PERSONNALISATION : la fiche montre l'atelier, où l'on
+ * règle les curseurs dans les limites d'un budget, et le panneau de détail
+ * affiche le sort tel que le build essayé le construit. Un sort qui ne déclare
+ * pas de `customization` reste une simple carte descriptive.
  */
 @Component({
   selector: 'spell-entry',
-  imports: [RouterLink, Navbar, NgTemplateOutlet],
+  imports: [RouterLink, Navbar, NgTemplateOutlet, SpellWorkshop],
   templateUrl: './spells-entries.html',
   styleUrl: './spells-entries.css',
 })
@@ -185,27 +166,119 @@ export class SpellEntryComponent {
     return p.icon || this.domainIcon(this.primaryDomain());
   });
 
-  /** Arbre d'amélioration du sort, si défini. */
-  progression = computed(() => this.page()?.spell.progression);
-  hasProgression = computed(() => !!this.progression());
+  /* ─────────────────────────────────────────────
+     PERSONNALISATION
+
+     Un sort se règle par curseurs sous budget : la fiche montre l'atelier, et
+     le panneau de détail affiche le sort tel que le build essayé le construit.
+  ───────────────────────────────────────────── */
+
+  /** Le sort vu par le moteur de personnalisation, ou `null` s'il n'en déclare pas. */
+  customizable = computed(() => {
+    const p = this.page();
+    return p ? fromSpellEntry(p.spell, p.domains) : null;
+  });
+
+  /** Build essayé dans l'atelier ; repart du socle à chaque changement de sort. */
+  readonly customBuild = linkedSignal({ source: this.slug, computation: () => emptyBuild() });
+  /** Niveau de sort supposé (donc budget) ; 0 par défaut : le socle, tel qu'on apprend le sort. */
+  readonly customLevel = linkedSignal({ source: this.slug, computation: () => 0 });
+
+  private readonly customCtx: BuilderContext = { rules: DEFAULT_RULES, classes: [], catalog: {} };
+
+  customAssessment = computed(() => {
+    const spell = this.customizable();
+    if (!spell) return null;
+    // Niveau 0 : le socle, verrouillé — le build essayé reste en mémoire pour
+    // réapparaître si l'on remonte, mais ne s'affiche pas.
+    const build = this.customLevel() === 0 ? emptyBuild() : this.customBuild();
+    return assessAtLevel(spell, build, this.customLevel(), this.customCtx);
+  });
+
+  /**
+   * Le sort construit : c'est ce qui permet au panneau de détail (dégâts
+   * colorés, statuts, bonus de classe…) de l'afficher sans rien réécrire.
+   */
+  selectedNode = computed<SpellNode | undefined>(() => {
+    const spell = this.customizable();
+    const a = this.customAssessment();
+    if (!spell || !a) return undefined;
+    // Les textes vivants décrivent le sort TEL QU'IL EST CONSTRUIT : ils
+    // passent donc avant l'`usage` figé de la fiche.
+    const p = this.page()?.spell;
+    const live = p?.liveText;
+    const base = p?.usage;
+    return {
+      id: 'build',
+      name: spell.name,
+      // Sans texte vivant, l'accroche reste la description de la fiche :
+      // le panneau ne doit jamais s'ouvrir sur un blanc.
+      description: this.live(live?.lead) ?? this.live(live?.description) ?? p?.description,
+      usage: {
+        ...base,
+        ...(live?.combat ? { combat: this.live(live.combat) ?? base?.combat } : {}),
+        ...(live?.outOfCombat ? { outOfCombat: this.live(live.outOfCombat) ?? base?.outOfCombat } : {}),
+      },
+      stats: a.stats,
+    };
+  });
+
+  /**
+   * Entretien par tour d'un sort passé en mode continu (2bis). `SpellNodeStats`
+   * ne connaît pas ce champ : il n'existe que dans un build.
+   */
+  upkeep = computed(() => this.customAssessment()?.stats.upkeep);
+
+  /** Durée négative = actif tant qu'on paie (mode continu), et non « −1 tour ». */
+  isContinuous = (node: SpellNode): boolean => (node.stats.duration ?? 0) < 0;
+
+  /** Sur-titre du panneau de détail : l'état du build affiché. */
+  detailKicker = computed(() =>
+    this.customAssessment()?.ledger.length
+      ? `Build essayé · sort niv. ${this.customLevel()}`
+      : 'Socle du sort',
+  );
 
   /* ─────────────────────────────────────────────
      UTILISATION : bascule combat / hors combat
   ───────────────────────────────────────────── */
 
   /** Utilisation déclarée au niveau du sort (repli hérité par les paliers). */
-  usage = computed(() => this.page()?.spell.usage);
-
   /**
-   * Un contexte est « disponible » s'il est renseigné au niveau du sort OU d'au
-   * moins un palier — un palier peut gagner une utilité que le sort de base n'a pas.
+   * Remplit un texte vivant avec le sort tel qu'il est construit (socle ou
+   * build essayé) ; `null` sans texte vivant ou hors atelier.
    */
-  hasCombatUsage = computed(() =>
-    !!this.usage()?.combat || (this.progression()?.nodes ?? []).some((n) => !!n.usage?.combat),
-  );
-  hasOutOfCombatUsage = computed(() =>
-    !!this.usage()?.outOfCombat || (this.progression()?.nodes ?? []).some((n) => !!n.usage?.outOfCombat),
-  );
+  private live(text: string | undefined): string | null {
+    const spell = this.customizable();
+    const a = this.customAssessment();
+    if (!text || !spell || !a) return null;
+    return fillTemplate(text, spell, a.stats);
+  }
+
+  /** Description du bandeau : elle suit le build si le sort déclare un texte vivant. */
+  heroDescription = computed(() => {
+    const spell = this.page()?.spell;
+    return this.live(spell?.liveText?.description) ?? spell?.description ?? '';
+  });
+
+  /** Mana affichée au bandeau : celle du sort construit dans l'atelier, sinon la fiche. */
+  heroMana = computed(() => this.customAssessment()?.stats.mana ?? this.page()?.spell.mana);
+
+  usage = computed(() => {
+    const spell = this.page()?.spell;
+    const base = spell?.usage;
+    const live = spell?.liveText;
+    if (!live?.combat && !live?.outOfCombat) return base;
+    return {
+      ...base,
+      ...(live.combat ? { combat: this.live(live.combat) ?? base?.combat } : {}),
+      ...(live.outOfCombat ? { outOfCombat: this.live(live.outOfCombat) ?? base?.outOfCombat } : {}),
+    };
+  });
+
+  /** Un contexte est « disponible » s'il est renseigné sur la fiche. */
+  hasCombatUsage = computed(() => !!this.usage()?.combat);
+  hasOutOfCombatUsage = computed(() => !!this.usage()?.outOfCombat);
   /** La bascule n'existe que si le sort a une utilité dans les deux contextes. */
   hasBothUsages = computed(() => this.hasCombatUsage() && this.hasOutOfCombatUsage());
 
@@ -259,157 +332,6 @@ export class SpellEntryComponent {
       `linear-gradient(100deg, ${stops})`
     );
   });
-
-  /* ─────────────────────────────────────────────
-     ARBRE D'AMÉLIORATION : mise en page
-  ───────────────────────────────────────────── */
-
-  /** Nœud → son parent (premier rencontré), pour tracer le chemin racine → nœud. */
-  private parentMap = computed(() => {
-    const prog = this.progression();
-    const parent = new Map<string, string>();
-    if (!prog) return parent;
-    for (const n of prog.nodes) {
-      for (const c of n.next ?? []) if (!parent.has(c)) parent.set(c, n.id);
-    }
-    return parent;
-  });
-
-  private nodeById = computed(() => {
-    const prog = this.progression();
-    return new Map((prog?.nodes ?? []).map((n) => [n.id, n]));
-  });
-
-  /**
-   * Disposition en couches : colonne = palier (tier), rangée (lane) calculée par
-   * un parcours en profondeur (les feuilles reçoivent des lanes successives, un
-   * nœud interne se centre sur la moyenne de ses enfants).
-   */
-  layout = computed(() => {
-    const prog = this.progression();
-    if (!prog) return null;
-    const byId = this.nodeById();
-
-    const laneOf = new Map<string, number>();
-    let nextLane = 0;
-    const assign = (id: string): number => {
-      const n = byId.get(id);
-      if (!n) return nextLane++;
-      const kids = n.next ?? [];
-      if (!kids.length) {
-        const l = nextLane++;
-        laneOf.set(id, l);
-        return l;
-      }
-      const ls = kids.map((k) => assign(k));
-      const l = ls.reduce((a, b) => a + b, 0) / ls.length;
-      laneOf.set(id, l);
-      return l;
-    };
-    assign(prog.root);
-
-    const minTier = Math.min(...prog.nodes.map((n) => n.tier));
-    const nodes: LaidOutNode[] = prog.nodes.map((n) => {
-      const col = n.tier - minTier;
-      const lane = laneOf.get(n.id) ?? 0;
-      return { node: n, col, lane, x: col * COL_W, y: lane * ROW_H };
-    });
-
-    const pos = new Map(nodes.map((l) => [l.node.id, l]));
-    const edges: LaidOutEdge[] = [];
-    for (const n of prog.nodes) {
-      const from = pos.get(n.id);
-      if (!from) continue;
-      for (const cid of n.next ?? []) {
-        const to = pos.get(cid);
-        if (!to) continue;
-        const x1 = from.x + NODE_W;
-        const y1 = from.y + NODE_H / 2;
-        const x2 = to.x;
-        const y2 = to.y + NODE_H / 2;
-        const cx = (COL_W - NODE_W) * 0.6;
-        edges.push({
-          from: n.id,
-          to: cid,
-          x1, y1, x2, y2,
-          d: `M ${x1} ${y1} C ${x1 + cx} ${y1}, ${x2 - cx} ${y2}, ${x2} ${y2}`,
-        });
-      }
-    }
-
-    const maxCol = Math.max(...nodes.map((l) => l.col));
-    const maxLane = Math.max(...nodes.map((l) => l.lane));
-    return {
-      nodes,
-      edges,
-      width: (maxCol + 1) * COL_W - (COL_W - NODE_W),
-      height: (maxLane + 1) * ROW_H - (ROW_H - NODE_H),
-    };
-  });
-
-  readonly nodeW = NODE_W;
-  readonly nodeH = NODE_H;
-
-  /* ─────────────────────────────────────────────
-     SÉLECTION
-  ───────────────────────────────────────────── */
-
-  private picked = signal<string | null>(null);
-
-  /** Nœud sélectionné (repli sur la racine, ou si le pick vient d'un autre sort). */
-  selectedId = computed(() => {
-    const prog = this.progression();
-    if (!prog) return null;
-    const cur = this.picked();
-    return cur && this.nodeById().has(cur) ? cur : prog.root;
-  });
-
-  selectedNode = computed(() => {
-    const id = this.selectedId();
-    return id ? this.nodeById().get(id) : undefined;
-  });
-
-  select(id: string): void {
-    this.picked.set(id);
-  }
-
-  /** Ids des nœuds du chemin racine → sélection (surlignage). */
-  pathIds = computed(() => {
-    const ids = new Set<string>();
-    let cur = this.selectedId();
-    const parent = this.parentMap();
-    while (cur) {
-      ids.add(cur);
-      cur = parent.get(cur) ?? undefined!;
-      if (cur && ids.has(cur)) break;
-    }
-    return ids;
-  });
-
-  isOnPath = (id: string): boolean => this.pathIds().has(id);
-  isSelected = (id: string): boolean => this.selectedId() === id;
-  isEdgeOnPath = (e: LaidOutEdge): boolean =>
-    this.pathIds().has(e.from) && this.pathIds().has(e.to);
-
-  /* ─────────────────────────────────────────────
-     BRANCHES
-  ───────────────────────────────────────────── */
-
-  private branchIndex = computed(() => {
-    const prog = this.progression();
-    const idx = new Map<string, number>();
-    (prog?.branches ?? []).forEach((b, i) => idx.set(b.id, i));
-    return idx;
-  });
-
-  /** Couleur d'accent d'une branche (tronc = couleur du domaine). */
-  branchColor = (branchId?: string): string => {
-    if (!branchId || branchId === 'trunk') return this.domainColor(this.primaryDomain());
-    const i = this.branchIndex().get(branchId);
-    return i === undefined ? this.domainColor(this.primaryDomain()) : BRANCH_PALETTE[i % BRANCH_PALETTE.length];
-  };
-
-  branches = computed(() => this.progression()?.branches ?? []);
 
   /* ─────────────────────────────────────────────
      SCALING (formules de décomposition, pour calcul à la main)
@@ -652,10 +574,33 @@ export class SpellEntryComponent {
 
   /** Chance d'esquive (annulation totale d'une attaque) du nœud sélectionné, ou 0. */
   evadeChance = computed<number>(() => this.selectedNode()?.stats.evadeChance ?? 0);
+  /** Cases dont recule chaque cible touchée (0 = le sort ne déplace personne). */
+  knockback = computed<number>(() => this.selectedNode()?.stats.knockback ?? 0);
+  /** Échelons atteints sur les échelles qualitatives du sort, et ce qu'ils permettent. */
+  gradeLines = computed(() => {
+    const spell = this.customizable();
+    const stats = this.selectedNode()?.stats;
+    if (!spell || !stats) return [];
+    return (spell.customization.params ?? []).flatMap((p) => {
+      const step = p.ladder?.[Math.round(readNum(getAt(stats, p.path)))];
+      return step ? [{ label: p.label, step }] : [];
+    });
+  });
+  /** Mesures du sort construit (volume, poids…), dans leur unité, avec leur repère. */
+  measures = computed(() => {
+    const spell = this.customizable();
+    const stats = this.selectedNode()?.stats;
+    return spell && stats ? measureLines(spell, stats) : [];
+  });
+  /** Zone persistante : posée au sol, ou attachée au lanceur (cf. `lingers`). */
+  lingers = computed(() => this.selectedNode()?.stats.lingers);
 
   /** Statuts purifiés par le nœud sélectionné, résolus depuis le catalogue. */
-  cleansedStatuses = computed(() =>
-    (this.selectedNode()?.stats.cleanses ?? []).map((key) => this.statusService.byKey(key) ?? { key } as StatusEffect)
+  cleansedStatuses = computed<{ key: string; def?: StatusEffect }[]>(() =>
+    (this.selectedNode()?.stats.cleanses ?? []).map((key) => ({
+      key,
+      def: this.statusService.byKey(key),
+    })),
   );
 
   /**

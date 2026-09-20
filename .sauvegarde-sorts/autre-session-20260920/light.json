@@ -1,0 +1,572 @@
+{
+    "name": "Lumière",
+    "icon": "/resources/media/icons/domains/light/light_icon.png",
+    "banner": "",
+    "first-quote": "Là où je passe, les ombres ne disparaissent pas. Elles se précisent.",
+    "usage-quote": "Ne projette pas la lumière. Sois la source, et laisse-la rayonner.",
+    "subdomains": [
+        {
+            "name": "Illumination",
+            "icon": "",
+            "quote": "Je ne crée rien : je montre ce qui était déjà là."
+        },
+        {
+            "name": "Ordre & Commandement",
+            "icon": "",
+            "quote": "La lumière ne demande pas. Elle assigne."
+        },
+        {
+            "name": "Purification",
+            "icon": "",
+            "quote": "Ce qui craint le jour n'a pas sa place au jour."
+        },
+        {
+            "name": "Révélation",
+            "icon": "",
+            "quote": "Aucun secret ne survit à ma clarté."
+        }
+    ],
+    "spells": [
+        {
+            "key": "light-trait-de-lumiere",
+            "name": "Trait de lumière",
+            "description": "Concentre la lumière en un rayon brûlant qui transperce les ténèbres et les créatures impies.",
+            "mana": 3,
+            "level": 1,
+            "subdomains": [
+                "Illumination"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "16 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.09
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0 }
+                ],
+                "statusUnlock": { "eligible": ["aveuglement"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-luciole",
+            "name": "Luciole",
+            "description": "Invoque une petite bulle de lumière qui permet d'éclairer les environs.",
+            "usage": {
+                "outOfCombat": "Éclaire les environs proches : exploration de grottes, déplacements nocturnes ou lecture dans l'obscurité."
+            },
+            "mana": 1,
+            "level": 1,
+            "subdomains": [
+                "Illumination"
+            ],
+            "baseStats": {
+                "mana": 1,
+                "range": "Personnel",
+                "area": "Rayon 5 m",
+                "targets": [
+                    "self"
+                ],
+                "duration": 5
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0, "cap": { "value": 16, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 15, "anchor": "tier3" } },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 8, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-lumiere-revelatrice",
+            "name": "Lumière révélatrice",
+            "description": "Baigne une zone d'une clarté qui dévoile l'invisible, les illusions et les intentions cachées.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Révélation"
+            ],
+            "requires": [
+                "light-luciole"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "16 m",
+                "area": "Rayon 5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "vulnerabilite",
+                        "chance": 60
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 9, "anchor": "tier3" } },
+                    { "id": "vulnerabiliteChance", "kind": "chance", "label": "Chance de Vulnérabilité", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 90, "anchor": "tier3" } }
+                ],
+                "statusUnlock": { "eligible": ["aveuglement"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-champ-de-verite",
+            "name": "Champ de vérité",
+            "description": "Crée une zone autour du lanceur où la vérité est la seule chose qui puisse être exprimée.",
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Révélation"
+            ],
+            "requires": [
+                "light-lumiere-revelatrice"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Autour de soi",
+                "area": "Rayon 4 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "silence",
+                        "chance": 40
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 8, "anchor": "tier3" } },
+                    { "id": "silenceChance", "kind": "chance", "label": "Chance de Silence", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 70, "anchor": "tier3" } }
+                ],
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-verbe-d-autorite",
+            "name": "Verbe d'autorité",
+            "description": "Prononce un ordre empreint d'une autorité irrésistible que la cible peine à désobéir.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Ordre & Commandement"
+            ],
+            "requires": [
+                "light-lumiere-revelatrice"
+            ],
+            "baseStats": {
+                "mana": 4,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "choices": [
+                    {
+                        "name": "Halte !",
+                        "description": "Fige la cible sur place le temps d'un ordre.",
+                        "inflicts": [
+                            {
+                                "status": "etourdissement",
+                                "chance": 55
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Fuis !",
+                        "description": "Contraint la cible à fuir, saisie d'effroi.",
+                        "inflicts": [
+                            {
+                                "status": "peur",
+                                "chance": 55
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } }
+                ]
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-lumiere-purificatrice",
+            "name": "Lumière purificatrice",
+            "description": "Baigne une créature d'une clarté sacrée qui dissipe corruptions, malédictions et souillures.",
+            "mana": 4,
+            "level": 5,
+            "subdomains": [
+                "Purification"
+            ],
+            "requires": [
+                "light-trait-de-lumiere"
+            ],
+            "baseStats": {
+                "heal": 10,
+                "mana": 4,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "self",
+                    "ally"
+                ],
+                "scaling": [
+                    {
+                        "source": "sagesse",
+                        "ratio": 0.5,
+                        "affects": "heal"
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "heal", "kind": "heal", "label": "Soin", "path": "heal", "min": 0, "cap": { "value": 24, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0, "cap": { "value": 6, "anchor": "tier3" } },
+                    { "id": "sagesseRatio", "kind": "ratio", "label": "Ratio Sagesse", "path": "scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.8, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-revetement-arme",
+            "name": "Lame radieuse",
+            "description": "Nimbe une arme de lumière : tant que l'enchantement dure, chaque coup inflige des dégâts de lumière supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts de lumière à chacune de vos attaques au corps à corps, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "damageType": "light",
+            "subdomains": [
+                "Illumination"
+            ],
+            "requires": [
+                "light-revetement-poings"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "warrior",
+                        "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de lumière accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 3, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Attaque physique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.03, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-revetement-poings",
+            "name": "Poings radieux",
+            "description": "Nimbe vos poings de lumière : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de lumière supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts de lumière à vos attaques à mains nues, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 2,
+            "damageType": "light",
+            "subdomains": [
+                "Illumination"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "force",
+                        "ratio": 0.2
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de lumière de chaque frappe est accru.",
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1 },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "forceRatio", "kind": "ratio", "label": "Ratio Force", "path": "scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "light-revetement-manteau",
+            "name": "Manteau radieux",
+            "description": "Enveloppe le lanceur d'un halo de lumière : sa défense magique est renforcée. La lumière pure ne riposte pas : elle absorbe, et reste le plus solide des remparts magiques.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un halo de lumière pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Illumination"
+            ],
+            "requires": [
+                "light-revetement-poings"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 6,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.35
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "defMagValue", "kind": "effect", "label": "Défense magique", "path": "effects.0.value", "min": 0, "cap": { "value": 14, "anchor": "treeMax" } },
+                    { "id": "intelligenceDefmagRatio", "kind": "ratio", "label": "Ratio Intelligence → Défense magique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.55, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["life", "electricity", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        }
+    ],
+    "feats": [
+        {
+            "key": "light-focale",
+            "name": "Lumière focale",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Lumière débloqué",
+            "description": "Il concentre tout le faisceau sur un seul point. Ce point ne survit pas longtemps ; le reste de la salle n'est même pas éclairé.",
+            "subdomains": [
+                "Illumination"
+            ],
+            "excludes": [
+                "light-diffuse"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts des sorts offensifs de Lumière",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Ciblage",
+                    "value": "Cible unique verrouillée, aucun élargissement possible",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "light-diffuse",
+            "name": "Lumière diffuse",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur de Lumière débloqué",
+            "description": "Il ouvre le faisceau jusqu'à ce qu'il n'épargne plus rien dans un rayon — et ne perce plus rien non plus.",
+            "subdomains": [
+                "Illumination"
+            ],
+            "excludes": [
+                "light-focale"
+            ],
+            "effects": [
+                {
+                    "label": "Ciblage des sorts offensifs de Lumière",
+                    "value": "Zone, rayon 3 m",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts des sorts offensifs de Lumière",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "light-force-zenith",
+            "name": "Force zénith",
+            "level": 10,
+            "kind": "multiplier",
+            "prerequisite": "Palier Médian de Lumière débloqué",
+            "description": "Son corps suit la course du soleil : au zénith il porte des montagnes, la nuit il peine à porter son arme.",
+            "effects": [
+                {
+                    "label": "Force à Midi",
+                    "value": "+2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Force la Nuit",
+                    "value": "−2",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Autres moments de la journée",
+                    "value": "Aucun effet",
+                    "tone": "neutral"
+                }
+            ]
+        },
+        {
+            "key": "light-verbe-imperatif",
+            "name": "Verbe impératif",
+            "level": 15,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Lumière débloqué et Verbe d'autorité connu",
+            "freeWith": "Background Noble — Héritier",
+            "description": "Sa parole engage ceux qui l'entendent, lui compris : commander sous la lumière, c'est se soumettre au même éclairage.",
+            "subdomains": [
+                "Ordre & Commandement",
+                "Révélation"
+            ],
+            "effects": [
+                {
+                    "label": "Cibles d'un sort de commandement",
+                    "value": "+1",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Pendant la durée du sort",
+                    "value": "Le lanceur ne peut pas mentir (Champ de vérité s'applique à lui)",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

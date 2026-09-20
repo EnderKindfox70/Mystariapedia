@@ -1,0 +1,47 @@
+{
+    "_test": "COPIE DE TEST — jamais lue par l'application. Socle = nœud racine réel, plafonds ancrés sur la fiche d'origine (vérifiés par test/data.test.mjs).",
+    "_notes": [
+        "Premier exemple réel de la table de swap 4bis (le document ne posait que le principe « sort de lave ») : Feu + Terre déclarés, rien d'autre.",
+        "Enracinement débloquable/échangeable : ancré sur Coulée de lave III (la3), qui l'inflige déjà à 40 %.",
+        "Combinaison : exige les DEUX domaines (fire + earth) sur la fiche du personnage."
+    ],
+    "source": { "file": "domains/combinations.json", "key": "combo-coulee-de-lave", "rootNode": "la1", "capNode": "la3" },
+    "key": "combo-coulee-de-lave",
+    "name": "Coulée de lave",
+    "description": "Fait fondre la roche en un torrent de lave incandescente qui engloutit le terrain.",
+    "domain": "fire",
+    "components": ["fire", "earth"],
+    "subdomains": ["Lave"],
+    "level": 4,
+    "power": "standard",
+    "requires": ["fire-fireball", "earth-tremblement"],
+    "damageType": "fire",
+    "baseStats": {
+        "damageMin": 2,
+        "damageMax": 3,
+        "mana": 6,
+        "range": "14 m",
+        "area": "Rayon 3 m",
+        "targets": ["enemy"],
+        "inflicts": [{ "status": "brulure", "chance": 50 }],
+        "scaling": [{ "source": "atk_mag", "ratio": 0.05 }]
+    },
+    "customization": {
+        "params": [
+            { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 6, "anchor": "tier3" } },
+            { "id": "radius", "kind": "radius", "label": "Rayon d'aire", "path": "area", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+            { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } },
+            { "id": "burnChance", "kind": "chance", "label": "Chance de Brûlure", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 80, "anchor": "tier3" } },
+            { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 6, "anchor": "treeMin" } }
+        ],
+        "statusUnlock": { "eligible": ["enracinement"], "chanceCap": { "value": 40, "anchor": "tier3", "path": "inflicts.1.chance" } },
+        "statusTypeSwap": { "eligible": ["enracinement"] },
+        "areaShapeSwap": { "shapes": ["Rayon", "Cône", "Ligne"] }
+    },
+    "swapOptions": { "damageTypes": ["fire", "earth"] },
+    "crossDomain": null,
+    "domainGoverned": [],
+    "lockedFields": [
+        { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+    ]
+}

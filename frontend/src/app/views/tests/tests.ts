@@ -1,14 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { EntityCard, EntityCardData } from '../../components/entity-card/entity-card';
 import { Navbar } from '../../components/navbar/navbar';
+import { SpellBuilder } from './spell-builder/spell-builder';
+
+/** Bancs d'essai de la page /tests : chacun est un onglet. */
+type TestTab = 'spell-builder' | 'entity-card';
 
 @Component({
   selector: 'app-tests',
-  imports: [EntityCard,Navbar],
+  imports: [EntityCard, Navbar, SpellBuilder],
   templateUrl: './tests.html',
   styleUrl: './tests.css',
 })
 export class Tests {
+  readonly tab = signal<TestTab>('spell-builder');
+
   readonly sampleEntity: EntityCardData = {
     name: 'Loup Gris',
     entityTypeId: 1,

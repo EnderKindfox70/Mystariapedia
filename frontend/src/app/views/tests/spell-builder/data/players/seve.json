@@ -1,0 +1,17 @@
+{
+    "_test": "Joueur type — vagabond niveau 3, Plantes + Vie + Mort. Étincelle vitale lui est fermée (niveau 5 requis) ; le cross-domaine Mort de Toxine végétale exige qu'il investisse d'abord en Mort.",
+    "id": "seve",
+    "name": "Sève",
+    "class": "rogue",
+    "level": 3,
+    "domains": ["plant", "life", "death"],
+    "attributes": { "force": 10, "dexterite": 16, "constitution": 12, "intelligence": 12, "sagesse": 15, "charisme": 11 },
+    "stats": { "atk_mag": 26, "atk_phy": 30, "def_mag": 16, "def_phy": 15, "hp": 22, "mana": 24, "endurance": 28, "speed": 7 },
+    "knownSpells": [
+        "plant-toxine-vegetale",
+        "life-soin-vital"
+    ],
+    "spellState": {
+        "plant-toxine-vegetale": { "xp": 18, "build": null, "lastReassignedAt": null }
+    }
+}

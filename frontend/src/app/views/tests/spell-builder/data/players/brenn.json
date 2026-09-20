@@ -1,0 +1,23 @@
+{
+    "_test": "Joueur type — guerrier niveau 5, Feu + Terre. Connaît Coulée de lave (combinaison) pour tester la table de swap 4bis.",
+    "id": "brenn",
+    "name": "Brenn",
+    "class": "warrior",
+    "level": 5,
+    "domains": ["fire", "earth"],
+    "attributes": { "force": 16, "dexterite": 12, "constitution": 15, "intelligence": 9, "sagesse": 11, "charisme": 10 },
+    "stats": { "atk_mag": 18, "atk_phy": 38, "def_mag": 14, "def_phy": 30, "hp": 27, "mana": 22, "endurance": 40, "speed": 5 },
+    "knownSpells": [
+        "fire-embers",
+        "fire-echauffement",
+        "fire-fireball",
+        "earth-faconnage-du-metal",
+        "earth-tremblement",
+        "combo-coulee-de-lave"
+    ],
+    "spellState": {
+        "fire-embers": { "xp": 12, "build": null, "lastReassignedAt": null },
+        "fire-echauffement": { "xp": 34, "build": null, "lastReassignedAt": null },
+        "combo-coulee-de-lave": { "xp": 25, "build": null, "lastReassignedAt": null }
+    }
+}

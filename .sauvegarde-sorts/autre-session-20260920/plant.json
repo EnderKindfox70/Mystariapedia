@@ -1,0 +1,586 @@
+{
+    "name": "Plante",
+    "icon": "/resources/media/icons/domains/plants/plants_icon.png",
+    "banner": "",
+    "first-quote": "Chaque graine contient une forêt. Chaque forêt contient un monde.",
+    "usage-quote": "La plante ne pousse pas vers la lumière par volonté. Elle pousse parce que c'est sa nature. Trouve la tienne",
+    "subdomains": [
+        {
+            "name": "Croissance végétale",
+            "icon": "",
+            "quote": "Donne-moi une fissure, et je fendrai le rocher."
+        },
+        {
+            "name": "Poison & Médecine naturelle",
+            "icon": "",
+            "quote": "Le remède et le poison poussent sur la même tige."
+        },
+        {
+            "name": "Spores & Mycologie",
+            "icon": "",
+            "quote": "Ce qui meurt me nourrit ; ce que je nourris ne meurt plus tout à fait."
+        },
+        {
+            "name": "Symbiose & Parasitisme",
+            "icon": "",
+            "quote": "Vivre ensemble ou vivre de l'autre : la frontière est mince."
+        }
+    ],
+    "spells": [
+        {
+            "key": "plant-toxine-vegetale",
+            "name": "Toxine végétale",
+            "description": "Distille une sève toxique appliquée à une arme ou projetée, empoisonnant la cible.",
+            "mana": 2,
+            "level": 1,
+            "subdomains": [
+                "Poison & Médecine naturelle"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 2,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "poison",
+                        "chance": 40
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.09
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 10, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.1, "anchor": "treeMax" } },
+                    { "id": "poisonChance", "kind": "chance", "label": "Chance de Poison", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 70, "anchor": "tier3" } }
+                ],
+                "statusUnlock": { "eligible": ["paralysie"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "plant-ronces-etreignantes",
+            "name": "Ronces étreignantes",
+            "description": "Fait surgir des ronces du sol qui enserrent et immobilisent les créatures dans la zone.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Croissance végétale"
+            ],
+            "requires": [
+                "plant-toxine-vegetale"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "12 m",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "enracinement",
+                        "chance": 60
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.05
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 14, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0 },
+                    { "id": "enracinementChance", "kind": "chance", "label": "Chance de Enracinement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 90, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ],
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "plant-nuage-de-spores",
+            "name": "Nuage de spores",
+            "description": "Libère un nuage de spores fongiques qui désoriente et affaiblit ceux qui le respirent.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Spores & Mycologie"
+            ],
+            "requires": [
+                "plant-toxine-vegetale"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Autour de soi",
+                "area": "Rayon 4 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "affaiblissement",
+                        "chance": 40
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.05
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 6, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0 },
+                    { "id": "affaiblissementChance", "kind": "chance", "label": "Chance de Affaiblissement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 70, "anchor": "tier3" } }
+                ],
+                "statusUnlock": { "eligible": ["confusion"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ],
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "plant-greffe-parasitaire",
+            "name": "Greffe parasitaire",
+            "description": "Implante dans une cible une pousse parasite qui draine sa vigueur au profit du lanceur.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Symbiose & Parasitisme"
+            ],
+            "requires": [
+                "plant-ronces-etreignantes"
+            ],
+            "baseStats": {
+                "damageMin": 2,
+                "damageMax": 4,
+                "mana": 5,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "poison",
+                        "chance": 50
+                    }
+                ],
+                "effects": [
+                    {
+                        "stat": "force",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.06
+                            }
+                        ]
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.06
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 7, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 12, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.07, "anchor": "tier3" } },
+                    { "id": "poisonChance", "kind": "chance", "label": "Chance de Poison", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 70, "anchor": "tier3" } },
+                    { "id": "forceValue", "kind": "effect", "label": "Force", "path": "effects.0.value", "min": 0, "cap": { "value": 3, "anchor": "treeMax" } },
+                    { "id": "atkMagForceRatio", "kind": "ratio", "label": "Ratio Attaque magique → Force", "path": "effects.0.scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.07, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] },
+                    { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "plant-symbiose-vegetale",
+            "name": "Symbiose végétale",
+            "description": "Fusionne le corps du lanceur avec une plante symbiotique de son choix. Toutes les symbioses sont disponibles d'emblée ; ce sont leurs effets qui s'amplifient palier après palier.",
+            "usage": {
+                "combat": "Choisissez une plante symbiote pour vous doter d'un avantage (dégâts, soin, protection, vélocité…). Le coût en mana dépend de la symbiose choisie.",
+                "outOfCombat": "La symbiose peut servir hors combat : le lierre régénérant referme les plaies au repos, l'écorce protège du froid et des ronces."
+            },
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Symbiose & Parasitisme"
+            ],
+            "requires": [
+                "plant-toxine-vegetale"
+            ],
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "choices": [
+                    {
+                        "name": "Ronces",
+                        "mana": 4,
+                        "description": "Des ronces couvrent vos membres : vos attaques infligent davantage de dégâts, mais leurs épines vous blessent à chaque tour.",
+                        "effects": [
+                            {
+                                "stat": "atk_phy",
+                                "value": 2
+                            }
+                        ],
+                        "recoil": {
+                            "damageMin": 2,
+                            "damageMax": 3,
+                            "note": "par tour"
+                        },
+                        "duration": 3
+                    },
+                    {
+                        "name": "Lierre régénérant",
+                        "mana": 5,
+                        "description": "Un lierre nourricier vous enlace et referme vos blessures à chaque tour.",
+                        "heal": 4,
+                        "duration": 3
+                    },
+                    {
+                        "name": "Écorce protectrice",
+                        "mana": 4,
+                        "description": "Votre peau se couvre d'écorce, absorbant une partie des coups.",
+                        "effects": [
+                            {
+                                "stat": "def_phy",
+                                "value": 2
+                            }
+                        ],
+                        "duration": 3
+                    },
+                    {
+                        "name": "Vrille véloce",
+                        "mana": 4,
+                        "description": "Des vrilles nerveuses propulsent vos mouvements : vous gagnez en vitesse.",
+                        "effects": [
+                            {
+                                "stat": "speed",
+                                "value": 2
+                            }
+                        ],
+                        "duration": 3
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 }
+                ]
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "plant-revetement-arme",
+            "name": "Lame épineuse",
+            "description": "Nimbe une arme de ronces : tant que l'enchantement dure, chaque coup inflige des dégâts végétaux supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts végétaux à chacune de vos attaques au corps à corps, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "damageType": "plant",
+            "subdomains": [
+                "Croissance végétale"
+            ],
+            "requires": [
+                "plant-revetement-poings"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "ranger",
+                        "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts végétaux accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 3, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Attaque physique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.03, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "plant-revetement-poings",
+            "name": "Poings épineux",
+            "description": "Nimbe vos poings de ronces : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts végétaux supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts végétaux à vos attaques à mains nues, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 2,
+            "damageType": "plant",
+            "subdomains": [
+                "Croissance végétale"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "force",
+                        "ratio": 0.2
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts végétaux de chaque frappe est accru.",
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1 },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "forceRatio", "kind": "ratio", "label": "Ratio Force", "path": "scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "plant-revetement-armure",
+            "name": "Armure d'écorce",
+            "description": "Enveloppe le lanceur d'une gangue d'écorce : sa défense physique est renforcée. L'écorce peut rester lisse, ou se hérisser de ronces qui déchirent — et font saigner ou empoisonnent — quiconque frappe le porteur.",
+            "usage": {
+                "combat": "Enveloppez-vous d'une gangue d'écorce pour mieux encaisser les coups et attaques physiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Croissance végétale"
+            ],
+            "requires": [
+                "plant-revetement-poings"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "constitution",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "defPhyValue", "kind": "effect", "label": "Défense physique", "path": "effects.0.value", "min": 0, "cap": { "value": 10, "anchor": "treeMax" } },
+                    { "id": "constitutionDefphyRatio", "kind": "ratio", "label": "Ratio Constitution → Défense physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.35, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["earth", "life", "water"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        }
+    ],
+    "feats": [
+        {
+            "key": "plant-croissance",
+            "name": "Croissance végétale",
+            "level": 5,
+            "kind": "passive",
+            "prerequisite": "Palier Mineur de Plantes débloqué",
+            "description": "Il intègre la vie végétale à son corps : La pluie le rehydrate et le soleil le nourrit. Cependant gare aux flammes et à la secheresse, qui le dessèchent et le brûlent.",
+            "subdomains": [
+                "Symbiose & Parasitisme"
+            ],
+            "excludes": [],
+            "effects": [
+                {
+                    "label": "Régénération tant que le lanceur est Trempé",
+                    "value": "4 PV + 0,3 × CON par tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Sorts de Plantes à Midi",
+                    "value": "×1,2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Sorts de Plantes par sécheresse",
+                    "value": "×0,7",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Dégâts de Feu subis",
+                    "value": "Faiblesse permanente ×1,5",
+                    "tone": "cost"
+                }
+            ],
+            "passives": [
+                {
+                    "when": {
+                        "status": "wet"
+                    },
+                    "grantsStatus": "regeneration",
+                    "label": "Trempé : la sève circule et les plaies se referment"
+                },
+                {
+                    "when": {
+                        "daytime": "midi"
+                    },
+                    "damageFactor": 1.2,
+                    "domains": [
+                        "plant"
+                    ],
+                    "label": "Plein midi : la photosynthèse nourrit ses sorts"
+                },
+                {
+                    "when": {
+                        "weather": "drought"
+                    },
+                    "damageFactor": 0.7,
+                    "domains": [
+                        "plant"
+                    ],
+                    "label": "Sécheresse : la sève manque et ses sorts s'étiolent"
+                },
+                {
+                    "weakness": "fire",
+                    "label": "Bois vert : le feu prend sur lui comme sur une haie sèche"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

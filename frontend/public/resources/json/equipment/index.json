@@ -38,6 +38,7 @@
     "subtitle": "Portage — accès rapide",
     "category": "sacs",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/equipment/sangle_alchimiste.png",
     "material": "cuir",
     "weight": 0.8
   },
@@ -47,6 +48,7 @@
     "subtitle": "Sac de toile",
     "category": "sacs",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/besace.png",
     "material": "toile",
     "weight": 0.5,
     "capacityBonus": 4
@@ -57,6 +59,7 @@
     "subtitle": "Sac enchanté",
     "category": "sacs",
     "rarity": "Rare",
+    "image": "/resources/media/pictures/equipment/besace_allegement.png",
     "material": "toile",
     "weight": 1,
     "weightReductionPct": 25
@@ -77,6 +80,7 @@
     "subtitle": "Matériel de contention",
     "category": "chasse",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/chausse_trappes.png",
     "material": "fer",
     "weight": 1.5
   },
@@ -106,6 +110,7 @@
     "subtitle": "Outil de récolte",
     "category": "recolte",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/lame_depouille.png",
     "material": "acier",
     "weight": 0.4
   },
@@ -135,6 +140,7 @@
     "subtitle": "Matériel d'alerte",
     "category": "chasse",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/equipment/fil_clochette.png",
     "material": "soie",
     "weight": 0.3
   },
@@ -144,6 +150,7 @@
     "subtitle": "Matériel de capture",
     "category": "chasse",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/filet_leste.png",
     "material": "chanvre",
     "weight": 1.5
   },
@@ -186,6 +193,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/equipment/grande_ration.png",
     "material": "toile",
     "weight": 2
   },
@@ -195,6 +203,7 @@
     "subtitle": "Matériel de franchissement",
     "category": "escalade",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/grappin.png",
     "material": "acier",
     "weight": 2
   },
@@ -204,6 +213,7 @@
     "subtitle": "Hotte d'osier",
     "category": "sacs",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/hotte_portage.png",
     "material": "osier",
     "weight": 3,
     "capacityBonus": 22
@@ -214,6 +224,7 @@
     "subtitle": "Outil de dressage",
     "category": "outils",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/houlette_berger.png",
     "material": "bois",
     "weight": 1.5
   },
@@ -243,6 +254,7 @@
     "subtitle": "Matériel de pêche",
     "category": "chasse",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/fils_hamecons.png",
     "material": "acier",
     "weight": 0.3
   },
@@ -252,6 +264,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/marmite_gamelle.png",
     "material": "fer",
     "weight": 2
   },
@@ -281,6 +294,7 @@
     "subtitle": "Matériel de réparation",
     "category": "escalade",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/necessaire_epissure.png",
     "material": "chanvre",
     "weight": 0.5
   },
@@ -319,6 +333,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/petite_ration.png",
     "material": "toile",
     "weight": 0.2
   },
@@ -348,6 +363,7 @@
     "subtitle": "Matériel de camp",
     "category": "camp",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/ration_de_voyage.png",
     "material": "toile",
     "weight": 3.5
   },
@@ -357,6 +373,7 @@
     "subtitle": "Sac de cuir",
     "category": "sacs",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/sac_aventurier.png",
     "material": "cuir",
     "weight": 2,
     "capacityBonus": 14
@@ -377,6 +394,7 @@
     "subtitle": "Sac de toile",
     "category": "sacs",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/sac_voyageur.png",
     "material": "toile",
     "weight": 1,
     "capacityBonus": 8
@@ -387,6 +405,7 @@
     "subtitle": "Sac enchanté",
     "category": "sacs",
     "rarity": "Très rare",
+    "image": "/resources/media/pictures/equipment/sac_sans_fond.png",
     "material": "toile",
     "weight": 2,
     "weightReductionPct": 50
@@ -407,6 +426,7 @@
     "subtitle": "Consommable de soin",
     "category": "soins",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/equipment/sel_odorants.png",
     "material": "verre",
     "tags": [
       "care"
@@ -439,6 +459,7 @@
     "subtitle": "Outillage de soin",
     "category": "soins",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/equipment/trousse_chirurgien.png",
     "material": "acier",
     "tags": [
       "care"
@@ -451,6 +472,7 @@
     "subtitle": "Vêtement de campagne",
     "category": "camp",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/equipment/vareuse_huilee.png",
     "material": "toile",
     "weight": 1.5
   }

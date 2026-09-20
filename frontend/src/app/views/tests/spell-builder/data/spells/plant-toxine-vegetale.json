@@ -1,0 +1,44 @@
+{
+    "_test": "COPIE DE TEST — jamais lue par l'application. Socle = nœud racine réel, plafonds ancrés sur la fiche d'origine (vérifiés par test/data.test.mjs).",
+    "_notes": [
+        "Démontre la règle de priorité : la plante équipée décide de la nature du poison, donc AUCUNE option de statut n'entre dans le budget.",
+        "La chance d'infliger reste une magnitude (Famille 1) : la plante gouverne la NATURE, pas la fréquence.",
+        "Hypothèse de test : Mort déclarée cross-éligible (poison → nécrose, thématiquement cohérent)."
+    ],
+    "source": { "file": "domains/plant.json", "key": "plant-toxine-vegetale", "rootNode": "pt1", "capNode": "pt3" },
+    "key": "plant-toxine-vegetale",
+    "name": "Toxine végétale",
+    "description": "Distille une sève toxique appliquée à une arme ou projetée, empoisonnant la cible.",
+    "domain": "plant",
+    "subdomains": ["Poison & Médecine naturelle"],
+    "level": 1,
+    "power": "standard",
+    "requires": [],
+    "baseStats": {
+        "damageMin": 1,
+        "damageMax": 2,
+        "mana": 2,
+        "range": "8 m",
+        "area": "Cible unique",
+        "targets": ["enemy"],
+        "inflicts": [{ "status": "poison", "chance": 40 }],
+        "scaling": [{ "source": "atk_mag", "ratio": 0.09 }]
+    },
+    "customization": {
+        "params": [
+            { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+            { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 10, "anchor": "tier3" } },
+            { "id": "poisonChance", "kind": "chance", "label": "Chance d'infliger", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 70, "anchor": "tier3" } },
+            { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 2, "anchor": "treeMin" } }
+        ],
+        "extraTargets": { "base": 1, "label": "cible(s) simultanée(s)" }
+    },
+    "swapOptions": null,
+    "crossDomain": { "eligible": ["death"] },
+    "domainGoverned": [
+        { "field": "statusType", "mechanic": "Plante équipée (domaine des Plantes)", "reason": "La plante équipée change la nature du poison : ni swap ni déblocage de statut ne s'achètent en points." }
+    ],
+    "lockedFields": [
+        { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+    ]
+}

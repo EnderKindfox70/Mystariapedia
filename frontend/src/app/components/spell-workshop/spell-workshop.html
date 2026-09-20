@@ -1,0 +1,305 @@
+<ng-template #paramRow let-row>
+  <div class="ws-row" [class.is-changed]="row.changed">
+    <div class="ws-row__name">
+      <span class="ws-row__label">{{ row.label }}@if (row.assumption) {<sup title="Coût provisoire : la règle ne le chiffre pas encore">*</sup>}</span>
+      <small [title]="row.costText">{{ row.capText }}</small>
+    </div>
+    <button type="button" class="ws-nudge" [disabled]="row.lower.disabled" [title]="row.lower.title"
+            aria-label="Diminuer" (click)="step(row.action, row.lower.delta)">
+      <span aria-hidden="true">−</span><small>{{ row.lower.caption }}</small>
+    </button>
+    <span class="ws-row__value" [class.is-long]="row.valueText.length > 7 || row.baseText.length > 7"
+          [attr.data-zone]="row.zone?.cls" [title]="row.zone?.text ?? ''">
+      @if (row.changed) { <s>{{ row.baseText }}</s> }
+      <b>{{ row.valueText }}</b>
+    </span>
+    <button type="button" class="ws-nudge" [disabled]="row.raise.disabled" [title]="row.raise.title"
+            aria-label="Augmenter" (click)="step(row.action, row.raise.delta)">
+      <span aria-hidden="true">+</span><small>{{ row.raise.caption }}</small>
+    </button>
+    <span class="ws-cost" [class.is-zero]="!row.changed">{{ row.cost }}</span>
+  </div>
+</ng-template>
+
+<div class="ws">
+  <!-- ═════════ Réglages ═════════ -->
+  <div class="ws-controls">
+    <details class="ws-help">
+      <summary>Comment ça marche ?</summary>
+      <p>
+        Le sort progresse par <b>son propre usage</b>, pas par le niveau du personnage :
+        {{ fmt(rules.xpRatios.combat) }} XP par lancer en combat, {{ fmt(rules.xpRatios.training) }} XP par séance
+        d'entraînement au repos long, un niveau tous les {{ rules.xpBase }} XP, jusqu'au niveau {{ rules.maxSpellLevel }}.
+        Chaque niveau accorde {{ rules.pointsPerSpellLevel }} points. On peut aussi <b>mordre</b> : abaisser une valeur
+        sous le socle rend des points pour financer un gain ailleurs. Au-delà d'un plafond dégradé, chaque cran coûte
+        de plus en plus cher (k²) ; un plafond dur ne se franchit pas. Réassignable uniquement à un repos long.
+      </p>
+      <p class="ws-help__legend"><b>−2</b> points dépensés · <b>+2</b> points rendus · <sup>*</sup> coût provisoire</p>
+    </details>
+
+    @if (locked()) {
+      <p class="ws-locked-note">
+        <span aria-hidden="true">🔒</span>
+        <span><b>Niveau 0 — le socle du sort</b>, tel qu'on l'apprend : rien ne s'y modifie.
+        Choisissez un niveau de sort pour disposer de points et personnaliser.</span>
+      </p>
+    }
+
+    <!-- Un fieldset désactivé verrouille d'un coup tous les contrôles qu'il contient. -->
+    <fieldset class="ws-fieldset" [disabled]="locked()">
+
+    <section class="ws-fam ws-fam--1">
+      <h3>Paramètres</h3>
+      @for (row of f1(); track row.key) {
+        <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" />
+      } @empty { <p class="ws-empty">Aucun paramètre continu.</p> }
+    </section>
+
+    @if (hasF2()) {
+      <section class="ws-fam ws-fam--2">
+        <h3>Déblocages</h3>
+        @if (opts().statusUnlock; as su) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Statut <small>{{ rules.costs.statusUnlock }} pts · {{ rules.unlockedStatusBaseChance }} % de base</small></span>
+            <select aria-label="Statut débloqué" (change)="setStatusUnlock(valueOf($event))">
+              <option value="" [selected]="!shown().statusUnlock">— aucun —</option>
+              @for (s of su.eligible; track s) {
+                <option [value]="s" [selected]="shown().statusUnlock?.status === s" [disabled]="baseStatuses().has(s)">{{ statusName(s) }}</option>
+              }
+            </select>
+          </div>
+          @if (statusChanceRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+        }
+        @if (opts().knockbackUnlock) {
+          <div class="ws-opt">
+            <span class="ws-opt__label" title="Chaque cible touchée recule dans l'axe du lanceur vers elle">
+              Repoussement <small>{{ rules.costs.knockbackUnlock }} pts · {{ rules.unlockedKnockbackCells }} case, puis {{ rules.paramKinds.knockback.cost }} pts la case</small></span>
+            <label class="ws-chip" [class.is-on]="!!shown().knockback">
+              <input type="checkbox" [checked]="!!shown().knockback" (change)="toggleKnockback(checkedOf($event))" /> Débloquer
+            </label>
+          </div>
+          @if (knockbackRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+        }
+        @if (opts().targetUnlock; as tu) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Cible <small>{{ rules.costs.targetUnlock }} pts chacune</small></span>
+            @for (t of tu.eligible; track t) {
+              <label class="ws-chip" [class.is-on]="shown().targetUnlocks.includes(t)">
+                <input type="checkbox" [checked]="shown().targetUnlocks.includes(t)" [disabled]="(base().targets ?? []).includes(t)"
+                       (change)="toggleTarget(t, checkedOf($event))" /> {{ targetLabel(t) }}
+              </label>
+            }
+          </div>
+        }
+        @if (opts().scalingUnlock) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">{{ scalingField() === 'durationScaling' ? 'Scaling de la durée' : 'Scaling' }}
+              <small>{{ durationMoot() ? 'sans objet en mode continu' : rules.costs.scalingUnlock + ' pts · ratio ' + fmt(rules.unlockedScalingRatio) }}</small></span>
+            @for (c of scalingChoices(); track c.src) {
+              <label class="ws-chip" [class.is-on]="c.on">
+                <input type="checkbox" [checked]="c.on" [disabled]="c.already || durationMoot()" (change)="toggleScaling(c.src, checkedOf($event))" /> {{ sourceLabel(c.src) }}
+              </label>
+            }
+          </div>
+          @for (row of scalingRows(); track row.key) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+        }
+        @if (opts().continuousMode) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Entretien continu <small>{{ rules.costs.continuousMode }} pts · actif tant que le mana paie</small></span>
+            <label class="ws-chip" [class.is-on]="shown().continuous">
+              <input type="checkbox" [checked]="shown().continuous" (change)="setContinuous(checkedOf($event))" /> Activer
+            </label>
+          </div>
+          @if (upkeepRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+        }
+      </section>
+    }
+
+    @if (hasF3()) {
+      <section class="ws-fam ws-fam--3">
+        <h3>Paliers <small>plafond absolu {{ rules.family3Cap }}</small></h3>
+        @if (opts().extraTargets; as et) {
+          <div class="ws-row">
+            <div class="ws-row__name">
+              <span class="ws-row__label">{{ et.label ?? 'Cibles simultanées' }}</span>
+              <small>{{ rules.costs.extraTarget }} pts par cran · base {{ et.base }}</small>
+            </div>
+            <button type="button" class="ws-nudge" [disabled]="shown().extraTargets <= 0" aria-label="Diminuer" (click)="extraTargets(-1)">
+              <span aria-hidden="true">−</span><small>{{ shown().extraTargets > 0 ? '+' + rules.costs.extraTarget : 'min' }}</small>
+            </button>
+            <span class="ws-row__value"><b>{{ extraTargetsTotal() }}</b></span>
+            <button type="button" class="ws-nudge" [disabled]="extraTargetsTotal() >= targetsCeiling()" aria-label="Augmenter" (click)="extraTargets(1)">
+              <span aria-hidden="true">+</span><small>{{ extraTargetsTotal() < targetsCeiling() ? '−' + rules.costs.extraTarget : 'max' }}</small>
+            </button>
+            <span class="ws-cost" [class.is-zero]="!shown().extraTargets">{{ signedPts(shown().extraTargets * rules.costs.extraTarget) }}</span>
+          </div>
+        }
+        @if (opts().extraEffects; as ee) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Effet simultané <small>{{ rules.costs.extraEffect }} pts · {{ effectsCount() }}/{{ rules.family3Cap }}</small></span>
+            @for (e of ee.eligible; track e.stat) {
+              <label class="ws-chip" [class.is-on]="shown().extraEffects.includes(e.stat)">
+                <input type="checkbox" [checked]="shown().extraEffects.includes(e.stat)"
+                       [disabled]="!shown().extraEffects.includes(e.stat) && effectsCount() >= rules.family3Cap"
+                       (change)="toggleEffect(e.stat, checkedOf($event))" /> {{ sourceLabel(e.stat) }} +{{ fmt(e.value) }}
+              </label>
+            }
+          </div>
+        }
+        @if (opts().ownEffects; as own) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Effet propre au sort <small>ce que lui seul sait faire</small></span>
+            @for (e of own; track e.id) {
+              <label class="ws-chip" [class.is-on]="shown().ownEffects.includes(e.id)" [title]="e.description ?? ''">
+                <input type="checkbox" [checked]="shown().ownEffects.includes(e.id)"
+                       (change)="toggleOwnEffect(e.id, checkedOf($event))" />
+                {{ e.label }} <small>{{ e.cost ?? rules.costs.extraEffect }} pts</small>
+              </label>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @if (hasF4()) {
+      <section class="ws-fam ws-fam--4">
+        <h3>Substitutions</h3>
+        @if (scalingSwapRows().length) {
+          <p class="ws-sub" title="Le ratio est converti pour garder le même rendement chez un lanceur de référence : le sort change de porteur, pas de puissance.">
+            Source des ratios · {{ rules.costs.scalingSwap }} pts par ratio, converti à rendement égal
+          </p>
+          @for (r of scalingSwapRows(); track r.path) {
+            <div class="ws-opt">
+              <span class="ws-opt__label">{{ r.label }} <small>{{ r.current }}</small></span>
+              <select [attr.aria-label]="'Source du ratio : ' + r.label" (change)="swapScaling(r.path, valueOf($event))">
+                <option value="" [selected]="!r.value">— garder —</option>
+                @for (c of r.choices; track c.value) { <option [value]="c.value" [selected]="c.value === r.value">{{ c.label }}</option> }
+              </select>
+            </div>
+          }
+        }
+        @if (opts().areaShapeSwap) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Forme de zone <small>{{ rules.costs.areaShapeSwap }} pts</small></span>
+            <select (change)="swapArea(valueOf($event))">
+              <option value="" [selected]="!shown().swaps.areaShape">{{ currentShape() }}</option>
+              @for (s of shapeChoices(); track s) { <option [value]="s" [selected]="shown().swaps.areaShape === s">{{ s }}</option> }
+            </select>
+          </div>
+        }
+        @if (opts().defaultTargetSwap; as dt) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Cible par défaut <small>{{ rules.costs.defaultTargetSwap }} pts</small></span>
+            <label class="ws-chip" [class.is-on]="shown().swaps.defaultTarget">
+              <input type="checkbox" [checked]="shown().swaps.defaultTarget" (change)="swapTarget(checkedOf($event))" />
+              {{ targetLabel(dt.pair[0]) }} ↔ {{ targetLabel(dt.pair[1]) }}
+            </label>
+          </div>
+        }
+        @if (opts().statusTypeSwap) {
+          <div class="ws-opt">
+            <span class="ws-opt__label">Statut infligé <small>{{ rules.costs.statusTypeSwap }} pts</small></span>
+            <select (change)="swapStatus(valueOf($event))">
+              <option value="" [selected]="!statusSwapValue()">— garder —</option>
+              @for (c of statusSwapChoices(); track c.value) { <option [value]="c.value" [selected]="c.value === statusSwapValue()">{{ c.label }}</option> }
+            </select>
+          </div>
+        }
+        @if (damageTypeSwapChoices().length) {
+          <div class="ws-opt">
+            <span class="ws-opt__label" title="Substitution entière : le coup change de nature, les dégâts ne bougent pas">
+              Type de dégâts <small>{{ rules.costs.damageTypeSwap }} pts</small></span>
+            <select (change)="swapDamageType(valueOf($event))">
+              <option value="" [selected]="!shown().swaps.damageType">— {{ damageTypeLabel(baseDamageType()) }} —</option>
+              @for (t of damageTypeSwapChoices(); track t) {
+                <option [value]="t" [selected]="t === shown().swaps.damageType">{{ damageTypeLabel(t) }}</option>
+              }
+            </select>
+          </div>
+        }
+        @if (opts().crossDomain; as cd) {
+          <div class="ws-opt">
+            <span class="ws-opt__label" title="Ouvre la répartition vers un domaine que le lanceur a aussi investi ; n'ajoute aucun dégât">
+              Domaine non natif <small>{{ rules.costs.crossDomainUnlock }} pts · aucun dégât ajouté</small></span>
+            <select (change)="setCrossDomain(valueOf($event))">
+              <option value="" [selected]="!shown().crossDomain">— aucun —</option>
+              @for (d of cd.eligible; track d) { <option [value]="d" [selected]="shown().crossDomain === d">{{ domainLabel(d) }}</option> }
+            </select>
+          </div>
+        }
+        @if ((opts().mix || opts().crossDomain) && hasDamage() && mix().type; as type) {
+          <div class="ws-row ws-row--mix">
+            <div class="ws-row__name">
+              <span class="ws-row__label">Répartition @if (mix().start) { <small>départ {{ mix().start * 10 }} %</small> }</span>
+              <span class="ws-mix" [attr.title]="(100 - mix().tenths * 10) + ' % ' + damageTypeLabel(mix().baseType) + ' / ' + mix().tenths * 10 + ' % ' + damageTypeLabel(type)">
+                <span [attr.data-type]="mix().baseType" [style.width.%]="100 - mix().tenths * 10"></span>
+                <span [attr.data-type]="type" [style.width.%]="mix().tenths * 10"></span>
+              </span>
+            </div>
+            <button type="button" class="ws-nudge" [disabled]="mix().tenths <= 0" aria-label="Moins de 10 %" (click)="mixStep(-1)">
+              <span aria-hidden="true">−</span><small>{{ mix().tenths > 0 ? mixHint(-1) : 'min' }}</small>
+            </button>
+            <span class="ws-row__value"><b>{{ mix().tenths * 10 }} %</b></span>
+            <button type="button" class="ws-nudge" [disabled]="mix().tenths >= 10" aria-label="Plus de 10 %" (click)="mixStep(1)">
+              <span aria-hidden="true">+</span><small>{{ mix().tenths < 10 ? mixHint(1) : 'max' }}</small>
+            </button>
+            <span class="ws-cost" [class.is-zero]="!mix().steps">{{ signedPts(mix().steps * rules.costs.mixPerTenth) }}</span>
+          </div>
+          @if (mixTargets().length > 1) {
+            <div class="ws-opt">
+              <span class="ws-opt__label">Type secondaire</span>
+              <select (change)="setMixType(valueOf($event))">
+                @for (t of mixTargets(); track t) { <option [value]="t" [selected]="t === type">{{ damageTypeLabel(t) }}</option> }
+              </select>
+            </div>
+          }
+        }
+      </section>
+    }
+
+    @if (locks().length || governed().length) {
+      <section class="ws-fam ws-fam--5">
+        <h3>Hors budget</h3>
+        <ul class="ws-locked">
+          @for (l of locks(); track l.field) { <li><span aria-hidden="true">🔒</span> {{ l.reason }}</li> }
+          @for (g of governed(); track g.field) { <li><span aria-hidden="true">⚙</span> {{ g.mechanic }} — {{ g.reason }}</li> }
+        </ul>
+      </section>
+    }
+    </fieldset>
+  </div>
+
+  <!-- ═════════ Résultat (reste à l'écran) ═════════ -->
+  <aside class="ws-result">
+    <div class="ws-summary">
+      <div class="ws-levels">
+        <span class="ws-label">Niveau de sort</span>
+        <div class="ws-pips" role="radiogroup" aria-label="Niveau de sort supposé">
+          @for (n of levels; track n) {
+            <button type="button" class="ws-pip" role="radio" [class.is-active]="n === level()" [class.is-reached]="n <= level()"
+                    [attr.aria-checked]="n === level()" (click)="setLevel(n)">{{ n }}</button>
+          }
+        </div>
+      </div>
+      <div class="ws-points" [class.is-negative]="assessment().remaining < 0">
+        <b>{{ fmt(assessment().remaining) }}</b>
+        <span>
+          <span class="ws-label">points restants</span>
+          <small>{{ assessment().progress.pointsEarned }} gagnés · {{ fmt(assessment().gross) }} dépensés@if (assessment().refunded) { · {{ fmt(assessment().refunded) }} rendus}</small>
+        </span>
+      </div>
+      @if (touched()) {
+        <button type="button" class="ws-reset" (click)="reset()">Revenir au socle</button>
+      }
+    </div>
+
+    @if (assessment().errors.length || assessment().warnings.length) {
+      <ul class="ws-msgs">
+        @for (e of assessment().errors; track $index) { <li class="is-error">{{ e }}</li> }
+        @for (w of assessment().warnings; track $index) { <li class="is-warning">{{ w }}</li> }
+      </ul>
+    }
+
+    <ng-content />
+  </aside>
+</div>

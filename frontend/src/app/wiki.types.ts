@@ -282,7 +282,7 @@ export interface SpellTargetSave {
   damageType?: string;
 }
 
-/** Bloc de statistiques explicites d'un nœud de progression. */
+/** Bloc de statistiques explicites d'un sort, à un état donné. */
 export interface SpellNodeStats {
   /** Dégâts de base (min/max) — forme simple, un seul type. Absent pour un sort non offensif. */
   damageMin?: number;
@@ -312,6 +312,13 @@ export interface SpellNodeStats {
   /** Contre-coup : dégâts que le lanceur s'inflige en lançant le sort. */
   recoil?: SpellRecoil;
   /**
+   * Drain : part des dégâts portés qui revient au LANCEUR en points de vie,
+   * entre 0 et 1. Le miroir de `recoil` — là où le contre-coup fait payer le
+   * sort, le drain le nourrit. Un siphon à 0,5 rend la moitié de ce qu'il
+   * arrache. Sans dégâts portés, il ne rend rien.
+   */
+  drain?: number;
+  /**
    * Le coup, **s'il porte**, inflige les dégâts d'un COUP CRITIQUE.
    *
    * La garantie ne porte que sur les dégâts : le jet de toucher reste ordinaire
@@ -339,6 +346,27 @@ export interface SpellNodeStats {
   effects?: SpellStatEffect[];
   /** Statuts que le sort peut infliger à l'impact (avec % de chance). */
   inflicts?: SpellStatusApplication[];
+  /**
+   * Repoussement : chaque cible touchée recule de ce nombre de cases, dans
+   * l'axe du lanceur vers elle. Absent = le sort ne déplace personne.
+   */
+  knockback?: number;
+  /**
+   * Zone qui PERSISTE après l'incantation, le temps de `duration` : à chaque
+   * tour, ce qui s'y tient en subit les effets (avec leurs chances).
+   * `ground` : elle reste là où on l'a posée ; `caster` : elle suit le
+   * lanceur, qui en reste le centre. Absent = le sort frappe et s'éteint.
+   */
+  lingers?: 'ground' | 'caster';
+  /**
+   * Rangs du sort sur ses échelles qualitatives, par axe (`grades.purification`) :
+   * l'échelon atteint, lu à travers le `ladder` du paramètre qui le règle.
+   */
+  grades?: Record<string, number>;
+  /** Volume traité par le sort, en millilitres (affiché en mL, L ou m³). */
+  volume?: number;
+  /** Poids que le sort peut mouvoir (attirer, projeter…), en grammes (affiché en g, kg ou t). */
+  weight?: number;
   /** Riposte défensive : un attaquant subit un effet en retour tant que le buff est actif. */
   retaliate?: SpellRetaliate;
   /**
@@ -740,27 +768,35 @@ export interface Weather {
   defaultDuration: number;
 }
 
-/** Un nœud de l'arbre d'amélioration d'un sort (valeurs explicites). */
+/**
+ * Un sort à un état donné, avec ses valeurs explicites.
+ *
+ * C'est la forme que prend un sort UNE FOIS CONSTRUIT : le socle de la fiche
+ * augmenté des arbitrages du build. La fiche et le moteur de combat le lisent
+ * tous deux, ce qui leur évite de connaître le détail des curseurs.
+ */
 export interface SpellNode {
-  /** Identifiant unique dans l'arbre. */
+  /** Identifiant, pour distinguer deux versions d'un même sort. */
   id: string;
-  /** Palier de progression (1 = sort de base). */
-  tier: number;
-  /** Nom du palier d'amélioration. */
+  /** Nom du sort tel qu'il s'affiche. */
   name: string;
-  /** Ce que ce palier apporte (texte court). */
+  /** Ce que le sort fait, dans cet état (texte court). */
   description?: string;
   /**
-   * Utilité de ce palier selon le contexte (combat / hors combat). Surcharge
-   * l'`usage` du sort : si un champ est absent, le texte du sort sert de repli.
-   * Permet de montrer comment l'évolution du sort change l'effet dans chaque
-   * contexte (l'un peut évoluer sans l'autre).
+   * Utilité selon le contexte (combat / hors combat). Surcharge l'`usage` du
+   * sort : si un champ est absent, le texte du sort sert de repli.
    */
   usage?: SpellUsage;
+  /** Statistiques absolues du sort dans cet état. */
+  stats: SpellNodeStats;
+  /**
+   * Palier de progression (1 = sort de base). Présent tant qu'un sort porte son
+   * ARBRE : le moteur de combat le lit encore, et les plafonds ancrés des
+   * curseurs (`tier3`, `treeMin`, `treeMax`) s'y réfèrent.
+   */
+  tier?: number;
   /** Clé de branche à laquelle le nœud appartient (coloration / regroupement). */
   branch?: string;
-  /** Statistiques absolues du sort à ce nœud. */
-  stats: SpellNodeStats;
   /** Nœuds enfants (plusieurs = point d'embranchement). */
   next?: string[];
 }
@@ -801,10 +837,35 @@ export interface DomainSpellEntry {
   name: string;
   description: string;
   /**
+   * Arbre de paliers du sort. La personnalisation par budget l'a remplacé comme
+   * source des VALEURS jouables, mais il reste la référence des plafonds ancrés
+   * et la seule entrée du moteur de combat tant qu'il n'est pas repris.
+   */
+  progression?: SpellProgression;
+  /**
    * Utilité du sort selon le contexte (combat / hors combat). Optionnel : à
    * défaut, seule la `description` générale renseigne sur l'usage.
    */
   usage?: SpellUsage;
+  /**
+   * Textes qui SUIVENT le build : la fiche du sort les remplit avec les valeurs
+   * du sort tel qu'il est construit — `{volume}`, `{range}`, `{grades.purification}`
+   * (le nom de l'échelon), `{grades.purification:description}` ou `:action` (tout
+   * champ texte de l'échelon atteint).
+   * Chaque `{chemin}` est lu dans les stats et mis en forme par le curseur qui
+   * le règle. Ailleurs (combat, fiche PDF), `description` et `usage` font foi.
+   */
+  liveText?: {
+    description?: string;
+    /**
+     * Phrase de tête de la carte du sort (la boîte de détail). À défaut, la
+     * carte reprend `description` ; à utiliser quand la description du bandeau
+     * porte des règles qu'on ne veut pas remplacer.
+     */
+    lead?: string;
+    combat?: string;
+    outOfCombat?: string;
+  };
   mana: number;
   /** Niveau requis pour débloquer le sort. */
   level: number;
@@ -849,9 +910,207 @@ export interface DomainSpellEntry {
    * La relation inverse (« débloque ») est dérivée automatiquement.
    */
   requires?: string[];
-  /** Arbre d'amélioration interactif (optionnel : absent = fiche simple). */
-  progression?: SpellProgression;
+
+  // ── Personnalisation par budget : personnalisation par budget (cf. combat/spell-customization.ts) ──
+
+  /** Socle du sort au niveau 1 — jamais modifié, les allocations en dérivent. */
+  baseStats?: SpellNodeStats;
+  /** Chiffres du socle que `SpellNodeStats` ne porte pas (entretien, pantins). */
+  baseExtras?: { upkeep?: number; maxPuppets?: number; maxTargets?: number };
+  /** Ce que le budget de points peut changer sur CE sort. Présent = nouveau format. */
+  customization?: SpellCustomization;
+  /** Table de swap dédiée d'un sort multi-domaine (4bis). */
+  swapOptions?: SwapOptions | null;
+  /** Domaines non natifs débloquables sur CE sort (4ter). */
+  crossDomain?: { eligible: string[] } | null;
+  /** Champs gouvernés par une mécanique de domaine dédiée : jamais dans le budget. */
+  domainGoverned?: { field: GovernedField; mechanic: string; reason: string }[];
+  /** Famille 5 — jamais négociable, à aucun prix. */
+  lockedFields?: { field: string; reason: string }[];
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   PERSONNALISATION PAR BUDGET — le format de données.
+   Les règles (coûts, plafonds, ordre d'application) vivent dans
+   `combat/spell-customization.ts` ; ici, seulement ce qu'une fiche déclare.
+─────────────────────────────────────────────────────────────────────────── */
+
+export type CapKind = 'hard' | 'soft';
+export type CapAnchor = 'tier3' | 'treeMin' | 'treeMax' | 'assumption';
+
+/** Plafond d'un paramètre. `anchor` dit d'où vient la valeur. */
+export interface Cap {
+  value: number;
+  anchor?: CapAnchor;
+  /** Surcharge la nature de plafond propre au type de paramètre. */
+  kind?: CapKind;
+  /** Champ cité par un plafond ancré, s'il diffère du `path` du paramètre. */
+  path?: string;
+}
+
+export type ParamKindKey =
+  | 'damage' | 'heal' | 'effect' | 'range' | 'duration' | 'radius'
+  | 'mana' | 'upkeep' | 'ratio' | 'precision' | 'dc' | 'chance' | 'recoil' | 'percentDamage' | 'knockback' | 'grade' | 'volume' | 'weight' | 'risk' | 'drain';
+
+/**
+ * Loi de progression d'un curseur. Absente : chaque cran AJOUTE le pas.
+ * Un nombre : chaque cran MULTIPLIE la valeur par ce facteur.
+ * `'1-2-5'` : la suite des valeurs rondes (1, 2, 5, 10, 20, 50…), ×10 tous
+ * les trois crans — petit au début, grand ensuite, toujours lisible.
+ */
+export type ParamGrowth = number | '1-2-5';
+
+/** Un échelon d'une échelle qualitative (cf. `ParamDef.ladder`). */
+export interface LadderStep {
+  label: string;
+  /** Ce que cet échelon permet, en clair. */
+  description?: string;
+  /**
+   * Ce que fait le sort à cet échelon, à l'infinitif AVEC sa préposition
+   * (« de décanter », « d'assainir ») : l'élision se règle ici, pas dans la
+   * phrase qui l'utilise — `Le sort permet {chemin:action} l'eau`.
+   */
+  action?: string;
+}
+
+/** Famille 1 : un curseur sur un champ numérique du socle. */
+export interface ParamDef {
+  id: string;
+  kind: ParamKindKey;
+  label: string;
+  /** Chemin pointé dans les stats (`damageMax`, `effects.0.value`, `range`…). */
+  path: string;
+  /** Champs décalés du même nombre de crans (`damageMin` suit `damageMax`). */
+  shift?: string[];
+  /**
+   * Taille d'un cran, si elle diffère de celle du type (ex. 0,01 pour un ratio
+   * de 0,02 : le pas général de 0,1 le multiplierait par six d'un seul point).
+   */
+  step?: number;
+  min?: number;
+  max?: number;
+  cap?: Cap | null;
+  /**
+   * Quelle mesure du libellé ce curseur règle, quand il en porte plusieurs :
+   * 1 (par défaut) la première, 2 la seconde — la PROFONDEUR d'un
+   * « Rectangle 6 × 3 m », dont la largeur est la première.
+   */
+  measure?: number;
+  /** Progression multiplicative plutôt qu'additive (cf. `ParamGrowth`). */
+  growth?: ParamGrowth;
+  /**
+   * De quoi se représenter la valeur : « un verre », « un seau »… Chaque entrée
+   * vaut jusqu'à `upTo` (inclus), dans l'ordre croissant ; la dernière, SANS
+   * `upTo`, est le texte général au-delà du dernier seuil. Un texte vivant
+   * l'écrit avec `{chemin:comparison}`.
+   */
+  comparisons?: { upTo?: number; text: string }[];
+  /**
+   * Échelle QUALITATIVE : la valeur n'est pas une quantité mais un rang
+   * (0 = premier échelon). Chaque cran fait passer à l'échelon suivant, et
+   * l'interface affiche son nom plutôt qu'un nombre. `max` = dernier rang.
+   */
+  ladder?: LadderStep[];
+}
+
+/**
+ * Un effet PROPRE à un sort, que le budget peut lui ajouter (Famille 3).
+ *
+ * Ni statut générique ni valeur de stat : ce que CE sort sait faire et lui
+ * seul — le voile d'eau qui vivifie son porteur, ou qui lave les altérations
+ * qu'il subit. Chaque entrée porte ce qu'elle écrit dans les stats du sort.
+ */
+export interface SpellOwnEffect {
+  /** Identifiant stable, cité par le build du personnage. */
+  id: string;
+  label: string;
+  /** Ce que l'effet fait, en clair, pour la fiche. */
+  description?: string;
+  /** Coût en points ; à défaut, celui d'un effet simultané. */
+  cost?: number;
+  /** Ce que le déblocage écrit dans les stats du sort. */
+  grants: {
+    inflicts?: SpellStatusApplication[];
+    cleanses?: string[];
+    effects?: SpellStatEffect[];
+    /** Change l'ancrage d'une zone persistante (cf. `SpellNodeStats.lingers`). */
+    lingers?: 'ground' | 'caster';
+    /** Options ajoutées au sort (un ordre de plus au Verbe d'autorité, par exemple). */
+    choices?: SpellChoice[];
+    /**
+     * Champs posés tels quels sur les stats, ABSENTS du socle : un drain qu'on
+     * ajoute à un toucher qui n'en avait pas. Un effet propre ajoute, il ne
+     * remplace jamais ce que le socle porte déjà.
+     */
+    set?: Partial<SpellNodeStats>;
+  };
+}
+
+/**
+ * Table de mixage d'un sort multi-domaine (4bis) : les natures entre
+ * lesquelles son pool de dégâts peut se répartir.
+ */
+export interface SwapOptions {
+  damageTypes: string[];
+  /**
+   * Répartition DE DÉPART, déjà acquise au socle : la lave naît à moitié feu,
+   * à moitié roche. Le curseur part de là, et seul l'écart se paie — revenir
+   * au feu pur coûte autant que pousser vers la roche pure.
+   */
+  defaultMix?: { type: string; tenths: number };
+}
+
+/** Ce vers quoi UN ratio peut basculer. `path` absent : la règle vaut pour tous. */
+export interface ScalingSwapRule {
+  /** Ratio visé : `scaling.0`, `effects.1.scaling.0`, `retaliate.scaling.0`… */
+  path?: string;
+  eligible: SpellScalingSource[];
+}
+
+export interface SpellCustomization {
+  params?: ParamDef[];
+  statusUnlock?: { eligible: string[]; chanceCap?: Cap };
+  /**
+   * Repoussement débloquable (Famille 2) : le déblocage donne une case, chaque
+   * case de plus se paie cran par cran jusqu'au plafond.
+   */
+  knockbackUnlock?: { cellsCap?: Cap };
+  targetUnlock?: { eligible: SpellTarget[] };
+  scalingUnlock?: {
+    eligible: SpellScalingSource[];
+    field?: 'scaling' | 'durationScaling';
+    affects?: SpellScalingAffects;
+    ratioCap?: Cap;
+  };
+  continuousMode?: { upkeepCap?: Cap };
+  extraTargets?: {
+    base: number;
+    field?: 'maxPuppets';
+    label?: string;
+    /** Plafond propre au sort, sous le plafond absolu (« une main, un pantin » : 2). */
+    max?: number;
+  };
+  extraEffects?: { eligible: SpellStatEffect[] };
+  /** Effets propres à CE sort, débloquables un à un (cf. `SpellOwnEffect`). */
+  ownEffects?: SpellOwnEffect[];
+  /**
+   * Sources autorisées pour changer la source d'un ratio (Famille 4).
+   * Une règle par ratio, ou une règle sans `path` qui vaut pour tous. Absent :
+   * la liste centrale du moteur. `eligible: []` ferme le ratio visé.
+   */
+  scalingSwap?: ScalingSwapRule | ScalingSwapRule[];
+  areaShapeSwap?: { shapes: string[] };
+  defaultTargetSwap?: { pair: [SpellTarget, SpellTarget] };
+  statusTypeSwap?: { eligible: string[] };
+  /**
+   * Types de dégâts vers lesquels le sort peut basculer ENTIÈREMENT (Famille 4).
+   * Une substitution, pas une répartition : le coup ne fait plus du vent, il
+   * tranche. À distinguer de `swapOptions`, qui réaffecte le pool par dixièmes.
+   */
+  damageTypeSwap?: { eligible: string[] };
+}
+
+export type GovernedField = 'statusType' | 'damageType';
 
 export interface DomainManifestation {
   name: string;
@@ -1369,6 +1628,20 @@ export interface ResourceIndexEntry {
   /** Poids unitaire (pour l'inventaire des fiches de personnage). */
   weight?: number;
   /**
+   * Emplacement d'équipement où l'objet se porte (clé d'`EQUIPMENT_SLOTS` :
+   * `amulet`, `ring`…). Recopié de la fiche par le générateur d'index : la
+   * fiche de personnage remplit ses emplacements depuis l'INDEX, sans ouvrir
+   * chaque fiche du catalogue.
+   */
+  slot?: string;
+  /**
+   * Ce que l'objet ajoute aux stats de son porteur tant qu'il est équipé. Même
+   * grammaire que les effets d'un trait ou d'un feat domanial (`key` de stat ou
+   * d'attribut, `value` signée) : la fiche de personnage et le combat les
+   * somment de la même façon, quelle qu'en soit la provenance.
+   */
+  statEffects?: { key: string; value: number }[];
+  /**
    * Matière dont l'objet est fait (clé de `materials.json`).
    *
    * C'est elle qui décide si un champ magnétique a prise dessus : seuls le fer
@@ -1442,6 +1715,19 @@ export interface ResourceEntry {
    * 'outils' | 'soins'). Inutile pour les ressources naturelles, rangées par dossier.
    */
   category?: string;
+  /**
+   * Emplacement d'équipement où l'objet se porte (clé d'`EQUIPMENT_SLOTS` :
+   * `amulet`, `ring`…). Source UNIQUE : la bande « Informations » rend le
+   * libellé à la volée, on ne le recopie pas dans `info` — deux écritures de la
+   * même chose finiraient par diverger.
+   */
+  slot?: string;
+  /**
+   * Ce que l'objet ajoute aux stats de son porteur tant qu'il est équipé (cf.
+   * `ResourceIndexEntry.statEffects`). Source UNIQUE là aussi : la bande
+   * « Informations » rend la ligne « Effet » à partir de ces valeurs.
+   */
+  statEffects?: { key: string; value: number }[];
   /** Illustration principale (gauche du hero). */
   image: string;
   /** Petit emblème optionnel à côté de la description (étoile, sceau…). */

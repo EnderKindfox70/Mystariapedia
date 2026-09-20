@@ -1,0 +1,57 @@
+{
+    "_test": "COPIE DE TEST — jamais lue par l'application. Socle = nœud racine réel, plafonds ancrés sur la fiche d'origine (vérifiés par test/data.test.mjs).",
+    "_notes": [
+        "Test de référence du document : effets multiples (Famille 1) + bonus de classe hors budget (Famille 5).",
+        "Le mode continu (2bis) s'applique : c'est un buff à durée fixe.",
+        "Déblocage de scaling ancré sur Echauffement III (ech3), qui fait scaler la durée sur la constitution.",
+        "Hypothèse de test : l'Endurance comme 3e effet simultané (Famille 3) et un allié comme cible débloquable."
+    ],
+    "source": { "file": "domains/fire.json", "key": "fire-echauffement", "rootNode": "ech1", "capNode": "ech3" },
+    "key": "fire-echauffement",
+    "name": "Echauffement",
+    "description": "Augmente la temperature interne du corps pour augmenter la vigueur de celui-ci",
+    "domain": "fire",
+    "subdomains": ["Chaleur"],
+    "level": 1,
+    "power": "standard",
+    "requires": [],
+    "baseStats": {
+        "mana": 3,
+        "range": "Personnel",
+        "area": "Soi-même",
+        "targets": ["self"],
+        "duration": 2,
+        "effects": [
+            { "stat": "speed", "value": 1, "scaling": [{ "source": "dexterite", "ratio": 0.5 }] },
+            { "stat": "atk_phy", "value": 1, "scaling": [{ "source": "force", "ratio": 0.4 }] }
+        ],
+        "classBonuses": [
+            { "class": "pugilist", "description": "La chaleur gagne vos poings : vous portez une attaque à mains nues supplémentaire ce tour." },
+            { "class": "warrior", "description": "Votre discipline martiale amplifie la montée en puissance.", "effects": [{ "stat": "atk_phy", "value": 2 }] }
+        ]
+    },
+    "customization": {
+        "params": [
+            { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 3, "anchor": "tier3" } },
+            { "id": "speedValue", "kind": "effect", "label": "Vitesse (valeur)", "path": "effects.0.value", "min": 0, "cap": { "value": 3, "anchor": "tier3" } },
+            { "id": "atkPhyValue", "kind": "effect", "label": "Attaque physique (valeur)", "path": "effects.1.value", "min": 0, "cap": { "value": 2, "anchor": "tier3" } },
+            { "id": "speedRatio", "kind": "ratio", "label": "Ratio Dextérité → Vitesse", "path": "effects.0.scaling.0.ratio", "min": 0, "cap": { "value": 0.7, "anchor": "tier3" } },
+            { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Force → Attaque physique", "path": "effects.1.scaling.0.ratio", "min": 0, "cap": { "value": 0.5, "anchor": "tier3" } },
+            { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 3, "anchor": "treeMin" } }
+        ],
+        "targetUnlock": { "eligible": ["ally"] },
+        "scalingUnlock": { "eligible": ["constitution"], "field": "durationScaling", "ratioCap": { "value": 0.2, "anchor": "tier3", "path": "durationScaling.0.ratio" } },
+        "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+        "extraEffects": {
+            "eligible": [
+                { "stat": "endurance", "value": 2, "scaling": [{ "source": "constitution", "ratio": 0.3 }] }
+            ]
+        }
+    },
+    "swapOptions": null,
+    "crossDomain": null,
+    "domainGoverned": [],
+    "lockedFields": [
+        { "field": "classBonuses", "reason": "Bonus Pugiliste / Guerrier : propres à l'identité de la classe, jamais dans le budget." }
+    ]
+}

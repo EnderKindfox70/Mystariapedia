@@ -37,6 +37,159 @@
                 "Métal"
             ],
             "shapesMaterial": "metal",
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "atk_phy",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.2
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "def_phy",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.2
+                            }
+                        ]
+                    }
+                ],
+                "materialScale": 0.3
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "atkPhy",
+                        "kind": "effect",
+                        "label": "Attaque physique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.1.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Force → Attaque physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "defPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Force → Défense physique",
+                        "path": "effects.1.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "materialScale",
+                        "kind": "ratio",
+                        "label": "Part du matériau",
+                        "path": "materialScale",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.9,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "force",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    },
+                    {
+                        "path": "effects.1.scaling.0",
+                        "eligible": [
+                            "force",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Matériau façonné (domaine de la Terre)",
+                    "reason": "Le matériau façonné décide de la nature du coup : pierre, métal, sable. Elle ne s'achète pas en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "em1",
                 "nodes": [
@@ -176,6 +329,116 @@
                 "Roche & sédiments"
             ],
             "shapesMaterial": "stone",
+            "liveText": {
+                "description": "Dresse une paroi de {raisesWall.length} cases qui encaisse {raisesWall.hp} points de dégâts avant de céder, à {range} de vous."
+            },
+            "baseStats": {
+                "mana": 5,
+                "range": "10 m",
+                "area": "Ligne 2 cases",
+                "targets": [
+                    "everyone"
+                ],
+                "duration": 2,
+                "raisesWall": {
+                    "length": 2,
+                    "hp": 8
+                },
+                "materialScale": 0.2
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "length",
+                        "kind": "effect",
+                        "label": "Longueur du mur (cases)",
+                        "path": "area",
+                        "min": 1,
+                        "shift": [
+                            "raisesWall.length"
+                        ],
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "wallHp",
+                        "kind": "effect",
+                        "label": "Solidité du mur",
+                        "path": "raisesWall.hp",
+                        "step": 4,
+                        "min": 1,
+                        "cap": {
+                            "value": 30,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "materialScale",
+                        "kind": "ratio",
+                        "label": "Part du matériau",
+                        "path": "materialScale",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Matériau façonné (domaine de la Terre)",
+                    "reason": "Le matériau façonné décide de la nature du coup : pierre, métal, sable. Elle ne s'achète pas en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "targets",
+                    "reason": "Un mur ne choisit pas qui il arrête : il barre le passage à tous."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "er1",
                 "nodes": [
@@ -265,6 +528,141 @@
             ],
             "requires": [
                 "earth-mur-de-pierre"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 6,
+                "range": "Autour de soi",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "etourdissement",
+                        "chance": 15
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.03
+                    },
+                    {
+                        "source": "force",
+                        "ratio": 0.15
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "stunChance",
+                        "kind": "chance",
+                        "label": "Chance d'Étourdissement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 65,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue de la secousse",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.06,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "forceRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Force",
+                        "path": "scaling.1.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.7,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    },
+                    {
+                        "path": "scaling.1",
+                        "eligible": [
+                            "force",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "electricity",
+                    "water",
+                    "plant"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "et1",
@@ -543,6 +941,102 @@
             "requires": [
                 "earth-mur-de-pierre"
             ],
+            "liveText": {
+                "description": "Permet {grades.memory:action} d'un lieu : {grades.memory:description} Portée de lecture : {area}.",
+                "outOfCombat": "La main posée sur la roche, le sort permet {grades.memory:action} : {grades.memory:description} La lecture porte sur {area} autour du point de contact, et la vision tient {duration} avant de s'éteindre."
+            },
+            "baseStats": {
+                "mana": 4,
+                "range": "Contact",
+                "area": "Rayon 5 m",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "grades": {
+                    "memory": 0
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "memory",
+                        "kind": "grade",
+                        "label": "Profondeur de la mémoire",
+                        "path": "grades.memory",
+                        "min": 0,
+                        "max": 2,
+                        "ladder": [
+                            {
+                                "label": "Traces",
+                                "action": "de lire les traces",
+                                "description": "qui est passé ici récemment, et par où."
+                            },
+                            {
+                                "label": "Scènes",
+                                "action": "de rejouer les scènes",
+                                "description": "les événements marquants du lieu se rejouent sous les yeux du lanceur."
+                            },
+                            {
+                                "label": "Mémoire profonde",
+                                "action": "de sonder la mémoire profonde",
+                                "description": "la roche livre ce qu'elle a vu depuis des siècles, bâtisseurs compris."
+                            }
+                        ],
+                        "cap": {
+                            "value": 2
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue de la lecture",
+                        "path": "area",
+                        "min": 2,
+                        "growth": "1-2-5",
+                        "cap": {
+                            "value": 100,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ee1",
                 "nodes": [
@@ -620,6 +1114,114 @@
             ],
             "shapesMaterial": "stone",
             "damageType": "earth",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "materialScale": 0.4
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "materialScale",
+                        "kind": "ratio",
+                        "label": "Part du matériau",
+                        "path": "materialScale",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 1,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Matériau façonné (domaine de la Terre)",
+                    "reason": "Le matériau façonné décide de la nature du coup : pierre, métal, sable. Elle ne s'achète pas en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -745,6 +1347,113 @@
             ],
             "shapesMaterial": "stone",
             "damageType": "earth",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "materialScale": 0.4
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "materialScale",
+                        "kind": "ratio",
+                        "label": "Part du matériau",
+                        "path": "materialScale",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 1,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Matériau façonné (domaine de la Terre)",
+                    "reason": "Le matériau façonné décide de la nature du coup : pierre, métal, sable. Elle ne s'achète pas en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -872,6 +1581,147 @@
                 "Roche & sédiments"
             ],
             "shapesMaterial": "stone",
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.06
+                            }
+                        ]
+                    }
+                ],
+                "recoil": {
+                    "effects": [
+                        {
+                            "stat": "speed",
+                            "value": 2
+                        }
+                    ]
+                },
+                "materialScale": 0.25
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 18,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.12
+                        }
+                    },
+                    {
+                        "id": "slowdown",
+                        "kind": "recoil",
+                        "label": "Vitesse perdue",
+                        "path": "recoil.effects.0.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 1
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "materialScale",
+                        "kind": "ratio",
+                        "label": "Part du matériau",
+                        "path": "materialScale",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.65,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "constitution",
+                            "force",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Matériau façonné (domaine de la Terre)",
+                    "reason": "Le matériau façonné décide de la nature du coup : pierre, métal, sable. Elle ne s'achète pas en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "etar1",
                 "nodes": [
@@ -1109,6 +1959,169 @@
                 "Métal"
             ],
             "shapesMaterial": "metal",
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.05
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "def_mag",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.04
+                            }
+                        ]
+                    }
+                ],
+                "recoil": {
+                    "effects": [
+                        {
+                            "stat": "speed",
+                            "value": 1
+                        }
+                    ]
+                },
+                "materialScale": 0.25
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.1.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.11
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.1.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.05
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "constitution",
+                            "force",
+                            "sagesse"
+                        ]
+                    },
+                    {
+                        "path": "effects.1.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Matériau façonné (domaine de la Terre)",
+                    "reason": "Le matériau façonné décide de la nature du coup : pierre, métal, sable. Elle ne s'achète pas en points."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "recoil.effects",
+                    "reason": "Le métal pèse lui aussi : la gangue coûte toujours un peu de vitesse."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "etml1",
                 "nodes": [

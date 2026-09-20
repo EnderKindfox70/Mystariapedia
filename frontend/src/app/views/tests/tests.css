@@ -18,6 +18,32 @@
     overflow-y: auto;
 }
 
+.test-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(139, 107, 47, 0.28);
+}
+
+.test-tabs button {
+    padding: 8px 16px;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 13px;
+    letter-spacing: .04em;
+    color: var(--burned-paper);
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+}
+
+.test-tabs button:hover { color: var(--faded-ivory); }
+
+.test-tabs button.active {
+    color: var(--faded-ivory);
+    border-bottom-color: var(--ancient-gold);
+}
+
 .test-page {
     min-height: 100vh;
     padding: 24px;

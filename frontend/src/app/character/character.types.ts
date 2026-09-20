@@ -589,6 +589,8 @@ export interface ClassSkillCombat {
     effects?: { stat: string; value: number }[];
     note?: string;
   };
+  /** Part des dégâts portés qui revient au lanceur en PV (0–1). */
+  drain?: number;
 }
 
 /** Sort/compétence lié à une classe, débloqué à un niveau donné. */

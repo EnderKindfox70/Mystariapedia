@@ -1,0 +1,815 @@
+{
+    "name": "Espace",
+    "icon": "/resources/media/icons/domains/space/space_icon.png",
+    "banner": "",
+    "first-quote": "J'existe entre toute chose. Je suis le vide qui les sépare, et le lien qui les unit.",
+    "usage-quote": "Oublie la distance. Elle n'existe que parce que tu y crois.",
+    "subdomains": [
+        {
+            "name": "Frontière & limite",
+            "icon": "",
+            "quote": "Toute chose finit où je décide qu'elle finit."
+        },
+        {
+            "name": "Portail & teleportation",
+            "icon": "",
+            "quote": "La distance n'existe que pour ceux qui y croient."
+        },
+        {
+            "name": "Gravité",
+            "icon": "",
+            "quote": "Tout ce qui monte m'appartient déjà."
+        },
+        {
+            "name": "Distance & éloignement",
+            "icon": "",
+            "quote": "Je peux mettre un monde entre deux mains qui se touchent."
+        },
+        {
+            "name": "Dimension",
+            "icon": "",
+            "quote": "Ce que tu appelles l'ici n'est qu'une adresse parmi d'autres."
+        }
+    ],
+    "spells": [
+        {
+            "key": "space-pas-dimensionnel",
+            "name": "Pas dimensionnel",
+            "description": "Plie l'espace pour téléporter instantanément le lanceur jusqu'à un point qu'il peut voir. La distance franchissable s'allonge à chaque palier.",
+            "usage": {
+                "outOfCombat": "Un déplacement pur : franchir un obstacle, un gouffre ou une porte close en rejoignant d'un pas un point visible. Ne procure aucun avantage au combat."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Portail & teleportation"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "10 m",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "teleport": true,
+                "reaction": [
+                    "incoming-attack"
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 35, "anchor": "tier3" } }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-marque-spatiale",
+            "name": "Marque spatiale",
+            "description": "Appose **au contact** sur une créature une ancre d'espace qui la relie au lanceur : il faut la toucher, donc l'approcher. Sur soi ou sur un allié, le sceau ne rate jamais ; l'imposer à un ennemi demande de viser très juste, car l'espace se dérobe à qui ne veut pas être tenu. La marque ne s'efface pas avec le temps : elle tient indéfiniment tant que son porteur reste dans la laisse d'espace du lanceur, et se rompt à l'instant où il en sort. Chaque palier allonge cette laisse.",
+            "usage": {
+                "combat": "Il faut être au contact pour marquer. Sur soi ou sur un allié c'est automatique ; sur un ennemi, il faut le toucher d'un jet de précision relevé. La marque n'inflige rien par elle-même : elle prépare les sorts qui s'y accrochent, à commencer par Change-place.",
+                "outOfCombat": "Une balise vivante : garder un compagnon à la trace, savoir à l'instant où il quitte la portée d'ancrage, ou sceller un éclaireur avant de le laisser partir devant."
+            },
+            "mana": 2,
+            "level": 3,
+            "subdomains": [
+                "Distance & éloignement"
+            ],
+            "requires": [
+                "space-pas-dimensionnel"
+            ],
+            "baseStats": {
+                "mana": 2,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "self",
+                    "ally",
+                    "enemy"
+                ],
+                "requiresHit": true,
+                "precisionPenalty": 25,
+                "tetherRange": "15 m",
+                "inflicts": [
+                    {
+                        "status": "marque-spatiale",
+                        "chance": 100,
+                        "duration": -1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "marquespatialeChance", "kind": "chance", "label": "Chance de Marque spatiale", "path": "inflicts.0.chance", "min": 0, "max": 100 }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-change-place",
+            "name": "Change-place",
+            "description": "Le sort échange la place de **deux porteurs de la Marque spatiale** — le lanceur et sa cible. Il faut donc s'être marqué soi-même : on ne tire pas sur un fil dont on ne tient pas l'autre bout. Ce n'est pas une téléportation : on ne vise pas un point, on tire sur un lien, et **aucune ligne de vue n'est nécessaire** — un mur ne l'arrête pas. Le sort se joue à son tour comme en réaction : glisser à la place d'un allié pour prendre le coup à sa place, l'arracher d'une mêlée, ou jeter un ennemi marqué là où le coup allait tomber — c'est alors lui qui le reçoit. Chaque palier n'ajoute pas de puissance : il rend l'échange moins cher.",
+            "usage": {
+                "combat": "Le lanceur — marqué lui aussi — et un porteur de SA marque permutent instantanément, sans ligne de vue. En réaction à une attaque : prenez le coup à la place d'un allié marqué, tirez l'attaquant marqué hors de son élan (privé de cible, son coup se perd), ou faites atterrir un ennemi marqué sous le coup qui vous était destiné — il l'encaisse à votre place, même de la main des siens.",
+                "outOfCombat": "Franchir une grille, un gouffre ou un cordon de gardes en permutant avec un allié marqué déjà passé de l'autre côté."
+            },
+            "mana": 9,
+            "level": 5,
+            "subdomains": [
+                "Portail & teleportation"
+            ],
+            "requires": [
+                "space-marque-spatiale"
+            ],
+            "baseStats": {
+                "mana": 9,
+                "range": "30 m",
+                "area": "Cible unique",
+                "targets": [
+                    "self",
+                    "ally"
+                ],
+                "swap": true,
+                "swapMark": "marque-spatiale"
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 5, "anchor": "treeMin" } },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 40, "anchor": "treeMax" } }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-rayon-chercheur",
+            "name": "Rayon à tête chercheuse",
+            "description": "Un trait d'espace comprimé, lancé sur une cible unique. Tiré à l'aveugle, c'est un rayon comme un autre : il faut viser, et il peut se perdre. Mais sur un porteur de votre **Marque spatiale**, il cesse de viser — il suit le lien. Il contourne alors ce qui le gêne, se passe de ligne de vue et **ne manque jamais**. Le seul abri qui vaille contre lui est l'absence de chemin : mur plein de tous les côtés, et le trait n'a plus rien à suivre.",
+            "usage": {
+                "combat": "Sans marque : un rayon ordinaire, à viser. Sur un marqué : touche à coup sûr, même hors de vue, tant qu'un chemin — même détourné — mène jusqu'à lui. Une cible totalement emmurée est hors d'atteinte.",
+                "outOfCombat": "Frapper à travers une porte entrebâillée, ou derrière un angle, ce qu'on a pris soin de marquer avant."
+            },
+            "mana": 2,
+            "level": 4,
+            "damageType": "space",
+            "subdomains": [
+                "Distance & éloignement"
+            ],
+            "requires": [
+                "space-marque-spatiale"
+            ],
+            "baseStats": {
+                "damageMin": 2,
+                "damageMax": 4,
+                "mana": 2,
+                "range": "14 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "homingMark": "marque-spatiale",
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.07
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 9, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 18, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.1, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-effondrement-de-marque",
+            "name": "Effondrement de marque",
+            "description": "Le lanceur lâche d'un coup toutes les ancres qu'il tient. Chaque **Marque spatiale** posée de sa main s'effondre sur elle-même, et l'espace qu'elle pinçait se referme en broyant ce qu'il touche. Le sort ne se vise pas : il n'a ni portée ni ligne de vue, il frappe tous les porteurs à la fois, où qu'ils soient. Et il ne se répète pas — chaque marque se consume dans son éclat, il faut retourner les poser.",
+            "usage": {
+                "combat": "Toutes vos marques éclatent en même temps, sans rien viser. **Attention : toutes**, y compris celles posées sur vos alliés et sur vous-même. C'est le prix d'un sort qui ne peut pas manquer et que rien n'arrête.",
+                "outOfCombat": "Faire céder d'un mot ce qu'on avait pris soin d'ancrer — une serrure, une poutre, une porte marquée la veille."
+            },
+            "mana": 5,
+            "level": 5,
+            "power": "majeur",
+            "damageType": "space",
+            "subdomains": [
+                "Frontière & limite"
+            ],
+            "requires": [
+                "space-marque-spatiale"
+            ],
+            "baseStats": {
+                "damageMin": 3,
+                "damageMax": 6,
+                "mana": 5,
+                "range": "Toutes vos marques",
+                "area": "Tous les marqués",
+                "targets": [
+                    "everyone"
+                ],
+                "marksTargets": "marque-spatiale",
+                "consumesMark": true,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.09
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 12, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.11, "anchor": "tier3" } }
+                ],
+                "statusUnlock": { "eligible": ["etourdissement"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-piege-d-ancrage",
+            "name": "Piège d'ancrage",
+            "description": "Le lanceur tend un champ et le tient. Tant qu'il le tient, **tous les porteurs de sa Marque spatiale** — ennemis, alliés, et lui-même s'il s'est marqué — ne peuvent plus venir à moins de l'écart imposé les uns des autres. C'est la **marque** qui commande, pas une empreinte prise à l'incantation : marquez un renfort en pleine bataille, et il tombe aussitôt sous la règle. Ils vont où bon leur semble, se rapprochent même à se frôler, mais ne se touchent plus — on ne se couvre pas, on ne se relève pas, on ne se passe rien à une case d'écart. Le prix est double : une **concentration** entière, qu'un coup encaissé peut rompre, et **du mana à chaque tour** pour tenir le champ ouvert. À sec, il se referme.",
+            "usage": {
+                "combat": "Sans rien viser, **tous** vos marqués — présents et à venir — sont tenus à l'écart les uns des autres. Ceux qui se touchent quand le champ les prend **sont écartés aussitôt**, d'un pas et sans provoquer d'attaque d'opportunité. Ils se déplacent normalement partout ailleurs. Deux choses à surveiller : votre concentration, qu'un coup peut rompre, et votre mana, prélevé à chaque tour.",
+                "outOfCombat": "Empêcher deux marqués de se rejoindre — le temps d'une négociation, d'une fuite, ou d'un vol qu'on veut sans témoin. Tant que le mana suit."
+            },
+            "mana": 4,
+            "level": 6,
+            "subdomains": [
+                "Frontière & limite",
+                "Distance & éloignement"
+            ],
+            "requires": [
+                "space-marque-spatiale"
+            ],
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "anchorGap": "1,5 m",
+                "inflicts": [
+                    {
+                        "status": "ancrage",
+                        "chance": 100,
+                        "duration": -1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "ancrageChance", "kind": "chance", "label": "Chance de Piège d'ancrage", "path": "inflicts.0.chance", "min": 0, "max": 100 }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-barriere-spatiale",
+            "name": "Barrière spatiale",
+            "description": "Dresse une frontière invisible que rien ne peut franchir sans en payer le prix.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Frontière & limite"
+            ],
+            "requires": [
+                "space-pas-dimensionnel"
+            ],
+            "baseStats": {
+                "mana": 4,
+                "range": "14 m",
+                "area": "Ligne 5 m",
+                "targets": [
+                    "self",
+                    "ally"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.3
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "def_mag",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 18, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 10, "anchor": "tier3" } },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "defPhyValue", "kind": "effect", "label": "Défense physique", "path": "effects.0.value", "min": 0, "cap": { "value": 4, "anchor": "treeMax" } },
+                    { "id": "intelligenceDefphyRatio", "kind": "ratio", "label": "Ratio Intelligence → Défense physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.5, "anchor": "tier3" } },
+                    { "id": "defMagValue", "kind": "effect", "label": "Défense magique", "path": "effects.1.value", "min": 0, "cap": { "value": 4, "anchor": "treeMax" } },
+                    { "id": "intelligenceDefmagRatio", "kind": "ratio", "label": "Ratio Intelligence → Défense magique", "path": "effects.1.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.5, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] },
+                    { "path": "effects.1.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ],
+                "areaShapeSwap": { "shapes": ["Rayon", "Cône"] }
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-repli-lointain",
+            "name": "Repli lointain",
+            "description": "Étire soudainement l'espace pour projeter une cible au loin, hors de portée.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Distance & éloignement"
+            ],
+            "requires": [
+                "space-pas-dimensionnel"
+            ],
+            "baseStats": {
+                "damageMin": 2,
+                "damageMax": 3,
+                "mana": 4,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "etourdissement",
+                        "chance": 35
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.06
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 14, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.07, "anchor": "treeMax" } },
+                    { "id": "etourdissementChance", "kind": "chance", "label": "Chance de Étourdissement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 55, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-distorsion-gravitationnelle",
+            "name": "Distorsion gravitationnelle",
+            "description": "Altère la gravité d'une zone, clouant les créatures au sol ou les faisant léviter.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Gravité"
+            ],
+            "requires": [
+                "space-repli-lointain"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 5,
+                "range": "16 m",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "enracinement",
+                        "chance": 45
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.03
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 18, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.04, "anchor": "tier3" } },
+                    { "id": "enracinementChance", "kind": "chance", "label": "Chance de Enracinement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 65, "anchor": "tier3" } }
+                ],
+                "statusUnlock": { "eligible": ["etourdissement"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ],
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-faille-dimensionnelle",
+            "name": "Faille dimensionnelle",
+            "description": "Ouvre une faille vers une poche dimensionnelle où engloutir ou dissimuler ce qui y entre.",
+            "mana": 7,
+            "level": 6,
+            "subdomains": [
+                "Dimension"
+            ],
+            "requires": [
+                "space-distorsion-gravitationnelle"
+            ],
+            "baseStats": {
+                "damageMin": 3,
+                "damageMax": 5,
+                "mana": 7,
+                "range": "14 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "paralysie",
+                        "chance": 30
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.06
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 7, "anchor": "treeMax" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0 },
+                    { "id": "paralysieChance", "kind": "chance", "label": "Chance de Paralysie", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 50, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-revetement-arme",
+            "name": "Lame dimensionnelle",
+            "description": "Nimbe une arme de failles spatiales : tant que l'enchantement dure, chaque coup inflige des dégâts spatiaux supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts spatiaux à chacune de vos attaques au corps à corps, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "damageType": "space",
+            "subdomains": [
+                "Distance & éloignement"
+            ],
+            "requires": [
+                "space-revetement-poings"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "rogue",
+                        "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts spatiaux accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 3, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Attaque physique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.03, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-revetement-poings",
+            "name": "Poings dimensionnels",
+            "description": "Nimbe vos poings de failles spatiales : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts spatiaux supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts spatiaux à vos attaques à mains nues, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 2,
+            "damageType": "space",
+            "subdomains": [
+                "Distance & éloignement"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "force",
+                        "ratio": 0.2
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.",
+                        "manaFactor": 0.5
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1 },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "forceRatio", "kind": "ratio", "label": "Ratio Force", "path": "scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "space-revetement-manteau",
+            "name": "Manteau dimensionnel",
+            "description": "Enveloppe le lanceur d'un voile de failles spatiales : sa défense magique est renforcée. Il a une chance d'esquiver totalement les attaques subies.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile de failles spatiales pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Distance & éloignement"
+            ],
+            "requires": [
+                "space-revetement-poings"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 5,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ],
+                "evadeChance": 10
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "defMagValue", "kind": "effect", "label": "Défense magique", "path": "effects.0.value", "min": 0, "cap": { "value": 12, "anchor": "treeMax" } },
+                    { "id": "intelligenceDefmagRatio", "kind": "ratio", "label": "Ratio Intelligence → Défense magique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.5, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["time", "air", "darkness"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        }
+    ],
+    "feats": [
+        {
+            "key": "space-pas-elargi",
+            "name": "Pas élargi",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Espace débloqué",
+            "description": "Chaque pas dimensionnel porte bien plus loin, et coûte à proportion.",
+            "subdomains": [
+                "Portail & teleportation",
+                "Distance & éloignement"
+            ],
+            "excludes": [
+                "space-ancrage-ferme"
+            ],
+            "effects": [
+                {
+                    "label": "Portée des téléportations",
+                    "value": "×1,5",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût de chaque téléportation",
+                    "value": "+2 mana",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "space-ancrage-ferme",
+            "name": "Ancrage ferme",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur d'Espace débloqué",
+            "description": "Il tient ses points fixes plutôt que ses trajets : ses marques survivent au combat, ses bonds raccourcissent.",
+            "subdomains": [
+                "Frontière & limite",
+                "Portail & teleportation"
+            ],
+            "excludes": [
+                "space-pas-elargi"
+            ],
+            "effects": [
+                {
+                    "label": "Marques spatiales",
+                    "value": "Persistent d'un combat à l'autre",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût des marques",
+                    "value": "×0,7",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Portée des déplacements",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "space-poids-du-vide",
+            "name": "Poids du vide",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur d'Espace débloqué et Distorsion gravitationnelle connue",
+            "description": "Il alourdit une portion d'espace entière — la sienne comprise s'il y met le pied.",
+            "subdomains": [
+                "Gravité"
+            ],
+            "effects": [
+                {
+                    "label": "Ciblage de la distorsion gravitationnelle",
+                    "value": "Zone au lieu d'une cible",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Effet sur le lanceur",
+                    "value": "Il est ralenti comme les autres dans la zone",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "space-couture-dimensionnelle",
+            "name": "Couture dimensionnelle",
+            "level": 20,
+            "kind": "unlock",
+            "prerequisite": "Palier Expert d'Espace débloqué et Faille dimensionnelle connue",
+            "description": "Sa faille devient une porte pour tout le groupe. Elle met un tour à se refermer, et n'a pas d'avis sur qui l'emprunte.",
+            "subdomains": [
+                "Dimension"
+            ],
+            "effects": [
+                {
+                    "label": "Traversée d'une faille",
+                    "value": "Le groupe entier au lieu du lanceur seul",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Après passage",
+                    "value": "Brèche ouverte 1 tour, franchissable dans les deux sens",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

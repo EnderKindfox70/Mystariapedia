@@ -95,6 +95,14 @@ export type AbilityShape =
   | { kind: 'cone'; meters: number }
   /** Ligne droite du lanceur vers le point visé. */
   | { kind: 'line'; meters: number }
+  /**
+   * Rectangle posé au point visé, orienté face au lanceur : `width` en travers
+   * (le front d'une vague, la longueur d'un mur), `depth` dans l'axe, qui
+   * s'éloigne du lanceur à partir de la case visée.
+   */
+  | { kind: 'rect'; width: number; depth: number }
+  /** Anneau : le pourtour d'un rayon autour du point visé, le centre épargné. */
+  | { kind: 'ring'; meters: number }
   /** Plusieurs cibles désignées une à une. */
   | { kind: 'targets'; count: number }
   /**
@@ -297,6 +305,11 @@ export interface CombatAbility {
   evadeChance?: number;
   retaliate?: SpellRetaliate;
   recoil?: AbilityRecoil;
+  /**
+   * Part des dégâts portés rendue au lanceur en PV (0–1). Le miroir du
+   * contre-coup : un siphon nourrit celui qui le lance.
+   */
+  drain?: number;
   /** Météo invoquée (clé de `weathers.json`). */
   weather?: string;
   /**

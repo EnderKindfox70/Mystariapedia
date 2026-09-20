@@ -225,8 +225,7 @@ interface BookSpread {
 /**
  * Catalogues référençables par le butin. La clé est la `collection` d'un
  * CrossRef, qui est aussi le chemin de l'index JSON à charger. `route` est le
- * préfixe de la page de détail, ou `null` quand le catalogue n'en a pas encore
- * (les artefacts, p. ex., n'ont qu'une page-liste).
+ * préfixe de la page de détail, ou `null` quand le catalogue n'en a pas encore.
  */
 const LOOT_COLLECTIONS: Record<string, { route: string | null }> = {
   'natural-resources/flora': { route: '/resources/flora' },
@@ -238,9 +237,9 @@ const LOOT_COLLECTIONS: Record<string, { route: string | null }> = {
   'weapons/armor': { route: '/weapons/armor' },
   'weapons/shield': { route: '/weapons/shield' },
   'weapons/ammunition': { route: '/weapons/ammunition' },
-  'artifacts/simple': { route: null },
-  'artifacts/complex': { route: null },
-  'artifacts/soul': { route: null },
+  'artifacts/simple': { route: '/artifacts/simple' },
+  'artifacts/complex': { route: '/artifacts/complex' },
+  'artifacts/soul': { route: '/artifacts/soul' },
 };
 
 /**

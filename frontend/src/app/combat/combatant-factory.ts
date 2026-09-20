@@ -97,6 +97,11 @@ const POTION_COLLECTION = 'potions';
  * L'index suffit, il porte le poids et le drapeau ; inutile d'ouvrir 46 fiches.
  */
 const GEAR_COLLECTION = 'equipment';
+/**
+ * Objets magiques portés. L'index suffit : il porte le nom, l'emplacement et les
+ * bonus de stats — c'est tout ce que le combat doit savoir d'un talisman.
+ */
+const ARTIFACT_COLLECTIONS = ['artifacts/simple', 'artifacts/complex', 'artifacts/soul'];
 /** Dépouilles de créature : c'est là que vivent les venins (fiches taguées `venom`). */
 const REMAINS_COLLECTION = 'natural-resources/remains';
 /** Clé du trait qui fait passer l'enduisage en action bonus. */
@@ -190,6 +195,8 @@ interface EquipmentStat {
   weaknesses: string[];
   /** Matière du set (clé de `materials.json`), s'il en a une. */
   material?: string;
+  /** Bonus de stats accordés tant que l'objet est porté (talismans, anneaux…). */
+  statEffects?: { key: string; value: number }[];
 }
 
 /** Ce que le catalogue des objets courants apporte au sac. */
@@ -326,6 +333,16 @@ export class CombatantFactory {
       .loadAll<ResourceIndexEntry>(GEAR_COLLECTION)
       .pipe(catchError(() => of([] as ResourceIndexEntry[])));
 
+    // Objets magiques : ils rejoignent les pièces d'équipement, sans défense ni
+    // affinité — ce qu'ils apportent tient dans leurs `statEffects`.
+    const artifacts$ = forkJoin(
+      ARTIFACT_COLLECTIONS.map((col) =>
+        this.wiki
+          .loadAll<ResourceIndexEntry>(col)
+          .pipe(catchError(() => of([] as ResourceIndexEntry[]))),
+      ),
+    ).pipe(map((lists) => lists.flat()));
+
     // Matériel de soin : même lecture que les venins. L'index dit lesquels le
     // sont (tag `care`), la fiche dit ce qu'ils font.
     const care$ = this.wiki.loadAll<ResourceIndexEntry>(GEAR_COLLECTION).pipe(
@@ -374,11 +391,12 @@ export class CombatantFactory {
       ammunition$,
       potions$,
       gear$,
+      artifacts$,
       this.wiki.load<RaceDef[]>('characters', 'races').pipe(catchError(() => of([]))),
       this.wiki.load<ClassDef[]>('characters', 'classes').pipe(catchError(() => of([]))),
       this.wiki.load<BackgroundDef[]>('characters', 'backgrounds').pipe(catchError(() => of([]))),
     ]).pipe(
-      tap(([care, venoms, weapons, armors, ammunition, potions, gear, races, classes, backgrounds]) => {
+      tap(([care, venoms, weapons, armors, ammunition, potions, gear, artifacts, races, classes, backgrounds]) => {
         for (const piece of care) this.careByName.set(piece.name, piece);
         for (const venom of venoms) this.venomsByName.set(venom.name, venom);
         for (const potion of potions) this.consumablesByName.set(potion.name, potion);
@@ -408,6 +426,17 @@ export class CombatantFactory {
         }
         for (const item of gear) {
           this.gearByName.set(item.name, { material: item.material, weightKg: item.weight });
+        }
+        for (const item of artifacts) {
+          if (!item.name || !item.statEffects?.length) continue;
+          this.equipmentByName.set(item.name, {
+            physicalArmor: 0,
+            magicalProtection: 0,
+            resistances: [],
+            weaknesses: [],
+            material: item.material,
+            statEffects: item.statEffects,
+          });
         }
         // Les munitions viennent de leur propre catalogue : une flèche est en
         // fer, une bille de fronde en plomb — donc hors catalogue, donc hors de
@@ -469,6 +498,12 @@ export class CombatantFactory {
       if (isFerromagnetic(piece.material)) metallicArmor = true;
       stats.def_phy += piece.physicalArmor;
       stats.def_mag += piece.magicalProtection;
+      // Bonus des objets portés (talismans, anneaux…), exactement comme la
+      // fiche les applique. Une clé hors des stats de combat est ignorée : les
+      // attributs ne se relèvent pas par ce chemin.
+      for (const { key, value } of piece.statEffects ?? []) {
+        if (key in stats) stats[key as StatKey] += Number(value) || 0;
+      }
       worn.push({ resistances: piece.resistances, weaknesses: piece.weaknesses });
     }
     // Même assemblage que la fiche (cf. `characterAffinities`) : ce que le

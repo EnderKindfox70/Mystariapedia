@@ -1,0 +1,1043 @@
+[
+    {
+        "name": "Lave",
+        "components": [
+            "fire",
+            "earth"
+        ],
+        "spells": [
+            {
+                "key": "combo-coulee-de-lave",
+                "name": "Coulée de lave",
+                "description": "Fait fondre la roche en un torrent de lave incandescente qui engloutit le terrain.",
+                "mana": 6,
+                "level": 4,
+                "subdomains": [
+                    "Lave"
+                ],
+                "requires": [
+                    "fire-fireball",
+                    "earth-tremblement"
+                ],
+                "baseStats": {
+                    "damageMin": 1,
+                    "damageMax": 2,
+                    "mana": 6,
+                    "range": "10 m",
+                    "area": "Rayon 1,5 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.04
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 6, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue de la nappe", "path": "area", "min": 0, "cap": { "value": 5, "anchor": "tier3" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.06, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 4 } }
+                    ],
+                    "statusUnlock": { "eligible": ["brulure", "enracinement"], "chanceCap": { "value": 80, "anchor": "tier3", "path": "inflicts.0.chance" } },
+                    "areaShapeSwap": { "shapes": ["Rayon", "Cône", "Ligne"] },
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "swapOptions": { "damageTypes": ["fire", "earth"] },
+                "crossDomain": null,
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Sécheresse",
+        "components": [
+            "fire",
+            "air"
+        ],
+        "spells": [
+            {
+                "key": "combo-aridite",
+                "name": "Aridité",
+                "description": "Assèche l'air et le sol d'une zone, asséchant les sources et flétrissant toute vie.",
+                "mana": 5,
+                "level": 3,
+                "subdomains": [
+                    "Sécheresse"
+                ],
+                "weather": "drought",
+                "requires": [
+                    "fire-vague-de-chaleur",
+                    "air-temps-calme"
+                ],
+                "baseStats": {
+                    "mana": 8,
+                    "range": "12 m",
+                    "area": "Rayon 3 m",
+                    "targets": [
+                        "enemy"
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "radius", "kind": "radius", "label": "Étendue de la sécheresse", "path": "area", "min": 0, "cap": { "value": 6, "anchor": "tier3" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 5, "anchor": "treeMin" } }
+                    ],
+                    "statusUnlock": { "eligible": ["affaiblissement", "vulnerabilite"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                    "areaShapeSwap": { "shapes": ["Rayon", "Cône"] }
+                },
+                "crossDomain": null,
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "weather", "reason": "Aridé appelle la sécheresse sur le ciel entier : la météo EST le sort, elle ne se marchande pas." },
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Boue",
+        "components": [
+            "water",
+            "earth"
+        ],
+        "spells": [
+            {
+                "key": "combo-enlisement",
+                "name": "Enlisement",
+                "description": "Transforme le sol en boue mouvante qui happe et immobilise les créatures.",
+                "mana": 5,
+                "level": 3,
+                "subdomains": [
+                    "Boue"
+                ],
+                "damageType": "earth",
+                "requires": [
+                    "water-jet-d-eau",
+                    "earth-mur-de-pierre"
+                ],
+                "baseStats": {
+                    "damageMin": 2,
+                    "damageMax": 3,
+                    "mana": 5,
+                    "range": "14 m",
+                    "area": "Rayon 4 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "enracinement",
+                            "chance": 55
+                        }
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.05
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 6.0, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16.0, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 6.0, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.06, "anchor": "tier3" } },
+                        { "id": "enracinementChance", "kind": "chance", "label": "Chance de Enracinement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 85.0, "anchor": "tier3" } }
+                    ],
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ],
+                    "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Pluie",
+        "components": [
+            "water",
+            "air"
+        ],
+        "spells": [
+            {
+                "key": "combo-averse",
+                "name": "Averse",
+                "description": "Invoque une pluie battante qui réduit la visibilité et éteint les flammes.",
+                "mana": 4,
+                "level": 2,
+                "subdomains": [
+                    "Pluie"
+                ],
+                "weather": "rain",
+                "requires": [
+                    "water-jet-d-eau",
+                    "air-temps-calme"
+                ],
+                "baseStats": {
+                    "mana": 6,
+                    "range": "18 m",
+                    "area": "Rayon 5 m",
+                    "targets": [
+                        "enemy"
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 4.0, "anchor": "treeMin" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 22.0, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 9.0, "anchor": "tier3" } }
+                    ],
+                    "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Neige & blizzard",
+        "components": [
+            "water",
+            "air"
+        ],
+        "spells": [
+            {
+                "key": "combo-blizzard",
+                "name": "Blizzard",
+                "description": "Déchaîne une tempête de neige glaciale qui gèle et aveugle tout sur son passage.",
+                "mana": 5,
+                "level": 4,
+                "subdomains": [
+                    "Neige & blizzard"
+                ],
+                "weather": "blizzard",
+                "damageType": "ice",
+                "requires": [
+                    "water-prison-de-glace",
+                    "air-temps-calme"
+                ],
+                "baseStats": {
+                    "mana": 10,
+                    "range": "16 m",
+                    "area": "Rayon 4 m",
+                    "targets": [
+                        "enemy"
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 6.0, "anchor": "treeMin" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20.0, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 6.0, "anchor": "tier3" } }
+                    ],
+                    "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Tempête",
+        "components": [
+            "water",
+            "air",
+            "electricity"
+        ],
+        "spells": [
+            {
+                "key": "combo-tempete-dechainee",
+                "name": "Tempête déchaînée",
+                "description": "Conjugue pluie, vent et foudre en une tempête dévastatrice frappant une vaste zone.",
+                "mana": 8,
+                "level": 6,
+                "subdomains": [
+                    "Tempête"
+                ],
+                "weather": "storm",
+                "damageType": "lightning",
+                "requires": [
+                    "water-appel-des-marees",
+                    "air-temps-calme",
+                    "electricity-eclair"
+                ],
+                "baseStats": {
+                    "mana": 15,
+                    "range": "20 m",
+                    "area": "Rayon 5 m",
+                    "targets": [
+                        "enemy"
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 9.0, "anchor": "treeMin" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 24.0, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 9.0, "anchor": "tier3" } }
+                    ],
+                    "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Abysse",
+        "components": [
+            "water",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-etreinte-abyssale",
+                "name": "Étreinte abyssale",
+                "description": "Convoque les ténèbres des profondeurs marines pour engloutir et écraser la cible.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Abysse"
+                ],
+                "requires": [
+                    "water-appel-des-marees",
+                    "darkness-decharge-ombre"
+                ],
+                "baseStats": {
+                    "damageMin": 4,
+                    "damageMax": 6,
+                    "mana": 6,
+                    "range": "14 m",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "peur",
+                            "chance": 40
+                        }
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.09
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 7.0, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16.0, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0 },
+                        { "id": "peurChance", "kind": "chance", "label": "Chance de Peur", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 70.0, "anchor": "tier3" } }
+                    ],
+                    "statusUnlock": { "eligible": ["ralentissement"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Pesanteur",
+        "components": [
+            "earth",
+            "space"
+        ],
+        "spells": [
+            {
+                "key": "combo-ecrasement-gravitationnel",
+                "name": "Écrasement gravitationnel",
+                "description": "Concentre une pesanteur titanesque en un point pour broyer ce qui s'y trouve.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Pesanteur"
+                ],
+                "requires": [
+                    "earth-tremblement",
+                    "space-distorsion-gravitationnelle"
+                ],
+                "baseStats": {
+                    "damageMin": 3,
+                    "damageMax": 4,
+                    "mana": 7,
+                    "range": "16 m",
+                    "area": "Rayon 3 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "enracinement",
+                            "chance": 55
+                        }
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.05
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 8.0, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20.0, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 5.0, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.06, "anchor": "tier3" } },
+                        { "id": "enracinementChance", "kind": "chance", "label": "Chance de Enracinement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 85.0, "anchor": "tier3" } }
+                    ],
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ],
+                    "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Équilibre",
+        "components": [
+            "light",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-equilibre-du-crepuscule",
+                "name": "Équilibre du crépuscule",
+                "description": "Harmonise lumière et ombre pour neutraliser les magies adverses et stabiliser les énergies.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Équilibre"
+                ],
+                "requires": [
+                    "light-trait-de-lumiere",
+                    "darkness-decharge-ombre"
+                ],
+                "baseStats": {
+                    "mana": 6,
+                    "range": "16 m",
+                    "area": "Rayon 4 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "silence",
+                            "chance": 50
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20.0, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 6.0, "anchor": "tier3" } },
+                        { "id": "silenceChance", "kind": "chance", "label": "Chance de Silence", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 80.0, "anchor": "tier3" } }
+                    ],
+                    "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Siphonnage vital",
+        "components": [
+            "life",
+            "death"
+        ],
+        "spells": [
+            {
+                "key": "combo-siphon-vital",
+                "name": "Siphon vital",
+                "description": "Draine la force vitale d'une cible pour soigner le lanceur d'autant de vigueur.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Siphonnage vital"
+                ],
+                "requires": [
+                    "life-soin-vital",
+                    "death-toucher-necrotique"
+                ],
+                "baseStats": {
+                    "damageMin": 4,
+                    "damageMax": 6,
+                    "mana": 6,
+                    "range": "12 m",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "poison",
+                            "chance": 40
+                        }
+                    ],
+                    "effects": [
+                        {
+                            "stat": "force",
+                            "value": 2,
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.09
+                                }
+                            ]
+                        }
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.09
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 12.0, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 14.0, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.11, "anchor": "tier3" } },
+                        { "id": "poisonChance", "kind": "chance", "label": "Chance de Poison", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 60.0, "anchor": "tier3" } },
+                        { "id": "forceValue", "kind": "effect", "label": "Force", "path": "effects.0.value", "min": 0, "cap": { "value": 4.0, "anchor": "treeMax" } },
+                        { "id": "atkMagForceRatio", "kind": "ratio", "label": "Ratio Attaque magique → Force", "path": "effects.0.scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.11, "anchor": "tier3" } }
+                    ],
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] },
+                        { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Eclipse",
+        "components": [
+            "light",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-eclipse",
+                "name": "Éclipse",
+                "description": "Voile une zone d'une ombre absolue percée d'éclats de lumière, troublant les sens de tous.",
+                "mana": 6,
+                "level": 5,
+                "subdomains": [
+                    "Eclipse"
+                ],
+                "requires": [
+                    "light-lumiere-revelatrice",
+                    "darkness-dark-mist"
+                ],
+                "baseStats": {
+                    "damages": [
+                        {
+                            "min": 4,
+                            "max": 6,
+                            "type": "light",
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.25
+                                }
+                            ]
+                        },
+                        {
+                            "min": 4,
+                            "max": 7,
+                            "type": "dark",
+                            "scaling": [
+                                {
+                                    "source": "atk_mag",
+                                    "ratio": 0.25
+                                }
+                            ]
+                        }
+                    ],
+                    "mana": 6,
+                    "range": "18 m",
+                    "area": "Rayon 4 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "aveuglement",
+                            "chance": 50
+                        },
+                        {
+                            "status": "confusion",
+                            "chance": 25
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20.0, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 6.0, "anchor": "tier3" } },
+                        { "id": "aveuglementChance", "kind": "chance", "label": "Chance de Aveuglement", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 80.0, "anchor": "tier3" } },
+                        { "id": "confusionChance", "kind": "chance", "label": "Chance de Confusion", "path": "inflicts.1.chance", "min": 0, "max": 100, "cap": { "value": 45.0, "anchor": "tier3" } }
+                    ],
+                    "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Doppelganger",
+        "components": [
+            "life",
+            "darkness"
+        ],
+        "spells": [
+            {
+                "key": "combo-doppelganger",
+                "name": "Doppelgänger",
+                "description": "Tisse à partir d'ombre et de vie un double éphémère du lanceur ou d'une créature.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Doppelganger"
+                ],
+                "requires": [
+                    "life-regeneration-de-la-chair",
+                    "darkness-manteau-d-ombre"
+                ],
+                "baseStats": {
+                    "mana": 7,
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "def_phy",
+                            "value": 2,
+                            "scaling": [
+                                {
+                                    "source": "charisme",
+                                    "ratio": 0.3
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                        { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 4.0, "anchor": "tier3" } },
+                        { "id": "defPhyValue", "kind": "effect", "label": "Défense physique", "path": "effects.0.value", "min": 0, "cap": { "value": 4.0, "anchor": "treeMax" } },
+                        { "id": "charismeDefphyRatio", "kind": "ratio", "label": "Ratio Charisme → Défense physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.5, "anchor": "tier3" } }
+                    ],
+                    "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                    "scalingSwap": [
+                        { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Combustion de force vitale",
+        "components": [
+            "life",
+            "fire"
+        ],
+        "spells": [
+            {
+                "key": "combo-combustion-vitale",
+                "name": "Combustion vitale",
+                "description": "Consume la force vitale du lanceur pour décupler la puissance d'un brasier dévastateur.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Combustion de force vitale"
+                ],
+                "requires": [
+                    "life-etincelle-vitale",
+                    "fire-inferno"
+                ],
+                "baseStats": {
+                    "damageMin": 2,
+                    "damageMax": 3,
+                    "mana": 7,
+                    "range": "12 m",
+                    "area": "Rayon 1,5 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "recoil": {
+                        "damageMin": 6,
+                        "damageMax": 10,
+                        "note": "vitalité consumée"
+                    },
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.04
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 8, "anchor": "tier3" } },
+                        { "id": "recoil", "kind": "recoil", "label": "Vitalité consumée", "path": "recoil.damageMax", "shift": ["recoil.damageMin"], "min": 1, "cap": { "value": 4 } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue du brasier", "path": "area", "min": 0, "cap": { "value": 6, "anchor": "tier3" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.06, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 5 } }
+                    ],
+                    "statusUnlock": { "eligible": ["brulure"], "chanceCap": { "value": 90, "anchor": "tier3", "path": "inflicts.0.chance" } },
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "swapOptions": { "damageTypes": ["fire", "life"] },
+                "crossDomain": null,
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "recoil.note", "reason": "Ce brasier se nourrit du lanceur : le contrecoup s'allège, il ne disparaît jamais." },
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Hellfire",
+        "components": [
+            "fire",
+            "death"
+        ],
+        "spells": [
+            {
+                "key": "combo-feu-infernal",
+                "name": "Feu infernal",
+                "description": "Embrase une flamme morbide qui brûle la chair comme l'âme et n'épargne aucun mort-vivant.",
+                "mana": 7,
+                "level": 6,
+                "subdomains": [
+                    "Hellfire"
+                ],
+                "requires": [
+                    "fire-fireball",
+                    "death-toucher-necrotique"
+                ],
+                "baseStats": {
+                    "damageMin": 2,
+                    "damageMax": 3,
+                    "mana": 7,
+                    "range": "12 m",
+                    "area": "Rayon 1,5 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.04
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 8, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue des flammes", "path": "area", "min": 0, "cap": { "value": 5, "anchor": "tier3" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.06, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 5 } }
+                    ],
+                    "statusUnlock": { "eligible": ["brulure", "peur", "necrose"], "chanceCap": { "value": 90, "anchor": "tier3", "path": "inflicts.0.chance" } },
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "swapOptions": { "damageTypes": ["fire", "death"] },
+                "crossDomain": null,
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "",
+        "components": [
+            "fire",
+            "space"
+        ],
+        "spells": [
+            {
+                "key": "combo-combustion-spontanee",
+                "name": "Combustion spontanée",
+                "description": "Téléporte des flammes directement sur l'adversaire sans même tenir compte de la défense magique.",
+                "mana": 5,
+                "level": 4,
+                "subdomains": [
+                    "Combustion",
+                    "Portail & teleportation"
+                ],
+                "requires": [
+                    "fire-embers",
+                    "space-pas-dimensionnel"
+                ],
+                "baseStats": {
+                    "damagePercentMaxHp": {
+                        "min": 3,
+                        "max": 5
+                    },
+                    "mana": 15,
+                    "range": "12 m",
+                    "area": "Cible unique",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.08
+                        }
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "brulure",
+                            "chance": 20
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "percentDamage", "label": "Dégâts (% des PV max)", "path": "damagePercentMaxHp.max", "shift": ["damagePercentMaxHp.min"], "min": 1, "cap": { "value": 25, "anchor": "tier3" } },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.2, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 10 } },
+                        { "id": "burnChance", "kind": "chance", "label": "Chance d'infliger Brûlure", "path": "inflicts.0.chance", "min": 1, "step": 10, "cap": { "value": 100, "anchor": "tier3" } }
+                    ],
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "swapOptions": { "damageTypes": ["fire", "space"] },
+                "crossDomain": null,
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "area", "reason": "La flamme naît DANS une cible précise : elle ne s'étale pas." },
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            },
+            {
+                "key": "combo-evasion-enflammee",
+                "name": "Évasion enflammée",
+                "description": "Permet de se téléporter tout en s'entourant d'un brasier qui brûle les poursuivants.",
+                "mana": 5,
+                "level": 4,
+                "subdomains": [
+                    "Combustion",
+                    "Portail & teleportation"
+                ],
+                "requires": [
+                    "fire-embers",
+                    "space-pas-dimensionnel"
+                ],
+                "baseStats": {
+                    "damageMin": 1,
+                    "damageMax": 2,
+                    "mana": 5,
+                    "range": "Autour de soi",
+                    "area": "Rayon 1,5 m",
+                    "targets": [
+                        "enemy"
+                    ],
+                    "teleport": true,
+                    "teleportRange": "5 m",
+                    "reaction": [
+                        "incoming-attack"
+                    ],
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.04
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "damage", "kind": "damage", "label": "Dégâts du brasier", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 6, "anchor": "tier3" } },
+                        { "id": "teleportRange", "kind": "range", "label": "Distance de repli", "path": "teleportRange", "min": 1, "cap": { "value": 12, "anchor": "tier3" } },
+                        { "id": "radius", "kind": "radius", "label": "Étendue du brasier", "path": "area", "min": 0, "cap": { "value": 5, "anchor": "tier3" } },
+                        { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.06, "anchor": "tier3" } },
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 3 } }
+                    ],
+                    "statusUnlock": { "eligible": ["brulure"], "chanceCap": { "value": 70, "anchor": "tier3", "path": "inflicts.0.chance" } },
+                    "scalingSwap": [
+                        { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "swapOptions": {},
+                "crossDomain": null,
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "reaction", "reason": "Le sort répond à une attaque qui arrive : se replier au bon moment EST le sort." },
+                    { "field": "teleport", "reason": "Sans le saut, il ne reste qu'un feu de camp." },
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Équilibre",
+        "components": [
+            "renforcement",
+            "emission"
+        ],
+        "spells": [
+            {
+                "key": "combo-trame-equilibree",
+                "name": "Trame équilibrée",
+                "description": "Partage la même mana entre le dedans et le dehors : moitié Renforcement, moitié Voile. Rien n'est porté à son maximum, mais rien n'est laissé découvert.",
+                "usage": {
+                    "combat": "Un peu d'attaque, un peu d'armure, un peu de vitesse et un peu de résistance magique, tout à la fois — le sort de qui ne sait pas encore ce qui va lui tomber dessus.",
+                    "outOfCombat": "La posture de voyage des praticiens de la mana brute : on tient la trame en fond, prêt à la basculer d'un côté ou de l'autre selon ce qui surgit."
+                },
+                "mana": 4,
+                "level": 4,
+                "icon": "/resources/media/icons/magic.svg",
+                "subdomains": [
+                    "Équilibre"
+                ],
+                "requires": [
+                    "renforcement-corps",
+                    "emission-voile"
+                ],
+                "baseStats": {
+                    "mana": 4,
+                    "range": "Personnel",
+                    "area": "Soi-même",
+                    "targets": [
+                        "self"
+                    ],
+                    "duration": 3,
+                    "effects": [
+                        {
+                            "stat": "atk_phy",
+                            "value": 1,
+                            "scaling": [
+                                {
+                                    "source": "force",
+                                    "ratio": 0.15
+                                }
+                            ]
+                        },
+                        {
+                            "stat": "def_phy",
+                            "value": 1,
+                            "scaling": [
+                                {
+                                    "source": "constitution",
+                                    "ratio": 0.15
+                                }
+                            ]
+                        },
+                        {
+                            "stat": "speed",
+                            "value": 1
+                        },
+                        {
+                            "stat": "def_mag",
+                            "value": 2,
+                            "scaling": [
+                                {
+                                    "source": "sagesse",
+                                    "ratio": 0.2
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "customization": {
+                    "params": [
+                        { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                        { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                        { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 4.0, "anchor": "tier3" } },
+                        { "id": "atkPhyValue", "kind": "effect", "label": "Attaque physique", "path": "effects.0.value", "min": 0, "cap": { "value": 3.0, "anchor": "treeMax" } },
+                        { "id": "forceAtkphyRatio", "kind": "ratio", "label": "Ratio Force → Attaque physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.25, "anchor": "tier3" } },
+                        { "id": "defPhyValue", "kind": "effect", "label": "Défense physique", "path": "effects.1.value", "min": 0, "cap": { "value": 3.0, "anchor": "treeMax" } },
+                        { "id": "constitutionDefphyRatio", "kind": "ratio", "label": "Ratio Constitution → Défense physique", "path": "effects.1.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.25, "anchor": "tier3" } },
+                        { "id": "speedValue", "kind": "effect", "label": "Vitesse", "path": "effects.2.value", "min": 0, "cap": { "value": 3.0, "anchor": "treeMax" } },
+                        { "id": "defMagValue", "kind": "effect", "label": "Défense magique", "path": "effects.3.value", "min": 0, "cap": { "value": 4.0, "anchor": "treeMax" } },
+                        { "id": "sagesseDefmagRatio", "kind": "ratio", "label": "Ratio Sagesse → Défense magique", "path": "effects.3.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.4, "anchor": "tier3" } }
+                    ],
+                    "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                    "scalingSwap": [
+                        { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] },
+                        { "path": "effects.1.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] },
+                        { "path": "effects.3.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                    ]
+                },
+                "domainGoverned": [],
+                "lockedFields": [
+                    { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+                ]
+            }
+        ]
+    }
+]

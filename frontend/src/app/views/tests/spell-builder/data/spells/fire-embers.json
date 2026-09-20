@@ -1,0 +1,46 @@
+{
+    "_test": "COPIE DE TEST — jamais lue par l'application. Socle = nœud racine réel, plafonds ancrés sur la fiche d'origine (vérifiés par test/data.test.mjs).",
+    "_notes": [
+        "Brûlure est DÉJÀ infligée par le vrai Braises I (10 %) : sa chance relève donc de la Famille 1, pas d'un déblocage.",
+        "Hypothèse de test : Aveuglement comme statut débloquable (des braises dans les yeux).",
+        "Intelligence éligible au scaling : ancré sur Braises Incandescente II (b5), qui scale déjà sur l'intelligence."
+    ],
+    "source": { "file": "domains/fire.json", "key": "fire-embers", "rootNode": "e1", "capNode": "e3" },
+    "key": "fire-embers",
+    "name": "Braises",
+    "description": "Emet de multiple braises qui brule ce qu'elles touchent",
+    "domain": "fire",
+    "subdomains": ["Combustion"],
+    "level": 1,
+    "power": "standard",
+    "requires": [],
+    "baseStats": {
+        "damageMin": 1,
+        "damageMax": 2,
+        "mana": 3,
+        "range": "8 m",
+        "area": "Cible unique",
+        "targets": ["enemy"],
+        "inflicts": [{ "status": "brulure", "chance": 10 }],
+        "scaling": [{ "source": "atk_mag", "ratio": 0.09 }]
+    },
+    "customization": {
+        "params": [
+            { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+            { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 1, "anchor": "treeMin" } },
+            { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 10, "anchor": "tier3" } },
+            { "id": "burnChance", "kind": "chance", "label": "Chance de Brûlure", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 20, "anchor": "tier3" } },
+            { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "min": 0, "cap": { "value": 0.07, "anchor": "tier3" } }
+        ],
+        "statusUnlock": { "eligible": ["aveuglement"], "chanceCap": { "value": 30, "anchor": "assumption" } },
+        "scalingUnlock": { "eligible": ["intelligence"], "field": "scaling", "affects": "damage", "ratioCap": { "value": 0.5, "anchor": "assumption" } },
+        "extraTargets": { "base": 1, "label": "cible(s) simultanée(s)" },
+        "scalingSwap": { "eligible": ["intelligence"] }
+    },
+    "swapOptions": null,
+    "crossDomain": { "eligible": ["electricity", "death", "darkness"] },
+    "domainGoverned": [],
+    "lockedFields": [
+        { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+    ]
+}

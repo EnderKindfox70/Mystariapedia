@@ -10,6 +10,7 @@ import { Navbar } from '../../components/navbar/navbar';
 import { PotionUsageService } from '../../services/potion-usage-service';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
 import { compositionLabel } from '../../combat/materials';
+import { EQUIPMENT_SLOTS, statEffectsLabel } from '../../character/universe-data';
 
 /** Libellés d'affichage par catégorie de ressource. */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -46,18 +47,23 @@ export class ResourceEntryComponent {
   entry = computed(() => this.routeData()['entry'] as ResourceEntry);
 
   /**
-   * La bande de caractéristiques, composition comprise.
+   * La bande de caractéristiques, emplacement, effet et composition compris.
    *
-   * Elle est AJOUTÉE au rendu plutôt que recopiée dans le JSON de chaque fiche :
-   * la matière est déjà déclarée une fois, sur `material`, et la dupliquer dans
-   * `info` aurait créé deux vérités qui finiraient par diverger.
+   * Ces trois lignes sont AJOUTÉES au rendu plutôt que recopiées dans le JSON de
+   * chaque fiche : l'emplacement, les bonus et la matière sont déjà déclarés une
+   * fois, sur `slot`, `statEffects` et `material`, et les dupliquer dans `info`
+   * aurait créé deux vérités qui finiraient par diverger — celle que la fiche
+   * affiche et celle que la fiche de personnage applique.
    */
   infoFields = computed<ResourceInfoField[]>(() => {
-    const base = this.entry().info;
+    const fields = [...this.entry().info];
+    const slot = EQUIPMENT_SLOTS.find((s) => s.key === this.entry().slot);
+    if (slot) fields.push({ key: 'slot', label: 'Emplacement', value: slot.label });
+    const effects = statEffectsLabel(this.entry().statEffects);
+    if (effects) fields.push({ key: 'effect', label: 'Effet', value: effects });
     const composition = compositionLabel(this.entry().material);
-    return composition
-      ? [...base, { key: 'material', label: 'Composition', value: composition }]
-      : [...base];
+    if (composition) fields.push({ key: 'material', label: 'Composition', value: composition });
+    return fields;
   });
 
 

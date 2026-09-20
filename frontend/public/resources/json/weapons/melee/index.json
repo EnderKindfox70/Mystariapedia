@@ -4,6 +4,7 @@
     "name": "Bâton",
     "subtitle": "Hampe de bois ferré",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/weapons/bâton.png",
     "material": "bois",
     "weight": 1.5
   },
@@ -105,6 +106,7 @@
     "name": "Rapière",
     "subtitle": "Lame fine pour l'estoc",
     "rarity": "Peu commune",
+    "image": "/resources/media/pictures/weapons/rapier.png",
     "material": "acier",
     "weight": 1
   },
@@ -113,6 +115,7 @@
     "name": "Sabre",
     "subtitle": "Lame courbe de cavalerie",
     "rarity": "Commune",
+    "image": "/resources/media/pictures/weapons/sabre.png",
     "material": "acier",
     "weight": 1.1
   }

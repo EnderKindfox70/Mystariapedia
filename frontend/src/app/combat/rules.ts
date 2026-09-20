@@ -3404,6 +3404,18 @@ function resolveAgainst(
   percent(ability.percentMaxHp, target.base.hp, 'max');
   percent(ability.percentCurrentHp, target.hp, 'actuels');
 
+  // 3 bis) Drain : le miroir du contre-coup. Ce qui a VRAIMENT été arraché —
+  //        pas le brut, ce qui est passé — nourrit le lanceur. Un siphon qui
+  //        n'entame rien ne rend rien, et on ne se draine pas soi-même.
+  if (ability.drain && totalDamage > 0 && target.id !== actor.id) {
+    const done = heal(enc, actor, Math.round(totalDamage * ability.drain));
+    details.push(`drain : ${done.detail}`);
+    push(enc, 'heal', `${actor.name} draine ${done.applied} PV à ${target.name}.`, {
+      actorId: actor.id,
+      targetId: target.id,
+    });
+  }
+
   // 4) Mana rendu (potions de mana, méditation), plafonné à la réserve.
   if (ability.restoreMana || ability.restoreManaPercent) {
     const amount = abilityManaAmount(actor, ability, target);

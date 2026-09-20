@@ -621,6 +621,7 @@ export function spellAbility(
           note: recoilSource.note,
         }
       : undefined,
+    drain: stats.drain,
     weather: stats.weather ?? page.spell.weather,
     clearsWeather: stats.clearsWeather ?? page.spell.clearsWeather,
     // Les domaines du sort : c'est par eux que la météo et l'heure du jour
@@ -814,6 +815,7 @@ export function classSkillAbility(
           note: combat.recoil.note,
         }
       : undefined,
+    drain: combat.drain,
     // Une compétence chiffrée n'a plus besoin que le MJ improvise : le moteur
     // la résout. La description reste visible sur le bouton.
     autoHit: damages.length === 0,

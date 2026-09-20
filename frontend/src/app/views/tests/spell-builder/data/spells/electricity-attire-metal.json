@@ -1,0 +1,38 @@
+{
+    "_test": "COPIE DE TEST — jamais lue par l'application. Socle = nœud racine réel, plafonds ancrés sur la fiche d'origine (vérifiés par test/data.test.mjs).",
+    "_notes": [
+        "Test de référence du document : le DC de résistance (pullDc) est un paramètre à part, plafond ancré sur le tier 3 réel.",
+        "pullsMetal est l'identité du sort : verrouillé (Famille 5)."
+    ],
+    "source": { "file": "domains/electricity.json", "key": "electricity-attire-metal", "rootNode": "am1", "capNode": "am3" },
+    "key": "electricity-attire-metal",
+    "name": "Attire-métal",
+    "description": "Tend la main et rappelle à soi un objet métallique — posé au sol, glissé dans un fourreau ou serré dans un poing.",
+    "domain": "electricity",
+    "subdomains": ["Électromagnétisme"],
+    "level": 2,
+    "power": "standard",
+    "requires": ["electricity-etincelle"],
+    "baseStats": {
+        "mana": 3,
+        "range": "10 m",
+        "area": "Cible unique",
+        "targets": ["enemy", "ally", "self"],
+        "pullsMetal": true,
+        "pullDc": 12
+    },
+    "customization": {
+        "params": [
+            { "id": "dc", "kind": "dc", "label": "DC (jet de Force)", "path": "pullDc", "min": 1, "cap": { "value": 18, "anchor": "tier3" } },
+            { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 18, "anchor": "tier3" } },
+            { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1, "cap": { "value": 3, "anchor": "treeMin" } }
+        ]
+    },
+    "swapOptions": null,
+    "crossDomain": null,
+    "domainGoverned": [],
+    "lockedFields": [
+        { "field": "pullsMetal", "reason": "Saisir le métal EST le sort : le transformer changerait le sort lui-même." },
+        { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+    ]
+}

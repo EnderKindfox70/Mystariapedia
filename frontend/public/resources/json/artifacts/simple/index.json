@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "slug": "pendentif-de-crocs-de-loup",
+    "name": "Pendentif de crocs de loup",
+    "subtitle": "Objet magique simple",
+    "rarity": "Peu commun",
+    "image": "/resources/media/pictures/natural-resources/remains/croc_de_loup.png",
+    "slot": "amulet",
+    "statEffects": [
+      {
+        "key": "atk_phy",
+        "value": 3
+      }
+    ],
+    "weight": 0.2
+  }
+]

@@ -1,0 +1,610 @@
+<ng-template #paramRow let-row>
+  <div class="prow" [class.off]="row.off">
+    <div class="pname">
+      <b>{{ row.label }}</b>
+      @if (row.assumption) { <span class="pill assume">coût hypothèse</span> }
+      <small>{{ row.costText }} · {{ row.capText }}</small>
+      @if (row.note) { <small>{{ row.note }}</small> }
+    </div>
+    <div class="pval">
+      {{ row.baseText }} → <b>{{ row.valueText }}</b>
+      @if (row.zone) { <span class="pill" [class]="'pill ' + row.zone.cls">{{ row.zone.text }}</span> }
+    </div>
+    <div class="pctl">
+      <button type="button" [disabled]="row.down.disabled" [title]="row.down.title" (click)="step(row.action, -1)">
+        ▼ {{ row.down.value }}<small>{{ row.down.hint }}</small>
+      </button>
+      <button type="button" [disabled]="row.up.disabled" [title]="row.up.title" (click)="step(row.action, 1)">
+        ▲ {{ row.up.value }}<small>{{ row.up.hint }}</small>
+      </button>
+      <span class="pcost">{{ row.cost }}</span>
+    </div>
+  </div>
+</ng-template>
+
+<header class="sb-head">
+  <div>
+    <h1>Spell Builder <span class="badge">banc d'essai · WIP</span></h1>
+    <p class="muted">
+      Personnalisation de sorts par budget — copies de test de sorts réels, joueur type modifiable.
+      Rien ici n'est lu par le wiki.
+    </p>
+  </div>
+  @if (flash(); as f) { <div class="flash" [class]="'flash ' + f.kind" role="status">{{ f.msg }}</div> }
+</header>
+
+<div class="sb-grid">
+  <!-- ═════════════ Joueur type ═════════════ -->
+  <aside class="panel">
+    <h2>Joueur type</h2>
+    <div class="row">
+      <select aria-label="Joueur type prédéfini" (change)="loadPreset(valueOf($event))">
+        @for (p of presets; track p.id) {
+          <option [value]="p.id" [selected]="p.id === player().id">{{ p.name }} — {{ p.class }} niv. {{ p.level }}</option>
+        }
+      </select>
+      <button type="button" (click)="resetPlayer()" title="Recharger le joueur type depuis data/players/">Recharger</button>
+    </div>
+    @if (presetModified()) { <p class="muted small">Modifié localement (gardé dans ce navigateur).</p> }
+    @if (preset()?._test; as note) { <p class="muted small">{{ note }}</p> }
+
+    <fieldset>
+      <legend>Identité</legend>
+      <label>Nom <input type="text" [value]="player().name" (change)="setName(valueOf($event))" /></label>
+      <div class="grid2">
+        <label>Classe
+          <select (change)="setClass(valueOf($event))">
+            @for (c of classes; track c.key) {
+              <option [value]="c.key" [selected]="c.key === player().class">{{ c.name }} ({{ c.inspirationPerLevel ?? 2 }}/niv.)</option>
+            }
+          </select>
+        </label>
+        <label>Niveau <input type="number" min="1" max="20" [value]="player().level" (change)="setLevel(valueOf($event))" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Domaines ({{ player().domains.length }}/{{ maxDomains }})</legend>
+      <div class="chips">
+        @for (d of domains; track d.key) {
+          <label class="chip" [class.on]="player().domains.includes(d.key)">
+            <input type="checkbox" [checked]="player().domains.includes(d.key)"
+              [disabled]="!player().domains.includes(d.key) && player().domains.length >= maxDomains"
+              (change)="toggleDomain(d.key, checkedOf($event))" />
+            {{ d.sigil }} {{ d.name }}
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Inspiration</legend>
+      <div class="meter"><span [style.width.%]="insp().total ? (insp().spent / insp().total) * 100 : 0"></span></div>
+      <small>
+        {{ insp().spent }} dépensée(s) sur {{ insp().total }} ({{ classInspiration() }} × niv. {{ player().level }}) ·
+        <b [class.ko-text]="insp().remaining < 0">{{ insp().remaining }} restante(s)</b>
+      </small>
+      <div class="sub-block">
+        <small>Domaines investis (4ter) :</small>
+        <div class="chips">
+          @for (d of invested(); track d) { <span class="chip on">{{ domainLabel(d) }}</span> } @empty { <small>aucun</small> }
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Sorts connus ({{ player().knownSpells.length }}) — {{ rules().learnCost }} inspiration chacun</legend>
+      <ul class="known-list">
+        @for (k of knownList(); track k.key) {
+          <li>
+            <span>{{ k.name }} <small>{{ k.meta }}</small></span>
+            <button type="button" class="small ghost" (click)="forget(k.key)" title="Oublier (rend l'inspiration)">×</button>
+          </li>
+        }
+      </ul>
+      <div class="row">
+        <input type="text" list="sb-catalog" placeholder="clé (ex. fire-fireball)" aria-label="Ajouter un sort connu"
+          [value]="knownInput()" (input)="knownInput.set(valueOf($event))" (keydown.enter)="addKnown()" />
+        <button type="button" (click)="addKnown()">Ajouter</button>
+      </div>
+      <datalist id="sb-catalog">
+        @for (c of catalogList; track c.key) { <option [value]="c.key">{{ c.name }}</option> }
+      </datalist>
+    </fieldset>
+
+    <fieldset>
+      <legend>Attributs</legend>
+      <div class="grid3">
+        @for (a of attributes; track a.key) {
+          <label>{{ a.label }}
+            <input type="number" [value]="player().attributes[a.key]" (change)="setAttribute(a.key, valueOf($event))" />
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Stats de combat (sources de scaling)</legend>
+      <div class="grid2">
+        @for (s of combatStats; track s.key) {
+          <label>{{ s.label }}
+            <input type="number" [value]="player().stats[s.key]" (change)="setStat(s.key, valueOf($event))" />
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <div class="row spaced">
+      <button type="button" (click)="copyPlayer()">Copier le JSON</button>
+      <label class="chip file">Importer…<input type="file" accept=".json,application/json" hidden (change)="importPlayer($event)" /></label>
+    </div>
+
+    <details>
+      <summary>Règles du banc (réglables, gardées localement)</summary>
+      <div class="stack">
+        <div class="grid2">
+          <label>Points / niveau de sort
+            <input type="number" [value]="rules().pointsPerSpellLevel" (change)="setRule('pointsPerSpellLevel', valueOf($event), true)" /></label>
+          <label>Inspiration pour apprendre
+            <input type="number" [value]="rules().learnCost" (change)="setRule('learnCost', valueOf($event), true)" /></label>
+          <label>XP de base
+            <input type="number" [value]="rules().xpBase" (change)="setRule('xpBase', valueOf($event), true)" /></label>
+          <label>Courbe d'XP
+            <select (change)="setRule('xpCurve', valueOf($event), false)">
+              <option value="linear" [selected]="rules().xpCurve === 'linear'">Linéaire (doc)</option>
+              <option value="triangular" [selected]="rules().xpCurve === 'triangular'">Croissante</option>
+            </select>
+          </label>
+          <label>Ratio combat
+            <input type="number" step="0.1" [value]="rules().xpRatios.combat" (change)="setRule('xpRatios.combat', valueOf($event), true)" /></label>
+          <label>Ratio entraînement
+            <input type="number" step="0.1" [value]="rules().xpRatios.training" (change)="setRule('xpRatios.training', valueOf($event), true)" /></label>
+          <label>Niveau de sort max
+            <input type="number" min="1" [value]="rules().maxSpellLevel" (change)="setRule('maxSpellLevel', valueOf($event), true)" /></label>
+          <label>Plafond Famille 3
+            <input type="number" [value]="rules().family3Cap" (change)="setRule('family3Cap', valueOf($event), true)" /></label>
+        </div>
+        <div class="table-wrap">
+          <table class="rules-table">
+            <thead><tr><th>Famille 1</th><th>Coût</th><th>Pas</th><th>Plafond</th></tr></thead>
+            <tbody>
+              @for (e of paramKindEntries(); track e[0]) {
+                <tr>
+                  <td>{{ e[1].label }} @if (e[1].assumption) { <span class="pill assume">hyp.</span> }</td>
+                  <td><input type="number" [value]="e[1].cost" (change)="setRule('paramKinds.' + e[0] + '.cost', valueOf($event), true)" /></td>
+                  <td><input type="number" step="0.01" [value]="e[1].step" (change)="setRule('paramKinds.' + e[0] + '.step', valueOf($event), true)" /></td>
+                  <td>
+                    <select (change)="setRule('paramKinds.' + e[0] + '.capKind', valueOf($event), false)">
+                      <option value="hard" [selected]="e[1].capKind === 'hard'">dur</option>
+                      <option value="soft" [selected]="e[1].capKind === 'soft'">dégradé</option>
+                    </select>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="table-wrap">
+          <table class="rules-table">
+            <thead><tr><th>Forfaits (F2 à F4)</th><th>Coût</th></tr></thead>
+            <tbody>
+              @for (e of costEntries(); track e[0]) {
+                <tr><td><code>{{ e[0] }}</code></td>
+                  <td><input type="number" [value]="e[1]" (change)="setRule('costs.' + e[0], valueOf($event), true)" /></td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <button type="button" (click)="resetRules()">Rétablir les règles du document</button>
+      </div>
+    </details>
+  </aside>
+
+  <!-- ═════════════ Constructeur ═════════════ -->
+  <section class="panel">
+    <h2>Sorts de test <small>— copies dans views/tests/spell-builder/data/</small></h2>
+    <div class="spell-list">
+      @for (c of cards(); track c.key) {
+        <button type="button" class="spell-card" [class.active]="c.key === spell().key" (click)="selectSpell(c.key)">
+          <b>{{ c.name }}</b>
+          <small>{{ c.meta }}</small>
+          <span><span class="pill" [class]="'pill ' + c.cls">{{ c.label }}</span>
+            @if (c.level !== null) { <small> sort niv. {{ c.level }}/{{ rules().maxSpellLevel }}</small> }</span>
+        </button>
+      }
+    </div>
+
+    <article class="builder">
+      <header>
+        <h3>{{ spell().name }}</h3>
+        <small class="muted">
+          {{ spell().components ? 'Combinaison ' : '' }}{{ spell().subdomains.join(', ') }} · niveau {{ spell().level }} · {{ spell().power ?? 'standard' }}
+        </small>
+        <p>{{ spell().description }}</p>
+        <details>
+          <summary>Notes de la copie de test</summary>
+          <ul class="notes">
+            <li>Source : <code>{{ spell().source.file }}</code> › <code>{{ spell().source.key }}</code> — socle = nœud
+              <code>{{ spell().source.rootNode }}</code>, plafonds tier 3 = <code>{{ spell().source.capNode }}</code>.</li>
+            @for (n of spell()._notes ?? []; track $index) { <li>{{ n }}</li> }
+          </ul>
+        </details>
+      </header>
+
+      <section>
+        <h3>Conditions du joueur type</h3>
+        <ul class="conds">
+          @for (c of access().conds; track c.id) {
+            <li [class]="c.ok ? 'ok' : 'ko'">
+              <span class="mark">{{ c.ok ? '✓' : '✗' }}</span><span>{{ c.label }}</span><small>{{ c.detail }}</small>
+              @if (!c.ok && c.requires) {
+                <button type="button" class="small" (click)="learnKey(c.requires)">Marquer comme connu</button>
+              }
+            </li>
+          }
+          @if (access().known) { <li class="ok"><span class="mark">✓</span><span>Sort connu</span></li> }
+        </ul>
+        @if (access().learnable) {
+          <button type="button" class="primary spaced" (click)="learn()">Apprendre ce sort (−{{ rules().learnCost }} inspiration)</button>
+        }
+      </section>
+
+      @if (!access().usable) {
+        <section>
+          <p class="muted">
+            {{ access().known
+              ? 'Le sort est connu mais ses conditions ne sont plus remplies : sa personnalisation est gelée.'
+              : "Personnalisation indisponible tant que le sort n'est pas appris." }}
+          </p>
+        </section>
+      } @else {
+        <section>
+          <h3>Progression propre au sort</h3>
+          <div class="meter"><span [style.width.%]="progressPct()"></span></div>
+          <small>
+            XP <b>{{ fmt(progress().xp) }}</b> · niveau de sort <b>{{ progress().level }}</b> / {{ progress().maxLevel }}
+            @if (progress().nextThreshold; as next) {
+              · prochain seuil {{ fmt(next) }} XP
+            } @else {
+              · <b>niveau maximum atteint</b> (l'XP supplémentaire est gardée, sans effet)
+            }
+            · <b>{{ progress().pointsEarned }}</b> point(s) gagné(s) ({{ progress().level }} × {{ rules().pointsPerSpellLevel }})
+          </small>
+          <div class="row spaced">
+            <button type="button" (click)="addXp('combat', 1)">⚔ Lancer en combat (+{{ fmt(rules().xpRatios.combat) }})</button>
+            <button type="button" (click)="addXp('combat', 10)">×10</button>
+            <button type="button" [disabled]="!resting()" title="Entraînement dédié : pendant un repos long" (click)="addXp('training', 1)">
+              🏕 Entraînement (+{{ fmt(rules().xpRatios.training) }})</button>
+            <button type="button" [disabled]="!resting()" (click)="addXp('training', 10)">×10</button>
+            <label class="xp-input">XP <input type="number" min="0" step="0.5" [value]="progress().xp" (change)="setXp(valueOf($event))" /></label>
+          </div>
+        </section>
+
+        <section class="rest" [class.on]="resting()">
+          @if (resting()) {
+            <span><b>🏕 Repos long en cours</b> — les builds de tous les sorts sont réassignables.</span>
+            <span class="row">
+              <button type="button" (click)="buildReset()">Réinitialiser ce build</button>
+              <button type="button" (click)="restCancel()">Annuler</button>
+              <button type="button" class="primary" (click)="restEnd()">Valider le repos</button>
+            </span>
+          } @else {
+            <span><b>Hors repos long</b> — build figé (réassignable uniquement à un repos long, jamais en combat).</span>
+            <button type="button" class="primary" (click)="restStart()">Commencer un repos long</button>
+          }
+        </section>
+
+        <!-- Famille 1 -->
+        <section class="family f1">
+          <h3>Famille 1 — Magnitude continue <small>linéaire, symétrique — ▼ mord et rend des points au même taux</small></h3>
+          @for (row of f1(); track row.key) {
+            <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" />
+          } @empty { <p class="muted">Aucun paramètre continu.</p> }
+        </section>
+
+        <!-- Famille 2 -->
+        <section class="family f2">
+          <h3>Famille 2 — Déblocage discret <small>forfait d'entrée, puis magnitude en Famille 1</small></h3>
+          @if (opts().statusUnlock; as su) {
+            <div class="opt">
+              <span class="grow"><b>Débloquer un statut absent</b>
+                <small>{{ rules().costs.statusUnlock }} pts, à {{ rules().unlockedStatusBaseChance }} % de base</small></span>
+              <select aria-label="Statut débloqué" [disabled]="!resting()" (change)="setStatusUnlock(valueOf($event))">
+                <option value="" [selected]="!build().statusUnlock">— aucun —</option>
+                @for (s of su.eligible; track s) {
+                  <option [value]="s" [selected]="build().statusUnlock?.status === s" [disabled]="baseStatuses().has(s)">{{ statusName(s) }}</option>
+                }
+              </select>
+            </div>
+            @if (statusChanceRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+          }
+          @if (opts().knockbackUnlock) {
+            <div class="opt">
+              <span class="grow"><b>Débloquer le repoussement</b>
+                <small>{{ rules().costs.knockbackUnlock }} pts pour {{ rules().unlockedKnockbackCells }} case, puis {{ rules().paramKinds.knockback.cost }} pts la case</small></span>
+              <label class="chip" [class.on]="!!build().knockback">
+                <input type="checkbox" [checked]="!!build().knockback" [disabled]="!resting()"
+                  (change)="toggleKnockback(checkedOf($event))" /> repousse
+              </label>
+            </div>
+            @if (knockbackRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+          }
+          @if (opts().targetUnlock; as tu) {
+            <div class="opt">
+              <span class="grow"><b>Débloquer une cible</b> <small>{{ rules().costs.targetUnlock }} pts chacune</small></span>
+              @for (t of tu.eligible; track t) {
+                <label class="chip" [class.on]="build().targetUnlocks.includes(t)">
+                  <input type="checkbox" [checked]="build().targetUnlocks.includes(t)"
+                    [disabled]="!resting() || (base().targets ?? []).includes(t)" (change)="toggleTarget(t, checkedOf($event))" />
+                  {{ targetLabel(t) }}
+                </label>
+              }
+            </div>
+          }
+          @if (opts().scalingUnlock) {
+            <div class="opt">
+              <span class="grow"><b>Débloquer un scaling</b>
+                <small>{{ rules().costs.scalingUnlock }} pts, ratio {{ fmt(rules().unlockedScalingRatio) }} → <code>{{ scalingField() }}</code></small></span>
+              @for (c of scalingChoices(); track c.src) {
+                <label class="chip" [class.on]="c.on">
+                  <input type="checkbox" [checked]="c.on" [disabled]="!resting() || c.already" (change)="toggleScaling(c.src, checkedOf($event))" />
+                  {{ sourceLabel(c.src) }}
+                </label>
+              }
+            </div>
+            @for (row of scalingRows(); track row.key) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+          }
+          @if (opts().continuousMode) {
+            <div class="opt">
+              <span class="grow"><b>Mode de consommation continu</b>
+                <small>{{ rules().costs.continuousMode }} pts — actif tant que le mana paie, entretien de base = {{ spell().baseStats.mana }} (coût de lancement)</small></span>
+              <label class="chip" [class.on]="build().continuous">
+                <input type="checkbox" [checked]="build().continuous" [disabled]="!resting()" (change)="setContinuous(checkedOf($event))" />
+                Entretien continu
+              </label>
+            </div>
+            @if (upkeepRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
+          }
+          @if (!opts().statusUnlock && !opts().knockbackUnlock && !opts().targetUnlock && !opts().scalingUnlock && !opts().continuousMode) {
+            <p class="muted">
+              {{ governedStatus()
+                ? "Statuts gouvernés par une mécanique de domaine : aucun déblocage de statut ne s'achète."
+                : 'Aucun déblocage déclaré pour ce sort.' }}
+            </p>
+          }
+        </section>
+
+        <!-- Famille 3 -->
+        <section class="family f3">
+          <h3>Famille 3 — Palier à saut structurel <small>plafond absolu {{ rules().family3Cap }}, tout sort confondu</small></h3>
+          @if (opts().extraTargets; as et) {
+            <div class="opt">
+              <span class="grow"><b>+1 {{ et.label ?? 'cible simultanée' }}</b>
+                <small>{{ rules().costs.extraTarget }} pts par cran · base {{ et.base }} · plafond absolu {{ rules().family3Cap }}</small></span>
+              <span class="pctl">
+                <button type="button" [disabled]="!resting() || build().extraTargets <= 0" (click)="extraTargets(-1)">▼</button>
+                <b>{{ extraTargetsTotal() }}</b>
+                <button type="button" [disabled]="!resting() || extraTargetsTotal() >= targetsCeiling()" (click)="extraTargets(1)">▲</button>
+                <span class="pcost">{{ signedPts(build().extraTargets * rules().costs.extraTarget) }}</span>
+              </span>
+            </div>
+          }
+          @if (opts().extraEffects; as ee) {
+            <div class="opt">
+              <span class="grow"><b>+1 effet secondaire simultané</b>
+                <small>{{ rules().costs.extraEffect }} pts chacun · {{ effectsCount() }}/{{ rules().family3Cap }} actifs</small></span>
+              @for (e of ee.eligible; track e.stat) {
+                <label class="chip" [class.on]="build().extraEffects.includes(e.stat)">
+                  <input type="checkbox" [checked]="build().extraEffects.includes(e.stat)"
+                    [disabled]="!resting() || (!build().extraEffects.includes(e.stat) && effectsCount() >= rules().family3Cap)"
+                    (change)="toggleEffect(e.stat, checkedOf($event))" />
+                  {{ sourceLabel(e.stat) }} +{{ fmt(e.value) }}
+                </label>
+              }
+            </div>
+          }
+          @if (opts().ownEffects; as own) {
+            <div class="opt">
+              <span class="grow"><b>+1 effet propre au sort</b>
+                <small>ce que ce sort sait faire et lui seul</small></span>
+              @for (e of own; track e.id) {
+                <label class="chip" [class.on]="build().ownEffects.includes(e.id)" [title]="e.description ?? ''">
+                  <input type="checkbox" [checked]="build().ownEffects.includes(e.id)"
+                    [disabled]="!resting()"
+                    (change)="toggleOwnEffect(e.id, checkedOf($event))" />
+                  {{ e.label }} <small>{{ e.cost ?? rules().costs.extraEffect }} pts</small>
+                </label>
+              }
+            </div>
+          }
+          @if (!opts().extraTargets && !opts().extraEffects && !opts().ownEffects) { <p class="muted">Aucun palier structurel déclaré pour ce sort.</p> }
+        </section>
+
+        <!-- Famille 4 -->
+        <section class="family f4">
+          <h3>Famille 4 — Substitution de nature <small>coût plat, jamais proportionnel</small></h3>
+          @if (opts().scalingSwap) {
+            <div class="opt">
+              <span class="grow"><b>Swap d'attribut de scaling</b> <small>{{ rules().costs.scalingSwap }} pts — remplacé, pas additionné</small></span>
+              <select [disabled]="!resting()" (change)="swapScaling(valueOf($event))">
+                <option value="" [selected]="!scalingSwapValue()">— garder —</option>
+                @for (c of scalingSwapChoices(); track c.value) {
+                  <option [value]="c.value" [selected]="c.value === scalingSwapValue()">{{ c.label }}</option>
+                }
+              </select>
+            </div>
+          }
+          @if (opts().areaShapeSwap) {
+            <div class="opt">
+              <span class="grow"><b>Swap de forme de zone</b> <small>{{ rules().costs.areaShapeSwap }} pts · actuellement {{ base().area }}</small></span>
+              <select [disabled]="!resting()" (change)="swapArea(valueOf($event))">
+                <option value="" [selected]="!build().swaps.areaShape">— garder ({{ currentShape() }}) —</option>
+                @for (s of shapeChoices(); track s) { <option [value]="s" [selected]="build().swaps.areaShape === s">{{ s }}</option> }
+              </select>
+            </div>
+          }
+          @if (opts().defaultTargetSwap; as dt) {
+            <div class="opt">
+              <span class="grow"><b>Swap de cible par défaut</b> <small>{{ rules().costs.defaultTargetSwap }} pts</small></span>
+              <label class="chip" [class.on]="build().swaps.defaultTarget">
+                <input type="checkbox" [checked]="build().swaps.defaultTarget" [disabled]="!resting()" (change)="swapTarget(checkedOf($event))" />
+                {{ targetLabel(dt.pair[0]) }} ↔ {{ targetLabel(dt.pair[1]) }}
+              </label>
+            </div>
+          }
+          @if (opts().statusTypeSwap) {
+            <div class="opt">
+              <span class="grow"><b>Swap de type de statut</b> <small>{{ rules().costs.statusTypeSwap }} pts</small></span>
+              <select [disabled]="!resting()" (change)="swapStatus(valueOf($event))">
+                <option value="" [selected]="!statusSwapValue()">— garder —</option>
+                @for (c of statusSwapChoices(); track c.value) {
+                  <option [value]="c.value" [selected]="c.value === statusSwapValue()">{{ c.label }}</option>
+                }
+              </select>
+            </div>
+          }
+          @if (damageTypeSwapChoices().length) {
+            <div class="opt">
+              <span class="grow"><b>Swap de type de dégâts</b>
+                <small>{{ rules().costs.damageTypeSwap }} pts · substitution entière, les dégâts ne bougent pas</small></span>
+              <select [disabled]="!resting()" (change)="swapDamageType(valueOf($event))">
+                <option value="" [selected]="!build().swaps.damageType">— {{ damageTypeLabel(baseDamageType()) }} —</option>
+                @for (t of damageTypeSwapChoices(); track t) {
+                  <option [value]="t" [selected]="t === build().swaps.damageType">→ {{ damageTypeLabel(t) }}</option>
+                }
+              </select>
+            </div>
+          }
+          @if (opts().crossDomain) {
+            <div class="opt">
+              <span class="grow"><b>4ter — débloquer un domaine non natif</b>
+                <small>{{ rules().costs.crossDomainUnlock }} pts, n'ajoute aucun dégât · exige d'avoir investi dans
+                  {{ domainLabel(spell().domain) }} {{ ownInvested() ? '✓' : '✗' }} ET dans le domaine ajouté</small></span>
+              <select [disabled]="!resting()" (change)="setCrossDomain(valueOf($event))">
+                <option value="" [selected]="!build().crossDomain">— aucun —</option>
+                @for (c of crossChoices(); track c.key) {
+                  <option [value]="c.key" [selected]="build().crossDomain === c.key">{{ c.name }} {{ c.invested ? '(investi)' : '(non investi)' }}</option>
+                }
+              </select>
+            </div>
+          }
+          @if ((opts().mix || opts().crossDomain) && hasDamage()) {
+            <div class="opt">
+              <span class="grow"><b>{{ opts().mix ? '4bis — mixage partiel de type' : 'Curseur de mixage (4ter)' }}</b>
+                <small>{{ rules().costs.mixPerTenth }} pt par tranche de 10 % · somme constante
+                  @if (opts().mix; as m) { · table du sort :
+                    @for (t of m.damageTypes; track t; let last = $last) { {{ damageTypeLabel(t) }}{{ last ? '' : ', ' }} } }</small></span>
+              @if (mix().type; as type) {
+                <select [disabled]="!resting()" (change)="setMixType(valueOf($event))">
+                  @for (t of mixTargets(); track t) { <option [value]="t" [selected]="t === type">→ {{ damageTypeLabel(t) }}</option> }
+                </select>
+                <span class="mixbar" [title]="(100 - mix().tenths * 10) + ' % ' + damageTypeLabel(mix().baseType) + ' / ' + mix().tenths * 10 + ' % ' + damageTypeLabel(type)">
+                  <span [style.width.%]="100 - mix().tenths * 10"></span><span [style.width.%]="mix().tenths * 10"></span>
+                </span>
+                <span class="pctl">
+                  <button type="button" [disabled]="!resting() || mix().tenths <= 0" (click)="mixStep(-1)">−10 %</button>
+                  <b>{{ mix().tenths * 10 }} %</b>
+                  <button type="button" [disabled]="!resting() || mix().tenths >= 10" (click)="mixStep(1)">+10 %</button>
+                  <span class="pcost">{{ signedPts(mix().steps * rules().costs.mixPerTenth) }}</span>
+                  @if (mix().start) { <small class="muted">départ {{ mix().start * 10 }} %</small> }
+                </span>
+              } @else {
+                <small class="muted">Aucun type secondaire ouvert — débloquez un domaine (4ter) d'abord.</small>
+              }
+            </div>
+          }
+          @if (!opts().scalingSwap && !opts().areaShapeSwap && !opts().defaultTargetSwap && !opts().statusTypeSwap && !opts().damageTypeSwap && !opts().crossDomain && !opts().mix) {
+            <p class="muted">Aucune substitution déclarée pour ce sort.</p>
+          }
+        </section>
+
+        <!-- Famille 5 -->
+        <section class="family f5">
+          <h3>Famille 5 — Verrouillé <small>jamais négociable, à aucun prix</small></h3>
+          <div class="chips">
+            @for (l of spell().lockedFields ?? []; track l.field) { <span class="chip lock" [title]="l.reason">🔒 {{ l.field }}</span> }
+            @for (g of spell().domainGoverned ?? []; track g.field) { <span class="chip gov" [title]="g.reason">⚙ {{ g.field }} — {{ g.mechanic }}</span> }
+          </div>
+          <ul class="notes">
+            @for (l of spell().lockedFields ?? []; track l.field) { <li><b>{{ l.field }}</b> : {{ l.reason }}</li> }
+            @for (g of spell().domainGoverned ?? []; track g.field) { <li><b>{{ g.field }}</b> (priorité domaine) : {{ g.reason }}</li> }
+          </ul>
+        </section>
+      }
+    </article>
+  </section>
+
+  <!-- ═════════════ Résultat ═════════════ -->
+  <aside class="panel">
+    @if (!access().usable) {
+      <h2>Résultat</h2>
+      <p class="muted">Socle du sort (niveau 1, jamais modifiable) :</p>
+      <div class="table-wrap">
+        <table><tbody>
+          @for (r of baseRows(); track r.key) { <tr><td>{{ r.label }}</td><td>{{ r.value }}</td></tr> }
+        </tbody></table>
+      </div>
+    } @else {
+      <h2>Résultat
+        @if (resting()) { <span class="pill ok">brouillon du repos</span> } @else { <span class="pill info">build validé</span> }
+      </h2>
+      <div class="budget">
+        <div><small>Gagnés</small><b>{{ assessment().progress.pointsEarned }}</b></div>
+        <div><small>Dépensés</small><b>{{ fmt(assessment().gross) }}</b></div>
+        <div><small>Rendus (mordant)</small><b>{{ fmt(assessment().refunded) }}</b></div>
+        <div [class]="assessment().remaining < 0 ? 'neg' : 'pos'"><small>Solde</small><b>{{ fmt(assessment().remaining) }}</b></div>
+      </div>
+      <ul class="msgs">
+        @for (e of assessment().errors; track $index) { <li class="ko">✗ {{ e }}</li> }
+        @for (w of assessment().warnings; track $index) { <li class="warn">⚠ {{ w }}</li> }
+        @if (assessment().valid && !assessment().warnings.length) { <li class="ok">✓ Build valide.</li> }
+      </ul>
+
+      <h3>Stats : socle → build</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Champ</th><th>Socle (niv. 1)</th><th>Build</th></tr></thead>
+          <tbody>
+            @for (r of statsDiff(); track r.label + r.base) {
+              <tr [class]="r.cls"><td>{{ r.label }}</td><td>{{ r.base }}</td><td>{{ r.final }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Entre les mains de {{ player().name }}</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Socle</th><th>Build</th></tr></thead>
+          <tbody>
+            @for (r of expected(); track r.label) {
+              <tr [class.changed]="r.changed"><td>{{ r.label }}</td><td>{{ r.base }}</td><td>{{ r.final }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Grand livre</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>F</th><th>Choix</th><th class="num">Points</th></tr></thead>
+          <tbody>
+            @for (l of assessment().ledger; track $index) {
+              <tr>
+                <td class="fam" [class]="'fam f' + l.family">{{ l.family }}</td>
+                <td>{{ l.label }} @if (l.detail) { <br /><small>{{ l.detail }}</small> }</td>
+                <td class="num">{{ signedPts(l.cost) }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3" class="muted">Aucun choix : le sort est à son socle.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Export (gabarit 4B)</h3>
+      <button type="button" (click)="copyExport()">Copier le JSON</button>
+      <pre class="json">{{ exportJson() }}</pre>
+    }
+  </aside>
+</div>

@@ -82,6 +82,10 @@ export const inBounds = (pos: GridPos, grid: { width: number; height: number }):
 const asText = (value: unknown): string => (typeof value === 'string' ? value : '');
 
 /** Premier nombre trouvé dans un texte (accepte la virgule décimale). */
+/** Toutes les mesures d'un libellé, dans l'ordre (« 6 × 1,5 m » → [6, 1.5]). */
+const allNumbers = (text: string): number[] =>
+  (text.replace(/,/g, '.').match(/\d+(\.\d+)?/g) ?? []).map(Number);
+
 const firstNumber = (text: string): number | undefined => {
   const match = text.replace(',', '.').match(/-?\d+(\.\d+)?/);
   return match ? Number(match[0]) : undefined;
@@ -110,6 +114,12 @@ export function parseShape(text: string | undefined): AbilityShape {
   if (raw.startsWith('cône') || raw.startsWith('cone'))
     return { kind: 'cone', meters: firstNumber(raw) ?? CELL_METERS };
   if (raw.startsWith('ligne')) return { kind: 'line', meters: firstNumber(raw) ?? CELL_METERS };
+  // « Rectangle 6 × 3 m » : largeur × profondeur ; une seule mesure = un carré.
+  if (raw.startsWith('rectangle')) {
+    const [width = CELL_METERS, depth = width] = allNumbers(raw);
+    return { kind: 'rect', width, depth };
+  }
+  if (raw.startsWith('anneau')) return { kind: 'ring', meters: firstNumber(raw) ?? CELL_METERS };
   // « 3 cibles », « 1 à 5 cibles » : on retient la borne HAUTE, le lanceur
   // restant libre d'en désigner moins.
   if (raw.includes('cible')) {
@@ -133,6 +143,10 @@ export function shapeLabel(shape: AbilityShape): string {
       return `Cône ${shape.meters} m`;
     case 'line':
       return `Ligne ${shape.meters} m`;
+    case 'rect':
+      return `Rectangle ${shape.width} × ${shape.depth} m`;
+    case 'ring':
+      return `Anneau ${shape.meters} m`;
     case 'targets':
       return `${shape.count} cibles`;
     case 'marked':
@@ -201,6 +215,44 @@ export function cellsInShape(
       const cells: GridPos[] = [];
       for (let step = 1; step <= reach; step++) {
         cells.push({ x: origin.x + dir.x * step, y: origin.y + dir.y * step });
+      }
+      return keep(cells);
+    }
+
+    case 'rect': {
+      // Un rectangle a besoin d'un sens : il fait face au lanceur. Visé sur
+      // soi, il se pose vers le haut de la grille.
+      const dir = direction(origin, at) ?? { x: 0, y: -1 };
+      const len = Math.hypot(dir.x, dir.y);
+      const u = { x: dir.x / len, y: dir.y / len };
+      const v = { x: -u.y, y: u.x };
+      const wc = Math.max(1, Math.round(shape.width / CELL_METERS));
+      const dc = Math.max(1, Math.round(shape.depth / CELL_METERS));
+      // En travers : wc cases centrées sur la case visée (le surplus d'une
+      // largeur paire tombe d'un côté). Dans l'axe : dc cases, en s'éloignant.
+      const lo = -Math.floor((wc - 1) / 2);
+      const hi = Math.ceil((wc - 1) / 2);
+      const span = wc + dc + 1;
+      const cells: GridPos[] = [];
+      for (let dy = -span; dy <= span; dy++) {
+        for (let dx = -span; dx <= span; dx++) {
+          const along = dx * u.x + dy * u.y;
+          const across = dx * v.x + dy * v.y;
+          if (along >= -0.5 && along < dc - 0.5 + 1e-9 && across >= lo - 0.5 && across < hi + 0.5 + 1e-9) {
+            cells.push({ x: at.x + dx, y: at.y + dy });
+          }
+        }
+      }
+      return keep(cells);
+    }
+
+    case 'ring': {
+      const reach = Math.max(1, Math.floor(shape.meters / CELL_METERS));
+      const cells: GridPos[] = [];
+      for (let dy = -reach; dy <= reach; dy++) {
+        for (let dx = -reach; dx <= reach; dx++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) === reach) cells.push({ x: at.x + dx, y: at.y + dy });
+        }
       }
       return keep(cells);
     }

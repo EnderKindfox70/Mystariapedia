@@ -93,30 +93,6 @@ interface RawSpell {
   subdomains: string[];
   /** Clés des sorts prérequis (map de déblocage). */
   requires?: string[];
-  /** Arbre d'amélioration : racine, paliers (nœuds) et libellés de branches. */
-  progression?: SpellTree;
-}
-
-/** Un nœud (palier) de l'arbre d'amélioration d'un sort. */
-export interface SpellTreeNode {
-  id: string;
-  tier: number;
-  name: string;
-  /** Branche du nœud (`trunk` = tronc commun). */
-  branch?: string;
-  /** Ids des nœuds enfants (plusieurs = point de scission → choix de branche). */
-  next?: string[];
-}
-/** Libellé d'une branche de l'arbre. */
-export interface SpellBranchMeta {
-  id: string;
-  label: string;
-}
-/** Arbre d'amélioration d'un sort : racine + nœuds + branches. */
-export interface SpellTree {
-  root: string;
-  nodes: SpellTreeNode[];
-  branches?: SpellBranchMeta[];
 }
 interface RawDomain {
   /** Sorts de base du domaine (cf. tableau `spells` des fichiers domains/*.json). */
@@ -201,18 +177,6 @@ export const findDomainSpell = (key: string): DomainSpell | undefined => {
     if (found) return found;
   }
   return COMBINATION_SPELLS.find((s) => s.key === key);
-};
-
-/** Nombre de paliers (rang max) d'un sort, d'après son arbre d'amélioration (≥ 1). */
-export const spellMaxTier = (key: string): number => {
-  const tiers = (findDomainSpell(key)?.progression?.nodes ?? []).map((n) => n.tier ?? 1);
-  return tiers.length ? Math.max(1, ...tiers) : 1;
-};
-
-/** Arbre d'amélioration d'un sort (racine + nœuds + branches), ou `undefined`. */
-export const spellTree = (key: string): SpellTree | undefined => {
-  const p = findDomainSpell(key)?.progression;
-  return p && Array.isArray(p.nodes) && p.nodes.length ? p : undefined;
 };
 
 /** Les six attributs. */
@@ -768,6 +732,23 @@ export const abilityModifier = (score: number): number => Math.floor((score - 10
 
 /** Bonus signé formaté pour l'affichage (« +3 », « -1 », « +0 »). */
 export const formatBonus = (value: number): string => (value >= 0 ? `+${value}` : `${value}`);
+
+/**
+ * Bonus de stats d'un objet, en toutes lettres (« +3 Attaque physique »).
+ *
+ * Écrit ici et pas dans la vue : la même liste `{key,value}` est lue par la
+ * fiche du wiki, par la fiche de personnage et par le combat — elle ne doit
+ * s'énoncer qu'une fois. Une clé hors catalogue est passée telle quelle plutôt
+ * que masquée : mieux vaut une fiche qui montre une coquille qu'une fiche qui
+ * la cache.
+ */
+export const statEffectsLabel = (effects: { key: string; value: number }[] | undefined): string =>
+  (effects ?? [])
+    .map(({ key, value }) => {
+      const label = STATS.find((s) => s.key === key)?.label ?? ATTR_LABEL.get(key as AttributeKey);
+      return `${formatBonus(Number(value) || 0)} ${label ?? key}`;
+    })
+    .join(' · ');
 
 /** Graine aléatoire entière (pour le tirage des stats). */
 export const randomSeed = (): number => Math.floor(Math.random() * 0xffffffff);

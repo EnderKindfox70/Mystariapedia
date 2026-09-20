@@ -1,0 +1,2434 @@
+{
+    "name": "Eau",
+    "icon": "/resources/media/icons/domains/water/water_icon.png",
+    "banner": "",
+    "first-quote": "Je peux être douce. Je peux être profonde. Je peux être les deux en même temps.",
+    "usage-quote": "Ne force pas le chemin. Trouve la fissure.",
+    "subdomains": [
+        {
+            "name": "Forme de l'eau",
+            "icon": "/resources/media/icons/domains/water/liquid_water_icon.png",
+            "quote": "Je n'ai pas de forme. J'ai toutes les formes."
+        },
+        {
+            "name": "Glace",
+            "icon": "/resources/media/icons/domains/water/ice_icon.png",
+            "quote": "La patience de l'eau finit toujours par durcir."
+        },
+        {
+            "name": "Vapeur",
+            "icon": "/resources/media/icons/domains/water/mist_icon.png",
+            "quote": "On croit me saisir ; il ne reste que le souffle."
+        },
+        {
+            "name": "purification",
+            "icon": "/resources/media/icons/domains/water/purification_icon.png",
+            "quote": "Je ne détruis pas la souillure : je la porte ailleurs."
+        },
+        {
+            "name": "Océan",
+            "icon": "/resources/media/icons/domains/water/ocean_icon.png",
+            "quote": "Sous chaque vague dort une colère plus vieille que les rois."
+        }
+    ],
+    "spells": [
+        {
+            "key": "water-jet-d-eau",
+            "name": "Jet d'eau",
+            "description": "Projette un trait d'eau sous pression qui balaie tout ce qui se tient sur sa ligne.",
+            "usage": {
+                "combat": "Frappe en ligne droite : tout ce qui se trouve sur le trajet prend l'eau, à faible coût."            },
+            "mana": 4,
+            "level": 1,
+            "subdomains": [
+                "Forme de l'eau"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 4,
+                "range": "Autour de soi",
+                "area": "Ligne 4,5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "length",
+                        "kind": "radius",
+                        "label": "Longueur du jet",
+                        "path": "area",
+                        "min": 0,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.07,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "wet",
+                        "ralentissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "knockbackUnlock": {
+                    "cellsCap": {
+                        "value": 3
+                    }
+                },
+                "areaShapeSwap": {
+                    "shapes": [
+                        "Ligne",
+                        "Cône"
+                    ]
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "electricity",
+                    "life"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "range",
+                    "reason": "Le jet part du lanceur : sa portée, c'est sa longueur. Viser ne fait que choisir la direction."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water_ice_shard",
+            "name": "Éclat de glace",
+            "description": "Projette un éclat de glace tranchant qui transperce une cible.",
+            "mana": 2,
+            "level": 1,
+            "subdomains": [
+                "Glace"
+            ],
+            "damageType": "ice",
+            "requires": [],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 2,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.07
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 15,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.09,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "ralentissement",
+                        "saignement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "extraTargets": {
+                    "base": 1,
+                    "label": "éclat(s) simultané(s)"
+                },
+                "damageTypeSwap": {
+                    "eligible": [
+                        "slashing"
+                    ]
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "earth",
+                    "darkness"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-prison-de-glace",
+            "name": "Prison de glace",
+            "description": "Gèle instantanément l'humidité autour d'une cible pour l'emprisonner dans un bloc de glace.",
+            "mana": 4,
+            "level": 2,
+            "subdomains": [
+                "Glace"
+            ],
+            "damageType": "ice",
+            "requires": [
+                "water_ice_shard"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 4,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "gel",
+                        "chance": 30
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.07
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "gelChance",
+                        "kind": "chance",
+                        "label": "Chance de Gel",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 90,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.09,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "fracture"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "extraTargets": {
+                    "base": 1,
+                    "label": "prison(s) simultanée(s)"
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "earth",
+                    "darkness"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Une prison de glace gèle : on règle ses chances de prendre, pas sa nature."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-voile-de-brume",
+            "name": "Voile de brume",
+            "description": "Tire de l'eau une brume épaisse qui noie les contours : ceux qui s'y trouvent ne voient plus rien. Elle ne blesse personne.",
+            "usage": {
+                "combat": "Aveugle ce qui se tient dans le nuage. Aucun dégât : c'est un sort de couverture, pas d'attaque."            },
+            "mana": 2,
+            "level": 1,
+            "subdomains": [
+                "Vapeur"
+            ],
+            "requires": [
+            ],
+            "baseStats": {
+                "mana": 2,
+                "range": "Autour de soi",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "everyone"
+                ],
+                "duration": 2,
+                "lingers": "ground",
+                "inflicts": [
+                    {
+                        "status": "aveuglement",
+                        "chance": 20
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "blindChance",
+                        "kind": "chance",
+                        "label": "Chance d'Aveuglement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 70,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée de la brume",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue de la brume",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "confusion",
+                        "silence"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "defaultTargetSwap": {
+                    "pair": [
+                        "everyone",
+                        "enemy"
+                    ]
+                },
+                "areaShapeSwap": {
+                    "shapes": [
+                        "Rayon",
+                        "Cône"
+                    ]
+                },
+                "ownEffects": [
+                    {
+                        "id": "suit-le-lanceur",
+                        "label": "Suit le lanceur",
+                        "cost": 6,
+                        "description": "La brume se déplace avec le lanceur, qui en reste le centre : elle le couvre partout où il va.",
+                        "grants": {
+                            "lingers": "caster"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le voile aveugle : c'est ce qu'il est. On règle son épaisseur, pas sa nature."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-eau-purificatrice",
+            "name": "Eau purificatrice",
+            "description": "Invoque une eau claire qui nettoie les poisons, souillures et maladies au contact.",
+            "mana": 3,
+            "level": 4,
+            "subdomains": [
+                "purification"
+            ],
+            "requires": [
+                "water-purification-eau"
+            ],
+            "baseStats": {
+                "heal": 1, 
+                "mana": 6,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ],
+                "cleanses": [
+                    "poison"
+                ],
+                "scaling": [
+                    {
+                        "source": "sagesse",
+                        "ratio": 0.1,
+                        "affects": "heal"
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "heal",
+                        "kind": "heal",
+                        "label": "Soin",
+                        "path": "heal",
+                        "min": 0,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "wisRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Sagesse (soin)",
+                        "path": "scaling.0.ratio",
+                        "min": 0,
+                        "cap": {
+                            "value": 0.6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "self"
+                    ]
+                },
+                "ownEffects": [
+                    {
+                        "id": "lave-les-plaies",
+                        "label": "Lave les plaies",
+                        "description": "L'eau referme ce qui saigne et apaise ce qui brûle.",
+                        "grants": {
+                            "cleanses": [
+                                "saignement",
+                                "brulure"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "dissout-les-souillures",
+                        "label": "Dissout les souillures",
+                        "description": "L'eau emporte la chair morte que la nécrose laisse derrière elle.",
+                        "grants": {
+                            "cleanses": [
+                                "necrose"
+                            ]
+                        }
+                    }
+                ],
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "sagesse",
+                            "intelligence",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "cleanses.0",
+                    "reason": "Une eau purificatrice emporte le poison : c'est ce qu'elle est, jamais une option."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-appel-des-marees",
+            "name": "Vague scélérate",
+            "description": "Fait surgir sans prévenir une vague monstrueuse qui s'abat sur une zone et emporte ce qu'elle frappe.",
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Océan"
+            ],
+            "requires": [
+                "water-prison-de-glace"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 7,
+                "range": "12 m",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "ralentissement",
+                        "chance": 20
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.03
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 7,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue de la vague",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 24,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "slowChance",
+                        "kind": "chance",
+                        "label": "Chance de Ralentissement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 60,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.06,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "wet",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "statusTypeSwap": {
+                    "eligible": [
+                        "gel"
+                    ]
+                },
+                "knockbackUnlock": {
+                    "cellsCap": {
+                        "value": 3
+                    }
+                },
+                "areaShapeSwap": {
+                    "shapes": [
+                        "Rayon",
+                        "Cône"
+                    ]
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "electricity",
+                    "darkness"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-arme",
+            "requires": [
+                "water-revetement-poings"
+            ],
+            "name": "Lame déferlante",
+            "description": "Nimbe une arme d'un voile d'eau : tant que l'enchantement dure, chaque coup inflige des dégâts d'eau supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts d'eau à chacune de vos attaques au corps à corps, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Forme de l'eau"
+            ],
+            "damageType": "water",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "ranger",
+                        "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts d'eau accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "wet",
+                        "ralentissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "electricity",
+                    "life"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-poings",
+            "name": "Poings déferlants",
+            "description": "Nimbe vos poings d'un voile d'eau : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts d'eau supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts d'eau à vos attaques à mains nues, le temps de l'enchantement."
+            },
+            "requires": [
+                "water-jet-d-eau"
+            ],
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Forme de l'eau"
+            ],
+            "damageType": "water",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                        "bonusAction": true
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "wet",
+                        "ralentissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "electricity",
+                    "life"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Bonus du Pugiliste : propre à l'identité de la classe, jamais dans le budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-glace-poings",
+            "name": "Poings de glace",
+            "description": "Nimbe vos poings d'une gangue de givre : chaque coup à mains nues inflige des dégâts de glace supplémentaires et peut engourdir la cible.",
+            "usage": {
+                "combat": "Givrez vos poings pour ajouter des dégâts de glace à vos attaques à mains nues et ralentir vos cibles."
+            },
+            "requires":["water_ice_shard"],
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Glace"
+            ],
+            "damageType": "ice",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "inflicts": [
+                    {
+                        "status": "ralentissement",
+                        "chance": 20
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de glace de chaque frappe est accru.",
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "statusChance",
+                        "kind": "chance",
+                        "label": "Chance de ralentissement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 40,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusTypeSwap": {
+                    "eligible": [
+                        "gel",
+                        "enracinement"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "earth",
+                    "darkness"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-glace-arme",
+            "requires": [
+                "water-revetement-glace-poings"
+            ],
+            "name": "Lame de glace",
+            "description": "Nimbe une arme d'une gangue de givre : chaque coup inflige des dégâts de glace supplémentaires et peut engourdir la cible.",
+            "usage": {
+                "combat": "Givrez votre arme pour ajouter des dégâts de glace à vos attaques au corps à corps et ralentir vos cibles."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Glace"
+            ],
+            "damageType": "ice",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "inflicts": [
+                    {
+                        "status": "ralentissement",
+                        "chance": 20
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "ranger",
+                        "description": "Le ranger, précis et mobile, place ses frappes givrées là où elles font mal : dégâts de glace accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "statusChance",
+                        "kind": "chance",
+                        "label": "Chance de ralentissement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 40,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusTypeSwap": {
+                    "eligible": [
+                        "gel",
+                        "enracinement"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "earth",
+                    "darkness"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-brume-poings",
+            "name": "Poings de brume",
+            "description": "Nimbe vos poings d'une brume dense : chaque coup à mains nues inflige des dégâts d'eau supplémentaires et peut aveugler la cible.",
+            "usage": {
+                "combat": "Enveloppez vos poings de brume pour ajouter des dégâts d'eau à vos attaques à mains nues et gêner la vue de l'adversaire."
+            },
+            "requires":["water-voile-de-brume"
+
+            ],
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Vapeur"
+            ],
+            "damageType": "water",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "inflicts": [
+                    {
+                        "status": "aveuglement",
+                        "chance": 15
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.",
+                        "manaFactor": 0.5
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "statusChance",
+                        "kind": "chance",
+                        "label": "Chance de aveuglement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 35,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusTypeSwap": {
+                    "eligible": [
+                        "confusion",
+                        "silence"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "darkness",
+                    "plant"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-brume-arme",
+            "requires": [
+                "water-revetement-brume-poings"
+            ],
+            "name": "Lame de brume",
+            "description": "Nimbe une arme d'une brume dense : chaque coup inflige des dégâts d'eau supplémentaires et peut aveugler la cible.",
+            "usage": {
+                "combat": "Enveloppez votre arme de brume pour ajouter des dégâts d'eau à vos attaques au corps à corps et gêner la vue de l'adversaire."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Vapeur"
+            ],
+            "damageType": "water",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "inflicts": [
+                    {
+                        "status": "aveuglement",
+                        "chance": 15
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "ranger",
+                        "description": "Le ranger, précis et mobile, frappe à travers la brume qu'il maîtrise : dégâts d'eau accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "statusChance",
+                        "kind": "chance",
+                        "label": "Chance de aveuglement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 35,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusTypeSwap": {
+                    "eligible": [
+                        "confusion",
+                        "silence"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "darkness",
+                    "plant"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-purification-eau",
+            "name": "Purification de l'eau",
+            "description": "Permet d'enlever les impuretés de l'eau, la rendant claire et potable.",
+            "usage": {
+                "outOfCombat": "Retire boue, sédiments, toxines et agents pathogènes d'une eau souillée pour la rendre potable."
+            },
+            "liveText": {
+                "description": "Permet {grades.purification:action} jusqu'à {volume} d'eau d'un geste, soit {volume:comparison}.",
+                "outOfCombat": "Le sort permet {grades.purification:action} l'eau, {grades.purification:description} {volume} à la fois, soit {volume:comparison} (portée {range})."
+            },
+            "mana": 1,
+            "level": 2,
+            "subdomains": [
+                "purification"
+            ],
+            "baseStats": {
+                "mana": 5,
+                "range": "Contact",
+                "volume": 100,
+                "grades": {
+                    "purification": 0
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "purification",
+                        "kind": "grade",
+                        "label": "Degré de purification",
+                        "path": "grades.purification",
+                        "min": 0,
+                        "max": 4,
+                        "cap": {
+                            "value": 4
+                        },
+                        "ladder": [
+                            {
+                                "label": "Décantation",
+                                "description": "boue et sédiments retombent : l'eau devient plus claire, mais n'est pas encore sûre à boire.",
+                                "action": "de décanter"
+                            },
+                            {
+                                "label": "Filtration",
+                                "description": "boue et sédiments retombent, et les toxines et poisons dissous sont retirés.",
+                                "action": "de filtrer"
+                            },
+                            {
+                                "label": "Assainissement",
+                                "description": "toxines retirées, germes et agents pathogènes détruits : elle devient potable.",
+                                "action": "d'assainir"
+                            },
+                            {
+                                "label": "Dessalement",
+                                "description": "même celle de la mer devient douce et potable.",
+                                "action": "de dessaler"
+                            },
+                            {
+                                "label": "Eau lustrale",
+                                "description": "elle est lavée jusque de ses souillures magiques : malédictions, nécromancie.",
+                                "action": "de consacrer"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "volume",
+                        "kind": "volume",
+                        "label": "Volume purifié",
+                        "path": "volume",
+                        "growth": "1-2-5",
+                        "min": 10,
+                        "cap": {
+                            "value": 50000
+                        },
+                        "comparisons": [
+                            {
+                                "upTo": 10,
+                                "text": "une cuillère"
+                            },
+                            {
+                                "upTo": 20,
+                                "text": "une gorgée"
+                            },
+                            {
+                                "upTo": 50,
+                                "text": "un fond de gobelet"
+                            },
+                            {
+                                "upTo": 100,
+                                "text": "un petit verre"
+                            },
+                            {
+                                "upTo": 200,
+                                "text": "un verre"
+                            },
+                            {
+                                "upTo": 500,
+                                "text": "une gourde"
+                            },
+                            {
+                                "upTo": 1000,
+                                "text": "une bouteille"
+                            },
+                            {
+                                "upTo": 2000,
+                                "text": "une cruche"
+                            },
+                            {
+                                "upTo": 5000,
+                                "text": "une outre"
+                            },
+                            {
+                                "upTo": 10000,
+                                "text": "un seau"
+                            },
+                            {
+                                "upTo": 20000,
+                                "text": "une jarre"
+                            },
+                            {
+                                "upTo": 50000,
+                                "text": "un tonnelet"
+                            },
+                            {
+                                "upTo": 100000,
+                                "text": "un tonneau"
+                            },
+                            {
+                                "upTo": 200000,
+                                "text": "un abreuvoir"
+                            },
+                            {
+                                "upTo": 500000,
+                                "text": "une cuve"
+                            },
+                            {
+                                "text": "de quoi remplir un bassin, voire une citerne"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-glace",
+            "requires": [
+                "water-revetement-glace-poings"
+            ],
+            "name": "Armure de glace",
+            "description": "Enveloppe le lanceur d'une gangue de glace : sa défense physique est renforcée sans l'entraver. La glace peut ensuite rester fine et libre de mouvement, ou s'épaissir en carapace écrasante au prix de la vitesse.",
+            "usage": {
+                "combat": "Enveloppez-vous d'une gangue de glace pour mieux encaisser les coups et attaques physiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Glace"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 4,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.053
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.13
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.3,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "constitution",
+                            "force",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "earth",
+                    "darkness"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-brume",
+            "requires": [
+                "water-revetement-brume-poings"
+            ],
+            "name": "Manteau de brume",
+            "description": "Enveloppe le lanceur d'un voile de brume : une protection ténue mais presque gratuite, qui allège la démarche et s'entretient très longtemps.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile de brume pour une protection légère et durable, sans grever votre réserve de mana."
+            },
+            "mana": 2,
+            "level": 3,
+            "subdomains": [
+                "Vapeur"
+            ],
+            "baseStats": {
+                "mana": 2,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.04
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "speed",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.026
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 7,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.06
+                        }
+                    },
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.1.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "speedRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Vitesse",
+                        "path": "effects.1.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.05
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.3,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    },
+                    {
+                        "path": "effects.1.scaling.0",
+                        "eligible": [
+                            "dexterite",
+                            "constitution",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "darkness",
+                    "plant"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "water-revetement-manteau",
+            "requires": [
+                "water-revetement-poings"
+            ],
+            "name": "Manteau des ondes",
+            "description": "Enveloppe le lanceur d'un voile d'eau : sa défense magique est renforcée et il est trempé (résistant au feu, vulnérable à la foudre). L'onde peut ensuite se durcir en rempart, se faire purifiante ou vivifiante.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile d'eau pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Forme de l'eau"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.06
+                            }
+                        ]
+                    }
+                ],
+                "inflicts": [
+                    {
+                        "status": "wet",
+                        "chance": 100
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.12
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.3,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "ownEffects": [
+                    {
+                        "id": "vivifiant",
+                        "label": "Eau vivifiante",
+                        "description": "L'onde nourrit les chairs : le porteur régénère ses blessures tant que le manteau tient.",
+                        "grants": {
+                            "inflicts": [
+                                {
+                                    "status": "regeneration",
+                                    "chance": 100
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "purifiant",
+                        "label": "Eau purifiante",
+                        "description": "L'eau lave ce qui ronge : le manteau dissout poison, brûlure, paralysie et nécrose tant qu'il tient.",
+                        "grants": {
+                            "cleanses": [
+                                "poison",
+                                "brulure",
+                                "paralysie",
+                                "necrose"
+                            ]
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "air",
+                    "electricity",
+                    "life"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0",
+                    "reason": "Le manteau trempe celui qu'il couvre — résistant au feu, offert à la foudre : c'est le prix de l'eau, jamais une option."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        }
+    ],
+    "feats": [
+        {
+            "key": "water-gel-profond",
+            "name": "Gel profond",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Eau débloqué",
+            "description": "Il tire l'eau vers son état le plus dur et le plus lent. Ce qu'il gèle tient ; ce qu'il fait couler traîne.",
+            "subdomains": [
+                "Glace"
+            ],
+            "excludes": [
+                "water-courant-vif"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts et immobilisation des sorts de Glace",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût des sorts de Forme de l'eau et de Vapeur",
+                    "value": "×1,2",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "water-courant-vif",
+            "name": "Courant vif",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Eau débloqué",
+            "description": "Rien ne se fige, tout circule : il paie moins cher et porte plus loin, au prix de la force du coup.",
+            "subdomains": [
+                "Forme de l'eau"
+            ],
+            "excludes": [
+                "water-gel-profond"
+            ],
+            "effects": [
+                {
+                    "label": "Coût en mana des sorts d'Eau",
+                    "value": "×0,85",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Portée des sorts d'Eau",
+                    "value": "+2 m",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts des sorts d'Eau",
+                    "value": "×0,9",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "water-eau-lustrale",
+            "name": "Eau lustrale",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur d'Eau débloqué et un sort de l'aspect purification connu",
+            "freeWith": "Background Pêcheur ou Marin",
+            "description": "Son eau lave au lieu de soigner : elle emporte le poison, la fièvre et la souillure, mais ne referme rien.",
+            "subdomains": [
+                "purification"
+            ],
+            "effects": [
+                {
+                    "label": "Statuts retirés par un sort de purification",
+                    "value": "+1",
+                    "tone": "boon"
+                },
+                {
+                    "label": "PV rendus par les sorts de purification",
+                    "value": "Aucun",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "water-etreinte-abyssale",
+            "name": "Étreinte abyssale",
+            "level": 15,
+            "kind": "multiplier",
+            "prerequisite": "Palier Majeur d'Eau débloqué et un sort de l'aspect Océan connu",
+            "description": "Il ne porte plus son eau : il emprunte celle du lieu. Encore faut-il qu'il y en ait.",
+            "subdomains": [
+                "Océan"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts d'Eau en milieu aquatique ou sous la pluie",
+                    "value": "×1,3",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût en mana en milieu aquatique",
+                    "value": "×0,9",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts d'Eau en climat aride",
+                    "value": "×0,8",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

@@ -36,6 +36,83 @@
             "subdomains": [
                 "Putréfaction"
             ],
+            "baseStats": {
+                "mana": 4,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "necrose",
+                        "chance": 100,
+                        "duration": 1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "necroseDuration",
+                        "kind": "duration",
+                        "label": "Durée de la nécrose",
+                        "path": "inflicts.0.duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "extraTargets": {
+                    "base": 1,
+                    "label": "chair(s) contaminée(s)"
+                },
+                "ownEffects": [
+                    {
+                        "id": "chairs-devorees",
+                        "label": "Chairs dévorées",
+                        "cost": 6,
+                        "description": "Le contact dévore une part des chairs vives : 3 à 5 % des PV actuels de la cible.",
+                        "grants": {
+                            "set": {
+                                "damagePercentCurrentHp": {
+                                    "min": 3,
+                                    "max": 5
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Aucun dégât immédiat : c'est la nécrose qui fait le travail. Elle EST le sort."
+                },
+                {
+                    "field": "range",
+                    "reason": "Au contact : la chair pourrit là où la main se pose."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "dtn1",
                 "branches": [
@@ -246,6 +323,101 @@
             "requires": [
                 "death-toucher-necrotique"
             ],
+            "baseStats": {
+                "mana": 6,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ],
+                "duration": 3,
+                "grades": {
+                    "servant": 0
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "servant",
+                        "kind": "grade",
+                        "label": "Vigueur du serviteur",
+                        "path": "grades.servant",
+                        "min": 0,
+                        "max": 2,
+                        "ladder": [
+                            {
+                                "label": "Carcasse",
+                                "action": "de relever une carcasse",
+                                "description": "le mort se traîne, lent et fragile, et obéit à des ordres simples."
+                            },
+                            {
+                                "label": "Serviteur",
+                                "action": "de relever un serviteur",
+                                "description": "le mort tient debout, frappe et obéit sans faillir."
+                            },
+                            {
+                                "label": "Revenant",
+                                "action": "de relever un revenant",
+                                "description": "le mort retrouve la force de son vivant, et une obstination qu'il n'avait pas."
+                            }
+                        ],
+                        "cap": {
+                            "value": 2
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "extraTargets": {
+                    "base": 1,
+                    "label": "cadavre(s) relevé(s)"
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "drm1",
                 "nodes": [
@@ -318,6 +490,98 @@
             "requires": [
                 "death-toucher-necrotique"
             ],
+            "baseStats": {
+                "mana": 5,
+                "range": "Contact",
+                "area": "Rayon 5 m",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "grades": {
+                    "channel": 0
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "channel",
+                        "kind": "grade",
+                        "label": "Clarté du canal",
+                        "path": "grades.channel",
+                        "min": 0,
+                        "max": 2,
+                        "ladder": [
+                            {
+                                "label": "Présences",
+                                "action": "de sentir les esprits",
+                                "description": "on sent qu'ils sont là, sans rien en comprendre."
+                            },
+                            {
+                                "label": "Murmures",
+                                "action": "d'entendre les esprits",
+                                "description": "on les entend, et l'on obtient des réponses à des questions simples."
+                            },
+                            {
+                                "label": "Dialogue",
+                                "action": "d'interroger les âmes",
+                                "description": "on converse avec une âme, même ancienne, et l'on lit les esprits alentour."
+                            }
+                        ],
+                        "cap": {
+                            "value": 2
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du canal",
+                        "path": "area",
+                        "min": 2,
+                        "growth": "1-2-5",
+                        "cap": {
+                            "value": 100,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "dcs1",
                 "nodes": [
@@ -389,6 +653,130 @@
             ],
             "requires": [
                 "death-releve-les-morts"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 3,
+                "mana": 7,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "paralysie",
+                        "chance": 15
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.05
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "holdChance",
+                        "kind": "chance",
+                        "label": "Force de l'emprise (Paralysie)",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 60,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.07,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    }
+                ],
+                "statusTypeSwap": {
+                    "eligible": [
+                        "charme"
+                    ]
+                },
+                "statusUnlock": {
+                    "eligible": [
+                        "affaiblissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "darkness",
+                    "plant",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "dea1",
@@ -505,6 +893,123 @@
                 "Putréfaction"
             ],
             "damageType": "death",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "rogue",
+                        "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts nécrotiques accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "necrose",
+                        "affaiblissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "darkness",
+                    "plant",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -626,6 +1131,117 @@
                 "Putréfaction"
             ],
             "damageType": "death",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                        "bonusAction": true
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "necrose",
+                        "affaiblissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "darkness",
+                    "plant",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Bonus du Pugiliste : propre à l'identité de la classe, jamais dans le budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -733,6 +1349,141 @@
             "level": 3,
             "subdomains": [
                 "Putréfaction"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.06
+                            }
+                        ]
+                    }
+                ],
+                "retaliate": {
+                    "trigger": "melee",
+                    "inflicts": [
+                        {
+                            "status": "necrose",
+                            "chance": 30
+                        }
+                    ]
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.1
+                        }
+                    },
+                    {
+                        "id": "riposteNecrose",
+                        "kind": "chance",
+                        "label": "Nécrose en riposte",
+                        "path": "retaliate.inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 70,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "darkness",
+                    "plant",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "retaliate.trigger",
+                    "reason": "La riposte ne répond qu'aux coups portés au corps à corps : c'est l'identité du manteau."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "dman1",

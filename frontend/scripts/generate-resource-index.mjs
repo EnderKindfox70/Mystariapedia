@@ -70,6 +70,12 @@ function toIndexEntry(slug, data) {
   if (rarity) entry.rarity = rarity;
   if (data.image) entry.image = data.image;
   if (data.icon) entry.icon = data.icon;
+  // Emplacement d'équipement (amulette, bague…) : la fiche de personnage
+  // remplit ses emplacements depuis l'index, sans ouvrir chaque fiche.
+  if (data.slot) entry.slot = data.slot;
+  // Bonus de stats accordés tant que l'objet est porté : la fiche de personnage
+  // et le combat les somment comme ceux d'un trait.
+  if (data.statEffects?.length) entry.statEffects = data.statEffects;
   // Matière de l'objet : la fabrique de combat lit l'INDEX, pas les fiches.
   // Sans cette ligne, l'index régénéré perdait la composition — et avec elle
   // tout ce qui en dépend, à commencer par le magnétisme.

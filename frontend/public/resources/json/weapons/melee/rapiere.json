@@ -1,5 +1,6 @@
 {
   "name": "Rapière",
+  "image": "/resources/media/pictures/weapons/rapier.png",
   "material": "acier",
   "subtitle": "Lame fine pour l'estoc",
   "description": [

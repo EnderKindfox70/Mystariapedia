@@ -18,6 +18,112 @@
             "mana": 3,
             "level": 1,
             "subdomains": ["Illumination"],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 3,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.07
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 20,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.09,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "aveuglement"
+                    ],
+                    "chanceCap": {
+                        "value": 50,
+                        "anchor": "treeMax",
+                        "path": "inflicts.0.chance"
+                    }
+                },
+                "extraTargets": {
+                    "base": 1,
+                    "label": "cible(s) diffractée(s)"
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "life",
+                    "electricity"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "lt1",
                 "branches": [
@@ -78,6 +184,83 @@
             "mana": 1,
             "level": 1,
             "subdomains": ["Illumination"],
+            "baseStats": {
+                "mana": 1,
+                "range": "Personnel",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "lingers": "caster"
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue de la lueur",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 15,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée (projeter la luciole)",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "tier3"
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "ally"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "ownEffects": [
+                    {
+                        "id": "posee",
+                        "label": "Posée",
+                        "cost": 2,
+                        "description": "La luciole reste où on l'a envoyée au lieu de suivre son lanceur.",
+                        "grants": {
+                            "lingers": "ground"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ll1",
                 "nodes": [
@@ -109,6 +292,90 @@
             "level": 2,
             "subdomains": ["Révélation"],
             "requires": ["light-luciole"],
+            "baseStats": {
+                "mana": 3,
+                "range": "12 m",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "vulnerabilite",
+                        "chance": 30
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "vulnChance",
+                        "kind": "chance",
+                        "label": "Chance de Vulnérabilité",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 90,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue de la clarté",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 9,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 20,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "aveuglement"
+                    ],
+                    "chanceCap": {
+                        "value": 25,
+                        "anchor": "tier3",
+                        "path": "inflicts.1.chance"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "La clarté met les failles à nu : la vulnérabilité EST la révélation."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "lr1",
                 "nodes": [
@@ -140,6 +407,78 @@
             "level": 3,
             "subdomains": ["Révélation"],
             "requires": ["light-lumiere-revelatrice"],
+            "baseStats": {
+                "mana": 3,
+                "range": "Autour de soi",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "silence",
+                        "chance": 20
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "silenceChance",
+                        "kind": "chance",
+                        "label": "Chance de Silence",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 70,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du champ",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "vulnerabilite"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Nul mensonge, nulle incantation trompeuse : le silence EST le champ."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "lc1",
                 "nodes": [
@@ -171,6 +510,167 @@
             "level": 3,
             "subdomains": ["Ordre & Commandement"],
             "requires": ["light-lumiere-revelatrice"],
+            "baseStats": {
+                "mana": 5,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "choices": [
+                    {
+                        "name": "Halte !",
+                        "description": "Fige la cible sur place le temps d'un ordre.",
+                        "inflicts": [
+                            {
+                                "status": "etourdissement",
+                                "chance": 30
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Fuis !",
+                        "description": "Contraint la cible à fuir, saisie d'effroi.",
+                        "inflicts": [
+                            {
+                                "status": "peur",
+                                "chance": 30
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "authority",
+                        "kind": "chance",
+                        "label": "Autorité (Halte ! et Fuis !)",
+                        "path": "choices.0.inflicts.0.chance",
+                        "shift": [
+                            "choices.1.inflicts.0.chance"
+                        ],
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 65,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "ownEffects": [
+                    {
+                        "id": "a-genoux",
+                        "label": "À genoux !",
+                        "cost": 4,
+                        "description": "Un ordre de plus : la cible s'agenouille, incapable d'agir.",
+                        "grants": {
+                            "choices": [
+                                {
+                                    "name": "À genoux !",
+                                    "description": "Force la cible à s'agenouiller, incapable d'agir.",
+                                    "inflicts": [
+                                        {
+                                            "status": "paralysie",
+                                            "chance": 45
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "silence",
+                        "label": "Silence !",
+                        "cost": 4,
+                        "description": "Un ordre de plus : la cible ne peut plus incanter.",
+                        "grants": {
+                            "choices": [
+                                {
+                                    "name": "Silence !",
+                                    "description": "Impose le mutisme : la cible ne peut plus incanter.",
+                                    "inflicts": [
+                                        {
+                                            "status": "silence",
+                                            "chance": 55
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "dors",
+                        "label": "Dors !",
+                        "cost": 5,
+                        "description": "Un ordre de plus : la cible sombre dans le sommeil.",
+                        "grants": {
+                            "choices": [
+                                {
+                                    "name": "Dors !",
+                                    "description": "Plonge la cible dans un sommeil immédiat.",
+                                    "inflicts": [
+                                        {
+                                            "status": "sommeil",
+                                            "chance": 45
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "rends-toi",
+                        "label": "Rends-toi !",
+                        "cost": 6,
+                        "description": "L'ordre ultime : la cible cesse de combattre.",
+                        "grants": {
+                            "choices": [
+                                {
+                                    "name": "Rends-toi !",
+                                    "description": "Soumet la volonté de la cible, qui cesse de combattre.",
+                                    "inflicts": [
+                                        {
+                                            "status": "charme",
+                                            "chance": 55
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "lv1",
                 "nodes": [
@@ -217,6 +717,123 @@
             "level": 5,
             "subdomains": ["Purification"],
             "requires": ["light-trait-de-lumiere"],
+            "baseStats": {
+                "heal": 6,
+                "mana": 4,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ],
+                "cleanses": [
+                    "necrose"
+                ],
+                "scaling": [
+                    {
+                        "source": "sagesse",
+                        "ratio": 0.4,
+                        "affects": "heal"
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "heal",
+                        "kind": "heal",
+                        "label": "Soin",
+                        "path": "heal",
+                        "min": 1,
+                        "cap": {
+                            "value": 24,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "wisRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Sagesse (soin)",
+                        "path": "scaling.0.ratio",
+                        "min": 0,
+                        "cap": {
+                            "value": 0.8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "self"
+                    ]
+                },
+                "ownEffects": [
+                    {
+                        "id": "leve-les-maledictions",
+                        "label": "Lève les malédictions",
+                        "description": "La clarté sacrée défait ce qui affaiblit et expose.",
+                        "grants": {
+                            "cleanses": [
+                                "affaiblissement",
+                                "vulnerabilite"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "chasse-l-effroi",
+                        "label": "Chasse l'effroi",
+                        "description": "La lumière rassure : peur et confusion se dissipent.",
+                        "grants": {
+                            "cleanses": [
+                                "peur",
+                                "confusion"
+                            ]
+                        }
+                    }
+                ],
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "sagesse",
+                            "intelligence",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "cleanses.0",
+                    "reason": "Une lumière purificatrice dissipe la corruption : c'est ce qu'elle est."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "lp1",
                 "nodes": [
@@ -252,6 +869,123 @@
             "level": 3,
             "subdomains": ["Illumination"],
             "damageType": "light",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "warrior",
+                        "description": "Le guerrier, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de lumière accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "aveuglement",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "life",
+                    "electricity"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -286,6 +1020,122 @@
             "level": 2,
             "subdomains": ["Illumination"],
             "damageType": "light",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le pugiliste concentre sa maîtrise : le ratio de dégâts de lumière de chaque frappe est accru.",
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "aveuglement",
+                        "etourdissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "life",
+                    "electricity"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -320,6 +1170,120 @@
             "mana": 3,
             "level": 3,
             "subdomains": ["Illumination"],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 6,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.07
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.15
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "fire",
+                    "life",
+                    "electricity"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "retaliate",
+                    "reason": "La lumière pure ne frappe pas en retour : elle absorbe. Le manteau paie ce renoncement en défense pure."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "lmt1",
                 "nodes": [

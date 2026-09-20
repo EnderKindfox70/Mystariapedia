@@ -26,6 +26,7 @@ import { PotionEntryComponent } from './views/potions-entries/potions-entries';
 import { domainResolver } from './resolvers/domain.resolver';
 import { resourceResolver } from './resolvers/resource.resolver';
 import { potionResolver } from './resolvers/potion.resolver';
+import { artifactResolver } from './resolvers/artifact.resolver';
 import { Login } from './views/auth/login/login';
 import { Register } from './views/auth/register/register';
 import { Characters } from './views/characters/characters';
@@ -60,6 +61,14 @@ export const routes: Routes =
     { path: 'bestiary/:chapter', component: Bestiary },
     { path: 'bestiary/:chapter/:slug', component: Bestiary },
     { path: 'artifacts', component: Artifacts },
+    // Fiche d'artefact. Même gabarit que les ressources (illustration,
+    // informations, propriétés) ; `data` fournit ce que l'URL ne dit pas.
+    {
+      path: 'artifacts/:category/:slug',
+      component: ResourceEntryComponent,
+      resolve: { entry: artifactResolver },
+      data: { categoryLabel: 'Artefacts', indexLink: '/artifacts', backLabel: 'Retour aux artefacts' },
+    },
     { path: 'weapons', component: Weapons },
     { path: 'weapons/:category/:slug', component: WeaponEntryComponent, resolve: { entry: weaponResolver } },
     // Matériel non magique. La fiche réutilise la vue des ressources : même

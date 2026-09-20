@@ -1,0 +1,793 @@
+{
+    "name": "Electricité",
+    "icon": "/resources/media/icons/domains/electricity/electricity_icon.png",
+    "banner": "",
+    "first-quote": "Je suis rapide, imprevisible, je suis dans le ciel et dans ton corps.",
+    "usage-quote": "Laisse l'impulsion venir. Si tu la construis, tu arrives trop tard.",
+    "subdomains": [
+        {
+            "name": "Décharge",
+            "icon": "",
+            "quote": "Entre l'intention et l'éclair, il n'y a pas d'intervalle."
+        },
+        {
+            "name": "Électromagnétisme",
+            "icon": "",
+            "quote": "Les forces invisibles gouvernent ce que la main ne voit pas."
+        }
+    ],
+    "spells": [
+        {
+            "key": "electricity-etincelle",
+            "name": "Étincelle",
+            "description": "Fait jaillir une étincelle au bout des doigts : une décharge minuscule, mais immédiate et presque gratuite.",
+            "usage": {
+                "combat": "Projette une étincelle pour infliger de faibles dégâts de foudre à moindre coût."
+            },
+            "mana": 1,
+            "level": 1,
+            "subdomains": [
+                "Décharge"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 1,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 14, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.06, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-choc-nerveux",
+            "name": "Choc nerveux",
+            "description": "Envoie une décharge brève dans le système nerveux de la cible : peu de dégâts, mais les muscles peuvent se verrouiller net.",
+            "usage": {
+                "combat": "Infligez de faibles dégâts de foudre et tentez de paralyser la cible."
+            },
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Décharge"
+            ],
+            "requires": [
+                "electricity-etincelle"
+            ],
+            "baseStats": {
+                "damageMin": 2,
+                "damageMax": 3,
+                "mana": 4,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "paralysie",
+                        "chance": 25
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.05
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 16, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.07, "anchor": "tier3" } },
+                    { "id": "paralysieChance", "kind": "chance", "label": "Chance de Paralysie", "path": "inflicts.0.chance", "min": 0, "max": 100, "cap": { "value": 50, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-eclair",
+            "name": "Éclair",
+            "description": "Projette un arc de foudre fulgurant qui frappe une cible avec une précision instantanée.",
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Décharge"
+            ],
+            "requires": [
+                "electricity-choc-nerveux"
+            ],
+            "baseStats": {
+                "damageMin": 4,
+                "damageMax": 6,
+                "mana": 6,
+                "range": "16 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.09
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 12, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 20, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.11, "anchor": "tier3" } }
+                ],
+                "statusUnlock": { "eligible": ["paralysie"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-champ-magnetique",
+            "name": "Champ magnétique",
+            "description": "Génère un champ qui attire ou repousse le métal, déviant lames et projectiles ferreux.",
+            "mana": 4,
+            "level": 3,
+            "subdomains": [
+                "Électromagnétisme"
+            ],
+            "requires": [
+                "electricity-etincelle"
+            ],
+            "baseStats": {
+                "mana": 4,
+                "range": "8 m",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "self",
+                    "ally"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 12, "anchor": "tier3" } },
+                    { "id": "radius", "kind": "radius", "label": "Étendue", "path": "area", "min": 1.5, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "defPhyValue", "kind": "effect", "label": "Défense physique", "path": "effects.0.value", "min": 0, "cap": { "value": 4, "anchor": "treeMax" } },
+                    { "id": "intelligenceDefphyRatio", "kind": "ratio", "label": "Ratio Intelligence → Défense physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.5, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ],
+                "areaShapeSwap": { "shapes": ["Cône", "Ligne"] }
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-attire-metal",
+            "name": "Attire-métal",
+            "description": "Tend la main et rappelle à soi un objet métallique — posé au sol, glissé dans un fourreau ou serré dans un poing.",
+            "usage": {
+                "combat": "Arrachez une arme, un bouclier ou une pièce d'équipement métallique à un adversaire ; il résiste par un jet de Force. Visez une case **libre** et c'est le sol que vous aimantez : toute ferraille qui y traîne vient à vous sans que vous ayez à vous déplacer. Ce que vous prenez tombe dans votre sac — et **directement dans votre main si elle est vide**.",
+                "outOfCombat": "Récupère à distance une clé, un trousseau, une lame tombée dans une crevasse ou un objet métallique hors d'atteinte."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Électromagnétisme"
+            ],
+            "requires": [
+                "electricity-etincelle"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy",
+                    "ally",
+                    "self"
+                ],
+                "pullsMetal": true,
+                "pullDc": 12
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 18, "anchor": "tier3" } }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-projette-metal",
+            "name": "Projette-métal",
+            "description": "Lance à pleine vitesse un objet métallique que vous portez. Les dégâts et leur nature ne sont pas ceux du sort : ce sont ceux de l'objet. Une lame arrachée taille, une enclume écrase, une flèche perfore. Le projectile ne revient pas dans votre sac — il **tombe par terre** et y reste, à qui ira le chercher.",
+            "usage": {
+                "combat": "Choisissez un objet ferreux de votre sac, l'arme que vous tenez, **ou n'importe quelle ferraille tombée à vos pieds**, et projetez-le : ses dégâts et son type sont les siens. L'objet quitte votre inventaire ; une arme projetée quitte votre main. **Si le coup porte, l'objet retombe aux pieds de la cible ; s'il manque, il file au-delà** — rater coûte donc deux fois, le coup et la marche pour aller le reprendre. N'importe qui peut le ramasser en se baissant (action bonus)."
+            },
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Électromagnétisme"
+            ],
+            "requires": [
+                "electricity-attire-metal"
+            ],
+            "baseStats": {
+                "mana": 5,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "throwsMetal": true,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.08
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 1, "cap": { "value": 18, "anchor": "tier3" } },
+                    { "id": "atkMagRatio", "kind": "ratio", "label": "Ratio Attaque magique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.2, "anchor": "tier3" } }
+                ],
+                "statusUnlock": { "eligible": ["paralysie"], "chanceCap": { "value": 20, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-bouclier-electromagnetique",
+            "name": "Bouclier électromagnétique",
+            "description": "Le lanceur tend un champ autour de lui et le tient. Tant qu'il le tient, **rien de ferreux ne l'approche** : les créatures qui portent du métal — armure, arme, bouclier — ne peuvent plus venir à moins de l'écart imposé, et les coups portés avec une arme métallique sont déviés avant de l'atteindre. Le champ n'épaissit aucune armure et ne rend personne plus vif : il **tient à distance**, voilà tout. Qui vient les mains nues passe sans peine. Le prix est double : une **concentration** entière, qu'un coup encaissé peut rompre, et **du mana à chaque tour** pour tenir le champ ouvert. À sec, il se referme.",
+            "usage": {
+                "combat": "Sans rien viser, toute créature portant du métal est tenue à l'écart. Celles que le champ surprend au contact **sont écartées aussitôt**, d'un pas et sans provoquer d'attaque d'opportunité ; les armes métalliques qui vous visent glissent sur le champ. Un adversaire à mains nues, en cuir ou en bois, entre comme il veut. Deux choses à surveiller : votre concentration, qu'un coup peut rompre, et votre mana, prélevé à chaque tour.",
+                "outOfCombat": "Tenir à distance ce qui est ferreux : gardes en armure, grilles, chaînes, outils de fer. Tant que le mana suit."
+            },
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Électromagnétisme"
+            ],
+            "requires": [
+                "electricity-champ-magnetique"
+            ],
+            "baseStats": {
+                "mana": 6,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "anchorGap": "1,5 m",
+                "inflicts": [
+                    {
+                        "status": "repulsion-magnetique",
+                        "chance": 100,
+                        "duration": -1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "repulsionmagnetiqueChance", "kind": "chance", "label": "Chance de Répulsion magnétique", "path": "inflicts.0.chance", "min": 0, "max": 100 }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-revetement-arme",
+            "name": "Lame foudroyante",
+            "description": "Nimbe une arme d'arcs électriques : tant que l'enchantement dure, chaque coup inflige des dégâts de foudre supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts de foudre à chacune de vos attaques au corps à corps, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "damageType": "lightning",
+            "subdomains": [
+                "Décharge"
+            ],
+            "requires": [
+                "electricity-revetement-poings"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "ranger",
+                        "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 3, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Attaque physique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.03, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-revetement-poings",
+            "name": "Poings foudroyants",
+            "description": "Nimbe vos poings d'arcs électriques : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de foudre supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts de foudre à vos attaques à mains nues, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 2,
+            "damageType": "lightning",
+            "subdomains": [
+                "Décharge"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "force",
+                        "ratio": 0.2
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.",
+                        "manaFactor": 0.5
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1 },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "forceRatio", "kind": "ratio", "label": "Ratio Force", "path": "scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-revetement-manteau",
+            "name": "Manteau foudroyant",
+            "description": "Enveloppe le lanceur d'un voile d'arcs électriques : sa défense magique est renforcée. Tout attaquant au corps-à-corps subit l'étourdissement en retour.",
+            "usage": {
+                "combat": "Enveloppez-vous d'un voile d'arcs électriques pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Décharge"
+            ],
+            "requires": [
+                "electricity-revetement-poings"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ],
+                "retaliate": {
+                    "trigger": "melee",
+                    "damageMin": 2,
+                    "damageMax": 4,
+                    "damageType": "lightning",
+                    "scaling": [
+                        {
+                            "source": "atk_mag",
+                            "ratio": 0.2
+                        }
+                    ],
+                    "inflicts": [
+                        {
+                            "status": "etourdissement",
+                            "chance": 20
+                        }
+                    ]
+                }
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "defMagValue", "kind": "effect", "label": "Défense magique", "path": "effects.0.value", "min": 0, "cap": { "value": 8, "anchor": "treeMax" } },
+                    { "id": "intelligenceDefmagRatio", "kind": "ratio", "label": "Ratio Intelligence → Défense magique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.4, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-surtension",
+            "name": "Surtension",
+            "description": "Fait monter la tension dans ses propres muscles : les coups deviennent dévastateurs et les gestes s'accélèrent.",
+            "usage": {
+                "combat": "Augmentez grandement votre attaque physique et modérément votre vitesse, le temps de la surtension."
+            },
+            "mana": 5,
+            "level": 5,
+            "subdomains": [
+                "Décharge"
+            ],
+            "requires": [
+                "electricity-choc-nerveux"
+            ],
+            "baseStats": {
+                "mana": 5,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "atk_phy",
+                        "value": 4,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.4
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "speed",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "dexterite",
+                                "ratio": 0.2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyValue", "kind": "effect", "label": "Attaque physique", "path": "effects.0.value", "min": 0, "cap": { "value": 8, "anchor": "treeMax" } },
+                    { "id": "forceAtkphyRatio", "kind": "ratio", "label": "Ratio Force → Attaque physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.6, "anchor": "tier3" } },
+                    { "id": "speedValue", "kind": "effect", "label": "Vitesse", "path": "effects.1.value", "min": 0, "cap": { "value": 3, "anchor": "treeMax" } },
+                    { "id": "dexteriteSpeedRatio", "kind": "ratio", "label": "Ratio Déxterité → Vitesse", "path": "effects.1.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] },
+                    { "path": "effects.1.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "electricity-surintensite",
+            "name": "Surintensité",
+            "description": "Fait circuler un courant intense dans son propre corps : l'influx nerveux s'emballe et la magie gagne en mordant.",
+            "usage": {
+                "combat": "Augmentez grandement votre vitesse et modérément votre attaque magique, le temps de la surintensité."
+            },
+            "mana": 5,
+            "level": 5,
+            "subdomains": [
+                "Décharge"
+            ],
+            "requires": [
+                "electricity-choc-nerveux"
+            ],
+            "baseStats": {
+                "mana": 5,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "speed",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "dexterite",
+                                "ratio": 0.4
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "atk_mag",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "intelligence",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "speedValue", "kind": "effect", "label": "Vitesse", "path": "effects.0.value", "min": 0, "cap": { "value": 7, "anchor": "treeMax" } },
+                    { "id": "dexteriteSpeedRatio", "kind": "ratio", "label": "Ratio Déxterité → Vitesse", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.6, "anchor": "tier3" } },
+                    { "id": "atkMagValue", "kind": "effect", "label": "Attaque magique", "path": "effects.1.value", "min": 0, "cap": { "value": 4, "anchor": "treeMax" } },
+                    { "id": "intelligenceAtkmagRatio", "kind": "ratio", "label": "Ratio Intelligence → Attaque magique", "path": "effects.1.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.4, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] },
+                    { "path": "effects.1.scaling.0", "eligible": ["atk_mag", "intelligence", "sagesse", "charisme"] }
+                ]
+            },
+            "crossDomain": { "eligible": ["air", "light", "space"] },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        }
+    ],
+    "feats": [
+        {
+            "key": "electricity-arc-direct",
+            "name": "Arc direct",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur de Foudre débloqué",
+            "description": "Une seule ligne, du bras à la cible. Rien ne se disperse, rien ne dévie.",
+            "subdomains": [
+                "Décharge"
+            ],
+            "excludes": [
+                "electricity-arc-ramifie"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts sur cible unique",
+                    "value": "×1,25",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Arcs secondaires et ricochets",
+                    "value": "Supprimés",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "electricity-arc-ramifie",
+            "name": "Arc ramifié",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur de Foudre débloqué",
+            "description": "La foudre cherche toujours un autre chemin : il arrête de l'en empêcher.",
+            "subdomains": [
+                "Décharge"
+            ],
+            "excludes": [
+                "electricity-arc-direct"
+            ],
+            "effects": [
+                {
+                    "label": "Cible supplémentaire",
+                    "value": "1 rebond à 60 % des dégâts",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts sur la cible principale",
+                    "value": "×0,85",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "electricity-paratonnerre",
+            "name": "Paratonnerre",
+            "level": 10,
+            "kind": "passive",
+            "prerequisite": "Palier Majeur de Foudre débloqué",
+            "description": "Il cesse de fuir la décharge : il l'appelle, l'encaisse et la garde. Ce que le ciel lui jette, le sort suivant le rend.",
+            "subdomains": [
+                "Décharge",
+                "Électromagnétisme"
+            ],
+            "excludes": [],
+            "effects": [
+                {
+                    "label": "Dégâts de Foudre subis",
+                    "value": "Résistance permanente ×0,5",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Prochain sort de Foudre après une décharge encaissée",
+                    "value": "Mana ×0,5",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Sorts de Foudre qui le visent, par temps d'orage",
+                    "value": "Seuil de toucher −3 crans",
+                    "tone": "cost"
+                }
+            ],
+            "passives": [
+                {
+                    "resistance": "lightning",
+                    "label": "Paratonnerre : la décharge suit le métal et non la chair"
+                },
+                {
+                    "key": "electricity-paratonnerre-charge",
+                    "chargedBy": "lightning",
+                    "manaFactor": 0.5,
+                    "domains": [
+                        "electricity"
+                    ],
+                    "damageTypes": [
+                        "lightning"
+                    ],
+                    "label": "Charge captée : le prochain sort de Foudre coûte moitié moins"
+                },
+                {
+                    "when": {
+                        "weather": "storm"
+                    },
+                    "incomingPrecision": 15,
+                    "domains": [
+                        "electricity"
+                    ],
+                    "damageTypes": [
+                        "lightning"
+                    ],
+                    "label": "Orage : il est le point haut du champ, et la foudre le sait"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

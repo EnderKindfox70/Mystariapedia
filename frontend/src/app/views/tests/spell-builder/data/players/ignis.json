@@ -1,0 +1,24 @@
+{
+    "_test": "Joueur type — mage niveau 10, trois domaines. Connaît Braises, Échauffement et Attire-métal ; peut APPRENDRE Fils du marionnettiste (prérequis remplis).",
+    "id": "ignis",
+    "default": true,
+    "name": "Ignis",
+    "class": "mage",
+    "level": 10,
+    "domains": ["fire", "darkness", "electricity"],
+    "attributes": { "force": 8, "dexterite": 12, "constitution": 12, "intelligence": 17, "sagesse": 13, "charisme": 14 },
+    "stats": { "atk_mag": 80, "atk_phy": 22, "def_mag": 34, "def_phy": 18, "hp": 48, "mana": 60, "endurance": 30, "speed": 6 },
+    "knownSpells": [
+        "fire-embers",
+        "fire-echauffement",
+        "darkness-decharge-ombre",
+        "darkness-murmure-de-terreur",
+        "electricity-etincelle",
+        "electricity-attire-metal"
+    ],
+    "spellState": {
+        "fire-embers": { "xp": 42, "build": null, "lastReassignedAt": null },
+        "fire-echauffement": { "xp": 27.5, "build": null, "lastReassignedAt": null },
+        "electricity-attire-metal": { "xp": 15, "build": null, "lastReassignedAt": null }
+    }
+}

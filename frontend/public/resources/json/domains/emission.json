@@ -20,6 +20,120 @@
             "level": 1,
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "sagesse",
+                                "ratio": 0.25
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Résistance magique",
+                        "path": "effects.0.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 7,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "wisRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Sagesse → Résistance magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "ally"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "sagesse",
+                            "intelligence",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "L'Émission n'inflige rien : elle s'interpose et boit une part du coup. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "vo1",
                 "nodes": [
@@ -57,6 +171,118 @@
             "level": 3,
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
+            "baseStats": {
+                "mana": 5,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 1,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 15,
+                        "scaling": [
+                            {
+                                "source": "sagesse",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Résistance magique",
+                        "path": "effects.0.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 25,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "wisRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Sagesse → Résistance magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 1,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "ally"
+                    ]
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "sagesse",
+                            "intelligence",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "continuousMode",
+                    "reason": "Le bouclier est un instant, pas un état : on ne le tient pas au long cours."
+                },
+                {
+                    "field": "inflicts",
+                    "reason": "L'Émission n'inflige rien : elle s'interpose et boit une part du coup. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "bv1",
                 "nodes": [

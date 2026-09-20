@@ -3,6 +3,13 @@
         <navbar></navbar>
     </aside>
     <main>
-        <entity-card [entity]="sampleEntity"></entity-card>
+        <nav class="test-tabs" aria-label="Bancs d'essai">
+            <button type="button" [class.active]="tab() === 'spell-builder'" (click)="tab.set('spell-builder')">Spell builder</button>
+            <button type="button" [class.active]="tab() === 'entity-card'" (click)="tab.set('entity-card')">Carte d'entité</button>
+        </nav>
+        @switch (tab()) {
+            @case ('spell-builder') { <spell-builder></spell-builder> }
+            @case ('entity-card') { <entity-card [entity]="sampleEntity"></entity-card> }
+        }
     </main>
 </div>

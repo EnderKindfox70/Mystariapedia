@@ -11,6 +11,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'alchemy/:slug', renderMode: RenderMode.Client },
   { path: 'equipment/:slug', renderMode: RenderMode.Client },
   { path: 'weapons/:category/:slug', renderMode: RenderMode.Client },
+  { path: 'artifacts/:category/:slug', renderMode: RenderMode.Client },
   { path: 'lore/peuples/:slug', renderMode: RenderMode.Client },
   { path: 'bestiary/:chapter', renderMode: RenderMode.Client },
   { path: 'bestiary/:chapter/:slug', renderMode: RenderMode.Client },
@@ -19,6 +20,10 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'characters', renderMode: RenderMode.Client },
   { path: 'characters/new', renderMode: RenderMode.Client },
   { path: 'characters/:id', renderMode: RenderMode.Client },
+
+  // Bancs d'essai : le spell builder garde son joueur type dans le stockage
+  // local du navigateur, qu'un prérendu ne peut pas connaître.
+  { path: 'tests', renderMode: RenderMode.Client },
 
   // Tout le reste est prérendu en HTML statique au build.
   { path: '**', renderMode: RenderMode.Prerender },

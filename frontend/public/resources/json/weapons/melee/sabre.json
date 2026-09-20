@@ -1,5 +1,6 @@
 {
   "name": "Sabre",
+  "image": "/resources/media/pictures/weapons/sabre.png",
   "material": "acier",
   "subtitle": "Lame courbe de cavalerie",
   "description": [

@@ -41,6 +41,109 @@
             "subdomains": [
                 "Ombre"
             ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 4,
+                "range": "12 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.07
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 9,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 20,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.1,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "vulnerabilite",
+                        "affaiblissement"
+                    ],
+                    "chanceCap": {
+                        "value": 60,
+                        "anchor": "treeMax",
+                        "path": "inflicts.0.chance"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "space",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "do1",
                 "branches": [
@@ -262,6 +365,82 @@
                 "Peur & terreur"
             ],
             "requires": [],
+            "baseStats": {
+                "mana": 3,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "peur",
+                        "chance": 25
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "fearChance",
+                        "kind": "chance",
+                        "label": "Chance de Peur",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 70,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "extraTargets": {
+                    "base": 1,
+                    "label": "esprit(s) atteint(s)"
+                },
+                "statusUnlock": {
+                    "eligible": [
+                        "confusion"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le murmure insinue la peur : c'est le sort."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "dt1",
                 "nodes": [
@@ -345,6 +524,105 @@
             "mana": 1,
             "subdomains": [
                 "Obfuscation & Secret"
+            ],
+            "baseStats": {
+                "mana": 1,
+                "range": "10 m",
+                "area": "Rayon 3 m",
+                "targets": [
+                    "everyone"
+                ],
+                "duration": 2,
+                "lingers": "ground",
+                "inflicts": [
+                    {
+                        "status": "aveuglement",
+                        "chance": 30
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "blindChance",
+                        "kind": "chance",
+                        "label": "Chance d'Aveuglement",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 90,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée du brouillard",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du brouillard",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 9,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "tier3"
+                        }
+                    }
+                ],
+                "defaultTargetSwap": {
+                    "pair": [
+                        "everyone",
+                        "enemy"
+                    ]
+                },
+                "ownEffects": [
+                    {
+                        "id": "suit-le-lanceur",
+                        "label": "Suit le lanceur",
+                        "cost": 6,
+                        "description": "Le brouillard se déplace avec le lanceur, qui en reste le centre.",
+                        "grants": {
+                            "lingers": "caster"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le brouillard aveugle : on règle son épaisseur, pas sa nature."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "dbm1",
@@ -433,6 +711,107 @@
             "requires": [
                 "darkness-dark-mist"
             ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Contact",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "grades": {
+                    "secret": 0
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "secret",
+                        "kind": "grade",
+                        "label": "Profondeur du secret",
+                        "path": "grades.secret",
+                        "min": 0,
+                        "max": 2,
+                        "ladder": [
+                            {
+                                "label": "Dissimulé",
+                                "action": "de dissimuler",
+                                "description": "ce qu'il couvre échappe au regard de qui le cherche."
+                            },
+                            {
+                                "label": "Oublié",
+                                "action": "de faire oublier",
+                                "description": "on l'oublie aussitôt qu'on détourne les yeux."
+                            },
+                            {
+                                "label": "Effacé",
+                                "action": "d'effacer",
+                                "description": "il s'efface jusque de la mémoire de ceux qui l'avaient vu."
+                            }
+                        ],
+                        "cap": {
+                            "value": 2
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du voile",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 12,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "dv1",
                 "nodes": [
@@ -504,6 +883,89 @@
             ],
             "requires": [
                 "darkness-dark-mist"
+            ],
+            "baseStats": {
+                "mana": 4,
+                "range": "10 m",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "sommeil",
+                        "chance": 25
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "sleepChance",
+                        "kind": "chance",
+                        "label": "Chance de Sommeil",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 75,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du voile",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 16,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "confusion"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le voile endort : le sommeil EST le sort."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "ds1",
@@ -591,6 +1053,138 @@
             ],
             "requires": [
                 "darkness-decharge-ombre"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 3,
+                "mana": 7,
+                "range": "10 m",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "silence",
+                        "chance": 25
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.05
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "silenceChance",
+                        "kind": "chance",
+                        "label": "Chance de Silence",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 80,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.06,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    }
+                ],
+                "extraTargets": {
+                    "base": 1,
+                    "label": "brèche(s)"
+                },
+                "ownEffects": [
+                    {
+                        "id": "ronge-les-charmes",
+                        "label": "Ronge les charmes",
+                        "description": "Le néant dévore les sortilèges qui portaient la cible : régénération, hâte et rage s'éteignent.",
+                        "grants": {
+                            "cleanses": [
+                                "regeneration",
+                                "hate",
+                                "rage"
+                            ]
+                        }
+                    }
+                ],
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "space",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le néant éteint la magie : le silence EST la morsure."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "dn1",
@@ -708,6 +1302,101 @@
             "requires": [
                 "darkness-murmure-de-terreur"
             ],
+            "baseStats": {
+                "mana": 10,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "requiresHit": true,
+                "precisionPenalty": 30,
+                "tetherRange": "6 m",
+                "inflicts": [
+                    {
+                        "status": "controle",
+                        "chance": 100,
+                        "duration": -1
+                    }
+                ]
+            },
+            "baseExtras": {
+                "upkeep": 3,
+                "maxPuppets": 1
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "precision",
+                        "kind": "precision",
+                        "label": "Pénalité de précision",
+                        "path": "precisionPenalty",
+                        "min": 0,
+                        "cap": {
+                            "value": 15,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "tether",
+                        "kind": "range",
+                        "label": "Portée des fils",
+                        "path": "tetherRange",
+                        "min": 1,
+                        "cap": {
+                            "value": 35,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "upkeep",
+                        "kind": "upkeep",
+                        "label": "Entretien par pantin",
+                        "path": "upkeep",
+                        "min": 1,
+                        "cap": null
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "extraTargets": {
+                    "base": 1,
+                    "field": "maxPuppets",
+                    "label": "pantin(s) lié(s)",
+                    "max": 2
+                },
+                "defaultTargetSwap": {
+                    "pair": [
+                        "enemy",
+                        "ally"
+                    ]
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "Contrôle à 100 % : c'est l'identité du sort, le transformer changerait le sort lui-même."
+                },
+                {
+                    "field": "narrativeResistance",
+                    "reason": "Résistance narrative extrême : seul un 20 naturel brise les fils — plafond narratif."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "dfm1",
                 "nodes": [
@@ -820,6 +1509,123 @@
                 "Ombre"
             ],
             "damageType": "dark",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "rogue",
+                        "description": "Le vagabond, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de ténèbres accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "aveuglement",
+                        "peur"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "space",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -941,6 +1747,117 @@
                 "Ombre"
             ],
             "damageType": "dark",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                        "bonusAction": true
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "aveuglement",
+                        "peur"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "space",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Bonus du Pugiliste : propre à l'identité de la classe, jamais dans le budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -1048,6 +1965,120 @@
             "level": 3,
             "subdomains": [
                 "Ombre"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 6,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.07
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.15
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "death",
+                    "space",
+                    "fire"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "retaliate",
+                    "reason": "Les ténèbres ne ripostent pas : elles engloutissent. Le manteau paie ce renoncement en défense pure."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
             ],
             "progression": {
                 "root": "dkmt1",

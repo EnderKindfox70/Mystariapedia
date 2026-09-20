@@ -842,55 +842,6 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-inspiration.is-empty b { color: #e08a8a; }
 .cs-inspiration__spark { color: var(--ancient-gold); }
 
-.cs-rank { display: inline-flex; align-items: center; gap: 0.15rem; }
-.cs-rank__btn {
-  width: 1.35rem; height: 1.35rem; line-height: 1;
-  color: var(--faded-ivory);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--ancient-gold) 40%, transparent);
-  border-radius: 4px; cursor: pointer;
-}
-.cs-rank__btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.cs-rank__val { font-family: var(--font-title); font-size: 0.72rem; color: var(--faded-ivory); min-width: 2.4rem; text-align: center; }
-.cs-rank__max { color: var(--dust-brown); }
-.cs-rank__btn.is-add { color: var(--ancient-gold); border-color: color-mix(in srgb, var(--ancient-gold) 60%, transparent); }
-.cs-rank__badge {
-  font-family: var(--font-title); font-size: 0.66rem; color: #3a2a1c;
-  background: color-mix(in srgb, var(--ancient-gold) 55%, var(--burned-paper));
-  padding: 0.05rem 0.4rem; border-radius: 10px;
-}
-
-/* Arbre d'amélioration (choix de paliers/branches) */
-.cs-tree { margin-top: 0.35rem; }
-.cs-tree__summary {
-  cursor: pointer; font-family: var(--font-title); font-size: 0.72rem;
-  color: var(--ancient-gold); list-style: none;
-}
-.cs-tree__summary::-webkit-details-marker { display: none; }
-.cs-tree__summary::before { content: '▸ '; }
-.cs-tree[open] .cs-tree__summary::before { content: '▾ '; }
-.cs-tree__hint { display: block; font-size: 0.64rem; color: var(--dust-brown); font-family: var(--font-body); }
-.cs-tree__nodes { list-style: none; margin: 0.35rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.2rem; }
-.cs-tnode {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.45rem;
-  padding: 0.2rem 0.4rem; border-radius: 5px;
-  border: 1px solid transparent;
-  opacity: 0.85;
-}
-.cs-tnode.is-on { opacity: 1; background: rgba(214, 167, 54, 0.1); border-color: color-mix(in srgb, var(--ancient-gold) 30%, transparent); }
-.cs-tnode__tier {
-  font-family: var(--font-title); font-size: 0.6rem; color: var(--abyss);
-  background: color-mix(in srgb, var(--ancient-gold) 45%, var(--burned-paper));
-  padding: 0.02rem 0.32rem; border-radius: 8px;
-}
-.cs-tnode.is-branch .cs-tnode__tier { background: color-mix(in srgb, var(--domain-lightning, #d6a736) 55%, var(--burned-paper)); }
-.cs-tnode__body { display: flex; flex-direction: column; min-width: 0; }
-.cs-tnode__name { font-size: 0.78rem; color: var(--faded-ivory); }
-.cs-tnode__branch { font-size: 0.62rem; color: var(--dust-brown); }
-.cs-tnode__on { color: var(--ancient-gold); font-size: 0.8rem; }
-.cs-tnode__dim { color: var(--dust-brown); opacity: 0.6; }
-.cs-tnode.is-excluded { opacity: 0.4; }
-.cs-tnode.is-excluded .cs-tnode__name { text-decoration: line-through; }
 .cs-total.is-over { color: #e08a8a; }
 .sheet-inv__total.is-over { color: var(--ritual-red); }
 
@@ -1413,18 +1364,6 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 }
 .sheet-spell-list--muted li { opacity: 0.72; }
 .sheet-spells__insp { margin: 0 0 0.3rem; font-size: 0.74rem; font-weight: 700; color: var(--dust-brown); }
-/* Badge de palier (« R2 ») : collé au titre du sort, il se confondait avec lui.
-   Marge, contour et fond plus dense le détachent nettement du nom. */
-.sheet-spell__rank {
-  display: inline-block;
-  margin-left: 0.35rem;
-  font-size: 0.56rem; font-weight: 700; letter-spacing: 0.04em;
-  color: var(--faded-ivory);
-  background: var(--dust-brown);
-  border: 1px solid color-mix(in srgb, var(--ancient-gold) 70%, transparent);
-  padding: 0.02rem 0.32rem; border-radius: 8px; vertical-align: middle;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
 
 .sheet-inv-list li { grid-template-columns: 1fr 2.5rem 3rem; gap: 0.4rem; }
 .sheet-inv__head { font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: #5e4632; }

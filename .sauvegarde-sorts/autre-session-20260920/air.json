@@ -1,0 +1,1180 @@
+{
+    "name": "Air",
+    "icon": "/resources/media/icons/domains/air/air_icon.png",
+    "banner": "",
+    "first-quote": "On ne me voit jamais. On ne voit que ce que je déplace.",
+    "usage-quote": "Ne t'attaches pas. Laisse-toi porter. Le vent est libre.",
+    "subdomains": [
+        {
+            "name": "Vent",
+            "icon": "",
+            "quote": "On ne me tient pas. On apprend seulement à me suivre."
+        },
+        {
+            "name": "Météo",
+            "icon": "",
+            "quote": "Le ciel décide, les mortels s'abritent."
+        },
+        {
+            "name": "Son",
+            "icon": "",
+            "quote": "Un murmure bien placé renverse plus qu'un cri."
+        },
+        {
+            "name": "Vide",
+            "icon": "",
+            "quote": "Là où il n'y a rien, tout peut encore advenir."
+        },
+        {
+            "name": "Liberté",
+            "icon": "",
+            "quote": "Aucune chaîne n'est faite pour l'air."
+        }
+    ],
+    "spells": [
+        {
+            "key": "air-bourrasque",
+            "name": "Bourrasque",
+            "description": "Libère une rafale de vent qui repousse les créatures et disperse projectiles, gaz et brumes.",
+            "mana": 2,
+            "level": 1,
+            "subdomains": [
+                "Vent"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 2,
+                "range": "Autour de soi",
+                "area": "Cône 3 m",
+                "targets": [
+                    "enemy"
+                ],
+                "knockback": 1,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "knockback",
+                        "kind": "knockback",
+                        "label": "Repoussement",
+                        "path": "knockback",
+                        "min": 1,
+                        "cap": {
+                            "value": 3
+                        }
+                    },
+                    {
+                        "id": "length",
+                        "kind": "radius",
+                        "label": "Portée du souffle",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.06,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "etourdissement",
+                        "ralentissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "electricity",
+                    "water",
+                    "space"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "range",
+                    "reason": "Le souffle part du lanceur : sa portée, c'est sa longueur. Viser ne fait que choisir la direction."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "air-cri-sonique",
+            "name": "Cri sonique",
+            "description": "Concentre l'air en une onde sonore tranchante qui assourdit et meurtrit ce qu'elle frappe.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Son"
+            ],
+            "requires": [
+                "air-bourrasque"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 3,
+                "range": "Autour de soi",
+                "area": "Ligne 4,5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "silence",
+                        "chance": 15
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "silenceChance",
+                        "kind": "chance",
+                        "label": "Chance de Silence",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 60,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "length",
+                        "kind": "radius",
+                        "label": "Portée du cri",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.05,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "etourdissement",
+                        "confusion"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "areaShapeSwap": {
+                    "shapes": [
+                        "Ligne",
+                        "Cône" ,
+                        "Rayon"
+                    ]
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "electricity",
+                    "water",
+                    "space"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le cri assourdit : le silence EST le sort."
+                },
+                {
+                    "field": "range",
+                    "reason": "Le cri part du lanceur : sa portée, c'est sa longueur. Viser ne fait que choisir la direction."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "air-pas-du-vent",
+            "name": "Pas du vent",
+            "description": "Allège le corps du lanceur, lui offrant une rapidité et une agilité libérées de toute entrave.",
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Liberté"
+            ],
+            "requires": [
+                "air-bourrasque"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "speed",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "dexterite",
+                                "ratio": 0.3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "speedRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Dextérité → Vitesse",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2
+                        }
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "ally"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "ownEffects": [
+                    {
+                        "id": "sans-entraves",
+                        "label": "Sans entraves",
+                        "description": "Le vent dénoue ce qui retient : ralentissement et enracinement tombent.",
+                        "grants": {
+                            "cleanses": [
+                                "ralentissement",
+                                "enracinement"
+                            ]
+                        }
+                    }
+                ],
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "dexterite",
+                            "constitution",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "air-temps-calme",
+            "name": "Temps calme",
+            "description": "Défait ce que le ciel avait entrepris. La tempête tombe, la brume se lève, la canicule reflue : il ne reste qu'un temps ordinaire, qui ne favorise plus personne.",
+            "usage": {
+                "combat": "Dissipe la météo en cours : ses multiplicateurs et les statuts qu'elle imposait cessent aussitôt. N'inflige aucun dégât.",
+                "outOfCombat": "Ouvre une fenêtre de temps praticable — traverser un col, appareiller, faire sécher un camp trempé."
+            },
+            "mana": 6,
+            "level": 5,
+            "subdomains": [
+                "Météo"
+            ],
+            "requires": [
+                "air-cri-sonique"
+            ],
+            "baseStats": {
+                "mana": 7,
+                "range": "Autour de soi",
+                "area": "Rayon 9 m",
+                "targets": [
+                    "everyone"
+                ],
+                "clearsWeather": true
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du calme",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 20,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "clearsWeather",
+                    "reason": "Temps calme défait la météo : c'est le sort, il ne se marchande pas."
+                },
+                {
+                    "field": "targets",
+                    "reason": "Le ciel redevient ordinaire pour tout le monde : personne n'y gagne."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "air-poche-de-vide",
+            "name": "Poche de vide",
+            "description": "Aspire l'air d'une zone pour y créer un vide qui étouffe flammes, sons et souffle des créatures.",
+            "mana": 5,
+            "level": 4,
+            "subdomains": [
+                "Vide"
+            ],
+            "requires": [
+                "air-cri-sonique"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 1,
+                "mana": 6,
+                "range": "12 m",
+                "area": "Rayon 1,5 m",
+                "targets": [
+                    "enemy"
+                ],
+                "inflicts": [
+                    {
+                        "status": "silence",
+                        "chance": 25
+                    }
+                ],
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.03
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "silenceChance",
+                        "kind": "chance",
+                        "label": "Chance de Silence",
+                        "path": "inflicts.0.chance",
+                        "min": 0,
+                        "max": 100,
+                        "cap": {
+                            "value": 80,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du vide",
+                        "path": "area",
+                        "min": 1.5,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 18,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.04,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 4
+                        }
+                    }
+                ],
+                "statusUnlock": {
+                    "eligible": [
+                        "etourdissement",
+                        "affaiblissement"
+                    ],
+                    "chanceCap": {
+                        "value": 20,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "intelligence",
+                            "sagesse",
+                            "charisme"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "electricity",
+                    "water",
+                    "space"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts.0.status",
+                    "reason": "Le vide n'a pas de voix : le silence EST la poche."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "air-revetement-arme",
+            "requires": [
+                "air-revetement-poings"
+            ],
+            "name": "Lame des bourrasques",
+            "description": "Nimbe une arme de lames de vent : tant que l'enchantement dure, chaque coup inflige des dégâts de vent supplémentaires.",
+            "usage": {
+                "combat": "Enchantez votre arme pour ajouter des dégâts de vent à chacune de vos attaques au corps à corps, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Vent"
+            ],
+            "damageType": "wind",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "ranger",
+                        "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de vent accrus à chaque coup.",
+                        "scaling": [
+                            {
+                                "source": "atk_phy",
+                                "ratio": 0.01
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "damageTypeSwap": {
+                    "eligible": [
+                        "slashing"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "electricity",
+                    "water",
+                    "space"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "air-revetement-poings",
+            "name": "Poings des bourrasques",
+            "description": "Nimbe vos poings de lames de vent : tant que l'enchantement dure, chaque coup à mains nues inflige des dégâts de vent supplémentaires.",
+            "usage": {
+                "combat": "Enchantez vos poings pour ajouter des dégâts de vent à vos attaques à mains nues, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 2,
+            "subdomains": [
+                "Vent"
+            ],
+            "damageType": "wind",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ],
+                "classBonuses": [
+                    {
+                        "class": "pugilist",
+                        "description": "Le geste est un réflexe pour qui en a fait son art : le pugiliste nimbe ses poings en une fraction de seconde. Le sort se lance en action bonus, ce qui lui laisse son action pour frapper dans le même tour.",
+                        "bonusAction": true
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "damageTypeSwap": {
+                    "eligible": [
+                        "slashing"
+                    ]
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution",
+                            "atk_phy"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "electricity",
+                    "water",
+                    "space"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Bonus du Pugiliste : propre à l'identité de la classe, jamais dans le budget."
+                }
+            ]
+        },
+        {
+            "key": "air-revetement-manteau",
+            "requires": [
+                "air-revetement-poings"
+            ],
+            "name": "Manteau des bourrasques",
+            "description": "Enveloppe le lanceur d'une bourrasque tournoyante : sa défense magique est renforcée et sa vitesse accrue.",
+            "usage": {
+                "combat": "Enveloppez-vous d'une bourrasque tournoyante pour mieux encaisser les sorts et attaques magiques, le temps de l'enchantement."
+            },
+            "mana": 3,
+            "level": 3,
+            "subdomains": [
+                "Vent"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_mag",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.05
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "speed",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "atk_mag",
+                                "ratio": 0.035
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMag",
+                        "kind": "effect",
+                        "label": "Défense magique",
+                        "path": "effects.0.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "defMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Défense magique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.09
+                        }
+                    },
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.1.value",
+                        "min": 0,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMax"
+                        }
+                    },
+                    {
+                        "id": "speedRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique → Vitesse",
+                        "path": "effects.1.scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.04
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingUnlock": {
+                    "eligible": [
+                        "constitution"
+                    ],
+                    "field": "durationScaling",
+                    "ratioCap": {
+                        "value": 0.25,
+                        "anchor": "treeMax",
+                        "path": "durationScaling.0.ratio"
+                    }
+                },
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "sagesse",
+                            "constitution"
+                        ]
+                    },
+                    {
+                        "path": "effects.1.scaling.0",
+                        "eligible": [
+                            "dexterite",
+                            "constitution",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": {
+                "eligible": [
+                    "electricity",
+                    "water",
+                    "space"
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        }
+    ],
+    "feats": [
+        {
+            "key": "air-souffle-tranchant",
+            "name": "Souffle tranchant",
+            "level": 5,
+            "kind": "multiplier",
+            "prerequisite": "Palier Mineur d'Air débloqué",
+            "description": "Il resserre le vent jusqu'à ce qu'il coupe. Ce qui coupe ne pousse plus.",
+            "subdomains": [
+                "Vent"
+            ],
+            "excludes": [
+                "air-portance"
+            ],
+            "effects": [
+                {
+                    "label": "Dégâts des sorts de Vent",
+                    "value": "×1,2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Poussée et projection",
+                    "value": "Réduites de moitié",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "air-portance",
+            "name": "Portance",
+            "level": 5,
+            "kind": "override",
+            "prerequisite": "Palier Mineur d'Air débloqué",
+            "description": "Le vent le porte plus qu'il ne le sert : il va partout, très vite, et ne blesse presque personne.",
+            "subdomains": [
+                "Vent",
+                "Liberté"
+            ],
+            "excludes": [
+                "air-souffle-tranchant"
+            ],
+            "effects": [
+                {
+                    "label": "Déplacement offert par un sort d'Air",
+                    "value": "+50 %",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Sorts d'Air sans dégâts",
+                    "value": "Lançables en action bonus",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Dégâts des sorts d'Air",
+                    "value": "×0,85",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "air-voix-porteuse",
+            "name": "Voix porteuse",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur d'Air débloqué et un sort de l'aspect Son connu",
+            "description": "Il cesse de viser une oreille pour remplir l'air entier — et l'air entier sait alors où il se tient.",
+            "subdomains": [
+                "Son"
+            ],
+            "effects": [
+                {
+                    "label": "Ciblage des sorts de Son",
+                    "value": "Zone, rayon 4 m",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Discrétion pendant l'incantation",
+                    "value": "Position du lanceur révélée",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "air-oeil-du-cyclone",
+            "name": "Œil du cyclone",
+            "level": 20,
+            "kind": "unlock",
+            "prerequisite": "Palier Expert d'Air débloqué et Temps calme connu",
+            "description": "Il n'appelle plus la météo, il la décide. Elle ne lui demande pas de camp.",
+            "subdomains": [
+                "Météo"
+            ],
+            "effects": [
+                {
+                    "label": "Changement de météo forcé",
+                    "value": "1 fois par jour, sans coût en mana",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Effets de la météo invoquée",
+                    "value": "Alliés et ennemis, sans distinction",
+                    "tone": "cost"
+                },
+                {
+                    "label": "Après usage",
+                    "value": "1 niveau de Fatigue",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}

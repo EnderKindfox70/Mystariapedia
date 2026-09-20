@@ -20,6 +20,159 @@
             "level": 1,
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "atk_phy",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.1
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "def_phy",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "constitution",
+                                "ratio": 0.1
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "speed",
+                        "value": 1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "atkPhy",
+                        "kind": "effect",
+                        "label": "Attaque physique",
+                        "path": "effects.0.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.1.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.2.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "forceRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Force → Attaque physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "conRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Constitution → Défense physique",
+                        "path": "effects.1.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.3,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 4,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "atk_phy"
+                        ]
+                    },
+                    {
+                        "path": "effects.1.scaling.0",
+                        "eligible": [
+                            "constitution",
+                            "force"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "Le Renforcement ne crée rien et n'altère rien : il densifie. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rc1",
                 "nodes": [
@@ -177,6 +330,105 @@
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
             "damageType": "weapon",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_mag",
+                        "ratio": 0.02
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts par coup",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 5
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkMagRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque magique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.03,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_mag",
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Revêtement neutre",
+                    "reason": "Le Renforcement n'ajoute aucune nature : le coup garde le type de l'arme qu'il densifie."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "Le Renforcement ne crée rien et n'altère rien : il densifie. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "ra1",
                 "nodes": [
@@ -265,6 +517,100 @@
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
             "damageType": "bludgeoning",
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "alwaysCritical": true,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.04
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "damage",
+                        "kind": "damage",
+                        "label": "Dégâts",
+                        "path": "damageMax",
+                        "shift": [
+                            "damageMin"
+                        ],
+                        "min": 1,
+                        "cap": {
+                            "value": 7,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "atkPhyRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Attaque physique",
+                        "path": "scaling.0.ratio",
+                        "step": 0.01,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.07,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "atk_phy",
+                            "force",
+                            "dexterite"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [
+                {
+                    "field": "damageType",
+                    "mechanic": "Revêtement neutre",
+                    "reason": "Le Renforcement n'ajoute aucune nature : le coup garde le type de l'arme qu'il densifie."
+                }
+            ],
+            "lockedFields": [
+                {
+                    "field": "alwaysCritical",
+                    "reason": "Frappe assurée EST le coup critique : c'est tout ce que le sort achète, on ne le revend pas."
+                },
+                {
+                    "field": "range",
+                    "reason": "Toute la mana passe dans l'instant de l'impact : la frappe se porte au contact, jamais à distance."
+                },
+                {
+                    "field": "inflicts",
+                    "reason": "Le Renforcement ne crée rien et n'altère rien : il densifie. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "fa1",
                 "nodes": [
@@ -364,6 +710,104 @@
             "level": 3,
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "speed",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "dexterite",
+                                "ratio": 0.2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "speed",
+                        "kind": "effect",
+                        "label": "Vitesse",
+                        "path": "effects.0.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "dexRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Dextérité → Vitesse",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.55,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "dexterite",
+                            "force",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "Le Renforcement ne crée rien et n'altère rien : il densifie. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rt1",
                 "nodes": [
@@ -478,6 +922,104 @@
             "level": 3,
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "constitution",
+                                "ratio": 0.2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "defPhy",
+                        "kind": "effect",
+                        "label": "Défense physique",
+                        "path": "effects.0.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "conRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Constitution → Défense physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.55,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "constitution",
+                            "force",
+                            "sagesse"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "Le Renforcement ne crée rien et n'altère rien : il densifie. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rp1",
                 "nodes": [
@@ -592,6 +1134,104 @@
             "level": 3,
             "icon": "/resources/media/icons/magic.svg",
             "subdomains": [],
+            "baseStats": {
+                "mana": 4,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 2,
+                "effects": [
+                    {
+                        "stat": "atk_phy",
+                        "value": 2,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "atkPhy",
+                        "kind": "effect",
+                        "label": "Attaque physique",
+                        "path": "effects.0.value",
+                        "min": 1,
+                        "cap": {
+                            "value": 8,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "forceRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Force → Attaque physique",
+                        "path": "effects.0.scaling.0.ratio",
+                        "step": 0.05,
+                        "min": 0,
+                        "cap": {
+                            "value": 0.55,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "duration",
+                        "kind": "duration",
+                        "label": "Durée",
+                        "path": "duration",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                },
+                "scalingSwap": [
+                    {
+                        "path": "effects.0.scaling.0",
+                        "eligible": [
+                            "force",
+                            "dexterite",
+                            "constitution"
+                        ]
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "inflicts",
+                    "reason": "Le Renforcement ne crée rien et n'altère rien : il densifie. Aucun statut ne s'y greffe."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
             "progression": {
                 "root": "rb1",
                 "nodes": [

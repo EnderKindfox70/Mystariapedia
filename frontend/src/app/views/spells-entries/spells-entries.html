@@ -17,11 +17,11 @@
             <span class="se-lvl-box">Niv. {{ p.spell.level }}</span>
             <span class="se-mana">
               <img class="se-mana-gem" src="/resources/media/pictures/natural-resources/minerals/mana_crystal.png" alt="" aria-hidden="true">
-              {{ p.spell.mana }} <small>mana</small>
+              {{ heroMana() }} <small>mana</small>
             </span>
           </div>
 
-          <p class="se-description">{{ p.spell.description }}</p>
+          <p class="se-description">{{ heroDescription() }}</p>
         </div>
 
         <div class="se-hero__emblem" aria-hidden="true">
@@ -200,74 +200,31 @@
       </ng-template>
 
       <!-- ══════════════════════════════════════════
-           ARBRE D'AMÉLIORATION (si le sort en a un)
+           PERSONNALISATION : l'atelier, seule lecture d'un sort
       ══════════════════════════════════════════ -->
-      @if (hasProgression() && layout(); as lay) {
+      @if (customizable(); as cs) {
         <section class="se-section se-upgrade">
-          <div class="se-section-heading"><h2>Arbre d'amélioration</h2></div>
+          <div class="se-section-heading"><h2>Personnalisation</h2></div>
+          <!-- Le sort construit s'affiche DANS la colonne de résultat de
+               l'atelier, qui reste à l'écran pendant qu'on règle. -->
+          <spell-workshop [spell]="cs" [(build)]="customBuild" [(level)]="customLevel">
+            @if (selectedNode(); as node) {
+              <div class="se-detail-slot">
+                <ng-container *ngTemplateOutlet="nodeDetail; context: { $implicit: node }" />
+              </div>
+            }
+          </spell-workshop>
+        </section>
+      }
 
-          <!-- Légende des branches -->
-          @if (branches().length) {
-            <ul class="se-legend">
-              <li class="se-legend__item">
-                <span class="se-legend__dot" [style.background]="branchColor('trunk')"></span>
-                Tronc commun
-              </li>
-              @for (b of branches(); track b.id) {
-                <li class="se-legend__item" [title]="b.description ?? ''">
-                  <span class="se-legend__dot" [style.background]="branchColor(b.id)"></span>
-                  {{ b.label }}
-                </li>
-              }
-            </ul>
-          }
-
-          <!-- Canevas de l'arbre -->
-          <div class="se-tree-scroll">
-            <div class="se-tree" [style.width.px]="lay.width" [style.height.px]="lay.height">
-              <svg class="se-tree__edges" [attr.viewBox]="'0 0 ' + lay.width + ' ' + lay.height"
-                   [attr.width]="lay.width" [attr.height]="lay.height" aria-hidden="true">
-                @for (e of lay.edges; track e.from + '>' + e.to) {
-                  <path class="se-edge" [class.is-active]="isEdgeOnPath(e)" [attr.d]="e.d"
-                        [style.stroke]="isEdgeOnPath(e) ? domainColor(primaryDomain()) : null"></path>
-                }
-              </svg>
-
-              @for (l of lay.nodes; track l.node.id) {
-                <button type="button"
-                        class="se-node"
-                        [class.is-active]="isOnPath(l.node.id)"
-                        [class.is-selected]="isSelected(l.node.id)"
-                        [style.left.px]="l.x" [style.top.px]="l.y"
-                        [style.width.px]="nodeW" [style.height.px]="nodeH"
-                        [style.--branch-color]="branchColor(l.node.branch)"
-                        (click)="select(l.node.id)">
-                  <span class="se-node__tier">{{ l.node.tier }}</span>
-                  <span class="se-node__name">{{ l.node.name }}</span>
-                  <span class="se-node__stats">
-                    @if (l.node.stats.damageMin !== undefined) {
-                      <span class="se-node__stat se-node__stat--dmg">
-                        {{ l.node.stats.damageMin }}–{{ l.node.stats.damageMax }}
-                      </span>
-                    }
-                    @if (l.node.stats.heal !== undefined) {
-                      <span class="se-node__stat se-node__stat--heal">+{{ l.node.stats.heal }}</span>
-                    }
-                    <span class="se-node__stat se-node__stat--mana">{{ l.node.stats.mana }} mana</span>
-                  </span>
-                </button>
-              }
-            </div>
-          </div>
-
-          <!-- Détail du nœud sélectionné + simulateur -->
-          @if (selectedNode(); as node) {
+      <!-- Détail du sort construit par l'atelier, cf. `selectedNode()`. -->
+      <ng-template #nodeDetail let-node>
             <div class="se-detail">
-              <div class="se-detail__main" [style.--branch-color]="branchColor(node.branch)"
+              <div class="se-detail__main" [style.--branch-color]="domainColor(primaryDomain())"
                    [attr.data-usage]="usageMode()">
                 <header class="se-detail__head">
                   <div class="se-detail__titles">
-                    <span class="se-detail__tier">Palier {{ node.tier }}</span>
+                    <span class="se-detail__tier">{{ detailKicker() }}</span>
                     <h3 class="se-detail__name">{{ node.name }}</h3>
                   </div>
                   @if (hasBothUsages()) {
@@ -309,10 +266,23 @@
                     @if (node.stats.area) {
                       <div class="se-stat"><dt>Zone</dt><dd>{{ node.stats.area }}</dd></div>
                     }
-                    @if (node.stats.duration) {
+                    @for (m of measures(); track m.id) {
+                      <div class="se-stat"><dt>{{ m.label }}</dt><dd>{{ m.value }}</dd></div>
+                    }
+                    @for (g of gradeLines(); track g.label) {
+                      <div class="se-stat se-stat--grade" [title]="g.step.description ?? ''">
+                        <dt>{{ g.label }}</dt><dd><span class="se-stat__text">{{ g.step.label }}</span></dd>
+                      </div>
+                    }
+                    @if (isContinuous(node)) {
+                      <div class="se-stat"><dt>Durée</dt><dd><span class="se-stat__text">Continue</span></dd></div>
+                      @if (upkeep(); as u) {
+                        <div class="se-stat"><dt>Entretien</dt><dd><span class="se-stat__base">{{ u }}</span><span class="se-stat__unit">mana / tour</span></dd></div>
+                      }
+                    } @else if (node.stats.duration) {
                       <div class="se-stat">
                         <dt>Durée</dt>
-                        <dd><span class="se-stat__base">{{ node.stats.duration }}</span> tour{{ node.stats.duration > 1 ? 's' : '' }}</dd>
+                        <dd><span class="se-stat__base">{{ node.stats.duration }}</span><span class="se-stat__unit">tour{{ node.stats.duration > 1 ? 's' : '' }}</span></dd>
                       </div>
                     }
                   </dl>
@@ -350,10 +320,10 @@
                               [attr.data-type]="dc.type?.key"
                               [class.has-tip]="dc.parts.length > 0"
                               [attr.tabindex]="dc.parts.length > 0 ? 0 : null">
-                          {{ dc.baseMin }}@if (dc.baseMax !== dc.baseMin) {–{{ dc.baseMax }}}
+                          {{ num(dc.baseMin) }}@if (dc.baseMax !== dc.baseMin) {–{{ num(dc.baseMax) }}}
                           @if (dc.parts.length > 0) {
                             <span class="se-effect-tip" role="tooltip">
-                              <span class="se-effect-tip__row">Base <b>{{ dc.baseMin }}@if (dc.baseMax !== dc.baseMin) {–{{ dc.baseMax }}}</b></span>
+                              <span class="se-effect-tip__row">Base <b>{{ num(dc.baseMin) }}@if (dc.baseMax !== dc.baseMin) {–{{ num(dc.baseMax) }}}</b></span>
                               @for (pp of dc.parts; track pp.label) {
                                 <span class="se-effect-tip__row">+ {{ num(pp.ratio) }} × {{ pp.label }}</span>
                               }
@@ -392,10 +362,10 @@
                         <span class="se-inline-val"
                               [class.has-tip]="(e.scaling?.length ?? 0) > 0"
                               [attr.tabindex]="(e.scaling?.length ?? 0) > 0 ? 0 : null">
-                          {{ effectSign(node) }}{{ e.value ?? 0 }}
+                          {{ effectSign(node) }}{{ e.value }}
                           @if ((e.scaling?.length ?? 0) > 0) {
                             <span class="se-effect-tip" role="tooltip">
-                              <span class="se-effect-tip__row">Base <b>{{ e.value ?? 0 }}</b></span>
+                              <span class="se-effect-tip__row">Base <b>{{ e.value }}</b></span>
                               @for (p of effectBreakdown(e).parts; track p.label) {
                                 <span class="se-effect-tip__row">+ {{ num(p.ratio) }} × {{ p.label }}</span>
                               }
@@ -403,7 +373,10 @@
                           }
                         </span>
                       }
-                      @if (node.stats.duration) {
+                      @if (isContinuous(node)) {
+                        <span class="se-box__sep"> tant que le lanceur paie </span>
+                        <span class="se-inline-val">{{ upkeep() }} mana</span> par tour.
+                      } @else if (node.stats.duration) {
                         <span class="se-box__sep"> pendant </span>
                         <span class="se-inline-val"
                               [class.has-tip]="durationScaled(node)"
@@ -476,11 +449,11 @@
                     @if (cleansedStatuses().length) {
                       <span class="se-box__cleanse">
                         {{ cleanseHolds() ? 'Purifie tant que le manteau tient :' : 'Lève à l’incantation :' }}
-                        @for (def of cleansedStatuses(); track def.key; let i = $index; let count = $count) {
+                        @for (s of cleansedStatuses(); track s.key; let i = $index; let count = $count) {
                           @if (i > 0) {<span class="se-box__sep">{{ i === count - 1 ? ' et ' : ', ' }}</span>}
-                          <span class="se-status-kw has-tip" [attr.data-cat]="def.category" tabindex="0">
-                            {{ def.name ?? def.key }}
-                            @if (def.name) {
+                          <span class="se-status-kw has-tip" [attr.data-cat]="s.def?.category" tabindex="0">
+                            {{ s.def?.name ?? s.key }}
+                            @if (s.def; as def) {
                               <span class="se-effect-tip se-status-tip" role="tooltip">
                                 <span class="se-status-tip__head">{{ def.name }} · {{ statusCategoryLabel(def.category) }}</span>
                                 <span class="se-effect-tip__row">{{ def.effect }}</span>
@@ -513,6 +486,24 @@
                     @if (evadeChance()) {
                       <span class="se-box__evade">
                         Esquive : <span class="se-inline-val">{{ evadeChance() }} %</span> de chance d'annuler une attaque subie.
+                      </span>
+                    }
+
+                    @if (lingers(); as anchor) {
+                      <span class="se-box__knockback">
+                        @if (anchor === 'caster') {
+                          Zone persistante : elle <span class="se-inline-val">suit le lanceur</span>, qui en reste le centre ;
+                        } @else {
+                          Zone persistante : elle <span class="se-inline-val">reste où elle a été posée</span> ;
+                        }
+                        à chaque tour, ce qui s'y tient en subit les effets.
+                      </span>
+                    }
+
+                    @if (knockback(); as cells) {
+                      <span class="se-box__knockback">
+                        Repoussement : chaque cible touchée recule de
+                        <span class="se-inline-val">{{ cells }} {{ cells > 1 ? 'cases' : 'case' }}</span>, dans l'axe du lanceur.
                       </span>
                     }
 
@@ -691,10 +682,23 @@
                   @if (node.stats.area) {
                     <div class="se-stat"><dt>Zone</dt><dd>{{ node.stats.area }}</dd></div>
                   }
-                  @if (node.stats.duration) {
+                  @for (m of measures(); track m.id) {
+                    <div class="se-stat"><dt>{{ m.label }}</dt><dd>{{ m.value }}</dd></div>
+                  }
+                  @for (g of gradeLines(); track g.label) {
+                    <div class="se-stat se-stat--grade" [title]="g.step.description ?? ''">
+                      <dt>{{ g.label }}</dt><dd><span class="se-stat__text">{{ g.step.label }}</span></dd>
+                    </div>
+                  }
+                  @if (isContinuous(node)) {
+                    <div class="se-stat"><dt>Durée</dt><dd><span class="se-stat__text">Continue</span></dd></div>
+                    @if (upkeep(); as u) {
+                      <div class="se-stat"><dt>Entretien</dt><dd><span class="se-stat__base">{{ u }}</span><span class="se-stat__unit">mana / tour</span></dd></div>
+                    }
+                  } @else if (node.stats.duration) {
                     <div class="se-stat">
                       <dt>Durée</dt>
-                      <dd><span class="se-stat__base">{{ node.stats.duration }}</span> tour{{ node.stats.duration > 1 ? 's' : '' }}</dd>
+                      <dd><span class="se-stat__base">{{ node.stats.duration }}</span><span class="se-stat__unit">tour{{ node.stats.duration > 1 ? 's' : '' }}</span></dd>
                     </div>
                   }
                 </dl>
@@ -795,12 +799,10 @@
 
               </div>
             </div>
-          }
-        </section>
-      }
+      </ng-template>
 
-      <!-- Repli : sort sans arbre mais avec une utilisation renseignée -->
-      @if (!hasProgression() && usage()) {
+      <!-- Repli : sort sans personnalisation, mais avec une utilisation renseignée -->
+      @if (!customizable() && usage()) {
         <section class="se-section se-upgrade">
           <div class="se-section-heading"><h2>Utilisation</h2></div>
           <ng-container [ngTemplateOutlet]="usageDial"></ng-container>

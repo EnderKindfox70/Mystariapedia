@@ -150,6 +150,25 @@
   text-transform: uppercase;
 }
 
+/* La colonne de résultat de l'atelier colle à l'écran (sticky). Un ancêtre en
+   `overflow: auto` l'en empêche, même s'il ne défile jamais : c'est lui que
+   `sticky` prend pour repère. `clip` coupe pareil sans en faire un conteneur
+   de défilement. Limité aux fiches qui ont un atelier. */
+.spell-entry:has(spell-workshop) { overflow: clip; }
+
+/* Détail du sort construit, logé dans la colonne de résultat de l'atelier. */
+.se-detail-slot .se-detail {
+  margin-top: 0;
+  padding: .9rem 1rem;
+}
+.se-detail-slot .se-stats { grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: .45rem; }
+/* Colonne étroite : toute la case descend d'un cran, proportions gardées. */
+.se-detail-slot .se-stat { padding: .4rem .55rem; }
+.se-detail-slot .se-stat dt { font-size: .56rem; }
+.se-detail-slot .se-stat dd { gap: .3rem; font-size: .9rem; }
+.se-detail-slot .se-stat__base { font-size: 1rem; }
+.se-detail-slot .se-stat__unit { font-size: .72rem; }
+
 .se-section-heading h2::after {
   content: '';
   position: absolute;
@@ -570,135 +589,8 @@
 }
 .se-upgrade__hint sup { font-size: .7em; }
 
-/* ── Légende des branches ── */
-.se-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .4rem 1.2rem;
-  margin: 0 0 1.2rem;
-  padding: 0;
-  list-style: none;
-}
-.se-legend__item {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  font: 600 .74rem var(--font-title);
-  letter-spacing: .04em;
-  color: rgba(34, 23, 19, .78);
-}
-.se-legend__dot {
-  width: .8rem;
-  height: .8rem;
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px rgba(43, 26, 18, .35);
-}
-
-/* ── Canevas défilable ── */
-.se-tree-scroll {
-  overflow-x: auto;
-  padding: 1rem .2rem 1.4rem;
-  border: 1px solid rgba(43, 26, 18, .18);
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 20% 0%, rgba(139, 107, 47, .08), transparent 60%),
-    rgba(237, 230, 214, .22);
-  scrollbar-width: thin;
-}
-
-.se-tree {
-  position: relative;
-  margin: 0 auto;
-  min-width: max-content;
-}
-
-.se-tree__edges {
-  position: absolute;
-  inset: 0;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.se-edge {
-  fill: none;
-  stroke: rgba(43, 26, 18, .3);
-  stroke-width: 2;
-  transition: stroke .2s, stroke-width .2s;
-}
-.se-edge.is-active {
-  stroke-width: 3;
-  filter: drop-shadow(0 0 3px var(--domain-glow, rgba(139, 107, 47, .4)));
-}
-
-/* ── Nœud ── */
-.se-node {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  gap: .2rem;
-  padding: .5rem .6rem;
-  border: 1px solid rgba(43, 26, 18, .28);
-  border-left: 4px solid var(--branch-color, var(--domain-color, var(--ancient-gold)));
-  border-radius: 7px;
-  background: linear-gradient(180deg, rgba(237, 230, 214, .92), rgba(217, 204, 184, .78));
-  box-shadow: 0 1px 3px rgba(43, 26, 18, .18);
-  cursor: pointer;
-  text-align: left;
-  transition: transform .16s, box-shadow .2s, border-color .2s, background .2s;
-}
-.se-node:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(43, 26, 18, .26);
-}
-.se-node.is-active {
-  border-color: var(--domain-color, var(--ancient-gold));
-}
-.se-node.is-selected {
-  background: linear-gradient(180deg, #fff7e6, rgba(237, 230, 214, .95));
-  box-shadow:
-    0 0 0 2px var(--domain-color, var(--ancient-gold)),
-    0 4px 12px var(--domain-glow, rgba(139, 107, 47, .35));
-}
-
-.se-node__tier {
-  position: absolute;
-  top: -.6rem;
-  right: -.6rem;
-  width: 1.4rem;
-  height: 1.4rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--branch-color, var(--domain-color, var(--ancient-gold)));
-  color: #fff7e6;
-  font: 700 .74rem var(--font-title);
-  box-shadow: 0 0 0 2px rgba(237, 230, 214, .8);
-}
-
-.se-node__name {
-  font: 600 .9rem var(--font-title);
-  line-height: 1.1;
-  color: #16110d;
-}
-
-.se-node__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .3rem;
-  margin-top: auto;
-}
-.se-node__stat {
-  font: 600 .68rem var(--font-title);
-  letter-spacing: .02em;
-  padding: .08rem .35rem;
-  border-radius: 3px;
-}
-.se-node__stat--dmg  { background: rgba(184, 72, 43, .16);  color: #8a2f1a; }
-.se-node__stat--heal { background: rgba(119, 163, 86, .2);  color: #47632f; }
-.se-node__stat--mana { background: rgba(61, 121, 168, .16); color: #2f5a7a; }
-
 /* ═══════════════════════════════════════════
-   DÉTAIL DU NŒUD + SIMULATEUR
+   DÉTAIL DU SORT CONSTRUIT + SIMULATEUR
 ═══════════════════════════════════════════ */
 .se-detail {
   margin-top: 1.6rem;
@@ -1296,6 +1188,16 @@
   color: #3d79a8;
 }
 
+/* Repoussement : même gabarit que l'esquive, teinte d'eau vive */
+.se-box__knockback {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(38, 134, 150, .4);
+  font-weight: 600;
+  color: #268696;
+}
+
 /* Mot-clé de statut inline (survolable → détail du statut) */
 .se-status-kw {
   position: relative;
@@ -1351,6 +1253,19 @@
   font: 700 1.1rem var(--font-title);
   color: #16110d;
 }
+/* Hiérarchie d'une case : libellé < unité < valeur écrite < chiffre. Une
+   valeur écrite (« Continue ») se lit comme « Personnel » ou « Soi-même » :
+   en texte courant, pas dans la fonte des chiffres. */
+.se-stat__unit {
+  font-size: .78rem;
+  color: rgba(43, 26, 18, .65);
+  white-space: nowrap;
+}
+.se-stat__text { color: #16110d; }
+/* Un échelon nommé (« Assainissement ») peut être plus long que la case : il se coupe au besoin. */
+.se-stat--grade dd { min-width: 0; }
+
+.se-stat--grade .se-stat__text { overflow-wrap: anywhere; hyphens: auto; font-size: .88em; line-height: 1.15; }
 .se-stat__eff {
   font: 600 .92rem var(--font-title);
   color: var(--domain-color, var(--ancient-gold));

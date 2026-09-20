@@ -1,0 +1,462 @@
+{
+    "name": "Renforcement",
+    "icon": "/resources/media/icons/magic.svg",
+    "banner": "",
+    "first-quote": "Je ne change pas ta nature. Je la rends seulement plus difficile à briser.",
+    "first-quote-author": "Adage des maîtres d'armes de la mana brute",
+    "usage-quote": "Ne demande pas à la mana de faire. Demande-lui de tenir.",
+    "description": "Le Renforcement est le premier des deux usages de la magie non polarisée : la mana brute canalisée vers l'intérieur, versée dans une matière pour en resserrer la trame. Elle ne crée rien, ne transforme rien — elle densifie. Un corps devient plus dur à entamer, un os plus difficile à rompre, une lame plus mordante, une armure plus tenace. L'effet dure tant que la mana l'alimente et s'efface quand elle se retire, sans laisser de trace. C'est une discipline sans éveil ni affinité : elle ne demande que la capacité de percevoir sa propre mana et la patience de la retenir avant qu'elle ne glisse vers un domaine.",
+    "subdomains": [],
+    "spells": [
+        {
+            "key": "renforcement-corps",
+            "name": "Corps renforcé",
+            "description": "Verse sa mana dans ses muscles, ses os et ses tendons : on frappe un peu plus fort, on bouge un peu plus vite, et l'on encaisse ce qui aurait dû entamer.",
+            "usage": {
+                "combat": "Un renfort modeste mais complet : attaque physique, vitesse et armure montent ensemble le temps de quelques échanges.",
+                "outOfCombat": "Soulever une poutre, tenir une prise en escalade, marcher un jour de plus sans flancher : le corps ne fatigue pas moins, il cède plus tard."
+            },
+            "mana": 3,
+            "level": 1,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "atk_phy",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.2
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "def_phy",
+                        "value": 1,
+                        "scaling": [
+                            {
+                                "source": "constitution",
+                                "ratio": 0.2
+                            }
+                        ]
+                    },
+                    {
+                        "stat": "speed",
+                        "value": 1
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "atkPhyValue", "kind": "effect", "label": "Attaque physique", "path": "effects.0.value", "min": 0, "cap": { "value": 3, "anchor": "treeMax" } },
+                    { "id": "forceAtkphyRatio", "kind": "ratio", "label": "Ratio Force → Attaque physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } },
+                    { "id": "defPhyValue", "kind": "effect", "label": "Défense physique", "path": "effects.1.value", "min": 0, "cap": { "value": 3, "anchor": "treeMax" } },
+                    { "id": "constitutionDefphyRatio", "kind": "ratio", "label": "Ratio Constitution → Défense physique", "path": "effects.1.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.3, "anchor": "tier3" } },
+                    { "id": "speedValue", "kind": "effect", "label": "Vitesse", "path": "effects.2.value", "min": 0, "cap": { "value": 2, "anchor": "treeMax" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] },
+                    { "path": "effects.1.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "renforcement-revetement-arme",
+            "name": "Arme renforcée",
+            "description": "Verse sa mana dans l'acier plutôt que dans la chair. Le revêtement n'ajoute aucun élément : il densifie la trame de l'arme, et chaque coup frappe plus fort DU TYPE DE L'ARME — une lame tranche davantage, une masse écrase davantage.",
+            "usage": {
+                "combat": "Tant que l'enchantement dure, chaque coup porté avec l'arme inflige ces dégâts en plus, de la nature même de l'arme.",
+                "outOfCombat": "Une hache qui abat un arbre en trois coups, un couteau qui entame la pierre, une pioche qui ne s'ébrèche pas : l'outil renforcé fait le travail de l'outil d'exception."
+            },
+            "mana": 3,
+            "level": 2,
+            "icon": "/resources/media/icons/magic.svg",
+            "damageType": "weapon",
+            "subdomains": [],
+            "requires": [
+                "renforcement-corps"
+            ],
+            "baseStats": {
+                "damageMin": 1,
+                "damageMax": 2,
+                "mana": 3,
+                "range": "Personnel",
+                "duration": 3,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.03
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts par coup", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 4, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Attaque physique", "path": "scaling.0.ratio", "step": 0.01, "min": 0 }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "renforcement-frappe-assuree",
+            "name": "Frappe assurée",
+            "description": "Toute la mana retenue passe dans l'instant de l'impact. Le coup n'est pas plus sûr d'atteindre sa cible — le jet de toucher reste entier — mais s'il porte, il porte comme un coup critique.",
+            "usage": {
+                "combat": "Frappe unique : on la manque comme n'importe quelle attaque, mais tout ce qui touche est compté en dégâts critiques.",
+                "outOfCombat": "Briser une serrure, fendre une porte barrée, ouvrir une carapace : quand un seul coup doit suffire, c'est celui-là."
+            },
+            "mana": 2,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "damageType": "bludgeoning",
+            "subdomains": [],
+            "requires": [
+                "renforcement-revetement-arme"
+            ],
+            "baseStats": {
+                "damageMin": 2,
+                "damageMax": 3,
+                "mana": 2,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "alwaysCritical": true,
+                "scaling": [
+                    {
+                        "source": "atk_phy",
+                        "ratio": 0.06
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "damage", "kind": "damage", "label": "Dégâts", "path": "damageMax", "shift": ["damageMin"], "min": 1, "cap": { "value": 7, "anchor": "tier3" } },
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "atkPhyRatio", "kind": "ratio", "label": "Ratio Attaque physique", "path": "scaling.0.ratio", "step": 0.01, "min": 0, "cap": { "value": 0.07, "anchor": "tier3" } }
+                ],
+                "scalingSwap": [
+                    { "path": "scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "renforcement-tendons",
+            "name": "Tendons renforcés",
+            "description": "Toute la mana part dans les tendons et les attaches, là où le geste se déclenche. Rien ne frappe plus fort, rien n'encaisse mieux — mais tout arrive plus tôt.",
+            "usage": {
+                "combat": "Le renfort de celui qui veut choisir où se tient le combat : il agit plus tôt et couvre plus de terrain, sans rien gagner à l'échange de coups.",
+                "outOfCombat": "Courir un relais sans souffler, franchir un éboulis d'appui en appui, rattraper une monture lancée."
+            },
+            "mana": 3,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "requires": [
+                "renforcement-corps"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "speed",
+                        "value": 3,
+                        "scaling": [
+                            {
+                                "source": "dexterite",
+                                "ratio": 0.35
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "speedValue", "kind": "effect", "label": "Vitesse", "path": "effects.0.value", "min": 0, "cap": { "value": 6, "anchor": "treeMax" } },
+                    { "id": "dexteriteSpeedRatio", "kind": "ratio", "label": "Ratio Déxterité → Vitesse", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.55, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "renforcement-peau",
+            "name": "Peau renforcée",
+            "description": "La mana se dépose sous la peau et s'y étale en couche serrée. Le corps ne gagne ni force ni vitesse : il devient simplement difficile à ouvrir.",
+            "usage": {
+                "combat": "Une armure de mana par-dessus l'armure : ce qui portait entame moins, et les longs échanges cessent de saigner.",
+                "outOfCombat": "Traverser un roncier, saisir un fer chaud à mains nues, encaisser une chute sur la roche sans rien se rompre."
+            },
+            "mana": 3,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "requires": [
+                "renforcement-corps"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "def_phy",
+                        "value": 4,
+                        "scaling": [
+                            {
+                                "source": "constitution",
+                                "ratio": 0.35
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "defPhyValue", "kind": "effect", "label": "Défense physique", "path": "effects.0.value", "min": 0, "cap": { "value": 8, "anchor": "treeMax" } },
+                    { "id": "constitutionDefphyRatio", "kind": "ratio", "label": "Ratio Constitution → Défense physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.55, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        },
+        {
+            "key": "renforcement-biceps",
+            "name": "Biceps renforcés",
+            "description": "Toute la trame se concentre dans les bras et les épaules. Le geste ne part pas plus vite et le corps n'encaisse pas mieux — mais ce qu'il touche cède.",
+            "usage": {
+                "combat": "Le renfort de celui qui n'a besoin que d'une chose : que le coup passe l'armure. Il ne protège de rien pendant ce temps.",
+                "outOfCombat": "Forcer une porte barrée, soulever une herse, planter un grappin deux fois plus haut qu'à l'ordinaire."
+            },
+            "mana": 3,
+            "level": 3,
+            "icon": "/resources/media/icons/magic.svg",
+            "subdomains": [],
+            "requires": [
+                "renforcement-corps"
+            ],
+            "baseStats": {
+                "mana": 3,
+                "range": "Personnel",
+                "area": "Soi-même",
+                "targets": [
+                    "self"
+                ],
+                "duration": 3,
+                "effects": [
+                    {
+                        "stat": "atk_phy",
+                        "value": 4,
+                        "scaling": [
+                            {
+                                "source": "force",
+                                "ratio": 0.35
+                            }
+                        ]
+                    }
+                ]
+            },
+            "customization": {
+                "params": [
+                    { "id": "mana", "kind": "mana", "label": "Mana", "path": "mana", "min": 1 },
+                    { "id": "range", "kind": "range", "label": "Portée", "path": "range", "min": 0 },
+                    { "id": "duration", "kind": "duration", "label": "Durée", "path": "duration", "min": 1, "cap": { "value": 5, "anchor": "tier3" } },
+                    { "id": "atkPhyValue", "kind": "effect", "label": "Attaque physique", "path": "effects.0.value", "min": 0, "cap": { "value": 8, "anchor": "treeMax" } },
+                    { "id": "forceAtkphyRatio", "kind": "ratio", "label": "Ratio Force → Attaque physique", "path": "effects.0.scaling.0.ratio", "step": 0.05, "min": 0, "cap": { "value": 0.55, "anchor": "tier3" } }
+                ],
+                "continuousMode": { "upkeepCap": { "value": 1, "anchor": "assumption" } },
+                "scalingSwap": [
+                    { "path": "effects.0.scaling.0", "eligible": ["force", "dexterite", "constitution", "atk_phy"] }
+                ]
+            },
+            "domainGoverned": [],
+            "lockedFields": [
+                { "field": "classBonuses", "reason": "Propre à l'identité de la classe — hors budget." }
+            ]
+        }
+    ],
+    "manifestations": [
+        {
+            "name": "Corps renforcé",
+            "icon": "",
+            "description": "La mana brute imprègne muscles, os et tendons : le corps encaisse davantage, frappe plus fort et résiste à ce qui devrait le briser. Base martiale des guerriers de l'Archipel comme des combattants non éveillés."
+        },
+        {
+            "name": "Arme & armure",
+            "icon": "",
+            "description": "Versée dans l'acier, elle affûte le tranchant et serre les plaques. Une lame ordinaire renforcée mord comme une lame d'exception — le temps que dure la mana."
+        },
+        {
+            "name": "Objet & structure",
+            "icon": "",
+            "description": "Une corde, une poutre, une porte : toute matière peut être temporairement raffermie au-delà de sa résistance naturelle, sans rien changer à ce qu'elle est."
+        }
+    ],
+    "teaching": "Le réflexe d'un mage éveillé est de laisser sa mana glisser vers ses canaux — le domaine s'exprime, presque malgré lui. Le Renforcement exige l'inverse : retenir cette énergie disponible sans la laisser filer, et l'orienter vers la matière plutôt que vers la fréquence. C'est une discipline de refus autant que de maîtrise, et beaucoup d'éveillés puissants ne l'apprennent jamais.",
+    "feats": [
+        {
+            "key": "renforcement-peau-dure",
+            "name": "Peau dure",
+            "level": 5,
+            "kind": "passive",
+            "prerequisite": "Un sort de Renforcement connu",
+            "description": "La mana brute se dépose sous la peau et la durcit en permanence. Ce qu'elle occupe, la réserve ne l'a plus.",
+            "effects": [
+                {
+                    "label": "Défense physique",
+                    "value": "+5",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Mana maximum",
+                    "value": "−3",
+                    "tone": "cost"
+                }
+            ],
+            "statEffects": [
+                {
+                    "key": "def_phy",
+                    "value": 5
+                },
+                {
+                    "key": "mana",
+                    "value": -3
+                }
+            ]
+        },
+        {
+            "key": "renforcement-muscle-renforce",
+            "name": "Muscle renforcé",
+            "level": 5,
+            "kind": "passive",
+            "prerequisite": "Un sort de Renforcement connu",
+            "description": "Le muscle reste densifié en permanence, même sans sort actif. Le corps y gagne ce que la réserve y perd.",
+            "effects": [
+                {
+                    "label": "Force",
+                    "value": "+1",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Mana maximum",
+                    "value": "−5",
+                    "tone": "cost"
+                }
+            ],
+            "statEffects": [
+                {
+                    "key": "force",
+                    "value": 1
+                },
+                {
+                    "key": "mana",
+                    "value": -5
+                }
+            ]
+        },
+        {
+            "key": "renforcement-double-trame",
+            "name": "Double trame",
+            "level": 10,
+            "kind": "override",
+            "prerequisite": "Palier Majeur de Renforcement débloqué",
+            "description": "Deux renforcements tenus en même temps, à condition d'alimenter les deux.",
+            "effects": [
+                {
+                    "label": "Renforcements simultanés",
+                    "value": "2",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Coût d'entretien",
+                    "value": "Doublé",
+                    "tone": "cost"
+                }
+            ]
+        },
+        {
+            "key": "renforcement-frappe-partagee",
+            "name": "Frappe partagée",
+            "level": 15,
+            "kind": "unlock",
+            "prerequisite": "Palier Majeur de Renforcement débloqué et Frappe assurée connue",
+            "description": "Il assure la main de tout le monde sauf la sienne, le temps d'un tour.",
+            "effects": [
+                {
+                    "label": "Frappe assurée",
+                    "value": "Étendue à tous les alliés à portée pendant 1 tour",
+                    "tone": "boon"
+                },
+                {
+                    "label": "Le tour où il l'étend",
+                    "value": "Le lanceur ne peut pas attaquer",
+                    "tone": "cost"
+                }
+            ]
+        }
+    ],
+    "magic-items-and-artifacts": [],
+    "fauna": [],
+    "flora": []
+}
