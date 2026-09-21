@@ -41,6 +41,7 @@ import {
 } from '../../combat/walls';
 import { metalCarriedBy } from '../../combat/metal';
 import { applyReport, diffAgainstSheet, SheetReport, summarize } from '../../combat/sheet-report';
+import { xpForCast } from '../../combat/spell-customization';
 import {
   ACTIVITIES,
   DEFAULT_ACTIVITY,
@@ -1759,6 +1760,49 @@ export class CombatView implements OnDestroy {
 
   /** Le cadavre ouvert dans le panneau de fouille (désigné sur la grille). */
   readonly lootTargetId = signal<string | null>(null);
+  /* ── Entraîner un sort, au camp ────────────────────────────────────────
+     Un sort progresse en étant LANCÉ. Hors combat, on peut aussi le TRAVAILLER :
+     plus lent à la table, mais plein tarif, là où un lancer en situation ne
+     rend que la moitié. Les séances se comptent sur le pion et redescendent
+     sur la fiche au report, comme tout le reste.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /** Le pion sélectionné, s'il en est un. */
+  readonly selectedUnit = computed<Combatant | undefined>(() => {
+    const id = this.selectedId();
+    return id ? this.encounter().combatants.find((c) => c.id === id) : undefined;
+  });
+
+  /** Les sorts qu'un pion peut travailler : ceux qu'il a équipés. */
+  readonly trainableSpells = computed(() => {
+    const unit = this.selectedUnit();
+    if (!unit || unit.origin.kind !== 'sheet') return [];
+    const vus = new Set<string>();
+    return unit.abilities
+      .filter((a) => a.kind === 'spell' && !!a.ref)
+      .filter((a) => !vus.has(a.ref!) && vus.add(a.ref!))
+      .map((a) => ({
+        ref: a.ref!,
+        name: a.name,
+        seances: unit.spellTraining?.[a.ref!] ?? 0,
+        lancers: unit.spellCasts?.[a.ref!] ?? 0,
+      }));
+  });
+
+  readonly trainingXp = xpForCast('training');
+  readonly combatXp = xpForCast('combat');
+
+  /** Une séance de travail sur un sort. Rien n'est écrit avant le report. */
+  trainSpell(ref: string, delta: 1 | -1 = 1): void {
+    const unit = this.selectedUnit();
+    if (!unit) return;
+    const seances = { ...(unit.spellTraining ?? {}) };
+    const n = Math.max(0, (seances[ref] ?? 0) + delta);
+    if (n) seances[ref] = n;
+    else delete seances[ref];
+    unit.spellTraining = seances;
+  }
+
   readonly lootTarget = computed<Combatant | undefined>(() => {
     const id = this.lootTargetId();
     return id ? this.encounter().combatants.find((c) => c.id === id) : undefined;

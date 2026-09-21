@@ -131,15 +131,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "la1",
-                    "nodes": [
-                        { "id": "la1", "tier": 1, "branch": "trunk", "name": "Coulée de lave I", "description": "La roche fond en un torrent de lave qui embrase une zone.", "next": ["la2"], "stats": { "damageMin": 2, "damageMax": 3, "mana": 6, "range": "14 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "la2", "tier": 2, "branch": "trunk", "name": "Coulée de lave II", "description": "La coulée s'épaissit et engloutit un plus large terrain.", "next": ["la3"], "stats": { "damageMin": 3, "damageMax": 5, "mana": 8, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 65 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "la3", "tier": 3, "branch": "trunk", "name": "Coulée de lave III", "description": "Un fleuve de lave qui brûle et fige les créatures dans la roche en fusion.", "stats": { "damageMin": 4, "damageMax": 6, "mana": 11, "range": "16 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 80 }, { "status": "enracinement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -228,15 +220,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "ar1",
-                    "nodes": [
-                        { "id": "ar1", "tier": 1, "branch": "trunk", "name": "Aridité I", "description": "L'air et le sol s'assèchent, épuisant les créatures de la zone.", "next": ["ar2"], "stats": { "mana": 8, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"] } },
-                        { "id": "ar2", "tier": 2, "branch": "trunk", "name": "Aridité II", "description": "La sécheresse s'étend et flétrit davantage la vie alentour.", "next": ["ar3"], "stats": { "mana": 6, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
-                        { "id": "ar3", "tier": 3, "branch": "trunk", "name": "Aridité III", "description": "Une aridité mortelle qui tarit les sources et épuise tout un secteur.", "stats": { "mana": 5, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -393,15 +377,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "en1",
-                    "nodes": [
-                        { "id": "en1", "tier": 1, "branch": "trunk", "name": "Enlisement I", "description": "Le sol se change en boue mouvante qui happe les créatures.", "next": ["en2"], "stats": { "damageMin": 2, "damageMax": 3, "mana": 5, "range": "14 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "en2", "tier": 2, "branch": "trunk", "name": "Enlisement II", "description": "La fange s'épaissit et retient plus fermement ses proies.", "next": ["en3"], "stats": { "damageMin": 3, "damageMax": 4, "mana": 6, "range": "14 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] } },
-                        { "id": "en3", "tier": 3, "branch": "trunk", "name": "Enlisement III", "description": "Un marécage traître qui engloutit et cloue tout un groupe au sol.", "stats": { "damageMin": 4, "damageMax": 6, "mana": 7, "range": "16 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 85 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -484,15 +460,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "pl1",
-                    "nodes": [
-                        { "id": "pl1", "tier": 1, "branch": "trunk", "name": "Averse I", "description": "Une pluie battante qui réduit la visibilité et éteint les flammes.", "next": ["pl2"], "stats": { "mana": 6, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
-                        { "id": "pl2", "tier": 2, "branch": "trunk", "name": "Averse II", "description": "L'ondée redouble et noie le champ de vision.", "next": ["pl3"], "stats": { "mana": 5, "range": "20 m", "area": "Rayon 7 m", "targets": ["enemy"] } },
-                        { "id": "pl3", "tier": 3, "branch": "trunk", "name": "Averse III", "description": "Un déluge aveuglant qui noie tout un secteur sous des trombes d'eau.", "stats": { "mana": 4, "range": "22 m", "area": "Rayon 9 m", "targets": ["enemy"] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -576,15 +544,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "bz1",
-                    "nodes": [
-                        { "id": "bz1", "tier": 1, "branch": "trunk", "name": "Blizzard I", "description": "Une tempête de neige glaciale qui gèle et aveugle une zone.", "next": ["bz2"], "stats": { "mana": 10, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"] } },
-                        { "id": "bz2", "tier": 2, "branch": "trunk", "name": "Blizzard II", "description": "Les rafales glacées s'intensifient et mordent plus fort.", "next": ["bz3"], "stats": { "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
-                        { "id": "bz3", "tier": 3, "branch": "trunk", "name": "Blizzard III", "description": "Un blizzard total qui fige et aveugle tout un champ de bataille.", "stats": { "mana": 6, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -668,15 +628,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "te1",
-                    "nodes": [
-                        { "id": "te1", "tier": 1, "branch": "trunk", "name": "Tempête déchaînée I", "description": "Pluie, vent et foudre s'unissent en une tempête qui ravage une zone.", "next": ["te2"], "stats": { "mana": 15, "range": "20 m", "area": "Rayon 5 m", "targets": ["enemy"] } },
-                        { "id": "te2", "tier": 2, "branch": "trunk", "name": "Tempête déchaînée II", "description": "La tempête enfle : éclairs plus nombreux, vents plus furieux.", "next": ["te3"], "stats": { "mana": 11, "range": "22 m", "area": "Rayon 7 m", "targets": ["enemy"] } },
-                        { "id": "te3", "tier": 3, "branch": "trunk", "name": "Tempête déchaînée III", "description": "Un ouragan foudroyant qui pulvérise et paralyse tout un champ de bataille.", "stats": { "mana": 9, "range": "24 m", "area": "Rayon 9 m", "targets": ["enemy"] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -816,15 +768,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "ay1",
-                    "nodes": [
-                        { "id": "ay1", "tier": 1, "branch": "trunk", "name": "Étreinte abyssale I", "description": "Les ténèbres des profondeurs enserrent et écrasent la cible.", "next": ["ay2"], "stats": { "damageMin": 4, "damageMax": 6, "mana": 6, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "peur", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] } },
-                        { "id": "ay2", "tier": 2, "branch": "trunk", "name": "Étreinte abyssale II", "description": "L'abîme resserre son emprise et distille une terreur glacée.", "next": ["ay3"], "stats": { "damageMin": 5, "damageMax": 9, "mana": 8, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "peur", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] } },
-                        { "id": "ay3", "tier": 3, "branch": "trunk", "name": "Étreinte abyssale III", "description": "Un gouffre d'ombre liquide qui engloutit et terrifie plusieurs proies.", "stats": { "damageMin": 4, "damageMax": 7, "mana": 11, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "peur", "chance": 70 }, { "status": "ralentissement", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -970,15 +914,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "pe1",
-                    "nodes": [
-                        { "id": "pe1", "tier": 1, "branch": "trunk", "name": "Écrasement gravitationnel I", "description": "Une pesanteur titanesque broie et cloue au sol ce qui s'y trouve.", "next": ["pe2"], "stats": { "damageMin": 3, "damageMax": 4, "mana": 7, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "pe2", "tier": 2, "branch": "trunk", "name": "Écrasement gravitationnel II", "description": "La gravité s'intensifie et écrase une plus large zone.", "next": ["pe3"], "stats": { "damageMin": 4, "damageMax": 6, "mana": 10, "range": "18 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "pe3", "tier": 3, "branch": "trunk", "name": "Écrasement gravitationnel III", "description": "Un puits de gravité qui broie et plaque tout un secteur au sol.", "stats": { "damageMin": 5, "damageMax": 8, "mana": 14, "range": "20 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "enracinement", "chance": 85 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -1094,15 +1030,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "eq1",
-                    "nodes": [
-                        { "id": "eq1", "tier": 1, "branch": "trunk", "name": "Équilibre du crépuscule I", "description": "Lumière et ombre s'annulent, étouffant les magies d'une zone.", "next": ["eq2"], "stats": { "mana": 6, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 50 }] } },
-                        { "id": "eq2", "tier": 2, "branch": "trunk", "name": "Équilibre du crépuscule II", "description": "L'harmonie crépusculaire s'étend et neutralise plus sûrement les sorts.", "next": ["eq3"], "stats": { "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 65 }] } },
-                        { "id": "eq3", "tier": 3, "branch": "trunk", "name": "Équilibre du crépuscule III", "description": "Un équilibre parfait qui éteint toute magie sur un vaste secteur.", "stats": { "mana": 11, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "silence", "chance": 80 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -1253,15 +1181,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "sv1",
-                    "nodes": [
-                        { "id": "sv1", "tier": 1, "branch": "trunk", "name": "Siphon vital I", "description": "Draine la force vitale de la cible au profit du lanceur.", "next": ["sv2"], "stats": { "damageMin": 4, "damageMax": 6, "mana": 6, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 40 }], "effects": [{ "stat": "force", "value": 2, "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] } },
-                        { "id": "sv2", "tier": 2, "branch": "trunk", "name": "Siphon vital II", "description": "Le drain s'intensifie et vide plus vite la vigueur de la proie.", "next": ["sv3"], "stats": { "damageMin": 5, "damageMax": 9, "mana": 8, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 50 }], "effects": [{ "stat": "force", "value": 3, "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] } },
-                        { "id": "sv3", "tier": 3, "branch": "trunk", "name": "Siphon vital III", "description": "Une saignée vitale qui laisse la cible exsangue et ravigore le lanceur.", "stats": { "damageMin": 7, "damageMax": 12, "mana": 10, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "poison", "chance": 60 }], "effects": [{ "stat": "force", "value": 4, "scaling": [{ "source": "atk_mag", "ratio": 0.11 }] }], "scaling": [{ "source": "atk_mag", "ratio": 0.11 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -1458,15 +1378,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "ec1",
-                    "nodes": [
-                        { "id": "ec1", "tier": 1, "branch": "trunk", "name": "Éclipse I", "description": "Une ombre percée d'éclats aveuglants qui trouble les sens d'une zone.", "next": ["ec2"], "stats": { "damages": [{ "min": 4, "max": 6, "type": "light", "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }, { "min": 4, "max": 7, "type": "dark", "scaling": [{ "source": "atk_mag", "ratio": 0.25 }] }], "mana": 6, "range": "18 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 50 }, { "status": "confusion", "chance": 25 }] } },
-                        { "id": "ec2", "tier": 2, "branch": "trunk", "name": "Éclipse II", "description": "L'éclipse s'étend et désoriente plus profondément les esprits.", "next": ["ec3"], "stats": { "damages": [{ "min": 6, "max": 9, "type": "light", "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }, { "min": 7, "max": 10, "type": "dark", "scaling": [{ "source": "atk_mag", "ratio": 0.3 }] }], "mana": 8, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 65 }, { "status": "confusion", "chance": 35 }] } },
-                        { "id": "ec3", "tier": 3, "branch": "trunk", "name": "Éclipse III", "description": "Une nuit percée de lumière qui aveugle et égare tout un secteur.", "stats": { "damages": [{ "min": 9, "max": 14, "type": "light", "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }, { "min": 10, "max": 14, "type": "dark", "scaling": [{ "source": "atk_mag", "ratio": 0.35 }] }], "mana": 10, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "aveuglement", "chance": 80 }, { "status": "confusion", "chance": 45 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -1601,15 +1513,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "dg1",
-                    "nodes": [
-                        { "id": "dg1", "tier": 1, "branch": "trunk", "name": "Doppelgänger I", "description": "Un double d'ombre et de vie qui attire sur lui les coups destinés au lanceur.", "next": ["dg2"], "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_phy", "value": 2, "scaling": [{ "source": "charisme", "ratio": 0.3 }] }] } },
-                        { "id": "dg2", "tier": 2, "branch": "trunk", "name": "Doppelgänger II", "description": "Le double gagne en consistance et détourne plus sûrement les attaques.", "next": ["dg3"], "stats": { "mana": 9, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_phy", "value": 3, "scaling": [{ "source": "charisme", "ratio": 0.4 }] }] } },
-                        { "id": "dg3", "tier": 3, "branch": "trunk", "name": "Doppelgänger III", "description": "Un double presque parfait qui trompe l'ennemi et couvre la fuite du lanceur.", "stats": { "mana": 12, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_phy", "value": 4, "scaling": [{ "source": "charisme", "ratio": 0.5 }] }, { "stat": "speed", "value": 1, "scaling": [{ "source": "charisme", "ratio": 0.2 }] }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -1759,15 +1663,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "cv1",
-                    "nodes": [
-                        { "id": "cv1", "tier": 1, "branch": "trunk", "name": "Combustion vitale I", "description": "Le lanceur consume sa propre vitalité pour attiser un brasier dévastateur.", "next": ["cv2"], "stats": { "damageMin": 3, "damageMax": 4, "mana": 7, "range": "16 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 60 }], "recoil": { "damageMin": 6, "damageMax": 10, "note": "vitalité consumée" }, "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "cv2", "tier": 2, "branch": "trunk", "name": "Combustion vitale II", "description": "Plus de vie brûlée, plus de flammes — au prix du sang du lanceur.", "next": ["cv3"], "stats": { "damageMin": 4, "damageMax": 6, "mana": 10, "range": "18 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 75 }], "recoil": { "damageMin": 10, "damageMax": 16, "note": "vitalité consumée" }, "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "cv3", "tier": 3, "branch": "trunk", "name": "Combustion vitale III", "description": "Un holocauste qui immole la force vitale du lanceur en un brasier titanesque.", "stats": { "damageMin": 5, "damageMax": 8, "mana": 14, "range": "20 m", "area": "Rayon 6 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 90 }], "recoil": { "damageMin": 16, "damageMax": 24, "note": "vitalité consumée" }, "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -1897,15 +1793,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "hf1",
-                    "nodes": [
-                        { "id": "hf1", "tier": 1, "branch": "trunk", "name": "Feu infernal I", "description": "Une flamme morbide qui brûle la chair comme l'âme et sème l'effroi.", "next": ["hf2"], "stats": { "damageMin": 3, "damageMax": 4, "mana": 7, "range": "16 m", "area": "Rayon 3 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 60 }, { "status": "peur", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "hf2", "tier": 2, "branch": "trunk", "name": "Feu infernal II", "description": "Le feu infernal enfle et consume plus avidement chair et esprit.", "next": ["hf3"], "stats": { "damageMin": 4, "damageMax": 6, "mana": 10, "range": "18 m", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 75 }, { "status": "peur", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "hf3", "tier": 3, "branch": "trunk", "name": "Feu infernal III", "description": "Un brasier damné qui calcine les corps et terrifie jusqu'aux âmes.", "stats": { "damageMin": 5, "damageMax": 8, "mana": 14, "range": "20 m", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 90 }, { "status": "peur", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -2028,15 +1916,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "cs1",
-                    "nodes": [
-                        { "id": "cs1", "tier": 1, "branch": "trunk", "name": "Combustion spontanée I", "description": "Des flammes surgissent au cœur de la cible, ignorant toute défense.", "next": ["cs2"], "stats": { "damagePercentMaxHp": { "min": 6, "max": 9 }, "mana": 15, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 40 }], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] } },
-                        { "id": "cs2", "tier": 2, "branch": "trunk", "name": "Combustion spontanée II", "description": "L'embrasement interne s'intensifie et consume une plus grande part.", "next": ["cs3"], "stats": { "damagePercentMaxHp": { "min": 8, "max": 16 }, "mana": 21, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 50 }], "scaling": [{ "source": "atk_mag", "ratio": 0.15 }] } },
-                        { "id": "cs3", "tier": 3, "branch": "trunk", "name": "Combustion spontanée III", "description": "Une combustion interne foudroyante qui ronge la cible de l'intérieur.", "stats": { "damagePercentMaxHp": { "min": 18, "max": 25 }, "mana": 28, "range": "20 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.2 }] } }
-                    ]
-                }
+                ]
             },
             {
                 "key": "combo-evasion-enflammee",
@@ -2171,15 +2051,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "ef1",
-                    "nodes": [
-                        { "id": "ef1", "tier": 1, "branch": "trunk", "name": "Évasion enflammée I", "description": "Le lanceur se téléporte en laissant un brasier qui brûle ses poursuivants.", "next": ["ef2"], "stats": { "damageMin": 2, "damageMax": 3, "mana": 5, "range": "Autour de soi", "area": "Rayon 3 m", "targets": ["enemy"], "teleport": true, "teleportRange": "8 m", "reaction": ["incoming-attack"], "inflicts": [{ "status": "brulure", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] } },
-                        { "id": "ef2", "tier": 2, "branch": "trunk", "name": "Évasion enflammée II", "description": "Le brasier de départ s'élargit et mord plus fort ceux qui s'approchent.", "next": ["ef3"], "stats": { "damageMin": 3, "damageMax": 5, "mana": 6, "range": "Autour de soi", "area": "Rayon 4 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 55 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }], "teleport": true, "teleportRange": "10 m", "reaction": ["incoming-attack"] } },
-                        { "id": "ef3", "tier": 3, "branch": "trunk", "name": "Évasion enflammée III", "description": "Une fuite fulgurante laissant derrière soi une déflagration ardente.", "stats": { "damageMin": 4, "damageMax": 6, "mana": 8, "range": "Autour de soi", "area": "Rayon 5 m", "targets": ["enemy"], "inflicts": [{ "status": "brulure", "chance": 70 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }], "teleport": true, "teleportRange": "12 m", "reaction": ["incoming-attack"] } }
-                    ]
-                }
+                ]
             }
         ]
     },
@@ -2385,15 +2257,7 @@
                         "field": "classBonuses",
                         "reason": "Propre à l'identité de la classe — hors budget."
                     }
-                ],
-                "progression": {
-                    "root": "te1",
-                    "nodes": [
-                        { "id": "te1", "tier": 1, "branch": "trunk", "name": "Trame équilibrée I", "description": "La mana se scinde en deux parts égales : l'une durcit la chair, l'autre s'ouvre en voile.", "next": ["te2"], "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "atk_phy", "value": 1, "scaling": [{ "source": "force", "ratio": 0.15 }] }, { "stat": "def_phy", "value": 1, "scaling": [{ "source": "constitution", "ratio": 0.15 }] }, { "stat": "speed", "value": 1 }, { "stat": "def_mag", "value": 2, "scaling": [{ "source": "sagesse", "ratio": 0.2 }] }] } },
-                        { "id": "te2", "tier": 2, "branch": "trunk", "name": "Trame équilibrée II", "description": "Le partage se fait sans perte : les deux moitiés gagnent ensemble.", "next": ["te3"], "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "atk_phy", "value": 2, "scaling": [{ "source": "force", "ratio": 0.2 }] }, { "stat": "def_phy", "value": 2, "scaling": [{ "source": "constitution", "ratio": 0.2 }] }, { "stat": "speed", "value": 2 }, { "stat": "def_mag", "value": 3, "scaling": [{ "source": "sagesse", "ratio": 0.3 }] }] } },
-                        { "id": "te3", "tier": 3, "branch": "trunk", "name": "Trame équilibrée III", "description": "Le dedans et le dehors tiennent d'un même geste : ni faille martiale, ni faille arcanique.", "stats": { "mana": 10, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "atk_phy", "value": 3, "scaling": [{ "source": "force", "ratio": 0.25 }] }, { "stat": "def_phy", "value": 3, "scaling": [{ "source": "constitution", "ratio": 0.25 }] }, { "stat": "speed", "value": 3 }, { "stat": "def_mag", "value": 4, "scaling": [{ "source": "sagesse", "ratio": 0.4 }] }] } }
-                    ]
-                }
+                ]
             }
         ]
     }

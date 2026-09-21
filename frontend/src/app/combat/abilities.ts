@@ -16,6 +16,14 @@ import {
   CombatAbility,
   CombatEnchant,
 } from './combat.types';
+import {
+  BuilderContext,
+  SpellState,
+  assessAtLevel,
+  builtNode,
+  fromSpellEntry,
+  spellProgress,
+} from './spell-customization';
 import { CELL_METERS, parseRangeMeters, parseShape } from './grid';
 import { WEAPON_ATTACK_RATIO } from './rules';
 import { isFerromagnetic } from './materials';
@@ -410,21 +418,37 @@ const toMods = (list: SpellNodeStats['effects']): AbilityStatMod[] =>
 const MAGNITUDE_VALUE: Record<string, number> = { 'léger': 2, 'modéré': 4, fort: 7 };
 
 /**
- * Feuilles débloquées de l'arbre d'un sort : les paliers les plus avancés
- * atteints par le personnage. Un arbre qui se scinde en donne plusieurs — le
- * personnage a réellement deux versions du sort, on les propose toutes deux.
+ * Le sort tel que CE personnage le joue : son socle, augmenté des arbitrages
+ * de son build, au niveau de sort que son XP lui donne.
+ *
+ * Sans état enregistré — sort tout juste appris, ou fiche qui n'en porte pas
+ * encore — le sort se joue à son socle : niveau 0, budget nul, aucun
+ * arbitrage. C'est l'état dans lequel on apprend un sort, pas un cas d'erreur.
+ *
+ * `null` si le sort ne déclare pas de personnalisation : il n'y a alors rien à
+ * jouer, et l'appelant n'en tire aucune capacité.
  */
-export function unlockedLeaves(spell: DomainSpellEntry, unlockedIds: string[]): SpellNode[] {
-  const nodes = spell.progression?.nodes ?? [];
-  if (!nodes.length) return [];
-  const unlocked = new Set(unlockedIds);
-  const owned = nodes.filter((n) => unlocked.has(n.id));
-  if (!owned.length) {
-    // Aucun nœud enregistré : le sort vient d'être appris, on joue sa racine.
-    const root = nodes.find((n) => n.id === spell.progression?.root);
-    return root ? [root] : [nodes[0]];
-  }
-  return owned.filter((node) => !(node.next ?? []).some((id) => unlocked.has(id)));
+export function builtSpellNode(
+  spell: DomainSpellEntry,
+  domains: string[],
+  state: SpellState | undefined,
+  ctx: BuilderContext,
+): SpellNode | null {
+  const custom = fromSpellEntry(spell, domains);
+  if (!custom) return null;
+  const level = spellProgress(state?.xp ?? 0, ctx.rules).level;
+  const assessment = assessAtLevel(custom, state?.build ?? null, level, ctx);
+  // Un build que le budget ne couvre pas ne se joue PAS : le moteur sait le
+  // calculer, mais une table n'a pas à subir la puissance que personne n'a
+  // payée — une fiche bricolée gagnerait des dégâts pour rien. On retombe sur
+  // le socle, le seul état dont la légitimité ne dépend d'aucun arbitrage.
+  const retenu = assessment.valid
+    ? assessment
+    : assessAtLevel(custom, null, level, ctx);
+  return builtNode(custom, retenu.stats, {
+    description: spell.description,
+    usage: spell.usage,
+  });
 }
 
 /**
@@ -677,20 +701,17 @@ export function spellAbility(
  */
 export function spellAbilities(
   page: SpellPageData,
-  unlockedIds: string[],
+  ctx: BuilderContext,
+  state?: SpellState,
   classKey?: string,
 ): CombatAbility[] {
-  const leaves = unlockedLeaves(page.spell, unlockedIds);
-  const out: CombatAbility[] = [];
-  for (const node of leaves) {
-    const choices = node.stats.choices;
-    if (choices?.length) {
-      choices.forEach((_, index) => out.push(spellAbility(page, node, index, classKey)));
-    } else {
-      out.push(spellAbility(page, node, undefined, classKey));
-    }
-  }
-  return out;
+  const node = builtSpellNode(page.spell, page.domains, state, ctx);
+  if (!node) return [];
+  const choices = node.stats.choices;
+  // Un sort à options n'en joue qu'une par lancer : chacune devient sa propre
+  // action, pour que le choix se fasse dans la barre d'actions et non ailleurs.
+  if (!choices?.length) return [spellAbility(page, node, undefined, classKey)];
+  return choices.map((_, index) => spellAbility(page, node, index, classKey));
 }
 
 /* ── Compétences de classe ─────────────────────────────────────────────────

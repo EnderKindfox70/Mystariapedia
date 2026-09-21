@@ -41,11 +41,24 @@ import {
   ReligionDef,
   PoolKey,
   RaceDef,
+  SpellState,
   StatKey,
   StatMode,
   SubraceDef,
   TraitDef,
 } from '../../character/character.types';
+import {
+  Build,
+  CustomizableSpell,
+  DEFAULT_RULES,
+  emptyBuild,
+  fromSpellEntry,
+  spellProgress,
+  xpForCast,
+  xpThreshold,
+} from '../../combat/spell-customization';
+import { SpellsService } from '../../services/spells.service';
+import { SpellWorkshop } from '../../components/spell-workshop/spell-workshop';
 import {
   ATTRIBUTES,
   ATTRIBUTE_POINTS,
@@ -309,14 +322,18 @@ const normalizeKeys = (value: unknown): string[] =>
  */
 const EQUIPPED_WEIGHT_FACTOR = 0.5;
 
+/** Le socle, pour les sorts dont l'atelier n'a jamais été ouvert. Jamais modifié. */
+const EMPTY_BUILD: Build = emptyBuild();
+
 @Component({
   selector: 'app-character-sheet',
-  imports: [FormsModule, RouterLink, Navbar],
+  imports: [FormsModule, RouterLink, Navbar, SpellWorkshop],
   templateUrl: './character-sheet.html',
   styleUrl: './character-sheet.css',
 })
 export class CharacterSheetEditor {
   private readonly sheets = inject(CharacterSheetService);
+  private readonly spellPages = inject(SpellsService);
   private readonly wiki = inject(WikiLoaderService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -1628,7 +1645,8 @@ export class CharacterSheetEditor {
    */
   private normalizeSpells(s: unknown): CharacterSpells {
     const rec = (s ?? {}) as {
-      unlocked?: unknown; equipped?: unknown; nodes?: unknown; ranks?: unknown; known?: unknown;
+      unlocked?: unknown; equipped?: unknown; states?: unknown;
+      nodes?: unknown; ranks?: unknown; known?: unknown;
     };
     const uniqStrings = (arr: unknown): string[] =>
       Array.isArray(arr) ? [...new Set(arr.filter((k): k is string => typeof k === 'string' && !!k))] : [];
@@ -1639,25 +1657,52 @@ export class CharacterSheetEditor {
       : uniqStrings((Array.isArray(rec.known) ? rec.known : []).map((x) => (x as { key?: unknown })?.key));
     const unlocked = unlockedRaw.filter((k) => !!findDomainSpell(k));
 
-    // Les paliers enregistrés par l'ancien système (`nodes`, `ranks`) ne sont
-    // plus lus : un sort débloqué l'est, et son niveau se paiera en XP.
-    const nodes: Record<string, string[]> = {};
-    for (const k of unlocked) nodes[k] = this.sanitizeNodeSet();
+    // Les paliers de l'ancien arbre (`nodes`, `ranks`) deviennent de l'XP, pas
+    // un build : ce qu'un joueur avait GAGNÉ lui est rendu, ce qu'il aurait
+    // CHOISI ne lui est pas dicté. Il redépense son budget dans l'atelier.
+    const src = (rec.states ?? {}) as Record<string, unknown>;
+    const legacyNodes = (rec.nodes ?? {}) as Record<string, unknown>;
+    const legacyRanks = (rec.ranks ?? {}) as Record<string, unknown>;
+    const states: Record<string, SpellState> = {};
+    for (const k of unlocked) {
+      const state = this.normalizeSpellState(src[k]);
+      if (!state.xp && !state.build) {
+        state.xp = this.legacyXp(legacyNodes[k], legacyRanks[k]);
+      }
+      states[k] = state;
+    }
 
     const equipped = uniqStrings(rec.equipped).filter((k) => unlocked.includes(k));
-    return { unlocked, equipped, nodes };
+    return { unlocked, equipped, states };
   }
 
   /**
-   * Un sort débloqué occupe une entrée, et une seule.
+   * L'XP que vaut une progression de l'ancien format.
    *
-   * Les fiches n'ont plus de paliers : un sort se règle par budget, et son
-   * niveau se paie en XP. Les ensembles enregistrés par l'ancien système sont
-   * ramenés à cette racine fictive — rien n'est perdu de ce qui compte encore
-   * (le sort EST débloqué), et la mise à niveau vers l'XP pourra repartir de là.
+   * Un arbre comptait sa racine comme un palier : un sort à N nœuds valait donc
+   * N−1 améliorations, qu'on relit comme N−1 niveaux de sort. Le plafond de
+   * niveau s'applique comme pour n'importe quelle XP — un arbre plus profond
+   * que le barème ne donne pas plus que le maximum.
    */
-  private sanitizeNodeSet(): string[] {
-    return ['__root__'];
+  private legacyXp(nodes: unknown, rank: unknown): number {
+    const paliers = Array.isArray(nodes)
+      ? Math.max(0, nodes.filter((n) => typeof n === 'string').length - 1)
+      : typeof rank === 'number' && Number.isFinite(rank)
+        ? Math.max(0, Math.round(rank) - 1)
+        : 0;
+    if (!paliers) return 0;
+    return xpThreshold(Math.min(paliers, DEFAULT_RULES.maxSpellLevel), DEFAULT_RULES);
+  }
+
+  /** Un état de sort relu d'une sauvegarde, ramené à quelque chose d'exploitable. */
+  private normalizeSpellState(raw: unknown): SpellState {
+    const r = (raw ?? {}) as { xp?: unknown; build?: unknown; lastReassignedAt?: unknown };
+    const xp = typeof r.xp === 'number' && Number.isFinite(r.xp) && r.xp > 0 ? r.xp : 0;
+    // Un build est un objet libre côté données : le moteur le normalise
+    // lui-même (`normalizeBuild`) et ignore ce qu'il ne reconnaît pas.
+    const build = r.build && typeof r.build === 'object' ? (r.build as SpellState['build']) : null;
+    const at = typeof r.lastReassignedAt === 'string' ? r.lastReassignedAt : null;
+    return { xp, build, lastReassignedAt: at };
   }
 
   // ── Valeurs calculées (appelées dans le template) ──────────────────────────
@@ -2407,9 +2452,90 @@ export class CharacterSheetEditor {
     return this.inspirationTotal - this.inspirationSpent;
   }
 
-  /** Ids des entrées enregistrées pour un sort (une seule depuis la fin des paliers). */
-  unlockedNodes(key: string): string[] {
-    return this.model.spells.nodes[key] ?? [];
+  /** L'état d'un sort : son XP et son build. Le socle pour un sort non débloqué. */
+  spellState(key: string): SpellState {
+    return this.model.spells.states[key] ?? { xp: 0, build: null, lastReassignedAt: null };
+  }
+
+  /** Niveau d'un sort, déduit de sa seule XP (plafonné par le barème). */
+  spellLevel(key: string): number {
+    return spellProgress(this.spellState(key).xp).level;
+  }
+
+  /** Tout ce que l'XP d'un sort lui vaut : niveau, seuils, points gagnés. */
+  spellProgressOf(key: string) {
+    return spellProgress(this.spellState(key).xp);
+  }
+
+  /** Part du chemin parcourue vers le niveau suivant, en %, pour la jauge. */
+  spellXpPercent(key: string): number {
+    const p = this.spellProgressOf(key);
+    if (p.nextThreshold === null) return 100;
+    const span = p.nextThreshold - p.prevThreshold;
+    return span > 0 ? Math.round(((p.xp - p.prevThreshold) / span) * 100) : 0;
+  }
+
+  /** Le sort vu par le moteur de personnalisation, ou `null` s'il n'en déclare pas. */
+  customizableSpell(key: string): CustomizableSpell | null {
+    const page = this.spellPages.bySlug(key);
+    return page ? fromSpellEntry(page.spell, page.domains) : null;
+  }
+
+  /**
+   * Le build enregistré du sort.
+   *
+   * L'atelier reçoit CET objet, pas une copie : un build reconstruit à chaque
+   * cycle de détection réécrirait l'entrée de l'atelier à chaque frappe, et
+   * les réglages ne tiendraient pas. `openSpellWorkshop` garantit qu'il existe.
+   */
+  spellBuild(key: string): Build {
+    return this.spellState(key).build ?? EMPTY_BUILD;
+  }
+
+  /**
+   * Enregistre le build réglé dans l'atelier.
+   *
+   * On écrit sur la fiche à chaque cran : un budget dépensé est une décision de
+   * jeu, pas un brouillon — et c'est ce que le simulateur lira au prochain combat.
+   */
+  setSpellBuild(key: string, build: Build): void {
+    const state = this.model.spells.states[key];
+    if (state) state.build = build;
+  }
+
+  /**
+   * Une séance d'entraînement sur un sort : le travail hors combat, qui rapporte
+   * plein tarif là où un lancer en situation ne rend que la moitié.
+   *
+   * Le geste est SUR LA FICHE et non dans le simulateur, parce qu'il ne se joue
+   * pas : il se décide entre deux séances, et le MJ l'accorde.
+   */
+  trainSpell(key: string): void {
+    const state = this.model.spells.states[key];
+    if (state) state.xp = Math.round((state.xp + xpForCast('training')) * 1000) / 1000;
+  }
+
+  /** Retire une séance d'entraînement — une erreur de saisie se corrige. */
+  untrainSpell(key: string): void {
+    const state = this.model.spells.states[key];
+    if (state) state.xp = Math.max(0, Math.round((state.xp - xpForCast('training')) * 1000) / 1000);
+  }
+
+  /** Ce qu'un entraînement rapporte, pour l'annoncer sur le bouton. */
+  readonly trainingXp = xpForCast('training');
+  /** Ce que vaut un lancer en situation : moitié moins, et c'est voulu. */
+  readonly combatXp = xpForCast('combat');
+
+  /** L'atelier ouvert, ou `null` : un seul sort se règle à la fois. */
+  readonly openWorkshop = signal<string | null>(null);
+
+  toggleWorkshop(key: string): void {
+    const ouvrir = this.openWorkshop() !== key;
+    // Ouvrir l'atelier matérialise le build : tant qu'il vaut `null`, le sort
+    // est à son socle, et l'atelier n'aurait rien de stable à régler.
+    const state = this.model.spells.states[key];
+    if (ouvrir && state && !state.build) state.build = emptyBuild();
+    this.openWorkshop.set(ouvrir ? key : null);
   }
 
   isSpellUnlocked(key: string): boolean {
@@ -2457,7 +2583,8 @@ export class CharacterSheetEditor {
   unlockSpell(spell: DomainSpell): void {
     if (!this.canUnlock(spell)) return;
     this.model.spells.unlocked.push(spell.key);
-    this.model.spells.nodes[spell.key] = this.sanitizeNodeSet();
+    // Un sort s'apprend à son socle : pas d'XP, pas d'arbitrage.
+    this.model.spells.states[spell.key] = { xp: 0, build: null, lastReassignedAt: null };
   }
 
   /** Un sort débloqué a-t-il des dépendants débloqués (qui le requièrent) ? */
@@ -2473,7 +2600,7 @@ export class CharacterSheetEditor {
     if (this.hasUnlockedDependents(key)) return;
     this.model.spells.unlocked = this.model.spells.unlocked.filter((k) => k !== key);
     this.model.spells.equipped = this.model.spells.equipped.filter((k) => k !== key);
-    delete this.model.spells.nodes[key];
+    delete this.model.spells.states[key];
   }
 
   /** Équipe / déséquipe un sort débloqué (dans la limite du plafond). */
@@ -2526,8 +2653,8 @@ export class CharacterSheetEditor {
     this.model.spells.unlocked = this.model.spells.unlocked.filter((k) => valid.has(k));
     const stillUnlocked = new Set(this.model.spells.unlocked);
     this.model.spells.equipped = this.model.spells.equipped.filter((k) => stillUnlocked.has(k));
-    for (const k of Object.keys(this.model.spells.nodes)) {
-      if (!stillUnlocked.has(k)) delete this.model.spells.nodes[k];
+    for (const k of Object.keys(this.model.spells.states)) {
+      if (!stillUnlocked.has(k)) delete this.model.spells.states[k];
     }
   }
 

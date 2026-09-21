@@ -12,6 +12,7 @@ import {
   poolStage,
 } from '../character/universe-data';
 import { Combatant } from './combat.types';
+import { DEFAULT_RULES, Rules, xpForCast } from './spell-customization';
 import { stageOf, survivalToNotches } from './survival';
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -74,6 +75,17 @@ export interface ItemChange {
 }
 
 /** Ce qu'une séance a changé pour un personnage, avant écriture. */
+/** Ce qu'un sort a gagné à être lancé pendant la séance. */
+export interface SpellXpGain {
+  key: string;
+  /** Lancers en situation, comptés sur la table. */
+  casts: number;
+  /** Séances d'entraînement menées au camp. */
+  training: number;
+  /** XP totale, chaque source à son propre barème. */
+  xp: number;
+}
+
 export interface SheetReport {
   unitId: string;
   sheetId: string;
@@ -83,6 +95,8 @@ export interface SheetReport {
   items: ItemChange[];
   /** Écart de bourse en pièces d'or (peut être négatif). */
   gold: number;
+  /** XP gagnée par chaque sort lancé pendant la séance. */
+  spellXp: SpellXpGain[];
   /** Y a-t-il seulement quelque chose à écrire ? */
   changed: boolean;
 }
@@ -92,7 +106,12 @@ export interface SheetReport {
  *
  * Ne touche à rien : rend l'écart, à afficher puis à confirmer.
  */
-export function diffAgainstSheet(unit: Combatant, sheet: CharacterSheet, sheetId: string): SheetReport {
+export function diffAgainstSheet(
+  unit: Combatant,
+  sheet: CharacterSheet,
+  sheetId: string,
+  rules: Rules = DEFAULT_RULES,
+): SheetReport {
   const gauges: GaugeChange[] = [];
   const after = survivalToNotches(unit.survival);
   // Un pion qui ne tient pas de jauges n'a rien à en dire : sans état, la
@@ -149,6 +168,23 @@ export function diffAgainstSheet(unit: Combatant, sheet: CharacterSheet, sheetId
   const gold =
     unit.purseBase === undefined ? 0 : nextGoldDelta(unit) - Math.round(sheet.goldDelta ?? 0);
 
+  // Un sort ne gagne d'XP que si la fiche le connaît : un pion retouché à la
+  // main peut porter un sort que son personnage n'a jamais appris.
+  const connus = sheet.spells?.states ?? {};
+  const casts = unit.spellCasts ?? {};
+  const seances = unit.spellTraining ?? {};
+  const spellXp: SpellXpGain[] = [...new Set([...Object.keys(casts), ...Object.keys(seances)])]
+    .filter((key) => key in connus)
+    .map((key) => ({
+      key,
+      casts: casts[key] ?? 0,
+      training: seances[key] ?? 0,
+      xp:
+        (casts[key] ?? 0) * xpForCast('combat', rules) +
+        (seances[key] ?? 0) * xpForCast('training', rules),
+    }))
+    .filter((g) => g.xp > 0);
+
   return {
     unitId: unit.id,
     sheetId,
@@ -157,7 +193,9 @@ export function diffAgainstSheet(unit: Combatant, sheet: CharacterSheet, sheetId
     pools,
     items,
     gold,
-    changed: gauges.length > 0 || pools.length > 0 || items.length > 0 || gold !== 0,
+    spellXp,
+    changed:
+      gauges.length > 0 || pools.length > 0 || items.length > 0 || gold !== 0 || spellXp.length > 0,
   };
 }
 
@@ -247,6 +285,14 @@ export function applyReport(
     next.goldDelta = nextGoldDelta(unit);
   }
 
+  // L'XP des sorts S'AJOUTE : contrairement aux réserves, elle ne se recalcule
+  // pas depuis le pion. Reporter deux fois la même séance créditerait deux
+  // fois — c'est pourquoi le report se confirme une fois, puis se referme.
+  for (const gain of report.spellXp) {
+    const state = next.spells?.states?.[gain.key];
+    if (state) state.xp = Math.round((state.xp + gain.xp) * 1000) / 1000;
+  }
+
   return next;
 }
 
@@ -264,5 +310,11 @@ export function summarize(report: SheetReport): string {
     parts.push(`${item.delta > 0 ? '+' : ''}${item.delta} ${item.name}`);
   }
   if (report.gold) parts.push(`${report.gold > 0 ? '+' : ''}${report.gold} po`);
+  for (const gain of report.spellXp) {
+    const d: string[] = [];
+    if (gain.casts) d.push(`${gain.casts} lancer${gain.casts > 1 ? 's' : ''}`);
+    if (gain.training) d.push(`${gain.training} entraînement${gain.training > 1 ? 's' : ''}`);
+    parts.push(`+${gain.xp} xp ${gain.key} (${d.join(', ')})`);
+  }
   return parts.join(' · ') || 'rien à reporter';
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SpellsService } from '../services/spells.service';
+import { socle, testContext } from './spell-testing';
 import { AttributeKey, StatKey } from '../character/character.types';
 import { spellAbility } from './abilities';
 import { Affinities, Combatant, CombatAbility, Encounter, Team } from './combat.types';
@@ -51,14 +52,19 @@ function mkUnit(over: Partial<Combatant> & { id: string; name: string; team: Tea
 }
 
 const spells = new SpellsService();
+const ctx = testContext(spells);
 
-/** La capacité d'un palier de sort, désigné par sa clé et l'id de son nœud. */
-function abilityOf(key: string, nodeId: string): CombatAbility {
+/**
+ * La capacité d'un sort à son socle.
+ *
+ * Les sorts n'ont plus de paliers : ce qu'un nœud portait se règle désormais
+ * par budget. Le socle est l'état que tout personnage possède, donc le seul
+ * sur lequel un test d'ensemble peut s'appuyer sans supposer un build.
+ */
+function abilityOf(key: string): CombatAbility {
   const page = spells.bySlug(key);
   if (!page) throw new Error(`sort introuvable : ${key}`);
-  const node = page.spell.progression?.nodes.find((n) => n.id === nodeId);
-  if (!node) throw new Error(`palier introuvable : ${key}/${nodeId}`);
-  return spellAbility(page, node);
+  return spellAbility(page, socle(page, ctx));
 }
 
 /** Une arme au type bien identifié, pour voir ce que le revêtement en fait. */
@@ -75,7 +81,7 @@ const sabre: CombatAbility = {
 };
 
 describe('Arme renforcée — un revêtement sans nature propre', () => {
-  const revetement = abilityOf('renforcement-revetement-arme', 'ra1');
+  const revetement = abilityOf('renforcement-revetement-arme');
 
   it('est bien lu comme un revêtement d’arme', () => {
     // Sans ça, ses dégâts seraient pris pour une attaque directe et le sort ne
@@ -122,7 +128,7 @@ describe('Arme renforcée — un revêtement sans nature propre', () => {
 });
 
 describe('Frappe assurée — le critique porte sur les dégâts, pas sur le toucher', () => {
-  const frappe = abilityOf('renforcement-frappe-assuree', 'fa1');
+  const frappe = abilityOf('renforcement-frappe-assuree');
 
   it('déclare la garantie sans devenir un coup automatique', () => {
     expect(frappe.alwaysCritical).toBe(true);
@@ -171,11 +177,15 @@ describe('Frappe assurée — le critique porte sur les dégâts, pas sur le tou
     const cible = enc.combatants.find((c) => c.id === 'b')!;
     const subis = cible.base.hp - cible.hp;
 
-    // Dégâts écrits (2–3) + scaling, le tout multiplié par le facteur critique.
-    // On borne plutôt que d'égaler : le dé de dégâts reste un dé.
+    // Dégâts du socle + scaling, le tout multiplié par le facteur critique.
+    // Les bornes se LISENT sur la fiche : les chiffres du sort peuvent être
+    // réglés sans que ce test cesse de dire ce qu'il veut dire.
+    const frappe = abilityOf('renforcement-frappe-assuree');
+    const [degats] = frappe.damages;
     const attaquant = enc.combatants.find((c) => c.id === 'a')!;
-    const bonus = 0.06 * attaquant.base.atk_phy;
-    expect(subis).toBeGreaterThanOrEqual(Math.round((2 + bonus) * CRIT_FACTOR));
-    expect(subis).toBeLessThanOrEqual(Math.round((3 + bonus) * CRIT_FACTOR));
+    const bonus = (degats.scaling?.[0]?.ratio ?? 0) * attaquant.base.atk_phy;
+    // On borne plutôt que d'égaler : le dé de dégâts reste un dé.
+    expect(subis).toBeGreaterThanOrEqual(Math.round((degats.min + bonus) * CRIT_FACTOR));
+    expect(subis).toBeLessThanOrEqual(Math.round((degats.max + bonus) * CRIT_FACTOR));
   });
 });

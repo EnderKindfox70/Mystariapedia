@@ -8,6 +8,7 @@ import {
   BuilderContext,
   DEFAULT_RULES,
   assessAtLevel,
+  builtNode,
   emptyBuild,
   fillTemplate,
   measureLines,
@@ -208,9 +209,9 @@ export class SpellEntryComponent {
     const p = this.page()?.spell;
     const live = p?.liveText;
     const base = p?.usage;
-    return {
-      id: 'build',
-      name: spell.name,
+    // Même fabrique que le moteur de combat : ce que la fiche montre est
+    // exactement ce que le simulateur jouera.
+    return builtNode(spell, a.stats, {
       // Sans texte vivant, l'accroche reste la description de la fiche :
       // le panneau ne doit jamais s'ouvrir sur un blanc.
       description: this.live(live?.lead) ?? this.live(live?.description) ?? p?.description,
@@ -219,8 +220,7 @@ export class SpellEntryComponent {
         ...(live?.combat ? { combat: this.live(live.combat) ?? base?.combat } : {}),
         ...(live?.outOfCombat ? { outOfCombat: this.live(live.outOfCombat) ?? base?.outOfCombat } : {}),
       },
-      stats: a.stats,
-    };
+    });
   });
 
   /**

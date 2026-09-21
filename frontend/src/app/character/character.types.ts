@@ -17,6 +17,12 @@ export interface Spell {
   key?: string;
 }
 
+/** L'XP et le build d'un sort, tels que le moteur de personnalisation les lit. */
+// Import de TYPE seulement : le moteur importe deja ce fichier pour ses clefs
+// d'attributs, et un import de type est efface a la compilation — aucun cycle.
+import type { SpellState } from '../combat/spell-customization';
+export type { SpellState };
+
 /**
  * Sorts de la fiche. Deux niveaux distincts :
  * - `unlocked` : sorts **débloqués** (appris), respectant leurs prérequis
@@ -30,14 +36,17 @@ export interface CharacterSpells {
   unlocked: string[];
   equipped: string[];
   /**
-   * Nœuds (paliers) débloqués par sort : clé du sort → ids des nœuds de son arbre
-   * d'amélioration. Débloquer un sort ouvre son nœud racine ; améliorer ouvre un
-   * nœud enfant en suivant l'arbre (les branches se choisissent aux points de
-   * scission). Chaque nœud coûte un point d'inspiration (cf.
-   * `ClassDef.inspirationPerLevel`). Invariant : `nodes[key]` contient la racine
-   * si et seulement si `key ∈ unlocked`.
+   * État de chaque sort débloqué : son XP propre et son build.
+   *
+   * Le niveau d'un sort ne dépend QUE de son XP — jamais du niveau du
+   * personnage : un sort qu'on lance souvent progresse, un sort jamais lancé
+   * stagne. Ce niveau ouvre un budget de points, que le build dépense sur les
+   * curseurs que la fiche autorise.
+   *
+   * Invariant : `states[key]` existe si et seulement si `key ∈ unlocked`.
+   * Un sort tout juste appris vaut `{ xp: 0, build: null }` — son socle.
    */
-  nodes: Record<string, string[]>;
+  states: Record<string, SpellState>;
 }
 
 /** Une ligne d'inventaire. */

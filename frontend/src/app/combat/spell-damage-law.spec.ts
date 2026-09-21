@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SpellsService } from '../services/spells.service';
+import { socle, testContext } from './spell-testing';
 import { SpellPageData } from '../wiki.types';
 import {
   DAMAGE_TOLERANCE,
@@ -13,6 +14,8 @@ import {
   shapeShare,
   tierPlayedAt,
 } from './spell-damage-law';
+
+const ctx = testContext(new SpellsService());
 
 /* ──────────────────────────────────────────────────────────────────────────
    LE GARDE-FOU DES DÉGÂTS.
@@ -73,9 +76,9 @@ describe('loi des dégâts', () => {
 });
 
 describe('les fiches de sorts', () => {
-  /** Chaque nœud qui inflige des dégâts, avec son verdict. */
+  /** Chaque sort qui inflige des dégâts à son socle, avec son verdict. */
   const verdicts = new SpellsService().all().flatMap((page: SpellPageData) =>
-    (page.spell.progression?.nodes ?? [])
+    [socle(page, ctx)]
       .filter((node) => node.stats?.damageMax)
       .map((node) => {
         const stats = node.stats;
@@ -101,7 +104,14 @@ describe('les fiches de sorts', () => {
   );
 
   it('audite tout le catalogue', () => {
-    expect(verdicts.length).toBeGreaterThan(150);
+    // Le seuil ne se devine pas : c'est le nombre de sorts du wiki qui
+    // infligent des dégâts à leur socle. Un sort offensif ajouté entre dans
+    // l'audit tout seul, et aucun ne peut s'y soustraire.
+    const offensifs = new SpellsService()
+      .all()
+      .filter((p: SpellPageData) => p.spell.baseStats?.damageMax !== undefined);
+    expect(verdicts.length).toBe(offensifs.length);
+    expect(verdicts.length).toBeGreaterThan(50);
   });
 
   it('n’a AUCUN nœud TROP FORT', () => {

@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, model } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { BuilderContextService } from '../../services/builder-context.service';
 import { StatusEffectsService } from '../../services/status-effects.service';
 import { SpellScalingSource, SpellTarget } from '../../wiki.types';
 import * as C from '../../combat/spell-customization';
@@ -54,12 +55,21 @@ function nudge(step: C.StepView, delta: 1 | -1): NudgeView {
 })
 export class SpellWorkshop {
   private readonly statuses = inject(StatusEffectsService);
+  private readonly builder = inject(BuilderContextService);
 
   readonly spell = input.required<C.CustomizableSpell>();
   /** Le build essayé, gardé en mémoire même quand on redescend au niveau 0. */
   readonly build = model<C.Build>(C.emptyBuild());
   /** Niveau de sort supposé : il fixe le budget. 0 = le socle, tel qu'on apprend le sort. */
   readonly level = model<number>(0);
+  /**
+   * Le niveau se choisit-il ?
+   *
+   * Sur une fiche du wiki, oui : on essaie le sort à différents niveaux pour
+   * voir ce qu'il devient. Sur une fiche de PERSONNAGE, non — le niveau est
+   * celui que l'XP du sort a payé, et le lecteur n'a pas à s'en offrir d'autre.
+   */
+  readonly levelEditable = input(true);
 
   /** Niveau 0 : le socle de base, rien ne s'y modifie. */
   readonly locked = computed(() => this.level() === 0);
@@ -67,7 +77,9 @@ export class SpellWorkshop {
   readonly shown = computed(() => (this.locked() ? C.emptyBuild() : this.build()));
 
   readonly rules = C.DEFAULT_RULES;
-  private readonly ctx: C.BuilderContext = { rules: C.DEFAULT_RULES, classes: [], catalog: {} };
+  private get ctx(): C.BuilderContext {
+    return this.builder.context();
+  }
   readonly levels = Array.from({ length: C.DEFAULT_RULES.maxSpellLevel + 1 }, (_, i) => i);
 
   readonly fmt = C.fmt;
@@ -260,7 +272,7 @@ export class SpellWorkshop {
   }
 
   setLevel(n: number): void {
-    this.level.set(n);
+    if (this.levelEditable()) this.level.set(n);
   }
 
   reset(): void {

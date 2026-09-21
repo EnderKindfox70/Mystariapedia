@@ -1527,3 +1527,44 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   cursor: pointer;
 }
 .cs-earth__equip.is-on { color: var(--ancient-gold); }
+
+/* ── Atelier de réglage d'un sort, déplié sous sa ligne ── */
+.cs-workshop {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed color-mix(in srgb, var(--ancient-gold) 24%, transparent);
+}
+
+/* La jauge d'XP : ce qui sépare le sort de son prochain niveau, donc de ses
+   prochains points. Elle se lit d'un coup d'œil, sans ouvrir l'atelier. */
+.cs-xp { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.5rem; }
+.cs-xp__label {
+  display: flex; align-items: baseline; gap: 0.4rem;
+  font-size: 0.7rem; letter-spacing: 0.04em; color: var(--faded-ivory);
+}
+.cs-xp__label small { color: var(--dust-brown); font-size: 0.64rem; }
+.cs-xp__bar {
+  display: block; height: 0.3rem; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 18%, transparent);
+  overflow: hidden;
+}
+.cs-xp__fill {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ancient-gold) 55%, transparent), var(--ancient-gold));
+}
+
+/* Les pastilles de niveau ne se cliquent pas ici : le niveau vient de l'XP. */
+.cs-workshop .ws-pip:disabled { cursor: default; opacity: 1; }
+
+/* Entraîner un sort : le travail hors combat, à plein tarif. */
+.cs-xp__train { display: flex; align-items: center; gap: 0.35rem; margin-top: 0.3rem; flex-wrap: wrap; }
+.cs-xp__train small { color: var(--dust-brown); font-size: 0.62rem; }
+.cs-rank__btn {
+  width: 1.35rem; height: 1.35rem; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--faded-ivory); background: rgba(0, 0, 0, 0.3);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 30%, transparent);
+  border-radius: 5px; cursor: pointer; font-size: 0.85rem;
+}
+.cs-rank__btn:disabled { opacity: 0.35; cursor: not-allowed; }

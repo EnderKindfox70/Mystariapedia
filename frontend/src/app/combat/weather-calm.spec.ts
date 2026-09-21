@@ -34,7 +34,7 @@ const abilityFromNode = (): CombatAbility => ({
   rangeMeters: 20,
   shape: { kind: 'single' },
   targets: ['everyone'],
-  manaCost: CALME.progression.nodes[0].stats.mana,
+  manaCost: CALME.baseStats!.mana,
   enduranceCost: 0,
   damages: [],
   autoHit: true,
@@ -58,16 +58,17 @@ describe('Temps calme — la fiche', () => {
   it('est un sort de niveau 5 qui ne blesse pas', () => {
     expect(CALME.level).toBe(5);
     expect(CALME.name).toBe('Temps calme');
-    for (const node of CALME.progression.nodes) {
-      expect(node.stats.clearsWeather).toBe(true);
-      expect(node.stats).not.toHaveProperty('damageMin');
-      expect(node.stats).not.toHaveProperty('inflicts');
-    }
+    expect(CALME.baseStats!.clearsWeather).toBe(true);
+    expect(CALME.baseStats).not.toHaveProperty('damageMin');
+    expect(CALME.baseStats).not.toHaveProperty('inflicts');
   });
 
   it("ne convoque aucune météo : c'est bien l'inverse", () => {
-    for (const node of CALME.progression.nodes) {
-      expect(node.stats).not.toHaveProperty('weather');
+    expect(CALME.baseStats).not.toHaveProperty('weather');
+    // Aucun curseur ne doit pouvoir lui en faire convoquer une : le sort
+    // NETTOIE le ciel, c'est son identité, pas un réglage.
+    for (const p of CALME.customization?.params ?? []) {
+      expect(p.path).not.toContain('weather');
     }
   });
 });

@@ -1031,6 +1031,12 @@
                                 (click)="toggleEquip(s.key)">
                           {{ isSpellEquipped(s.key) ? '★ Équipé' : '☆ Équiper' }}
                         </button>
+                        <button type="button" class="cs-chip" [class.is-on]="openWorkshop() === s.key"
+                                [disabled]="!customizableSpell(s.key)"
+                                [title]="customizableSpell(s.key) ? 'Régler ce sort' : 'Ce sort ne se personnalise pas'"
+                                (click)="toggleWorkshop(s.key)">
+                          ⚙ Niv. {{ spellLevel(s.key) }}
+                        </button>
                         <button type="button" class="cs-mini-del" [disabled]="hasUnlockedDependents(s.key)"
                                 [title]="hasUnlockedDependents(s.key) ? 'Des sorts débloqués en dépendent' : 'Oublier ce sort'"
                                 (click)="forgetSpell(s.key)">✕</button>
@@ -1042,6 +1048,39 @@
                     </span>
                   </div>
 
+                  @if (openWorkshop() === s.key && customizableSpell(s.key); as cs) {
+                    <div class="cs-workshop">
+                      <div class="cs-xp">
+                        <span class="cs-xp__label">
+                          XP du sort — niveau {{ spellLevel(s.key) }}
+                          @if (spellProgressOf(s.key).nextThreshold; as next) {
+                            <small>{{ spellProgressOf(s.key).xp }} / {{ next }}</small>
+                          } @else { <small>niveau maximum</small> }
+                        </span>
+                        <span class="cs-xp__bar" aria-hidden="true">
+                          <span class="cs-xp__fill" [style.width.%]="spellXpPercent(s.key)"></span>
+                        </span>
+                        <span class="cs-xp__train">
+                          <button type="button" class="cs-rank__btn"
+                                  [disabled]="spellState(s.key).xp <= 0"
+                                  title="Retirer une séance d’entraînement"
+                                  (click)="untrainSpell(s.key)">−</button>
+                          <button type="button" class="cs-chip cs-chip--unlock"
+                                  [title]="'Une séance d’entraînement : +' + trainingXp + ' XP (plein tarif, hors combat)'"
+                                  (click)="trainSpell(s.key)">
+                            ✦ Entraîner +{{ trainingXp }}
+                          </button>
+                          <small>un lancer en combat vaut {{ combatXp }}</small>
+                        </span>
+                      </div>
+                      <spell-workshop
+                        [spell]="cs"
+                        [levelEditable]="false"
+                        [level]="spellLevel(s.key)"
+                        [build]="spellBuild(s.key)"
+                        (buildChange)="setSpellBuild(s.key, $event)" />
+                    </div>
+                  }
                 </li>
               }
             </ul>

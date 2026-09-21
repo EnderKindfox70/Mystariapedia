@@ -34,6 +34,7 @@ import {
 import { LootDrop } from './loot';
 import { survivalFromNotches } from './survival';
 import { isProficientWith } from './rules';
+import { BuilderContextService } from '../services/builder-context.service';
 import { SpellsService } from '../services/spells.service';
 import { StatusEffectsService } from '../services/status-effects.service';
 import { WikiLoaderService } from '../services/wiki-loader-service';
@@ -213,6 +214,7 @@ const nextId = (prefix: string): string => `${prefix}-${Date.now().toString(36)}
 export class CombatantFactory {
   private readonly wiki = inject(WikiLoaderService);
   private readonly spells = inject(SpellsService);
+  private readonly builder = inject(BuilderContextService);
 
   /** Armes du wiki, indexées par nom. */
   private readonly weaponsByName = new Map<string, WeaponSource>();
@@ -707,7 +709,12 @@ export class CombatantFactory {
       if (!page) continue;
       // La classe compte : elle module le coût, le scaling et parfois le
       // fonctionnement du sort (cf. `classBonuses` des fiches de domaine).
-      abilities.push(...spellAbilities(page, sheet.spells.nodes?.[key] ?? [], klass?.key));
+      //
+      // L'XP et le build du sort viennent de la fiche : un sort jamais monté
+      // se joue à son socle, un sort travaillé joue ce que son budget a payé.
+      abilities.push(
+        ...spellAbilities(page, this.builder.context(), sheet.spells.states?.[key], klass?.key),
+      );
     }
 
     abilities.push(...classSkillsFor(klass, sheet.level));

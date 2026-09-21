@@ -816,7 +816,7 @@ export function emptySheet(): CharacterSheet {
     creationTraits: [],
     languages: [],
     feats: [],
-    spells: { unlocked: [], equipped: [], nodes: {} },
+    spells: { unlocked: [], equipped: [], states: {} },
     extraWeaponProficiencies: [],
     extraArmorProficiencies: [],
     goldDelta: 0,

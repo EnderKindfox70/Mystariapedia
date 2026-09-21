@@ -38,7 +38,9 @@ import {
   SpellScaling,
   SpellScalingAffects,
   SpellScalingSource,
+  SpellNode,
   SpellTarget,
+  SpellUsage,
   SwapOptions,
 } from '../wiki.types';
 
@@ -454,6 +456,28 @@ export function fromSpellEntry(spell: DomainSpellEntry, domains: string[]): Cust
     crossDomain: spell.crossDomain,
     domainGoverned: spell.domainGoverned,
     lockedFields: spell.lockedFields,
+  };
+}
+
+/**
+ * Le sort construit, sous la forme que lisent la fiche ET le moteur de combat.
+ *
+ * Un `SpellNode` n'est plus un palier d'arbre : c'est un sort À UN ÉTAT DONNÉ.
+ * Le faire fabriquer ici, et nulle part ailleurs, garantit que la fiche montre
+ * exactement ce que le simulateur joue — c'était la promesse que l'ancien
+ * arbre ne tenait pas, chacun lisant ses propres nœuds.
+ */
+export function builtNode(
+  spell: CustomizableSpell,
+  stats: BuilderStats,
+  texts?: { description?: string; usage?: SpellUsage },
+): SpellNode {
+  return {
+    id: 'build',
+    name: spell.name,
+    description: texts?.description,
+    usage: texts?.usage,
+    stats,
   };
 }
 

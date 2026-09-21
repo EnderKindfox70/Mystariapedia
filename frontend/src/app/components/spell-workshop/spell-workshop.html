@@ -274,10 +274,13 @@
     <div class="ws-summary">
       <div class="ws-levels">
         <span class="ws-label">Niveau de sort</span>
-        <div class="ws-pips" role="radiogroup" aria-label="Niveau de sort supposé">
+        <div class="ws-pips" role="radiogroup"
+             [attr.aria-label]="levelEditable() ? 'Niveau de sort supposé' : 'Niveau de sort atteint'">
           @for (n of levels; track n) {
             <button type="button" class="ws-pip" role="radio" [class.is-active]="n === level()" [class.is-reached]="n <= level()"
-                    [attr.aria-checked]="n === level()" (click)="setLevel(n)">{{ n }}</button>
+                    [disabled]="!levelEditable()" [attr.aria-checked]="n === level()"
+                    [title]="levelEditable() ? 'Essayer le sort à ce niveau' : 'Niveau atteint par l’XP de ce sort'"
+                    (click)="setLevel(n)">{{ n }}</button>
           }
         </div>
       </div>

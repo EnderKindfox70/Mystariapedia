@@ -169,8 +169,9 @@
         <div class="cb-modal__box">
           <h2>Reporter sur les fiches</h2>
           <p class="cb-modal__note">
-            Réserves (points de vie, endurance, mana), jauges de survie, sac et bourse
-            redescendent sur la fiche. Ce qui suit sera écrit.
+            Réserves (points de vie, endurance, mana), jauges de survie, sac, bourse
+            et XP des sorts lancés ou travaillés redescendent sur la fiche.
+            Ce qui suit sera écrit.
           </p>
 
           <ul class="cb-modal__list">
@@ -586,6 +587,27 @@
                 >{{ act.label }}</button>
               }
             </div>
+
+            @if (trainableSpells().length) {
+              <div class="cb-campbar__row cb-campbar__row--train">
+                <span class="cb-campbar__label">{{ selectedUnit()?.name }} travaille</span>
+                @for (sp of trainableSpells(); track sp.ref) {
+                  <span class="cb-train">
+                    <button type="button" class="cb-act"
+                            [class.is-on]="sp.seances > 0"
+                            [title]="'Une séance sur ' + sp.name + ' : +' + trainingXp + ' XP au report (un lancer en situation en vaut ' + combatXp + ')'"
+                            (click)="trainSpell(sp.ref)">
+                      {{ sp.name }}
+                      @if (sp.seances) { <b>×{{ sp.seances }}</b> }
+                    </button>
+                    @if (sp.seances) {
+                      <button type="button" class="cb-mini" title="Retirer une séance"
+                              (click)="trainSpell(sp.ref, -1)">−</button>
+                    }
+                  </span>
+                }
+              </div>
+            }
 
             <div class="cb-campbar__row">
               <span class="cb-campbar__label">pendant</span>

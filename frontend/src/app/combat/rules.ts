@@ -4979,6 +4979,12 @@ function resolveUse(
   const targets = unitsInEffect(enc, actor, ability, at, targetIds);
 
   actor.mana -= manaSpent;
+  // Le sort est lancé : il compte pour sa propre progression. On enregistre
+  // le LANCER, pas l'XP — le barème est affaire de règles, pas de pion.
+  if (ability.kind === 'spell' && ability.ref) {
+    actor.spellCasts = { ...(actor.spellCasts ?? {}) };
+    actor.spellCasts[ability.ref] = (actor.spellCasts[ability.ref] ?? 0) + 1;
+  }
   // La remise est déjà dans le prix : il ne reste qu'à retirer la charge qui
   // l'a permise, une fois la mana versée.
   consumeFeatCharges(enc, actor, ability);

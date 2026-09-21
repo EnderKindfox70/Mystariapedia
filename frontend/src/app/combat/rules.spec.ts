@@ -19,6 +19,7 @@ import { proficiencyForLevel } from '../character/universe-data';
 import { BestiaryEntry } from '../wiki.types';
 import { CombatantFactory } from './combatant-factory';
 import { SpellsService } from '../services/spells.service';
+import { socle, testContext } from './spell-testing';
 import { normalizeTerrain, terrainKind } from './terrain';
 import {
   classSkillsFor,
@@ -120,6 +121,8 @@ import {
   terrainFor,
   WEAPON_ATTACK_RATIO,
 } from './rules';
+
+const ctx = testContext(new SpellsService());
 
 /* ── Fabriques de test ─────────────────────────────────────────────────────── */
 
@@ -1404,7 +1407,7 @@ describe('sorts de revêtement', () => {
   const spells = new SpellsService();
   const nodeOf = (key: string) => {
     const page = spells.bySlug(key)!;
-    return spellAbility(page, page.spell.progression!.nodes[0]);
+    return spellAbility(page, socle(page, ctx));
   };
 
   it('reconnaît la famille à sa clé', () => {
@@ -1551,7 +1554,7 @@ describe('sorts de revêtement', () => {
     expect(poings.length).toBeGreaterThanOrEqual(12);
     expect(armes.length).toBeGreaterThanOrEqual(12);
     for (const page of all) {
-      const ability = spellAbility(page, page.spell.progression!.nodes[0]);
+      const ability = spellAbility(page, socle(page, ctx));
       expect(ability.enchant, page.spell.key).toBeDefined();
       expect(ability.damages, page.spell.key).toHaveLength(0);
     }
@@ -1565,7 +1568,7 @@ describe('bonus de classe', () => {
   const root = (key: string) => {
     const page = spells.bySlug(key)!;
     return (classKey?: string) =>
-      spellAbility(page, page.spell.progression!.nodes[0], undefined, classKey);
+      spellAbility(page, socle(page, ctx), undefined, classKey);
   };
 
   it('ajoute le scaling de la classe aux dégâts de l’enchantement', () => {
@@ -1707,7 +1710,7 @@ describe('réactions', () => {
   const spells = new SpellsService();
   const spellNode = (key: string, index = 0) => {
     const page = spells.bySlug(key)!;
-    return spellAbility(page, page.spell.progression!.nodes[index]);
+    return spellAbility(page, socle(page, ctx));
   };
 
   /** Un duel où le défenseur tient une épée : il menace donc l'allonge. */
@@ -3321,7 +3324,7 @@ describe('marque spatiale et change-place', () => {
   const spells = new SpellsService();
   const node = (key: string, index = 0) => {
     const page = spells.bySlug(key)!;
-    return spellAbility(page, page.spell.progression!.nodes[index]);
+    return spellAbility(page, socle(page, ctx));
   };
 
   const marque = node('space-marque-spatiale');
@@ -3514,7 +3517,7 @@ describe('fils du marionnettiste', () => {
   const spells = new SpellsService();
   const node = (key: string, index = 0) => {
     const page = spells.bySlug(key)!;
-    return spellAbility(page, page.spell.progression!.nodes[index]);
+    return spellAbility(page, socle(page, ctx));
   };
 
   const fils = node('darkness-fils-du-marionnettiste');
@@ -3729,7 +3732,7 @@ describe('change-place — les deux bouts du fil', () => {
   const spells = new SpellsService();
   const node = (key: string, index = 0) => {
     const page = spells.bySlug(key)!;
-    return spellAbility(page, page.spell.progression!.nodes[index]);
+    return spellAbility(page, socle(page, ctx));
   };
 
   const marque = node('space-marque-spatiale');
@@ -3937,7 +3940,7 @@ describe('trajet de déplacement', () => {
 describe('un pantin reste frappable', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('darkness-fils-du-marionnettiste')!;
-  const fils = spellAbility(page, page.spell.progression!.nodes[0]);
+  const fils = spellAbility(page, socle(page, ctx));
 
   const coup = (id: string) => flatHit({ id, targets: ['enemy'] });
 
@@ -4053,7 +4056,7 @@ describe('trajet relevé par le moteur', () => {
   const spells = new SpellsService();
   const pas = spellAbility(
     spells.bySlug('space-pas-dimensionnel')!,
-    spells.bySlug('space-pas-dimensionnel')!.spell.progression!.nodes[0],
+    socle(spells.bySlug('space-pas-dimensionnel')!, ctx),
   );
 
   const scene = () => {
@@ -4116,7 +4119,7 @@ describe('trajet relevé par le moteur', () => {
 describe('portée d’une téléportation', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('space-pas-dimensionnel')!;
-  const pas = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'pas' };
+  const pas = { ...spellAbility(page, socle(page, ctx)), id: 'pas' };
 
   const scene = () => {
     const enc = emptyEncounter('Saut');
@@ -4173,7 +4176,7 @@ describe('seuil annoncé avant la cible', () => {
   const spells = new SpellsService();
   const node = (key: string, index = 0) => {
     const page = spells.bySlug(key)!;
-    return spellAbility(page, page.spell.progression!.nodes[index]);
+    return spellAbility(page, socle(page, ctx));
   };
 
   const lanceur = () =>
@@ -4233,9 +4236,9 @@ describe('seuil annoncé avant la cible', () => {
 describe('rayon à tête chercheuse', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('space-rayon-chercheur')!;
-  const rayon = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'rayon' };
+  const rayon = { ...spellAbility(page, socle(page, ctx)), id: 'rayon' };
   const marquePage = spells.bySlug('space-marque-spatiale')!;
-  const marque = { ...spellAbility(marquePage, marquePage.spell.progression!.nodes[0]), id: 'marque' };
+  const marque = { ...spellAbility(marquePage, socle(marquePage, ctx)), id: 'marque' };
 
   const scene = () => {
     const enc = emptyEncounter('Rayon');
@@ -4370,9 +4373,9 @@ describe('rayon à tête chercheuse', () => {
 describe('effondrement de marque', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('space-effondrement-de-marque')!;
-  const boum = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'boum' };
+  const boum = { ...spellAbility(page, socle(page, ctx)), id: 'boum' };
   const mPage = spells.bySlug('space-marque-spatiale')!;
-  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+  const marque = { ...spellAbility(mPage, socle(mPage, ctx)), id: 'marque' };
 
   const scene = () => {
     const enc = emptyEncounter('Effondrement');
@@ -4494,9 +4497,9 @@ describe('effondrement de marque', () => {
 describe('piège d’ancrage', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('space-piege-d-ancrage')!;
-  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+  const piege = { ...spellAbility(page, socle(page, ctx)), id: 'piege' };
   const mPage = spells.bySlug('space-marque-spatiale')!;
-  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+  const marque = { ...spellAbility(mPage, socle(mPage, ctx)), id: 'marque' };
 
   /** Deux ennemis distants de quatre cases, et un mage qui va les marquer. */
   const scene = () => {
@@ -4575,7 +4578,7 @@ describe('piège d’ancrage', () => {
 
   it('élargit son écart au fil des paliers', () => {
     // Le champ du palier III tient à 4,5 m : une ligne de front s'y disloque.
-    const trois = spellAbility(page, page.spell.progression!.nodes[2]);
+    const trois = spellAbility(page, socle(page, ctx));
     expect(trois.anchorGapMeters).toBe(4.5);
 
     const enc = marquer(marquer(scene(), 'gaucher'), 'droitier');
@@ -4698,9 +4701,9 @@ describe('piège d’ancrage', () => {
 describe('piège d’ancrage — mise en conformité', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('space-piege-d-ancrage')!;
-  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+  const piege = { ...spellAbility(page, socle(page, ctx)), id: 'piege' };
   const mPage = spells.bySlug('space-marque-spatiale')!;
-  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+  const marque = { ...spellAbility(mPage, socle(mPage, ctx)), id: 'marque' };
 
   /** Deux ennemis COLLÉS l'un à l'autre, loin du mage. */
   const scene = () => {
@@ -4833,7 +4836,7 @@ describe('piège d’ancrage — mise en conformité', () => {
 describe('entretien des sorts maintenus', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('space-piege-d-ancrage')!;
-  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+  const piege = { ...spellAbility(page, socle(page, ctx)), id: 'piege' };
 
   /** Un mage tenant déjà son champ, avec la réserve qu'on lui donne. */
   const enTrain = (mana: number): Encounter => {
@@ -4917,9 +4920,9 @@ describe('entretien des sorts maintenus', () => {
 describe('piège d’ancrage — qui recule', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('space-piege-d-ancrage')!;
-  const piege = { ...spellAbility(page, page.spell.progression!.nodes[0]), id: 'piege' };
+  const piege = { ...spellAbility(page, socle(page, ctx)), id: 'piege' };
   const mPage = spells.bySlug('space-marque-spatiale')!;
-  const marque = { ...spellAbility(mPage, mPage.spell.progression!.nodes[0]), id: 'marque' };
+  const marque = { ...spellAbility(mPage, socle(mPage, ctx)), id: 'marque' };
 
   /**
    * Le mage en (1,8), et deux ennemis collés en (5,8) et (6,8).
@@ -5010,7 +5013,7 @@ describe('piège d’ancrage — qui recule', () => {
 describe('fils du marionnettiste — entretien', () => {
   const spells = new SpellsService();
   const page = spells.bySlug('darkness-fils-du-marionnettiste')!;
-  const fils = spellAbility(page, page.spell.progression!.nodes[0]);
+  const fils = spellAbility(page, socle(page, ctx));
 
   /** Un maître tenant `pantins` marionnettes, avec la réserve qu'on lui donne. */
   const enTrain = (pantins: number, mana: number): Encounter => {

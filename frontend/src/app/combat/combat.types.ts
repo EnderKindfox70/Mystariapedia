@@ -850,6 +850,23 @@ export interface Combatant {
    */
   purseBase?: number;
   /**
+   * Sorts lancés pendant la séance, par clé, et combien de fois.
+   *
+   * Un sort progresse en étant LANCÉ, pas en étant possédé : c'est ce compteur
+   * qui, au report, devient de l'XP sur la fiche. Il compte les lancers, pas
+   * l'XP — le barème (`xpRatios`) appartient aux règles, pas au pion, et peut
+   * changer entre la séance et le report sans fausser le décompte.
+   */
+  spellCasts?: Record<string, number>;
+  /**
+   * Séances d'entraînement menées au camp, par sort.
+   *
+   * Comptées à part des lancers : travailler un sort hors situation rapporte
+   * PLEIN tarif, le lancer en combat moitié moins. Confondre les deux ferait
+   * mentir l'un des deux barèmes.
+   */
+  spellTraining?: Record<string, number>;
+  /**
    * Table de butin recopiée depuis le bestiaire, **pas encore jetée**. Le
    * moteur étant du TypeScript pur, il ne peut pas relire un JSON au moment de
    * la fouille : la table voyage avec le combattant.

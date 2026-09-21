@@ -1363,3 +1363,8 @@
   border-radius: 999px;
   white-space: nowrap;
 }
+
+/* Travailler un sort au camp : chaque séance vaut plein tarif au report. */
+.cb-campbar__row--train { flex-wrap: wrap; }
+.cb-train { display: inline-flex; align-items: center; gap: 0.15rem; }
+.cb-train b { margin-left: 0.25rem; font-size: 0.7em; opacity: 0.85; }

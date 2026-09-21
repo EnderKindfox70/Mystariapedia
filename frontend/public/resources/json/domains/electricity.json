@@ -110,29 +110,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "et1",
-                "nodes": [
-                    {
-                        "id": "et1", "tier": 1, "branch": "trunk", "name": "Étincelle I",
-                        "description": "Une étincelle claque au bout des doigts et pique la cible.",
-                        "next": ["et2"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 1, "range": "10 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.04 }] }
-                    },
-                    {
-                        "id": "et2", "tier": 2, "branch": "trunk", "name": "Étincelle II",
-                        "description": "L'étincelle gagne en tension : elle porte plus loin et mord davantage.",
-                        "next": ["et3"],
-                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 1, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
-                    },
-                    {
-                        "id": "et3", "tier": 3, "branch": "trunk", "name": "Étincelle III",
-                        "description": "Une étincelle nette et sûre, que l'on peut enchaîner sans jamais s'épuiser.",
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 2, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-choc-nerveux",
@@ -268,29 +246,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "cn1",
-                "nodes": [
-                    {
-                        "id": "cn1", "tier": 1, "branch": "trunk", "name": "Choc nerveux I",
-                        "description": "Une décharge sèche qui remonte les nerfs et fait trembler les membres.",
-                        "next": ["cn2"],
-                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 4, "range": "12 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 25 }], "scaling": [{ "source": "atk_mag", "ratio": 0.05 }] }
-                    },
-                    {
-                        "id": "cn2", "tier": 2, "branch": "trunk", "name": "Choc nerveux II",
-                        "description": "Le courant cible mieux les nerfs : le verrouillage devient fréquent.",
-                        "next": ["cn3"],
-                        "stats": { "damageMin": 2, "damageMax": 4, "mana": 5, "range": "14 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 35 }], "scaling": [{ "source": "atk_mag", "ratio": 0.06 }] }
-                    },
-                    {
-                        "id": "cn3", "tier": 3, "branch": "trunk", "name": "Choc nerveux III",
-                        "description": "Une impulsion parfaitement dosée : les dégâts restent faibles, mais la cible se fige souvent.",
-                        "stats": { "damageMin": 3, "damageMax": 5, "mana": 6, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 50, "duration": 2 }], "scaling": [{ "source": "atk_mag", "ratio": 0.07 }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-eclair",
@@ -405,56 +361,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "el1",
-                "branches": [
-                    { "id": "foudre", "label": "Voie de la Foudre", "description": "Une décharge fulgurante qui foudroie et paralyse une cible unique." },
-                    { "id": "chaine", "label": "Voie de la Chaîne", "description": "Un arc qui rebondit d'ennemi en ennemi, à moindre coût." }
-                ],
-                "nodes": [
-                    {
-                        "id": "el1", "tier": 1, "branch": "trunk", "name": "Éclair I",
-                        "description": "Un arc de foudre instantané qui frappe une cible avec précision.",
-                        "next": ["el2"],
-                        "stats": { "damageMin": 4, "damageMax": 6, "mana": 6, "range": "16 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.09 }] }
-                    },
-                    {
-                        "id": "el2", "tier": 2, "branch": "trunk", "name": "Éclair II",
-                        "description": "La décharge gagne en tension : trait plus long, impact plus vif.",
-                        "next": ["el3"],
-                        "stats": { "damageMin": 5, "damageMax": 9, "mana": 8, "range": "18 m", "area": "Cible unique", "targets": ["enemy"], "scaling": [{ "source": "atk_mag", "ratio": 0.1 }] }
-                    },
-                    {
-                        "id": "el3", "tier": 3, "branch": "trunk", "name": "Éclair III",
-                        "description": "Point de scission : la foudre peut se concentrer ou rebondir en chaîne.",
-                        "next": ["elf4", "elc4"],
-                        "stats": { "damageMin": 7, "damageMax": 12, "mana": 10, "range": "20 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 20 }], "scaling": [{ "source": "atk_mag", "ratio": 0.11 }] }
-                    },
-                    {
-                        "id": "elf4", "tier": 4, "branch": "foudre", "name": "Foudre",
-                        "description": "Une colonne de foudre qui foudroie et fige les nerfs de la cible.",
-                        "next": ["elf5"],
-                        "stats": { "damageMin": 9, "damageMax": 15, "mana": 14, "range": "22 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 45 }], "scaling": [{ "source": "atk_mag", "ratio": 0.13 }] }
-                    },
-                    {
-                        "id": "elf5", "tier": 5, "branch": "foudre", "name": "Fulguration",
-                        "description": "Un trait de foudre céleste qui carbonise et paralyse net.",
-                        "stats": { "damageMin": 12, "damageMax": 19, "mana": 18, "range": "24 m", "area": "Cible unique", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 60 }], "scaling": [{ "source": "atk_mag", "ratio": 0.15 }] }
-                    },
-                    {
-                        "id": "elc4", "tier": 4, "branch": "chaine", "name": "Arc en chaîne",
-                        "description": "L'éclair rebondit d'une cible à l'autre pour un coût modéré.",
-                        "next": ["elc5"],
-                        "stats": { "damageMin": 8, "damageMax": 13, "mana": 12, "range": "18 m", "area": "3 cibles", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 25 }], "scaling": [{ "source": "atk_mag", "ratio": 0.12 }] }
-                    },
-                    {
-                        "id": "elc5", "tier": 5, "branch": "chaine", "name": "Foudre en chaîne",
-                        "description": "Un arc qui saute de proie en proie et parcourt tout un groupe.",
-                        "stats": { "damageMin": 10, "damageMax": 16, "mana": 15, "range": "20 m", "area": "5 cibles", "targets": ["enemy"], "inflicts": [{ "status": "paralysie", "chance": 30 }], "scaling": [{ "source": "atk_mag", "ratio": 0.14 }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-champ-magnetique",
@@ -579,29 +486,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "cm1",
-                "nodes": [
-                    {
-                        "id": "cm1", "tier": 1, "branch": "trunk", "name": "Champ magnétique I",
-                        "description": "Un champ qui dévie lames et projectiles ferreux autour des alliés.",
-                        "next": ["cm2"],
-                        "stats": { "mana": 4, "range": "8 m", "area": "Rayon 3 m", "targets": ["self", "ally"], "duration": 3, "effects": [{ "stat": "def_phy", "value": 2, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }] }
-                    },
-                    {
-                        "id": "cm2", "tier": 2, "branch": "trunk", "name": "Champ magnétique II",
-                        "description": "Le champ s'étend et repousse plus fermement le métal.",
-                        "next": ["cm3"],
-                        "stats": { "mana": 5, "range": "10 m", "area": "Rayon 4 m", "targets": ["self", "ally"], "duration": 3, "effects": [{ "stat": "def_phy", "value": 3, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }] }
-                    },
-                    {
-                        "id": "cm3", "tier": 3, "branch": "trunk", "name": "Champ magnétique III",
-                        "description": "Un bouclier magnétique qui écarte presque toute attaque ferreuse.",
-                        "stats": { "mana": 6, "range": "12 m", "area": "Rayon 5 m", "targets": ["self", "ally"], "duration": 4, "effects": [{ "stat": "def_phy", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.5 }] }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-attire-metal",
@@ -752,32 +637,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "am1",
-                "nodes": [
-                    {
-                        "id": "am1", "tier": 1, "branch": "trunk", "name": "Attire-métal I",
-                        "description": "Un objet métallique libre — au sol comme au sac — file jusqu'à votre main. Tenu au poing, il ne cède que si son porteur rate un jet de Force.",
-                        "usage": { "outOfCombat": "Rappelle à soi un petit objet métallique laissé hors d'atteinte : clé, pièce, lame tombée." },
-                        "next": ["am2"],
-                        "stats": { "mana": 3, "range": "10 m", "area": "Cible unique", "targets": ["enemy", "ally", "self"], "pullsMetal": true, "pullDc": 12 }
-                    },
-                    {
-                        "id": "am2", "tier": 2, "branch": "trunk", "name": "Attire-métal II",
-                        "description": "La prise se raffermit et porte plus loin : garder son arme demande désormais un jet de Force difficile.",
-                        "usage": { "outOfCombat": "La portée s'allonge et la prise tient des objets plus lourds : un heaume, une chaîne, une serrure entière." },
-                        "next": ["am3"],
-                        "stats": { "mana": 4, "range": "14 m", "area": "Cible unique", "targets": ["enemy", "ally", "self"], "pullsMetal": true, "pullDc": 15 }
-                    },
-                    {
-                        "id": "am3", "tier": 3, "branch": "trunk", "name": "Attire-métal III",
-                        "description": "Rien de ferreux ne vous échappe : même une arme fermement empoignée cède, sauf jet de Force très difficile.",
-                        "usage": { "outOfCombat": "Attire à soi une charge métallique conséquente : une grille, un coffre bardé de fer, une enclume de forge." },
-                        "stats": { "mana": 5, "range": "18 m", "area": "Cible unique", "targets": ["enemy", "ally", "self"], "pullsMetal": true, "pullDc": 18 }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-projette-metal",
@@ -958,42 +818,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "pm1",
-                "nodes": [
-                    {
-                        "id": "pm1", "tier": 1, "branch": "trunk", "name": "Projette-métal I",
-                        "description": "Le champ saisit un objet ferreux que vous portez et le décoche. Sans rien de métallique sur soi, le sort n'a rien à lancer.",
-                        "next": ["pm2"],
-                        "stats": {
-                            "mana": 5, "range": "12 m", "area": "Cible unique", "targets": ["enemy"],
-                            "throwsMetal": true,
-                            "scaling": [{ "source": "atk_mag", "ratio": 0.08 }]
-                        }
-                    },
-                    {
-                        "id": "pm2", "tier": 2, "branch": "trunk", "name": "Projette-métal II",
-                        "description": "La poussée gagne en vitesse : le même objet arrive plus fort et plus loin.",
-                        "next": ["pm3"],
-                        "stats": {
-                            "mana": 6, "range": "15 m", "area": "Cible unique", "targets": ["enemy"],
-                            "throwsMetal": true,
-                            "scaling": [{ "source": "atk_mag", "ratio": 0.14 }]
-                        }
-                    },
-                    {
-                        "id": "pm3", "tier": 3, "branch": "trunk", "name": "Projette-métal III",
-                        "description": "Le projectile est saturé de courant avant de partir : quel qu'il soit, il décharge à l'impact.",
-                        "stats": {
-                            "mana": 7, "range": "18 m", "area": "Cible unique", "targets": ["enemy"],
-                            "throwsMetal": true,
-                            "inflicts": [{ "status": "paralysie", "chance": 35 }],
-                            "scaling": [{ "source": "atk_mag", "ratio": 0.2 }]
-                        }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-bouclier-electromagnetique",
@@ -1065,30 +890,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "be1",
-                "nodes": [
-                    {
-                        "id": "be1", "tier": 1, "branch": "trunk", "name": "Bouclier électromagnétique I",
-                        "description": "Le champ tient à 1,5 m tout ce qui porte du métal, et écarte sur-le-champ ceux qu'il surprend au contact.",
-                        "usage": { "outOfCombat": "Personne en armure ne peut vous toucher tant que la concentration et le mana tiennent." },
-                        "next": ["be2"],
-                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "anchorGap": "1,5 m", "inflicts": [{ "status": "repulsion-magnetique", "chance": 100, "duration": -1 }] }
-                    },
-                    {
-                        "id": "be2", "tier": 2, "branch": "trunk", "name": "Bouclier électromagnétique II",
-                        "description": "Le champ s'élargit : trois mètres, désormais, entre vous et le moindre morceau de fer. Une ligne de front en armure ne vous atteint plus.",
-                        "next": ["be3"],
-                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "anchorGap": "3 m", "inflicts": [{ "status": "repulsion-magnetique", "chance": 100, "duration": -1 }] }
-                    },
-                    {
-                        "id": "be3", "tier": 3, "branch": "trunk", "name": "Bouclier électromagnétique III",
-                        "description": "Quatre mètres et demi d'espace intraitable : aucun homme en armure, aucune lame d'acier ne franchit plus la limite.",
-                        "stats": { "mana": 8, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "anchorGap": "4,5 m", "inflicts": [{ "status": "repulsion-magnetique", "chance": 100, "duration": -1 }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-revetement-arme",
@@ -1218,29 +1020,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "ra1",
-                "nodes": [
-                    {
-                        "id": "ra1", "tier": 1, "branch": "trunk", "name": "Lame foudroyante I",
-                        "description": "Votre arme se nimbe d'arcs électriques : chaque attaque au corps à corps inflige ces dégâts de foudre en plus, le temps de l'enchantement.",
-                        "next": ["ra2"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "atk_phy", "ratio": 0.02 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.01 }] }] }
-                    },
-                    {
-                        "id": "ra2", "tier": 2, "branch": "trunk", "name": "Lame foudroyante II",
-                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
-                        "next": ["ra3"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "atk_phy", "ratio": 0.03 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.02 }] }] }
-                    },
-                    {
-                        "id": "ra3", "tier": 3, "branch": "trunk", "name": "Lame foudroyante III",
-                        "description": "Une arme pleinement enchantée, dont chaque coup inflige des dégâts de foudre durables.",
-                        "stats": { "damageMin": 2, "damageMax": 3, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "atk_phy", "ratio": 0.03 }], "classBonuses": [{ "class": "ranger", "description": "Le ranger, rompu au maniement des armes, exploite pleinement l'enchantement : dégâts de foudre accrus à chaque coup.", "scaling": [{ "source": "atk_phy", "ratio": 0.02 }] }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-revetement-poings",
@@ -1363,29 +1143,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "rp1",
-                "nodes": [
-                    {
-                        "id": "rp1", "tier": 1, "branch": "trunk", "name": "Poings foudroyants I",
-                        "description": "Vos poings se nimbent d'arcs électriques : chaque coup à mains nues inflige ces dégâts de foudre en plus.",
-                        "next": ["rp2"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 3, "range": "Personnel", "duration": 3, "scaling": [{ "source": "force", "ratio": 0.2 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
-                    },
-                    {
-                        "id": "rp2", "tier": 2, "branch": "trunk", "name": "Poings foudroyants II",
-                        "description": "L'enchantement s'intensifie et dure plus longtemps.",
-                        "next": ["rp3"],
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 4, "range": "Personnel", "duration": 4, "scaling": [{ "source": "force", "ratio": 0.25 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
-                    },
-                    {
-                        "id": "rp3", "tier": 3, "branch": "trunk", "name": "Poings foudroyants III",
-                        "description": "Des poings pleinement enchantés, dont chaque impact inflige des dégâts de foudre.",
-                        "stats": { "damageMin": 1, "damageMax": 2, "mana": 5, "range": "Personnel", "duration": 5, "scaling": [{ "source": "force", "ratio": 0.3 }], "classBonuses": [{ "class": "pugilist", "description": "Rompu au corps à corps, le pugiliste enchante ses poings pour une bouchée de mana : le coût du sort est divisé par deux.", "manaFactor": 0.5 }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-revetement-manteau",
@@ -1575,41 +1333,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "elmt1",
-                "nodes": [
-                    {
-                        "id": "elmt1", "tier": 1, "branch": "trunk", "name": "Manteau foudroyant I",
-                        "description": "S'entoure d'un voile d'arcs électriques : la défense magique du lanceur est renforcée le temps de l'enchantement.",
-                        "next": ["elmt2"],
-                        "stats": { "mana": 3, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "def_mag", "value": 3, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }], "retaliate": { "trigger": "melee", "damageMin": 2, "damageMax": 4, "damageType": "lightning", "scaling": [{ "source": "atk_mag", "ratio": 0.2 }], "inflicts": [{ "status": "etourdissement", "chance": 20 }] } }
-                    },
-                    {
-                        "id": "elmt2", "tier": 2, "branch": "trunk", "name": "Manteau foudroyant II",
-                        "description": "L'enveloppe s'épaissit : protection accrue et plus durable.",
-                        "next": ["elmt3"],
-                        "stats": { "mana": 4, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "def_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.35 }] }], "retaliate": { "trigger": "melee", "damageMin": 3, "damageMax": 5, "damageType": "lightning", "scaling": [{ "source": "atk_mag", "ratio": 0.2 }], "inflicts": [{ "status": "etourdissement", "chance": 25 }] } }
-                    },
-                    {
-                        "id": "elmt3", "tier": 3, "branch": "trunk", "name": "Manteau foudroyant III",
-                        "description": "Le voile se stabilise : une protection fiable contre les sorts et attaques magiques.",
-                        "next": ["elmt4"],
-                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 5, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }], "retaliate": { "trigger": "melee", "damageMin": 4, "damageMax": 7, "damageType": "lightning", "scaling": [{ "source": "atk_mag", "ratio": 0.25 }], "inflicts": [{ "status": "etourdissement", "chance": 30 }] } }
-                    },
-                    {
-                        "id": "elmt4", "tier": 4, "branch": "trunk", "name": "Manteau foudroyant IV",
-                        "description": "L'enveloppe atteint une densité rare et se maintient plus longtemps.",
-                        "next": ["elmt5"],
-                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "def_mag", "value": 7, "scaling": [{ "source": "intelligence", "ratio": 0.45 }] }], "retaliate": { "trigger": "melee", "damageMin": 6, "damageMax": 9, "damageType": "lightning", "scaling": [{ "source": "atk_mag", "ratio": 0.3 }], "inflicts": [{ "status": "etourdissement", "chance": 40 }] } }
-                    },
-                    {
-                        "id": "elmt5", "tier": 5, "branch": "trunk", "name": "Manteau foudroyant V",
-                        "description": "Une maîtrise totale : le meilleur rempart de la voie contre les sorts et attaques magiques.",
-                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 6, "durationScaling": [{ "source": "constitution", "ratio": 0.25 }], "effects": [{ "stat": "def_mag", "value": 8, "scaling": [{ "source": "intelligence", "ratio": 0.5 }] }], "retaliate": { "trigger": "melee", "damageMin": 8, "damageMax": 12, "damageType": "lightning", "scaling": [{ "source": "atk_mag", "ratio": 0.35 }], "inflicts": [{ "status": "etourdissement", "chance": 50 }] } }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-surtension",
@@ -1769,29 +1493,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "sut1",
-                "nodes": [
-                    {
-                        "id": "sut1", "tier": 1, "branch": "trunk", "name": "Surtension I",
-                        "description": "Le courant parcourt les muscles : la frappe gagne nettement en puissance, le geste en vivacité.",
-                        "next": ["sut2"],
-                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "atk_phy", "value": 4, "scaling": [{ "source": "force", "ratio": 0.4 }] }, { "stat": "speed", "value": 2, "scaling": [{ "source": "dexterite", "ratio": 0.2 }] }] }
-                    },
-                    {
-                        "id": "sut2", "tier": 2, "branch": "trunk", "name": "Surtension II",
-                        "description": "La tension monte d'un cran et se maintient plus longtemps.",
-                        "next": ["sut3"],
-                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "atk_phy", "value": 6, "scaling": [{ "source": "force", "ratio": 0.5 }] }, { "stat": "speed", "value": 3, "scaling": [{ "source": "dexterite", "ratio": 0.25 }] }] }
-                    },
-                    {
-                        "id": "sut3", "tier": 3, "branch": "trunk", "name": "Surtension III",
-                        "description": "Une surcharge maîtrisée : la force de frappe atteint son sommet sans que le corps lâche.",
-                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "atk_phy", "value": 8, "scaling": [{ "source": "force", "ratio": 0.6 }] }, { "stat": "speed", "value": 3, "scaling": [{ "source": "dexterite", "ratio": 0.3 }] }] }
-                    }
-                ]
-            }
+            ]
         },
         {
             "key": "electricity-surintensite",
@@ -1951,29 +1653,7 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ],
-            "progression": {
-                "root": "sui1",
-                "nodes": [
-                    {
-                        "id": "sui1", "tier": 1, "branch": "trunk", "name": "Surintensité I",
-                        "description": "L'influx nerveux s'emballe : les gestes fusent et les sorts mordent un peu plus.",
-                        "next": ["sui2"],
-                        "stats": { "mana": 5, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 3, "effects": [{ "stat": "speed", "value": 3, "scaling": [{ "source": "dexterite", "ratio": 0.4 }] }, { "stat": "atk_mag", "value": 2, "scaling": [{ "source": "intelligence", "ratio": 0.3 }] }] }
-                    },
-                    {
-                        "id": "sui2", "tier": 2, "branch": "trunk", "name": "Surintensité II",
-                        "description": "L'intensité grimpe : la cadence devient difficile à suivre.",
-                        "next": ["sui3"],
-                        "stats": { "mana": 6, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 4, "effects": [{ "stat": "speed", "value": 5, "scaling": [{ "source": "dexterite", "ratio": 0.5 }] }, { "stat": "atk_mag", "value": 3, "scaling": [{ "source": "intelligence", "ratio": 0.35 }] }] }
-                    },
-                    {
-                        "id": "sui3", "tier": 3, "branch": "trunk", "name": "Surintensité III",
-                        "description": "Le corps entier devient conducteur : une célérité fulgurante, servie par une magie plus tranchante.",
-                        "stats": { "mana": 7, "range": "Personnel", "area": "Soi-même", "targets": ["self"], "duration": 5, "durationScaling": [{ "source": "constitution", "ratio": 0.2 }], "effects": [{ "stat": "speed", "value": 7, "scaling": [{ "source": "dexterite", "ratio": 0.6 }] }, { "stat": "atk_mag", "value": 4, "scaling": [{ "source": "intelligence", "ratio": 0.4 }] }] }
-                    }
-                ]
-            }
+            ]
         }
     ],
     "feats": [

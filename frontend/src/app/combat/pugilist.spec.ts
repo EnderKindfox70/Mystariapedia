@@ -6,6 +6,10 @@ import fireDomain from '../../../public/resources/json/domains/fire.json';
 import waterDomain from '../../../public/resources/json/domains/water.json';
 import { DomainSpellEntry, SpellPageData } from '../wiki.types';
 import { spellAbilities } from './abilities';
+import { SpellsService } from '../services/spells.service';
+import { testContext } from './spell-testing';
+
+const ctx = testContext(new SpellsService());
 
 /* ──────────────────────────────────────────────────────────────────────────
    LE BONUS DU PUGILISTE SUR LES SORTS « POINGS »
@@ -38,12 +42,9 @@ function page(data: { spells?: unknown[] }, domaine: string, key: string): Spell
   return { spell, domains: [domaine] } as SpellPageData;
 }
 
-/** Tous les paliers d'un sort, résolus pour une classe. */
-const paliers = (data: { spells?: unknown[] }, domaine: string, key: string, classe?: string) => {
-  const p = page(data, domaine, key);
-  const ids = (p.spell.progression?.nodes ?? []).map((n) => n.id);
-  return spellAbilities(p, ids, classe);
-};
+/** Le sort à son socle, résolu pour une classe. */
+const paliers = (data: { spells?: unknown[] }, domaine: string, key: string, classe?: string) =>
+  spellAbilities(page(data, domaine, key), ctx, undefined, classe);
 
 describe('le poing du pugiliste se lance en action bonus', () => {
   for (const { domaine, data, key } of REFLEXE) {

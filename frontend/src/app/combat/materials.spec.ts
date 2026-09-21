@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import earthDomain from '../../../public/resources/json/domains/earth.json';
 import { DomainSpellEntry, MaterialFamilyKey, SpellPageData } from '../wiki.types';
 import { spellAbilities } from './abilities';
+import { SpellsService } from '../services/spells.service';
+import { socle, testContext } from './spell-testing';
 import { AttributeKey, StatKey } from '../character/character.types';
 import { Affinities, CombatAbility, Combatant, Encounter, Team } from './combat.types';
 import {
@@ -18,6 +20,8 @@ import {
 } from './materials';
 import { emptyEncounter } from './encounter';
 import { applyAction, applyMaterial, cannotUse, ENCHANT_SHARE, WALL_THICKNESS } from './rules';
+
+const ctx = testContext(new SpellsService());
 
 /* ──────────────────────────────────────────────────────────────────────────
    LES MATÉRIAUX DE LA TERRE
@@ -428,10 +432,12 @@ describe('le comparatif des matières', () => {
 describe('la matière survit à tous les chemins de construction', () => {
   const spells = earthDomain.spells as DomainSpellEntry[];
 
+  // Un sort n'a plus de paliers : il se lit à son socle, comme un personnage
+  // qui vient de l'apprendre. C'est ce que la table joue par défaut.
   const capacites = (key: string) => {
     const spell = spells.find((s) => s.key === key)!;
     const page = { spell, domains: ['earth'] } as SpellPageData;
-    return spellAbilities(page, (spell.progression?.nodes ?? []).map((n) => n.id), undefined);
+    return spellAbilities(page, ctx);
   };
 
   it('porte shapesMaterial sur CHAQUE sort de Terre qui façonne', () => {
@@ -585,9 +591,9 @@ describe('la fiche annonce ce que le moteur applique', () => {
 
   it('accorde la défense annoncée pour l’armure de pierre', () => {
     const spell = spells.find((s) => s.key === 'earth-revetement-armure')!;
-    const node = spell.progression!.nodes.at(-1)!;
     const page = { spell, domains: ['earth'] } as SpellPageData;
-    const ability = spellAbilities(page, [node.id], undefined)[0];
+    const node = socle(page, ctx);
+    const ability = spellAbilities(page, ctx)[0];
 
     for (const m of materialsOfFamily('stone')) {
       const forme = resolveShaping('stone', [m.key], undefined)!;
@@ -598,9 +604,9 @@ describe('la fiche annonce ce que le moteur applique', () => {
 
   it('accorde la solidité annoncée pour le mur', () => {
     const spell = spells.find((s) => s.key === 'earth-mur-de-pierre')!;
-    const node = spell.progression!.nodes.at(-1)!;
     const page = { spell, domains: ['earth'] } as SpellPageData;
-    const ability = spellAbilities(page, [node.id], undefined)[0];
+    const node = socle(page, ctx);
+    const ability = spellAbilities(page, ctx)[0];
 
     for (const m of materialsOfFamily('stone')) {
       const forme = resolveShaping('stone', [m.key], undefined)!;
@@ -613,9 +619,9 @@ describe('la fiche annonce ce que le moteur applique', () => {
 
   it('n’annonce qu’une PART de la matière pour un revêtement', () => {
     const spell = spells.find((s) => s.key === 'earth-revetement-poings')!;
-    const node = spell.progression!.nodes.at(-1)!;
     const page = { spell, domains: ['earth'] } as SpellPageData;
-    const ability = spellAbilities(page, [node.id], undefined)[0];
+    const node = socle(page, ctx);
+    const ability = spellAbilities(page, ctx)[0];
     const granite = MATERIAL_BY_KEY.get('granite')!;
 
     const forme = resolveShaping('stone', ['granite'], undefined)!;
@@ -637,9 +643,9 @@ describe('la description suit la matière choisie', () => {
   const spells = earthDomain.spells as DomainSpellEntry[];
 
   /** Le calcul de la fiche pour une matière donnée, reproduit tel quel. */
-  function affiche(key: string, nodeIndex: number, materialKey: string, nimbe: boolean) {
+  function affiche(key: string, materialKey: string, nimbe: boolean) {
     const spell = spells.find((s) => s.key === key)!;
-    const node = spell.progression!.nodes[nodeIndex];
+    const node = socle({ spell, domains: ['earth'] } as SpellPageData, ctx);
     const m = MATERIAL_BY_KEY.get(materialKey)!;
     const echelle = (node.stats.materialScale ?? 1) * (nimbe ? ENCHANT_SHARE : 1);
     return {
@@ -650,11 +656,13 @@ describe('la description suit la matière choisie', () => {
   }
 
   it('n’annonce plus le 1–2 « Terre » du palier, quelle que soit la pierre', () => {
-    const granite = affiche('earth-revetement-poings', 2, 'granite', true);
-    const obsidienne = affiche('earth-revetement-poings', 2, 'obsidienne', true);
+    const granite = affiche('earth-revetement-poings', 'granite', true);
+    const obsidienne = affiche('earth-revetement-poings', 'obsidienne', true);
 
-    // Le vieux texte disait 1–2 Terre pour tout le monde.
-    expect(granite.min).toBeGreaterThan(2);
+    // Le vieux texte disait « 1–2 Terre » pour tout le monde : ni le TYPE ni
+    // les chiffres ne bougeaient. Ce qui compte n'est pas qu'ils soient grands
+    // — au socle ils sont modestes — mais qu'ils viennent de la MATIÈRE.
+    expect(granite.type).not.toBe('earth');
     expect(granite.type).toBe('bludgeoning');
     expect(obsidienne.type).toBe('slashing');
     expect(obsidienne.max).toBeGreaterThan(granite.max);
@@ -663,7 +671,7 @@ describe('la description suit la matière choisie', () => {
   it('change de chiffres à chaque matière, pas seulement de nom', () => {
     const vus = new Set(
       materialsOfFamily('stone').map((m) => {
-        const v = affiche('earth-revetement-poings', 2, m.key, true);
+        const v = affiche('earth-revetement-poings', m.key, true);
         return `${v.min}-${v.max}-${v.type}`;
       }),
     );
@@ -673,14 +681,14 @@ describe('la description suit la matière choisie', () => {
 
   it('reste d’accord avec le moteur sur la matière affichée', () => {
     const spell = spells.find((s) => s.key === 'earth-revetement-poings')!;
-    const node = spell.progression!.nodes.at(-1)!;
     const page = { spell, domains: ['earth'] } as SpellPageData;
-    const ability = spellAbilities(page, [node.id], undefined)[0];
+    const node = socle(page, ctx);
+    const ability = spellAbilities(page, ctx)[0];
 
     for (const m of materialsOfFamily('stone')) {
       const forme = resolveShaping('stone', [m.key], undefined)!;
       const moteur = applyMaterial(ability, forme, 0).enchant!.damage;
-      const fiche = affiche('earth-revetement-poings', 2, m.key, true);
+      const fiche = affiche('earth-revetement-poings', m.key, true);
       expect(moteur.type, m.key).toBe(fiche.type);
       expect(moteur.min, m.key).toBe(fiche.min);
     }
@@ -697,9 +705,8 @@ describe('le malus de vitesse d’une armure', () => {
     const spell = (earthDomain.spells as DomainSpellEntry[]).find(
       (s) => s.key === 'earth-revetement-armure',
     )!;
-    const node = spell.progression!.nodes.at(-1)!;
     const page = { spell, domains: ['earth'] } as SpellPageData;
-    return spellAbilities(page, [node.id], undefined)[0];
+    return spellAbilities(page, ctx)[0];
   };
 
   const porte = (materialKey: string) => {
@@ -738,9 +745,8 @@ describe('le malus de vitesse d’une armure', () => {
     const mur = (earthDomain.spells as DomainSpellEntry[]).find(
       (s) => s.key === 'earth-mur-de-pierre',
     )!;
-    const node = mur.progression!.nodes.at(-1)!;
     const page = { spell: mur, domains: ['earth'] } as SpellPageData;
-    const a = spellAbilities(page, [node.id], undefined)[0];
+    const a = spellAbilities(page, ctx)[0];
     const forme = resolveShaping('stone', ['basalte'], undefined)!;
     expect(applyMaterial(a, forme, 0).recoil).toBeUndefined();
   });
@@ -762,9 +768,8 @@ describe('le malus de vitesse d’une armure', () => {
 describe('la défense magique', () => {
   const armure = (key: string) => {
     const spell = (earthDomain.spells as DomainSpellEntry[]).find((s) => s.key === key)!;
-    const node = spell.progression!.nodes.at(-1)!;
     const page = { spell, domains: ['earth'] } as SpellPageData;
-    return spellAbilities(page, [node.id], undefined)[0];
+    return spellAbilities(page, ctx)[0];
   };
 
   const porte = (spellKey: string, family: MaterialFamilyKey, materialKey: string) => {

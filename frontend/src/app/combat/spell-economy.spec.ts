@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SpellsService } from '../services/spells.service';
+import { socle, testContext } from './spell-testing';
 import { SpellNode, SpellNodeStats } from '../wiki.types';
 import {
   areaMultiplier,
@@ -13,6 +14,10 @@ import {
   TARGET_EFFICIENCY,
   TOLERANCE,
 } from './spell-economy';
+
+// `ctx` désigne déjà autre chose plus bas dans ce fichier : on nomme
+// explicitement celui du moteur de personnalisation.
+const builderCtx = testContext(new SpellsService());
 
 /* ──────────────────────────────────────────────────────────────────────────
    AUDIT PERMANENT DE L'ÉCONOMIE DES SORTS
@@ -58,7 +63,7 @@ function allNodes(): Ligne[] {
   const out: Ligne[] = [];
   for (const page of spells.all()) {
     const ctx = { key: page.spell.key, weather: page.spell.weather };
-    for (const node of page.spell.progression?.nodes ?? []) {
+    for (const node of [socle(page, builderCtx)]) {
       const stats = node.stats as SpellNodeStats;
       if (!stats?.mana) continue;
       out.push({

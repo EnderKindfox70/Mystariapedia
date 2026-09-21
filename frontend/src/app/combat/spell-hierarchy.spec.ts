@@ -4,6 +4,9 @@ import { SpellsService } from '../services/spells.service';
 import { spellAbility } from './abilities';
 import { Combatant } from './combat.types';
 import { abilityDamageRanges } from './rules';
+import { SpellPageData } from '../wiki.types';
+import { DEFAULT_RULES } from './spell-customization';
+import { built, testContext } from './spell-testing';
 
 /* ──────────────────────────────────────────────────────────────────────────
    LA HIÉRARCHIE DES SORTS DE PUISSANCE.
@@ -71,12 +74,31 @@ const archimage = combattant(
 );
 
 const spells = new SpellsService();
+const ctx = testContext(spells);
 
-/** Ce que le dernier palier d'un sort inflige, tout scaling compris. */
+/**
+ * Le sort mené au niveau maximum, tout son budget versé dans les dégâts.
+ *
+ * Le curseur de dégâts s'arrête de lui-même à son plafond : pousser au-delà
+ * ne coûte rien de plus et ne rend rien de plus. On demande donc large, et le
+ * moteur retient ce que la fiche autorise.
+ */
+function pousseLesDegats(page: SpellPageData) {
+  const budget = DEFAULT_RULES.maxSpellLevel * DEFAULT_RULES.pointsPerSpellLevel;
+  return built(page, ctx, DEFAULT_RULES.maxSpellLevel, { damage: budget });
+}
+
+/**
+ * Ce qu'un sort inflige AU MIEUX, tout scaling compris.
+ *
+ * « Au mieux », c'est désormais le sort mené à son niveau maximum avec tout
+ * son budget versé dans les dégâts — l'équivalent de ce que le dernier palier
+ * de l'arbre représentait : le plafond de ce que le sort peut devenir.
+ */
 function pointeDe(slug: string): number {
   const page = spells.bySlug(slug);
   if (!page) throw new Error(`sort introuvable : ${slug}`);
-  const nodes = page.spell.progression?.nodes.filter((n) => n.stats?.damageMax) ?? [];
+  const nodes = [pousseLesDegats(page)].filter((n) => n.stats?.damageMax);
   const damages = nodes.map((node) => {
     const ability = spellAbility(page, node);
     return abilityDamageRanges(archimage, ability).reduce(
@@ -100,14 +122,10 @@ describe('hiérarchie des sorts de puissance', () => {
 
   it('garde Braises faible, mais donné', () => {
     // Son identité n'est pas la puissance : c'est qu'on peut l'enchaîner tout
-    // le combat sans y penser.
+    // le combat sans y penser. Le coût qui compte est celui du SOCLE — ce que
+    // paie le mage qui vient de l'apprendre.
     expect(braises).toBeLessThan(MEDIAN_HP * 0.15);
-    const cout = Math.min(
-      ...(spells.bySlug('fire-embers')!.spell.progression?.nodes ?? [])
-        .filter((n) => n.stats?.damageMax)
-        .map((n) => n.stats.mana ?? 0),
-    );
-    expect(cout).toBeLessThanOrEqual(3);
+    expect(spells.bySlug('fire-embers')!.spell.baseStats!.mana).toBeLessThanOrEqual(3);
   });
 
   it('place Boule de feu à la médiane', () => {
@@ -131,13 +149,8 @@ describe('hiérarchie des sorts de puissance', () => {
   it('le paie en mana ET en danger pour ses propres alliés', () => {
     // La puissance ne se justifie que par ses contreparties, et elles doivent
     // être écrites sur la fiche — pas seulement dans l'intention.
-    const nodes = spells.bySlug('fire-inferno')!.spell.progression?.nodes ?? [];
-    const dernier = nodes[nodes.length - 1];
-    const braisesMana = Math.min(
-      ...(spells.bySlug('fire-embers')!.spell.progression?.nodes ?? [])
-        .filter((n) => n.stats?.damageMax)
-        .map((n) => n.stats.mana ?? 0),
-    );
+    const dernier = pousseLesDegats(spells.bySlug('fire-inferno')!);
+    const braisesMana = spells.bySlug('fire-embers')!.spell.baseStats!.mana;
 
     expect(dernier.stats.mana).toBeGreaterThan(braisesMana * 20);
     expect(dernier.stats.targets).toContain('everyone');
