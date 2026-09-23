@@ -1,0 +1,734 @@
+{
+    "_note": "Catalogue des espèces végétales du monde. Le domaine des Plantes n’a pas un sort par espèce : il a un sort par GESTE, et l’espèce employée décide de ce que ce geste produit (cf. le champ `compatiblePlants` des sorts de domains/plant.json). Une même espèce sert plusieurs sorts avec un effet différent à chaque fois — la ronce accroche au sol, blesse en riposte ou nimbe une lame : c’est le SORT qui dit quoi, pas l’espèce. Les variantes d’effet vivent donc sur le sort, jamais ici.",
+    "_study_note": "L’étude d’une espèce suit le système de la Terre : un repos long face à un échantillon, idéalement avec un mentor ou une guilde, une place par palier de maîtrise (cf. STUDY_TIERS). Le pool de cinq places est UNIQUE et partagé avec les matériaux de la Terre et les traits animaux de la Vie. SANS étude, le sort reste jouable mais tourne sur le concept plutôt que sur l’espèce : effet générique amoindri, aucune spécialisation, et un surcoût en mana — faute de connaître la plante, on lui demande plus d’effort. AVEC étude, la variante décrite par le sort s’applique pleinement et de façon fiable.",
+    "_regions_note": "Les clés de `native` sont celles des régions de materials.json : le monde n’a qu’une géographie. Une région absente ne veut pas dire que l’espèce y est introuvable, seulement qu’elle n’y pousse pas d’elle-même.",
+    "families": [
+        {
+            "key": "toxique",
+            "name": "Toxique",
+            "description": "Baies, racines et graines qui empoisonnent. La matière première du venin."
+        },
+        {
+            "key": "neurotoxique",
+            "name": "Neurotoxique",
+            "description": "Ce qui coupe le nerf du muscle : paralysie, torpeur, sommeil."
+        },
+        {
+            "key": "epineuse",
+            "name": "Épineuse",
+            "description": "Ronces, rameaux et orties. Ce qui accroche, entaille et repousse."
+        },
+        {
+            "key": "fongique",
+            "name": "Fongique",
+            "description": "Champignons et spores. Ce qui se respire avant d’être vu."
+        },
+        {
+            "key": "parasite",
+            "name": "Parasite",
+            "description": "Ce qui ne pousse que sur un autre, et vit de ce qu’il lui prend."
+        },
+        {
+            "key": "medicinale",
+            "name": "Médicinale",
+            "description": "Ce qui referme, apaise et ressoude. Le revers exact du poison."
+        },
+        {
+            "key": "ligneuse",
+            "name": "Ligneuse",
+            "description": "Bois et écorces. Ce qu’on met entre soi et le coup."
+        },
+        {
+            "key": "grimpante",
+            "name": "Grimpante",
+            "description": "Vrilles et tiges volubiles. Ce qui s’accroche et se propulse."
+        }
+    ],
+    "plants": [
+        {
+            "key": "belladone",
+            "name": "Belladone",
+            "latin": "Atropa belladonna",
+            "family": "toxique",
+            "part": "Baies",
+            "property": "Montée lente, pic tardif",
+            "rarity": "Peu commune",
+            "habitat": "Lisières ombragées et sols calcaires",
+            "native": [
+                "aldenmoor",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#4b2b52"
+        },
+        {
+            "key": "aconit",
+            "name": "Aconit",
+            "latin": "Aconitum napellus",
+            "family": "toxique",
+            "part": "Racine",
+            "property": "Engourdit autant qu’il ronge",
+            "rarity": "Peu commune",
+            "habitat": "Prairies humides d’altitude",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#4c4a9c"
+        },
+        {
+            "key": "ricin",
+            "name": "Ricin",
+            "latin": "Ricinus communis",
+            "family": "toxique",
+            "part": "Graines",
+            "property": "Ronge à travers les protections",
+            "rarity": "Rare",
+            "habitat": "Terrains chauds et remués",
+            "native": [
+                "luxarion",
+                "archipel"
+            ],
+            "studyCost": 2,
+            "color": "#8b4a3f"
+        },
+        {
+            "key": "datura",
+            "name": "Datura",
+            "latin": "Datura stramonium",
+            "family": "toxique",
+            "part": "Fleurs et graines",
+            "property": "Empoisonne et égare",
+            "rarity": "Peu commune",
+            "habitat": "Friches et décombres",
+            "native": [
+                "royaume-abandonne",
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#7a6f93"
+        },
+        {
+            "key": "digitale",
+            "name": "Digitale",
+            "latin": "Digitalis purpurea",
+            "family": "toxique",
+            "part": "Feuilles",
+            "property": "Frappe le cœur à proportion de sa force",
+            "rarity": "Commune",
+            "habitat": "Clairières acides et coupes forestières",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#9c3f73"
+        },
+        {
+            "key": "colchique",
+            "name": "Colchique",
+            "latin": "Colchicum autumnale",
+            "family": "toxique",
+            "part": "Bulbe",
+            "property": "Lent, tenace, interminable",
+            "rarity": "Commune",
+            "habitat": "Prairies humides d’automne",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#b06fa8"
+        },
+        {
+            "key": "euphorbe",
+            "name": "Euphorbe",
+            "latin": "Euphorbia",
+            "family": "toxique",
+            "part": "Sève",
+            "property": "Sève caustique qui passe au contact",
+            "rarity": "Commune",
+            "habitat": "Talus secs et rocailles",
+            "native": [
+                "luxarion",
+                "archipel"
+            ],
+            "studyCost": 1,
+            "color": "#7f9c4a"
+        },
+        {
+            "key": "grande-cigue",
+            "name": "Grande ciguë",
+            "latin": "Conium maculatum",
+            "family": "neurotoxique",
+            "part": "Tige et graines",
+            "property": "Fige en remontant des jambes",
+            "rarity": "Peu commune",
+            "habitat": "Fossés et bords de chemins",
+            "native": [
+                "aldenmoor",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#6f7f52"
+        },
+        {
+            "key": "laurier-rose",
+            "name": "Laurier-rose",
+            "latin": "Nerium oleander",
+            "family": "neurotoxique",
+            "part": "Feuilles",
+            "property": "Étouffe le cœur pendant qu’il fige",
+            "rarity": "Commune",
+            "habitat": "Lits de rivières chaudes et jardins du sud",
+            "native": [
+                "luxarion",
+                "archipel"
+            ],
+            "studyCost": 1,
+            "color": "#c46a8e"
+        },
+        {
+            "key": "curare",
+            "name": "Curare",
+            "latin": "Chondrodendron tomentosum",
+            "family": "neurotoxique",
+            "part": "Liane (extrait)",
+            "property": "Fige d’un coup, brièvement",
+            "rarity": "Rare",
+            "habitat": "Forêts chaudes et humides",
+            "native": [
+                "archipel"
+            ],
+            "studyCost": 2,
+            "color": "#4a5e3a"
+        },
+        {
+            "key": "narcisse",
+            "name": "Narcisse",
+            "latin": "Narcissus",
+            "family": "neurotoxique",
+            "part": "Bulbe",
+            "property": "Endort plus qu’il ne fige",
+            "rarity": "Commune",
+            "habitat": "Prés et sous-bois clairs",
+            "native": [
+                "aldenmoor",
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#d7c45a"
+        },
+        {
+            "key": "jusquiame",
+            "name": "Jusquiame noire",
+            "latin": "Hyoscyamus niger",
+            "family": "neurotoxique",
+            "part": "Feuilles et graines",
+            "property": "Hallucinations et fausses cibles",
+            "rarity": "Rare",
+            "habitat": "Ruines et sols azotés",
+            "native": [
+                "royaume-abandonne"
+            ],
+            "studyCost": 2,
+            "color": "#8a7f4a"
+        },
+        {
+            "key": "ronce-commune",
+            "name": "Ronce commune",
+            "latin": "Rubus fruticosus",
+            "family": "epineuse",
+            "part": "Tiges épineuses",
+            "property": "L’épine ordinaire, celle qui accroche toujours",
+            "rarity": "Commune",
+            "habitat": "Haies, friches et lisières",
+            "native": [
+                "aldenmoor",
+                "luxarion",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#3f5e34"
+        },
+        {
+            "key": "rosier-sauvage",
+            "name": "Rosier sauvage",
+            "latin": "Rosa canina",
+            "family": "epineuse",
+            "part": "Tiges et cynorrhodons",
+            "property": "Épines fines qui entaillent",
+            "rarity": "Commune",
+            "habitat": "Haies vives et lisières",
+            "native": [
+                "aldenmoor",
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#b8556b"
+        },
+        {
+            "key": "acacia-epineux",
+            "name": "Acacia épineux",
+            "latin": "Vachellia",
+            "family": "epineuse",
+            "part": "Épines",
+            "property": "Longues épines droites, faites pour percer",
+            "rarity": "Peu commune",
+            "habitat": "Savanes et steppes sèches",
+            "native": [
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#a8894a"
+        },
+        {
+            "key": "aubepine",
+            "name": "Aubépine",
+            "latin": "Crataegus",
+            "family": "epineuse",
+            "part": "Rameaux épineux",
+            "property": "Buisson qui repousse tout ce qui approche",
+            "rarity": "Commune",
+            "habitat": "Haies vives et bocages",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#c9c0a8"
+        },
+        {
+            "key": "ortie",
+            "name": "Ortie",
+            "latin": "Urtica dioica",
+            "family": "epineuse",
+            "part": "Feuilles urticantes",
+            "property": "Brûle au moindre frôlement",
+            "rarity": "Commune",
+            "habitat": "Sols riches et abords humains",
+            "native": [
+                "aldenmoor",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#5e7f3f"
+        },
+        {
+            "key": "sumac",
+            "name": "Sumac",
+            "latin": "Rhus",
+            "family": "epineuse",
+            "part": "Rameaux et sève",
+            "property": "Sève qui empêche la plaie de fermer",
+            "rarity": "Peu commune",
+            "habitat": "Coteaux secs et lisières chaudes",
+            "native": [
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#b0492f"
+        },
+        {
+            "key": "sumac-veneneux",
+            "name": "Sumac vénéneux",
+            "latin": "Toxicodendron",
+            "family": "epineuse",
+            "part": "Sève et feuilles",
+            "property": "Un contact suffit, et il dure",
+            "rarity": "Rare",
+            "habitat": "Fourrés humides et bords de bois",
+            "native": [
+                "archipel",
+                "royaume-abandonne"
+            ],
+            "studyCost": 2,
+            "color": "#7d3f2f"
+        },
+        {
+            "key": "cactus",
+            "name": "Cactus",
+            "latin": "Opuntia",
+            "family": "epineuse",
+            "part": "Raquettes épineuses",
+            "property": "Défense pure, sans dépense",
+            "rarity": "Commune",
+            "habitat": "Déserts et rocailles brûlées",
+            "native": [
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#6f9c5e"
+        },
+        {
+            "key": "argousier",
+            "name": "Argousier",
+            "latin": "Hippophae rhamnoides",
+            "family": "epineuse",
+            "part": "Baies et épines",
+            "property": "Épine qui pique et baie qui répare",
+            "rarity": "Peu commune",
+            "habitat": "Dunes et grèves",
+            "native": [
+                "archipel"
+            ],
+            "studyCost": 1,
+            "color": "#d99a2b"
+        },
+        {
+            "key": "amanite-tue-mouches",
+            "name": "Amanite tue-mouches",
+            "latin": "Amanita muscaria",
+            "family": "fongique",
+            "part": "Chapeau",
+            "property": "Fait tourner la tête avant de tuer",
+            "rarity": "Commune",
+            "habitat": "Sous les bouleaux et les pins",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#c7412f"
+        },
+        {
+            "key": "vesse-de-loup",
+            "name": "Vesse-de-loup",
+            "latin": "Lycoperdon",
+            "family": "fongique",
+            "part": "Spores",
+            "property": "Un nuage entier d’un seul coup de pied",
+            "rarity": "Commune",
+            "habitat": "Prés et sous-bois",
+            "native": [
+                "aldenmoor",
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#b9a88a"
+        },
+        {
+            "key": "ergot-de-seigle",
+            "name": "Ergot du seigle",
+            "latin": "Claviceps purpurea",
+            "family": "fongique",
+            "part": "Sclérote",
+            "property": "Le grain empoisonné des mauvaises années",
+            "rarity": "Peu commune",
+            "habitat": "Champs de seigle humides",
+            "native": [
+                "luxarion",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#4a3f52"
+        },
+        {
+            "key": "psilocybe",
+            "name": "Psilocybe",
+            "latin": "Psilocybe",
+            "family": "fongique",
+            "part": "Chapeau",
+            "property": "Ouvre l’esprit et le déboussole",
+            "rarity": "Peu commune",
+            "habitat": "Prairies pâturées",
+            "native": [
+                "aldenmoor",
+                "archipel"
+            ],
+            "studyCost": 1,
+            "color": "#7a6ba8"
+        },
+        {
+            "key": "nielle",
+            "name": "Nielle des blés",
+            "latin": "Agrostemma githago",
+            "family": "fongique",
+            "part": "Graines",
+            "property": "Poussière qui retombe et reste",
+            "rarity": "Commune",
+            "habitat": "Moissons et jachères",
+            "native": [
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#9c6f93"
+        },
+        {
+            "key": "gui",
+            "name": "Gui",
+            "latin": "Viscum album",
+            "family": "parasite",
+            "part": "Boules et baies",
+            "property": "Ne lâche pas son hôte",
+            "rarity": "Commune",
+            "habitat": "Houppiers de peupliers et de pommiers",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#9cb84a"
+        },
+        {
+            "key": "cuscute",
+            "name": "Cuscute",
+            "latin": "Cuscuta",
+            "family": "parasite",
+            "part": "Filaments",
+            "property": "Vide son hôte en une saison",
+            "rarity": "Peu commune",
+            "habitat": "Friches et cultures",
+            "native": [
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#d9a33f"
+        },
+        {
+            "key": "orobanche",
+            "name": "Orobanche",
+            "latin": "Orobanche",
+            "family": "parasite",
+            "part": "Hampe florale",
+            "property": "Se branche sur la sève, pas sur la chair",
+            "rarity": "Rare",
+            "habitat": "Champs et garrigues",
+            "native": [
+                "luxarion",
+                "royaume-abandonne"
+            ],
+            "studyCost": 2,
+            "color": "#a8927f"
+        },
+        {
+            "key": "figuier-etrangleur",
+            "name": "Figuier étrangleur",
+            "latin": "Ficus spp.",
+            "family": "parasite",
+            "part": "Racines aériennes",
+            "property": "Enserre jusqu’à remplacer l’arbre",
+            "rarity": "Rare",
+            "habitat": "Forêts chaudes et ruines envahies",
+            "native": [
+                "archipel",
+                "royaume-abandonne"
+            ],
+            "studyCost": 2,
+            "color": "#4a6f4a"
+        },
+        {
+            "key": "lierre",
+            "name": "Lierre commun",
+            "latin": "Hedera helix",
+            "family": "medicinale",
+            "part": "Feuilles et tiges",
+            "property": "Recouvre, puis referme",
+            "rarity": "Commune",
+            "habitat": "Murs, troncs et ruines",
+            "native": [
+                "aldenmoor",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#2f5e3f"
+        },
+        {
+            "key": "aloe-vera",
+            "name": "Aloe vera",
+            "latin": "Aloe vera",
+            "family": "medicinale",
+            "part": "Gel des feuilles",
+            "property": "Soulage à l’instant",
+            "rarity": "Peu commune",
+            "habitat": "Rocailles arides",
+            "native": [
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#7fb87f"
+        },
+        {
+            "key": "achillee",
+            "name": "Achillée millefeuille",
+            "latin": "Achillea millefolium",
+            "family": "medicinale",
+            "part": "Feuilles et fleurs",
+            "property": "L’herbe des soldats : elle arrête le sang",
+            "rarity": "Commune",
+            "habitat": "Prés secs et bords de chemins",
+            "native": [
+                "aldenmoor",
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#e0dcc8"
+        },
+        {
+            "key": "consoude",
+            "name": "Consoude",
+            "latin": "Symphytum officinale",
+            "family": "medicinale",
+            "part": "Racine",
+            "property": "Ressoude ce qui a le temps de guérir",
+            "rarity": "Commune",
+            "habitat": "Fossés et prés humides",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#8a7fb8"
+        },
+        {
+            "key": "chene",
+            "name": "Chêne",
+            "latin": "Quercus",
+            "family": "ligneuse",
+            "part": "Écorce et bois",
+            "property": "Rien ne le fait plier",
+            "rarity": "Commune",
+            "habitat": "Futaies et bocages",
+            "native": [
+                "aldenmoor",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#6b5334"
+        },
+        {
+            "key": "bouleau",
+            "name": "Bouleau",
+            "latin": "Betula",
+            "family": "ligneuse",
+            "part": "Écorce",
+            "property": "Léger, souple, jamais lourd",
+            "rarity": "Commune",
+            "habitat": "Bois clairs et sols pauvres",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#ded6c4"
+        },
+        {
+            "key": "sequoia",
+            "name": "Séquoia",
+            "latin": "Sequoiadendron",
+            "family": "ligneuse",
+            "part": "Écorce épaisse",
+            "property": "Une écorce si épaisse que le feu y renonce",
+            "rarity": "Rare",
+            "habitat": "Hautes futaies humides",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 2,
+            "color": "#8c4a35"
+        },
+        {
+            "key": "bambou",
+            "name": "Bambou",
+            "latin": "Bambusoideae",
+            "family": "ligneuse",
+            "part": "Chaume",
+            "property": "Creux, donc presque gratuit à porter",
+            "rarity": "Peu commune",
+            "habitat": "Vallées humides et bords d’eau",
+            "native": [
+                "archipel",
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#a8b85e"
+        },
+        {
+            "key": "if",
+            "name": "If",
+            "latin": "Taxus baccata",
+            "family": "ligneuse",
+            "part": "Aiguilles, arille et bois",
+            "property": "Toxique de la racine à l’arille",
+            "rarity": "Commune",
+            "habitat": "Vieux bois, cimetières et clôtures",
+            "native": [
+                "aldenmoor",
+                "royaume-abandonne"
+            ],
+            "studyCost": 1,
+            "color": "#2f4a35"
+        },
+        {
+            "key": "vigne",
+            "name": "Vigne",
+            "latin": "Vitis",
+            "family": "grimpante",
+            "part": "Sarments et vrilles",
+            "property": "Trouve toujours où s’accrocher",
+            "rarity": "Commune",
+            "habitat": "Coteaux ensoleillés",
+            "native": [
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#6b2f52"
+        },
+        {
+            "key": "houblon",
+            "name": "Houblon",
+            "latin": "Humulus lupulus",
+            "family": "grimpante",
+            "part": "Tiges volubiles",
+            "property": "Grimpe partout, sans condition",
+            "rarity": "Commune",
+            "habitat": "Haies humides",
+            "native": [
+                "aldenmoor"
+            ],
+            "studyCost": 1,
+            "color": "#8fa83f"
+        },
+        {
+            "key": "passiflore",
+            "name": "Passiflore",
+            "latin": "Passiflora",
+            "family": "grimpante",
+            "part": "Vrilles",
+            "property": "Un ressort prêt à se détendre",
+            "rarity": "Peu commune",
+            "habitat": "Murs abrités et lisières chaudes",
+            "native": [
+                "luxarion",
+                "archipel"
+            ],
+            "studyCost": 1,
+            "color": "#7f5eb8"
+        },
+        {
+            "key": "liseron",
+            "name": "Liseron des haies",
+            "latin": "Calystegia sepium",
+            "family": "grimpante",
+            "part": "Tiges volubiles",
+            "property": "S’étend d’un jour sur l’autre",
+            "rarity": "Commune",
+            "habitat": "Haies et friches",
+            "native": [
+                "aldenmoor",
+                "luxarion"
+            ],
+            "studyCost": 1,
+            "color": "#e8e4d9"
+        },
+        {
+            "key": "salsepareille",
+            "name": "Salsepareille",
+            "latin": "Smilax",
+            "family": "grimpante",
+            "part": "Tiges épineuses grimpantes",
+            "property": "Retient sans clouer au sol",
+            "rarity": "Peu commune",
+            "habitat": "Fourrés secs et maquis",
+            "native": [
+                "luxarion",
+                "archipel"
+            ],
+            "studyCost": 1,
+            "color": "#5e7f52"
+        }
+    ]
+}

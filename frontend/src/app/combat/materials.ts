@@ -55,6 +55,28 @@ export function compositionLabel(material: string | undefined): string {
 export const materialsOfFamily = (family: MaterialFamilyKey): Material[] =>
   MATERIALS.filter((m) => m.family === family);
 
+/**
+ * Les familles que le domaine de la Terre façonne.
+ *
+ * Le catalogue sert à DEUX choses : composer les objets du monde (d'où le
+ * bois, le cuir, la fibre et le verre) et alimenter la magie de Terre. Seul
+ * le minéral s'y conjure — les descriptions du catalogue le disent d'elles-
+ * mêmes : « Rien ne le conjure : il pousse » pour le bois. Ces familles-là
+ * n'ont donc rien à faire dans l'étude d'un mage de Terre.
+ */
+export const EARTH_FAMILY_KEYS: readonly MaterialFamilyKey[] = ['stone', 'metal', 'crystal', 'sand'];
+
+/** Les familles étudiables par un mage de Terre, dans l’ordre du catalogue. */
+export const EARTH_FAMILIES: MaterialFamily[] = MATERIAL_FAMILIES.filter((f) =>
+  EARTH_FAMILY_KEYS.includes(f.key),
+);
+
+/** Cette matière relève-t-elle de la Terre ? (Inconnue du catalogue : non.) */
+export const isEarthMaterial = (key: string): boolean => {
+  const famille = MATERIAL_BY_KEY.get(key)?.family;
+  return !!famille && EARTH_FAMILY_KEYS.includes(famille);
+};
+
 /* ── Ce qu'on a le droit d'étudier ─────────────────────────────────────────── */
 
 /**
@@ -77,16 +99,22 @@ export const studySlots = (level: number): number =>
  * Deux verrous seulement : le nombre de places ouvertes par le niveau, et les
  * composants d'un alliage. Le bronze ne se trouve dans aucun sol — il faut
  * avoir étudié le cuivre ET l'étain avant de pouvoir le conjurer.
+ *
+ * `otherStudies` porte les études faites AILLEURS — espèces végétales des
+ * Plantes, traits animaux de la Vie. Le pool de cinq places est unique pour
+ * tout le personnage, et un repos passé sur une belladone n'est plus
+ * disponible pour une pierre.
  */
 export function cannotStudy(
   material: string,
   studied: readonly string[],
   level: number,
+  otherStudies = 0,
 ): string | null {
   const def = MATERIAL_BY_KEY.get(material);
   if (!def) return 'Matériau inconnu au catalogue.';
   if (studied.includes(material)) return `${def.name} est déjà étudié.`;
-  if (studied.length >= studySlots(level)) {
+  if (studied.length + otherStudies >= studySlots(level)) {
     const prochain = STUDY_TIERS.find((seuil) => seuil > level);
     return prochain
       ? `Plus de place : la prochaine s'ouvre au niveau ${prochain}.`

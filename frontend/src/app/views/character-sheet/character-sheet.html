@@ -13,15 +13,28 @@
         }
         <!-- Import : le PDF exporté embarque la fiche éditable dans ses
              métadonnées, on la relit donc telle quelle. -->
-        <label class="cs-btn cs-btn--ghost" [class.is-busy]="importing()">
-          {{ importing() ? 'Lecture…' : '⤒ Importer un PDF' }}
+        <label class="cs-btn cs-btn--ghost" [class.is-busy]="importing()"
+               [attr.aria-label]="importing() ? 'Lecture du PDF' : 'Importer un PDF'">
+          <span class="cs-btn__glyph" aria-hidden="true">⤒</span>
+          <span class="cs-btn__text">{{ importing() ? 'Lecture…' : 'Importer un PDF' }}</span>
           <input type="file" accept="application/pdf,.pdf" hidden
                  [disabled]="importing()" (change)="importPdf($event)" />
         </label>
-        <button type="button" class="cs-btn cs-btn--ghost" [disabled]="exporting()" (click)="downloadPdf()">
-          {{ exporting() ? 'Génération…' : '⤓ Télécharger PDF' }}
+        <button type="button" class="cs-btn cs-btn--ghost" [disabled]="exporting()"
+                [attr.aria-label]="exporting() ? 'Génération du PDF' : 'Télécharger le PDF'"
+                (click)="downloadPdf()">
+          <span class="cs-btn__glyph" aria-hidden="true">⤓</span>
+          <span class="cs-btn__text">{{ exporting() ? 'Génération…' : 'Télécharger PDF' }}</span>
         </button>
-        <button type="button" class="cs-btn" [disabled]="saving()" (click)="save()">
+        <button type="button" class="cs-btn cs-btn--ghost" [class.is-active]="previewOpen()"
+                [attr.aria-expanded]="previewOpen()" aria-controls="cs-preview"
+                [attr.aria-label]="previewOpen() ? 'Masquer l\'aperçu de la fiche' : 'Afficher l\'aperçu de la fiche'"
+                (click)="previewOpen.set(!previewOpen())">
+          <span class="cs-btn__glyph" aria-hidden="true">◧</span>
+          <span class="cs-btn__text">{{ previewOpen() ? "Masquer l'aperçu" : "Aperçu" }}</span>
+        </button>
+        <!-- Action principale : elle garde ses mots à toutes les tailles. -->
+        <button type="button" class="cs-btn cs-btn--primary" [disabled]="saving()" (click)="save()">
           {{ saving() ? 'Enregistrement…' : (sheetId ? 'Enregistrer' : 'Créer la fiche') }}
         </button>
       </div>
@@ -30,1146 +43,1656 @@
     @if (loading()) {
       <p class="cs-loading no-print">Chargement de la fiche…</p>
     } @else {
-    <div class="cs-grid">
+    <div class="cs-grid" [class.is-blurred]="previewOpen()">
+      <!-- ───────────────── RAIL DE SECTIONS ─────────────────
+           Grand écran : une colonne d'onglets. À 900px et moins il disparaît au
+           profit des en-têtes d'accordéon portés par chaque section. -->
+      <nav class="cs-nav no-print" aria-label="Sections du formulaire">
+        @for (s of formSections; track s.key) {
+          @let b = sectionBadge(s.key);
+          <button type="button" class="cs-nav__item" [class.is-active]="isSection(s.key)"
+                  [attr.aria-current]="isSection(s.key) ? 'page' : null"
+                  (click)="openSection(s.key)">
+            <span class="cs-nav__label">{{ s.label }}</span>
+            <span class="cs-nav__badge" [class.is-warn]="b.warn">{{ b.text }}</span>
+          </button>
+        }
+      </nav>
+
       <!-- ───────────────── COLONNE FORMULAIRE ───────────────── -->
       <form class="cs-form no-print" (ngSubmit)="save()">
-        <fieldset class="cs-fieldset">
-          <legend>Identité</legend>
+        <!-- ══ IDENTITÉ ═══════════════════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('identity')">
+          @let badgeIdentity = sectionBadge('identity');
+          <button type="button" class="cs-sec__head" (click)="openSection('identity')"
+                  [attr.aria-expanded]="isSection('identity')" aria-controls="cs-sec-identity">
+            <span class="cs-sec__title">Identité</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeIdentity.warn">{{ badgeIdentity.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('identity')) {
+            <div class="cs-sec__body" id="cs-sec-identity">
+              <fieldset class="cs-fieldset cs-fieldset--wide cs-fieldset--cols">
+                <legend>Identité</legend>
 
-          <div class="cs-portrait-row">
-            <div class="cs-portrait-preview" [class.is-empty]="!model.identity.portrait">
-              @if (model.identity.portrait) {
-                <img [src]="model.identity.portrait" alt="Portrait du personnage" />
-              } @else {
-                <span>Tête</span>
-              }
-            </div>
-            <div class="cs-portrait-actions">
-              <span class="cs-file-title">Portrait (tête)</span>
-              <label class="cs-file-btn">
-                Choisir une image
-                <input type="file" accept="image/*" (change)="onPortraitSelected($event)" hidden />
-              </label>
-              @if (model.identity.portrait) {
-                <button type="button" class="cs-file-remove" (click)="removePortrait()">Retirer</button>
-              }
-              <span class="cs-file-hint">PNG / JPG — 2 Mo max</span>
-            </div>
-          </div>
-
-          @if (model.identity.portrait) {
-            <div class="cs-crop">
-              <label class="cs-crop__row">
-                <span>Zoom</span>
-                <input type="range" min="1" max="3" step="0.05" name="pzoom" [(ngModel)]="model.identity.portraitZoom" (ngModelChange)="rebakePortrait()" />
-              </label>
-              <label class="cs-crop__row">
-                <span>Horizontal</span>
-                <input type="range" min="0" max="100" step="1" name="ppx" [(ngModel)]="model.identity.portraitPosX" (ngModelChange)="rebakePortrait()" />
-              </label>
-              <label class="cs-crop__row">
-                <span>Vertical</span>
-                <input type="range" min="0" max="100" step="1" name="ppy" [(ngModel)]="model.identity.portraitPosY" (ngModelChange)="rebakePortrait()" />
-              </label>
-            </div>
-          }
-
-          <div class="cs-portrait-row">
-            <div class="cs-portrait-preview cs-portrait-preview--full" [class.is-empty]="!model.identity.fullImage">
-              @if (model.identity.fullImage) {
-                <img [src]="model.identity.fullImage" alt="Personnage en pied" />
-              } @else {
-                <span>Corps entier</span>
-              }
-            </div>
-            <div class="cs-portrait-actions">
-              <span class="cs-file-title">Image plein corps</span>
-              <label class="cs-file-btn">
-                Choisir une image
-                <input type="file" accept="image/*" (change)="onFullImageSelected($event)" hidden />
-              </label>
-              @if (model.identity.fullImage) {
-                <button type="button" class="cs-file-remove" (click)="removeFullImage()">Retirer</button>
-              }
-              <span class="cs-file-hint">PNG / JPG — 5 Mo max</span>
-            </div>
-          </div>
-
-          <label class="cs-field">
-            <span>Nom</span>
-            <input type="text" name="name" [(ngModel)]="model.identity.name" placeholder="Nom du personnage" />
-          </label>
-
-          <div class="cs-row">
-            <label class="cs-field">
-              <span>Race</span>
-              <select name="race" [(ngModel)]="model.identity.race" (ngModelChange)="onRaceChange()">
-                <option value="">— Choisir —</option>
-                @for (r of races(); track r.key) { <option [value]="r.name">{{ r.name }}</option> }
-              </select>
-            </label>
-            @if (subracesForSelected.length > 0) {
-              <label class="cs-field">
-                <span>Sous-race</span>
-                <select name="subrace" [(ngModel)]="model.identity.subrace">
-                  <option value="">— Choisir —</option>
-                  @for (s of subracesForSelected; track s.key) { <option [value]="s.name">{{ s.name }}</option> }
-                </select>
-              </label>
-            }
-          </div>
-
-          <div class="cs-row">
-            <label class="cs-field">
-              <span>Background</span>
-              <select name="background" [(ngModel)]="model.identity.background" (ngModelChange)="onBackgroundChange()">
-                <option value="">— Choisir —</option>
-                @for (b of backgrounds(); track b.key) { <option [value]="b.name">{{ b.name }}</option> }
-              </select>
-            </label>
-            @if (subbackgroundsForSelected.length > 0) {
-              <label class="cs-field">
-                <span>Sous-background</span>
-                <select name="subbackground" [(ngModel)]="model.identity.subbackground">
-                  <option value="">— Choisir —</option>
-                  @for (s of subbackgroundsForSelected; track s.key) { <option [value]="s.name">{{ s.name }}</option> }
-                </select>
-              </label>
-            }
-          </div>
-
-          <div class="cs-row">
-            <label class="cs-field">
-              <span>Origine</span>
-              <select name="origin" [(ngModel)]="model.identity.origin" (ngModelChange)="onMagicAccessChange()">
-                <option value="">— Choisir —</option>
-                @for (o of origins; track o.key) { <option [value]="o.key">{{ o.name }}</option> }
-              </select>
-            </label>
-            <label class="cs-field">
-              <span>Religion</span>
-              <select name="religion" [(ngModel)]="model.identity.religion">
-                <option value="">— Aucune —</option>
-                @for (r of religions; track r.key) { <option [value]="r.key">{{ r.name }}</option> }
-              </select>
-            </label>
-          </div>
-
-          <div class="cs-row">
-            <label class="cs-field">
-              <span>Classe</span>
-              <select name="class" [(ngModel)]="model.identity.class" (ngModelChange)="onClassChange()">
-                <option value="">— Choisir —</option>
-                @for (c of classes(); track c.key) { <option [value]="c.name">{{ c.name }}</option> }
-              </select>
-            </label>
-            <label class="cs-field cs-field--narrow">
-              <span>Niveau</span>
-              <input type="number" name="level" min="1" [max]="maxLevel" [(ngModel)]="model.level" (ngModelChange)="clampLevel()" />
-            </label>
-            <label class="cs-field cs-field--narrow">
-              <span>Âge</span>
-              <input type="text" name="age" [(ngModel)]="model.identity.age" placeholder="—" />
-            </label>
-          </div>
-
-          <!-- Expérience : l'XP pilote le niveau, le champ Niveau ci-dessus
-               n'est qu'un raccourci qui recale l'XP sur le seuil du palier. -->
-          <div class="cs-xp">
-            <div class="cs-xp__head">
-              <label class="cs-field cs-field--narrow">
-                <span>Expérience</span>
-                <input type="number" name="xp" min="0" [max]="xpMax" step="10"
-                       [(ngModel)]="model.xp" (ngModelChange)="onXpChange()" />
-              </label>
-              <div class="cs-xp__gains">
-                <span>Gain rapide</span>
-                <div>
-                  @for (gain of [50, 100, 250, 1000]; track gain) {
-                    <button type="button" class="cs-xp__chip" (click)="addXp(gain)">+{{ gain }}</button>
-                  }
-                  <button type="button" class="cs-xp__chip cs-xp__chip--minus" (click)="addXp(-50)">−50</button>
+                <div class="cs-portrait-row">
+                  <div class="cs-portrait-preview" [class.is-empty]="!model.identity.portrait">
+                    @if (model.identity.portrait) {
+                      <img [src]="model.identity.portrait" alt="Portrait du personnage" />
+                    } @else {
+                      <span>Tête</span>
+                    }
+                  </div>
+                  <div class="cs-portrait-actions">
+                    <span class="cs-file-title">Portrait (tête)</span>
+                    <label class="cs-file-btn">
+                      Choisir une image
+                      <input type="file" accept="image/*" (change)="onPortraitSelected($event)" hidden />
+                    </label>
+                    @if (model.identity.portrait) {
+                      <button type="button" class="cs-file-remove" (click)="removePortrait()">Retirer</button>
+                    }
+                    <span class="cs-file-hint">PNG / JPG — 2 Mo max</span>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            @let p = xp;
-            <div class="cs-xp__track" [class.is-max]="p.level >= maxLevel">
-              <div class="cs-xp__fill" [style.width.%]="p.pct"></div>
-            </div>
-            @if (p.level >= maxLevel) {
-              <p class="cs-xp__legend">Niveau maximal atteint ({{ maxLevel }}) — {{ model.xp }} XP</p>
-            } @else {
-              <p class="cs-xp__legend">
-                Niveau {{ p.level }} → {{ p.level + 1 }} :
-                <b>{{ p.into }} / {{ p.needed }}</b> XP
-                <span class="cs-xp__left">encore {{ p.remaining }} XP (palier à {{ p.nextAt }})</span>
-              </p>
-            }
-          </div>
-        </fieldset>
+                @if (model.identity.portrait) {
+                  <div class="cs-crop">
+                    <label class="cs-crop__row">
+                      <span>Zoom</span>
+                      <input type="range" min="1" max="3" step="0.05" name="pzoom" [(ngModel)]="model.identity.portraitZoom" (ngModelChange)="rebakePortrait()" />
+                    </label>
+                    <label class="cs-crop__row">
+                      <span>Horizontal</span>
+                      <input type="range" min="0" max="100" step="1" name="ppx" [(ngModel)]="model.identity.portraitPosX" (ngModelChange)="rebakePortrait()" />
+                    </label>
+                    <label class="cs-crop__row">
+                      <span>Vertical</span>
+                      <input type="range" min="0" max="100" step="1" name="ppy" [(ngModel)]="model.identity.portraitPosY" (ngModelChange)="rebakePortrait()" />
+                    </label>
+                  </div>
+                }
 
-        <fieldset class="cs-fieldset">
-          <legend>Statistiques</legend>
-          <p class="cs-stats-note">
-            Calculées automatiquement : génétique de la race + montée de niveau de la classe + effets des traits.
-          </p>
-          <div class="cs-stat-mode">
-            <div class="cs-seg" role="group" aria-label="Mode de calcul">
-              <button type="button" [class.is-active]="model.statMode === 'random'" (click)="setStatMode('random')">Aléatoire</button>
-              <button type="button" [class.is-active]="model.statMode === 'mean'" (click)="setStatMode('mean')">Moyenne</button>
-            </div>
-            @if (model.statMode === 'random') {
-              <button type="button" class="cs-add" (click)="rerollStats()">⟳ Relancer les dés</button>
-            }
-          </div>
-          <!-- Bourse : le background donne le montant de départ, la partie le
-               fait évoluer. On stocke l'écart, pas le total (cf. goldDelta). -->
-          <div class="cs-purse">
-            <div class="cs-purse__head">
-              <label class="cs-field cs-field--narrow">
-                <span>Or</span>
-                <input type="number" name="gold" min="0" [(ngModel)]="gold" />
-              </label>
-              <div class="cs-purse__gains">
-                <span>Gain / dépense</span>
-                <div>
-                  @for (coin of [-50, -10, -1]; track coin) {
-                    <button type="button" class="cs-xp__chip cs-xp__chip--minus" (click)="addGold(coin)">{{ coin }}</button>
-                  }
-                  @for (coin of [1, 10, 50]; track coin) {
-                    <button type="button" class="cs-xp__chip" (click)="addGold(coin)">+{{ coin }}</button>
-                  }
+                <div class="cs-portrait-row">
+                  <div class="cs-portrait-preview cs-portrait-preview--full" [class.is-empty]="!model.identity.fullImage">
+                    @if (model.identity.fullImage) {
+                      <img [src]="model.identity.fullImage" alt="Personnage en pied" />
+                    } @else {
+                      <span>Corps entier</span>
+                    }
+                  </div>
+                  <div class="cs-portrait-actions">
+                    <span class="cs-file-title">Image plein corps</span>
+                    <label class="cs-file-btn">
+                      Choisir une image
+                      <input type="file" accept="image/*" (change)="onFullImageSelected($event)" hidden />
+                    </label>
+                    @if (model.identity.fullImage) {
+                      <button type="button" class="cs-file-remove" (click)="removeFullImage()">Retirer</button>
+                    }
+                    <span class="cs-file-hint">PNG / JPG — 5 Mo max</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <p class="cs-stats-note">
-              Départ (background) : <strong>{{ goldBase }}</strong>
-              @if (goldAdjusted) {
-                · évolution <strong>{{ formatBonus(model.goldDelta) }}</strong>
-                <button type="button" class="cs-purse__reset" (click)="resetGold()">↺ remettre au départ</button>
-              }
-            </p>
-          </div>
-          @let fsForm = finalStats;
-          <div class="cs-stats-grid">
-            @for (st of stats; track st.key) {
-              <div class="cs-stat-readout">
-                <span>{{ st.label }}</span>
-                <strong>{{ fsForm[st.key] }}</strong>
-              </div>
-            }
-          </div>
-        </fieldset>
 
-        <!-- Réserves : le maximum est calculé, le niveau du moment ne l'est
-             pas. D'où la barre partiellement remplie et les pas de ±1 / ±5 —
-             on encaisse un coup, on souffle, on lance un sort. Ce qui est
-             stocké, c'est le creux (cf. poolLoss). -->
-        <fieldset class="cs-fieldset">
-          <legend>Réserves</legend>
-          @let poolsForm = poolRows;
-          <div class="cs-pools">
-            @for (p of poolsForm; track p.gauge.key) {
-              <div class="cs-pool">
-                <svg class="cs-pool__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="p.gauge.icon" /></svg>
-                <span class="cs-pool__label">{{ p.gauge.label }}</span>
-                <div class="cs-pool__track" [attr.aria-label]="p.gauge.label + ' : ' + p.current + ' sur ' + p.max">
-                  <div class="cs-pool__fill" [class]="'is-' + p.gauge.key" [style.width.%]="p.pct"></div>
-                </div>
-                <label class="cs-pool__value">
-                  <span class="cs-sr-only">{{ p.gauge.label }} restants</span>
-                  <input
-                    type="number"
-                    min="0"
-                    [max]="p.max"
-                    [ngModel]="p.current"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="setPool(p.gauge.key, $event, p.max)"
-                  />
-                  <span class="cs-pool__max">/ {{ p.max }}</span>
+                <label class="cs-field">
+                  <span>Nom</span>
+                  <input type="text" name="name" [(ngModel)]="model.identity.name" placeholder="Nom du personnage" />
                 </label>
-                <div class="cs-pool__steps">
-                  @for (step of [-5, -1]; track step) {
-                    <button type="button" class="cs-xp__chip cs-xp__chip--minus" [disabled]="p.current <= 0" (click)="adjustPool(p, step)">{{ step }}</button>
-                  }
-                  @for (step of [1, 5]; track step) {
-                    <button type="button" class="cs-xp__chip" [disabled]="p.current >= p.max" (click)="adjustPool(p, step)">+{{ step }}</button>
-                  }
-                </div>
-                <span class="cs-pool__state" [class.is-empty]="p.current === 0">{{ p.stage }}</span>
-              </div>
-            }
-          </div>
-          <div class="cs-roll-bar">
-            <button type="button" class="cs-add" [disabled]="!poolsDrained" (click)="refillPools()">⟳ Pleine forme</button>
-          </div>
-          <p class="cs-stats-note">
-            Le maximum se recalcule (race, classe, niveau, équipement) ; seul le creux est
-            enregistré. Le report d’une séance de combat écrit ici ce que la table a laissé.
-          </p>
-        </fieldset>
 
-        <!-- Survie : compteurs tenus à la table, pas des stats calculées. D'où
-             les crans cliquables — on raye un jour de réserve, on n'estime pas
-             un pourcentage. -->
-        <fieldset class="cs-fieldset">
-          <legend>Survie</legend>
-          <div class="cs-survivals">
-            @for (g of survivalGauges; track g.key) {
-              <div class="cs-survival">
-                <svg class="cs-survival__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="g.icon" /></svg>
-                <span class="cs-survival__label">{{ g.label }}</span>
-                <div class="cs-survival__segments" role="group" [attr.aria-label]="g.label">
-                  @for (seg of survivalSegments(g); track seg) {
-                    <button
-                      type="button"
-                      class="cs-survival__seg"
-                      [class.is-filled]="seg <= survivalValue(g)"
-                      [attr.aria-label]="g.label + ' : ' + seg + ' sur ' + g.segments"
-                      (click)="setSurvival(g, seg)"
-                    ></button>
-                  }
-                </div>
-                <span class="cs-survival__state" [class.is-empty]="survivalValue(g) === 0">
-                  {{ survivalStage(g) }} ({{ survivalValue(g) }}/{{ g.segments }})
-                </span>
-              </div>
-            }
-          </div>
-          <div class="cs-roll-bar">
-            <button type="button" class="cs-add" (click)="refillSurvival()">⟳ Repas, gourde pleine et nuit complète</button>
-          </div>
-          <p class="cs-stats-note">Un cran = un jour de réserve. Clique un cran pour fixer le niveau ; recliquer le dernier cran plein le vide.</p>
-        </fieldset>
 
-        <fieldset class="cs-fieldset">
-          <legend>Traits accordés (race / sous-race / background / origine)</legend>
-          @if (grantedTraitDefs.length === 0) {
-            <p class="cs-stats-note">Choisis une race (et sa sous-race) pour révéler ses traits.</p>
-          } @else {
-            <div class="cs-traits">
-              @for (t of grantedTraitDefs; track t.key) {
-                <div class="cs-trait">
-                  <svg class="cs-trait__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="t.icon" /></svg>
-                  <div class="cs-trait__body">
-                    <span class="cs-trait__name">{{ t.name }}</span>
-                    @if (t.description) { <span class="cs-trait__desc">{{ t.description }}</span> }
-                    @if (traitSources(t).length) {
-                      <span class="cs-trait__source">{{ traitSources(t).join(' · ') }}</span>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </fieldset>
-
-        <fieldset class="cs-fieldset">
-          <legend>Domaines de magie ({{ model.domains.length }}/3)</legend>
-
-          <div class="cs-roll-bar">
-            <button type="button" class="cs-add" (click)="rollMagicDomains()">🎲 Tirer les affinités</button>
-            @if (magicRoll(); as roll) {
-              <span class="cs-magic-roll" [class.is-sealed]="roll.count === 0">
-                {{ roll.label }}@if (roll.domains.length) { — {{ rolledDomainNames }} }
-              </span>
-            }
-          </div>
-          <p class="cs-stats-note">Éveil tiré selon le lore ({{ affinityOdds }}), puis domaines tirés selon les affinités du peuple — table : {{ affinitySourceLabel }}. Le tirage remplace la sélection en cours.</p>
-
-          <div class="cs-domains">
-            @for (d of domains; track d.key) {
-              <button
-                type="button"
-                class="cs-domain"
-                [class.is-selected]="isDomainSelected(d.key)"
-                [disabled]="!isDomainSelected(d.key) && model.domains.length >= 3"
-                (click)="toggleDomain(d.key)"
-              >
-                @if (domainIcon(d.key); as icon) {
-                  <img class="cs-domain__icon" [src]="icon" alt="" aria-hidden="true" loading="lazy" />
-                } @else {
-                  <span class="cs-domain__sigil" aria-hidden="true">{{ d.sigil }}</span>
-                }
-                <span>{{ d.name }}</span>
-              </button>
-            }
-          </div>
-
-          <!-- Magie non polarisée : deux usages de la mana brute, hors des douze
-               fréquences divines. Rien à cocher — c'est le vécu qui ouvre. -->
-          <span class="cs-nonpolar__label">Magie non polarisée</span>
-          <div class="cs-domains cs-domains--nonpolar">
-            @for (m of nonPolarMagics; track m.key) {
-              <div class="cs-domain cs-domain--nonpolar"
-                   [class.is-open]="m.open"
-                   [title]="m.open ? 'Ouverte : ' + m.via : 'Fermée — ' + m.via">
-                @if (domainIcon(m.key); as icon) {
-                  <img class="cs-domain__icon" [src]="icon" alt="" aria-hidden="true" loading="lazy" />
-                } @else {
-                  <span class="cs-domain__sigil" aria-hidden="true">{{ m.sigil }}</span>
-                }
-                <span>{{ m.name }}</span>
-                <span class="cs-nonpolar__via">{{ m.open ? m.via : '🔒 ' + m.via }}</span>
-              </div>
-            }
-          </div>
-          <p class="cs-stats-note">
-            Ni dieu ni affinité : elles ne se tirent pas, ne se choisissent pas et ne comptent pas
-            dans les trois domaines. Un vécu les ouvre — le trait d'un background, une enfance dans
-            l'Archipel — ou un slot de feat. Leurs sorts rejoignent alors le pool ci-dessous.
-          </p>
-        </fieldset>
-
-        <fieldset class="cs-fieldset">
-          <legend>Origine &amp; foi</legend>
-          <p class="cs-stats-note">
-            Deux axes de création distincts de la race et du background : l'origine ancre le
-            personnage dans une région, la religion dans un domaine. Elles donnent gratuitement ce
-            qui coûterait sinon un trait, un feat ou une compétence.
-          </p>
-
-          @if (selectedOrigin; as o) {
-            <div class="cs-axis">
-              <div class="cs-axis__head">
-                <span class="cs-axis__name">{{ o.name }}</span>
-                <span class="cs-axis__tag">{{ o.climate }}</span>
-              </div>
-              <p class="cs-axis__desc">{{ o.description }}</p>
-              <ul class="cs-axis__grants">
-                <li><span class="cs-axis__label">Acclimatation</span> {{ o.acclimatation }}</li>
-                <li><span class="cs-axis__label">Savoir régional</span> {{ o.language }}</li>
-                @if (o.factions.length) {
-                  <li>
-                    <span class="cs-axis__label">Réputation</span>
-                    {{ o.factions.join(', ') }}@if (o.factionNote) { — {{ o.factionNote }} }
-                  </li>
-                }
-                @for (t of originTraitDefs; track t.key) {
-                  <li><span class="cs-axis__label">Trait accordé</span> {{ t.name }} — {{ t.description }}</li>
-                }
-                @if (o.nonPolarBranches?.length) {
-                  <li>
-                    <span class="cs-axis__label">Branches ouvertes</span>
-                    {{ o.nonPolarNote || 'Branches non polarisées accessibles sans feat.' }}
-                  </li>
-                }
-              </ul>
-            </div>
-          } @else {
-            <p class="cs-stats-note">Aucune origine choisie — le personnage n'a de région nulle part.</p>
-          }
-
-          @if (selectedReligion; as r) {
-            <div class="cs-axis">
-              <div class="cs-axis__head">
-                <span class="cs-axis__name">{{ r.name }}</span>
-                <span class="cs-axis__tag">{{ standingDomainName(r.domain) }}@if (r.clergy) { — {{ r.clergy }} }</span>
-              </div>
-              <p class="cs-axis__desc">{{ r.description }}</p>
-              <ul class="cs-axis__grants">
-                @if (r.ritual) {
-                  <li><span class="cs-axis__label">Rite de préparation</span> {{ r.ritual }}</li>
-                }
-                @if (r.prayer; as pr) {
-                  <li>
-                    <span class="cs-axis__label">Rite de prière</span>
-                    <b>{{ pr.name }}</b> — {{ pr.effect }}
-                    @if (pr.duration) { <em>Durée : {{ pr.duration }}.</em> }
-                    @if (pr.place) { <em>{{ pr.place }}, une fois par repos complet, sans jet ni coût.</em> }
-                  </li>
-                }
-                @if (r.confession; as cf) {
-                  <li>
-                    <span class="cs-axis__label">Confession</span>
-                    <b>{{ cf.name }}</b> — {{ cf.effect }}
-                    @if (cf.price) { <em>{{ cf.price }}</em> }
-                  </li>
-                }
-                @if (r.note) { <li><span class="cs-axis__label">Réserve</span> {{ r.note }}</li> }
-              </ul>
-            </div>
-          }
-
-          @if (standings.length) {
-            <span class="cs-axis__subhead">Marqueur social — comment les régions le lisent</span>
-            <ul class="cs-standings">
-              @for (st of standings; track st.domain) {
-                <li class="cs-standing">
-                  <span class="cs-standing__domain">{{ standingDomainName(st.domain) }}</span>
-                  <span class="cs-standing__good">{{ st.favourable }}</span>
-                  <span class="cs-standing__bad">{{ st.suspicious }}</span>
-                  @if (st.note) { <span class="cs-standing__note">{{ st.note }}</span> }
-                </li>
-              }
-            </ul>
-          }
-        </fieldset>
-
-        <fieldset class="cs-fieldset">
-          <legend>Traits &amp; feats</legend>
-
-          <div class="cs-points" [class.is-empty]="creationTraitsLeft === 0">
-            <span>Trait{{ creationTraitSlots > 1 ? 's' : '' }} de création</span>
-            <strong>{{ creationTraitKeys.length }} / {{ creationTraitSlots }}</strong>
-          </div>
-          <p class="cs-stats-note">
-            Choisi à la création, en plus des traits de race et de background. Tout le reste du
-            catalogue s'achète ensuite sur un slot de feat — un slot par palier (niveaux 5, 10, 15
-            et 20), en concurrence avec le point d'attribut.
-          </p>
-
-          @for (group of traitGroups; track group.key) {
-            <div class="cs-trait-group">
-              <span class="cs-trait-group__label">{{ group.label }}</span>
-              <div class="cs-trait-chips">
-                @for (t of group.traits; track t.key) {
-                  <button
-                    type="button"
-                    class="cs-trait-chip"
-                    [class.is-selected]="isCreationTrait(t.key)"
-                    [class.is-blocked]="!!traitBlockedReason(t)"
-                    [disabled]="!isCreationTrait(t.key) && (creationTraitsLeft === 0 || traitUnavailable(t))"
-                    [title]="t.description + ' — ' + t.acquisition.condition + (traitBlockedReason(t) ? ' [' + traitBlockedReason(t) + ']' : '')"
-                    (click)="toggleCreationTrait(t)"
-                  >
-                    {{ t.name }}
-                  </button>
-                }
-              </div>
-            </div>
-          }
-
-          <div class="cs-points" [class.is-empty]="featSlotsPending === 0">
-            <span>Slots de feat en attente</span>
-            <strong>{{ featSlotsPending }}</strong>
-          </div>
-
-          <div class="cs-feat-slots">
-            @for (slot of featSlots; track slot.level) {
-              <div class="cs-feat-slot" [class.is-locked]="!slot.open">
-                <div class="cs-feat-slot__head">
-                  <span class="cs-feat-slot__lvl">Niveau {{ slot.level }}</span>
-                  @if (!slot.open) {
-                    <span class="cs-feat-slot__lock">Verrouillé jusqu'au niveau {{ slot.level }}</span>
-                  } @else if (featPick(slot.level)) {
-                    <button
-                      type="button"
-                      class="cs-feat-slot__clear"
-                      title="Remettre ce palier en attente"
-                      (click)="setFeatPick(slot.level, '')"
-                    >✕</button>
-                  }
+                <div class="cs-row">
+                  <label class="cs-field">
+                    <span>Origine</span>
+                    <select name="origin" [(ngModel)]="model.identity.origin" (ngModelChange)="onMagicAccessChange()">
+                      <option value="">— Choisir —</option>
+                      @for (o of origins; track o.key) { <option [value]="o.key">{{ o.name }}</option> }
+                    </select>
+                  </label>
+                  <label class="cs-field">
+                    <span>Religion</span>
+                    <select name="religion" [(ngModel)]="model.identity.religion">
+                      <option value="">— Aucune —</option>
+                      @for (r of religions; track r.key) { <option [value]="r.key">{{ r.name }}</option> }
+                    </select>
+                  </label>
                 </div>
 
-                @if (slot.open) {
-                  <div class="cs-seg cs-seg--feat" role="group" [attr.aria-label]="'Choix du palier ' + slot.level">
-                    <button type="button" [class.is-active]="featPick(slot.level) === 'attribute'" (click)="setFeatPick(slot.level, 'attribute')">Point d'attribut</button>
-                    <button type="button" [class.is-active]="featPick(slot.level) === 'trait'" (click)="setFeatPick(slot.level, 'trait')">Trait</button>
-                    <button type="button" [class.is-active]="featPick(slot.level) === 'domain'" (click)="setFeatPick(slot.level, 'domain')">Feat domanial</button>
+                <div class="cs-row">
+                  <label class="cs-field">
+                    <span>Classe</span>
+                    <select name="class" [(ngModel)]="model.identity.class" (ngModelChange)="onClassChange()">
+                      <option value="">— Choisir —</option>
+                      @for (c of classes(); track c.key) { <option [value]="c.name">{{ c.name }}</option> }
+                    </select>
+                  </label>
+                  <label class="cs-field cs-field--narrow">
+                    <span>Niveau</span>
+                    <input type="number" name="level" min="1" [max]="maxLevel" [(ngModel)]="model.level" (ngModelChange)="clampLevel()" />
+                  </label>
+                  <label class="cs-field cs-field--narrow">
+                    <span>Âge</span>
+                    <input type="text" name="age" [(ngModel)]="model.identity.age" placeholder="—" />
+                  </label>
+                </div>
+
+                <!-- Expérience : l'XP pilote le niveau, le champ Niveau ci-dessus
+                     n'est qu'un raccourci qui recale l'XP sur le seuil du palier. -->
+                <div class="cs-xp">
+                  <div class="cs-xp__head">
+                    <label class="cs-field cs-field--narrow">
+                      <span>Expérience</span>
+                      <input type="number" name="xp" min="0" [max]="xpMax" step="10"
+                             [(ngModel)]="model.xp" (ngModelChange)="onXpChange()" />
+                    </label>
+                    <div class="cs-xp__gains">
+                      <span>Gain rapide</span>
+                      <div>
+                        @for (gain of [50, 100, 250, 1000]; track gain) {
+                          <button type="button" class="cs-xp__chip" (click)="addXp(gain)">+{{ gain }}</button>
+                        }
+                        <button type="button" class="cs-xp__chip cs-xp__chip--minus" (click)="addXp(-50)">−50</button>
+                      </div>
+                    </div>
                   </div>
 
-                  @switch (featPick(slot.level)) {
-                    @case ('attribute') {
-                      <select
-                        class="cs-feat-select"
-                        [name]="'feat-attr-' + slot.level"
-                        [ngModel]="featChoiceAt(slot.level)?.attribute ?? ''"
-                        (ngModelChange)="setFeatAttribute(slot.level, $event)"
-                      >
-                        <option value="">— Attribut à renforcer —</option>
-                        @for (a of attributes; track a.key) {
-                          <option [value]="a.key">{{ a.label }} +1</option>
-                        }
-                      </select>
-                    }
+                  @let p = xp;
+                  <div class="cs-xp__track" [class.is-max]="p.level >= maxLevel">
+                    <div class="cs-xp__fill" [style.width.%]="p.pct"></div>
+                  </div>
+                  @if (p.level >= maxLevel) {
+                    <p class="cs-xp__legend">Niveau maximal atteint ({{ maxLevel }}) — {{ model.xp }} XP</p>
+                  } @else {
+                    <p class="cs-xp__legend">
+                      Niveau {{ p.level }} → {{ p.level + 1 }} :
+                      <b>{{ p.into }} / {{ p.needed }}</b> XP
+                      <span class="cs-xp__left">encore {{ p.remaining }} XP (palier à {{ p.nextAt }})</span>
+                    </p>
+                  }
+                </div>
+              </fieldset>
 
-                    @case ('trait') {
-                      <select
-                        class="cs-feat-select"
-                        [name]="'feat-trait-' + slot.level"
-                        [ngModel]="featChoiceAt(slot.level)?.trait ?? ''"
-                        (ngModelChange)="setFeatTrait(slot.level, $event)"
-                      >
-                        <option value="">— Trait du catalogue —</option>
-                        @for (g of traitGroups; track g.key) {
-                          <optgroup [label]="g.label">
-                            @for (t of g.traits; track t.key) {
-                              <option [value]="t.key" [disabled]="traitUnavailable(t, slot.level)">
-                                {{ t.name }}{{ traitBlockedReason(t, slot.level) ? ' — ' + traitBlockedReason(t, slot.level) : '' }}
-                              </option>
-                            }
-                          </optgroup>
-                        }
-                      </select>
-                      @if (traitDefAt(slot.level); as t) {
-                        <p class="cs-feat-desc">{{ t.description }}</p>
-                        <p class="cs-feat-note">{{ t.acquisition.condition }}</p>
+              <fieldset class="cs-fieldset">
+                <legend>Origine</legend>
+                <p class="cs-stats-note">
+                  Axe de création distinct de la race et du background : l'origine ancre le
+                  personnage dans une région. Elle donne gratuitement ce qui coûterait
+                  sinon un trait, un feat ou une compétence.
+                </p>
+                @if (selectedOrigin; as o) {
+                  <div class="cs-axis">
+                    <div class="cs-axis__head">
+                      <span class="cs-axis__name">{{ o.name }}</span>
+                      <span class="cs-axis__tag">{{ o.climate }}</span>
+                    </div>
+                    <p class="cs-axis__desc">{{ o.description }}</p>
+                    <ul class="cs-axis__grants">
+                      <li><span class="cs-axis__label">Acclimatation</span> {{ o.acclimatation }}</li>
+                      <li><span class="cs-axis__label">Savoir régional</span> {{ o.language }}</li>
+                      @if (o.factions.length) {
+                        <li>
+                          <span class="cs-axis__label">Réputation</span>
+                          {{ o.factions.join(', ') }}@if (o.factionNote) { — {{ o.factionNote }} }
+                        </li>
                       }
-                    }
-
-                    @case ('domain') {
-                      @if (featOptions(slot.level).length) {
-                        <select
-                          class="cs-feat-select"
-                          [name]="'feat-domain-' + slot.level"
-                          [ngModel]="featChoiceAt(slot.level)?.feat ?? ''"
-                          (ngModelChange)="setFeatDomainFeat(slot.level, $event)"
-                        >
-                          <option value="">— Feat domanial —</option>
-                          @for (g of featOptions(slot.level); track g.domain) {
-                            <optgroup [label]="g.label">
-                              @for (f of g.feats; track f.key) {
-                                <option [value]="f.key" [disabled]="!!featBlockedReason(f, slot.level)">
-                                  {{ f.name }} (palier {{ f.level }}){{ featBlockedReason(f, slot.level) ? ' — ' + featBlockedReason(f, slot.level) : '' }}
-                                </option>
-                              }
-                            </optgroup>
-                          }
-                        </select>
-                        @if (featDefAt(slot.level); as f) {
-                          <p class="cs-feat-desc">{{ f.description }}</p>
-                          <p class="cs-feat-req"><span>Prérequis</span> {{ f.prerequisite }}</p>
-                          @if (f.freeWith) {
-                            <p class="cs-feat-req"><span>Gratuit avec</span> {{ f.freeWith }}</p>
-                          }
-                          <ul class="cs-feat-effects">
-                            @for (e of f.effects; track e.label) {
-                              <li [class]="'cs-feat-effect is-' + (e.tone ?? 'neutral')">
-                                <span>{{ e.label }}</span><em>{{ e.value }}</em>
-                              </li>
-                            }
-                          </ul>
-                        }
-                      } @else {
-                        <p class="cs-stats-note">Choisis un domaine de magie (ou un background qui ouvre une branche non polarisée) pour accéder aux feats domaniaux.</p>
+                      @for (t of originTraitDefs; track t.key) {
+                        <li><span class="cs-axis__label">Trait accordé</span> {{ t.name }} — {{ t.description }}</li>
                       }
-                    }
-                  }
-                }
-              </div>
-            }
-          </div>
-        </fieldset>
-
-        <fieldset class="cs-fieldset">
-          <legend>Attributs</legend>
-
-          <div class="cs-stat-mode">
-            <div class="cs-seg" role="group" aria-label="Mode de génération des attributs">
-              <button type="button" [class.is-active]="attributeMode === 'pointbuy'" (click)="setAttributeMode('pointbuy')">Achat de points</button>
-              <button type="button" [class.is-active]="attributeMode === 'roll'" (click)="setAttributeMode('roll')">Lancer de dés</button>
-            </div>
-          </div>
-
-          @if (attributeMode === 'pointbuy') {
-            <div class="cs-points" [class.is-empty]="pointsRemaining === 0" [class.is-over]="pointsRemaining < 0">
-              <span>Points à répartir</span>
-              <strong>{{ pointsRemaining }} / {{ attributePoints }}</strong>
-            </div>
-            <p class="cs-stats-note">Base {{ baseAttribute }} par attribut, {{ attributePoints }} points à dépenser jusqu'à {{ maxAttribute }} (14 et 15 coûtent plus cher). Descendre jusqu'à {{ minAttribute }} rend des points. Le total inclut les bonus de race/sous-race/background.</p>
-          } @else {
-            <div class="cs-roll-bar">
-              <button type="button" class="cs-add" (click)="rollAttributes()">🎲 Lancer 4d6 (×6)</button>
-              @if (attributeRolls.length) {
-                <span class="cs-roll-pool" aria-label="Résultats des dés">
-                  @for (v of attributeRolls; track $index) {
-                    <span class="cs-roll-chip" [class.is-used]="isRollUsed($index)">{{ v }}</span>
-                  }
-                </span>
-              }
-            </div>
-            <p class="cs-stats-note">4d6, on retire le dé le plus bas, six fois. Attribuez chaque résultat à un attribut ({{ rollsAssigned }}/6 affectés). Le total inclut les bonus de race/sous-race/background.</p>
-          }
-
-          <div class="cs-attrs-head" aria-hidden="true">
-            <span>Attribut</span><span>Base</span><span>Total</span><span>Mod</span>
-          </div>
-          <div class="cs-attrs">
-            @for (a of attributes; track a.key) {
-              <div class="cs-attr">
-                <span class="cs-attr__label">
-                  {{ a.label }}
-                  @if (attrBonus(a.key)) { <em class="cs-attr__bonus">{{ formatBonus(attrBonus(a.key)) }}</em> }
-                </span>
-                @if (attributeMode === 'pointbuy') {
-                  <div class="cs-stepper">
-                    <button type="button" (click)="decAttr(a.key)" [disabled]="!canDecAttr(a.key)" aria-label="Diminuer">−</button>
-                    <span class="cs-stepper__val">{{ model.attributes[a.key] }}</span>
-                    <button type="button" (click)="incAttr(a.key)" [disabled]="!canIncAttr(a.key)" aria-label="Augmenter">+</button>
+                      @if (o.nonPolarBranches?.length) {
+                        <li>
+                          <span class="cs-axis__label">Branches ouvertes</span>
+                          {{ o.nonPolarNote || 'Branches non polarisées accessibles sans feat.' }}
+                        </li>
+                      }
+                    </ul>
                   </div>
                 } @else {
-                  <select
-                    class="cs-roll-select"
-                    [name]="'roll-' + a.key"
-                    [ngModel]="assignmentOf(a.key)"
-                    (ngModelChange)="assignRoll(a.key, $event)"
-                    [disabled]="!attributeRolls.length"
-                  >
-                    <option [ngValue]="-1">—</option>
-                    @for (opt of rollOptionsFor(a.key); track opt.idx) {
-                      <option [ngValue]="opt.idx">{{ opt.value }}</option>
-                    }
-                  </select>
+                  <p class="cs-stats-note">Aucune origine choisie — le personnage n'a de région nulle part.</p>
                 }
-                <em class="cs-attr__total">{{ finalAttributes[a.key] }}</em>
-                <em class="cs-attr__mod">{{ formatBonus(modifier(a.key)) }}</em>
-              </div>
-            }
-          </div>
+              </fieldset>
 
-          <label class="cs-field cs-field--narrow">
-            <span>Bonus de maîtrise</span>
-            <input type="number" name="prof" [(ngModel)]="model.proficiencyBonus" />
-          </label>
-        </fieldset>
+              <fieldset class="cs-fieldset">
+                <legend>Foi</legend>
+                <p class="cs-stats-note">
+                  L'autre axe : la religion ancre le personnage dans un domaine. Le
+                  marqueur social ci-dessous découle de ce domaine et de ceux qu'il
+                  pratique — c'est ainsi que les régions le lisent.
+                </p>
+                @if (selectedReligion; as r) {
+                  <div class="cs-axis">
+                    <div class="cs-axis__head">
+                      <span class="cs-axis__name">{{ r.name }}</span>
+                      <span class="cs-axis__tag">{{ standingDomainName(r.domain) }}@if (r.clergy) { — {{ r.clergy }} }</span>
+                    </div>
+                    <p class="cs-axis__desc">{{ r.description }}</p>
+                    <ul class="cs-axis__grants">
+                      @if (r.ritual) {
+                        <li><span class="cs-axis__label">Rite de préparation</span> {{ r.ritual }}</li>
+                      }
+                      @if (r.prayer; as pr) {
+                        <li>
+                          <span class="cs-axis__label">Rite de prière</span>
+                          <b>{{ pr.name }}</b> — {{ pr.effect }}
+                          @if (pr.duration) { <em>Durée : {{ pr.duration }}.</em> }
+                          @if (pr.place) { <em>{{ pr.place }}, une fois par repos complet, sans jet ni coût.</em> }
+                        </li>
+                      }
+                      @if (r.confession; as cf) {
+                        <li>
+                          <span class="cs-axis__label">Confession</span>
+                          <b>{{ cf.name }}</b> — {{ cf.effect }}
+                          @if (cf.price) { <em>{{ cf.price }}</em> }
+                        </li>
+                      }
+                      @if (r.note) { <li><span class="cs-axis__label">Réserve</span> {{ r.note }}</li> }
+                    </ul>
+                  </div>
+                } @else {
+                  <p class="cs-stats-note">Aucune foi choisie — le personnage ne relève d'aucun clergé.</p>
+                }
 
-        <fieldset class="cs-fieldset">
-          <legend>Compétences</legend>
-
-          @if (backgroundSkills.size > 0) {
-            <p class="cs-stats-note">Accordées par le background :
-              @for (s of skills; track s.key) {
-                @if (backgroundSkills.get(s.key)) { <span class="cs-skill-chip">{{ s.label }} +{{ backgroundSkills.get(s.key) }}</span> }
-              }
-            </p>
-          }
-
-          @if (classSkillChoices > 0) {
-            <div class="cs-points" [class.is-empty]="chosenSkillCount >= classSkillChoices">
-              <span>Compétences de classe</span>
-              <strong>{{ chosenSkillCount }} / {{ classSkillChoices }}</strong>
-            </div>
-            <div class="cs-skills">
-              @for (key of classSkillOptions; track key) {
-                <label class="cs-skill">
-                  <input
-                    type="checkbox"
-                    [name]="'skill-' + key"
-                    [checked]="isSkillChosen(key)"
-                    [disabled]="!isSkillChosen(key) && chosenSkillCount >= classSkillChoices"
-                    (change)="toggleSkill(key)"
-                  />
-                  <span class="cs-skill__name">{{ skillLabel(key) }}</span>
-                </label>
-              }
-            </div>
-          } @else {
-            <p class="cs-stats-note">Choisis une classe pour sélectionner des compétences.</p>
-          }
-        </fieldset>
-
-        <fieldset class="cs-fieldset">
-          <legend>Affinités aux dégâts</legend>
-          <p class="cs-stats-note">
-            Dérivées de l'équipement porté et des feats domaniaux pris — rien à saisir. Le
-            simulateur applique exactement ces lignes.
-          </p>
-          <div class="cs-aff-grid">
-            @for (col of affinityColumns; track col.key) {
-              <div [class]="'cs-aff-col is-' + col.key">
-                <span class="cs-aff-col__head">
-                  {{ col.label }}
-                  <em>{{ col.note }}</em>
-                </span>
-                @if (col.types.length) {
-                  <ul class="cs-aff-col__list">
-                    @for (type of col.types; track type.key) {
-                      <li class="cs-aff-type">
-                        @if (type.sigil) {
-                          <span class="cs-aff-type__sigil" aria-hidden="true">{{ type.sigil }}</span>
-                        }
-                        <span class="cs-aff-type__label">{{ type.label }}</span>
+                @if (standings.length) {
+                  <span class="cs-axis__subhead">Marqueur social — comment les régions le lisent</span>
+                  <ul class="cs-standings">
+                    @for (st of standings; track st.domain) {
+                      <li class="cs-standing">
+                        <span class="cs-standing__domain">{{ standingDomainName(st.domain) }}</span>
+                        <span class="cs-standing__good">{{ st.favourable }}</span>
+                        <span class="cs-standing__bad">{{ st.suspicious }}</span>
+                        @if (st.note) { <span class="cs-standing__note">{{ st.note }}</span> }
                       </li>
                     }
                   </ul>
-                } @else {
-                  <span class="cs-aff-col__empty">—</span>
                 }
-              </div>
-            }
-          </div>
-        </fieldset>
+              </fieldset>
 
-        <fieldset class="cs-fieldset">
-          <legend>Langues</legend>
+              <fieldset class="cs-fieldset">
+                <legend>Langues</legend>
 
-          <div class="cs-points" [class.is-empty]="languageSlotsLeft === 0">
-            <span>Emplacements de langue</span>
-            <strong>{{ learnedLanguageKeys.length }} / {{ languageSlots }}</strong>
-          </div>
-          <p class="cs-stats-note">
-            Le commun et la langue de l'origine sont acquis d'office. Les autres demandent un
-            emplacement — le trait Linguiste en ouvre trois.
-          </p>
+                <div class="cs-points" [class.is-empty]="languageSlotsLeft === 0">
+                  <span>Emplacements de langue</span>
+                  <strong>{{ learnedLanguageKeys.length }} / {{ languageSlots }}</strong>
+                </div>
+                <p class="cs-stats-note">
+                  Le commun et la langue de l'origine sont acquis d'office. Les autres demandent un
+                  emplacement — le trait Linguiste en ouvre trois.
+                </p>
 
-          <div class="cs-langs">
-            @for (key of grantedLanguageKeys; track key) {
-              <span class="cs-lang cs-lang--granted" [title]="languageHint(key)">
-                {{ languageName(key) }}<em>acquise</em>
-              </span>
-            }
-            @for (key of learnedLanguageKeys; track key) {
-              <span class="cs-lang" [title]="languageHint(key)">
-                {{ languageName(key) }}
-                <button type="button" class="cs-mini-del" title="Oublier cette langue"
-                        (click)="removeLanguage(key)">✕</button>
-              </span>
-            }
-          </div>
+                <div class="cs-langs">
+                  @for (key of grantedLanguageKeys; track key) {
+                    <span class="cs-lang cs-lang--granted" [title]="languageHint(key)">
+                      {{ languageName(key) }}<em>acquise</em>
+                    </span>
+                  }
+                  @for (key of learnedLanguageKeys; track key) {
+                    <span class="cs-lang" [title]="languageHint(key)">
+                      {{ languageName(key) }}
+                      <button type="button" class="cs-mini-del" title="Oublier cette langue"
+                              (click)="removeLanguage(key)">✕</button>
+                    </span>
+                  }
+                </div>
 
-          @if (languageSlotsLeft > 0) {
-            <label class="cs-field">
-              <span>Apprendre une langue</span>
-              <select name="add-language" [ngModel]="''" (ngModelChange)="addLanguage($event)">
-                <option value="">— Choisir —</option>
-                @for (l of languageOptions; track l.key) {
-                  <option [value]="l.key">{{ l.name }}</option>
+                @if (languageSlotsLeft > 0) {
+                  <label class="cs-field">
+                    <span>Apprendre une langue</span>
+                    <select name="add-language" [ngModel]="''" (ngModelChange)="addLanguage($event)">
+                      <option value="">— Choisir —</option>
+                      @for (l of languageOptions; track l.key) {
+                        <option [value]="l.key">{{ l.name }}</option>
+                      }
+                    </select>
+                  </label>
+                } @else if (languageSlots === 0) {
+                  <p class="cs-stats-note">Aucun emplacement : prends le trait Linguiste pour en ouvrir trois.</p>
                 }
-              </select>
-            </label>
-          } @else if (languageSlots === 0) {
-            <p class="cs-stats-note">Aucun emplacement : prends le trait Linguiste pour en ouvrir trois.</p>
+              </fieldset>
+
+              <fieldset class="cs-fieldset">
+                <legend>Notes</legend>
+                <textarea name="notes" rows="5" [(ngModel)]="model.notes" placeholder="Histoire, traits, alliés…"></textarea>
+              </fieldset>
+            </div>
           }
-        </fieldset>
+        </section>
 
-        <fieldset class="cs-fieldset">
-          <legend>Maîtrises — armes & armures</legend>
-          <p class="cs-stats-note">
-            La classe donne les maîtrises de départ ; ajoute les autres à la main (entraînement en
-            partie, don d'un maître d'armes…). Seule une arme maîtrisée profite du bonus de maîtrise
-            au toucher.
-          </p>
-
-          <datalist id="weaponCategoryList">
-            @for (c of weaponCategories; track c.key) { <option [value]="c.name"></option> }
-          </datalist>
-          <datalist id="armorCategoryList">
-            @for (c of armorCategories; track c.key) { <option [value]="c.name"></option> }
-          </datalist>
-
-          <div class="cs-mastery">
-            <span class="cs-mastery__label">Armes maîtrisées</span>
-            <div class="cs-mastery__chips">
-              @for (p of masteredWeapons; track p.key) {
-                <span class="cs-mastery__chip" [class.is-manual]="p.source === 'manual'"
-                      [title]="weaponProficiencyHint(p.key)">
-                  {{ p.label }}
-                  @if (p.source === 'manual') {
-                    <button type="button" class="cs-mastery__del" title="Retirer cette maîtrise"
-                            (click)="removeWeaponProficiency(p.key)">✕</button>
+        <!-- ══ RACE ══════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('race')">
+          @let badgeRace = sectionBadge('race');
+          <button type="button" class="cs-sec__head" (click)="openSection('race')"
+                  [attr.aria-expanded]="isSection('race')" aria-controls="cs-sec-race">
+            <span class="cs-sec__title">Race</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeRace.warn">{{ badgeRace.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('race')) {
+            <div class="cs-sec__body" id="cs-sec-race">
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Race</legend>
+                <p class="cs-stats-note">
+                  La génétique : elle décide des bonus d’attribut et de quelques traits
+                  innés. La sous-race affine, elle ne remplace pas.
+                </p>
+                <!-- Cinq races seulement : des cartes valent mieux qu’une liste
+                     déroulante. Chacune annonce ce à quoi elle est bonne, ce qui rend le
+                     choix lisible avant de le faire. -->
+                <div class="cs-races">
+                  @for (r of races(); track r.key) {
+                    <button type="button" class="cs-race"
+                            [class.is-selected]="model.identity.race === r.name"
+                            [attr.aria-pressed]="model.identity.race === r.name"
+                            (click)="model.identity.race = r.name; onRaceChange()">
+                      <span class="cs-race__name">{{ r.name }}</span>
+                      <span class="cs-race__profile">{{ raceProfile(r) }}</span>
+                    </button>
                   }
-                </span>
-              } @empty {
-                <span class="cs-mastery__none">Aucune — le combat à mains nues, ou rien</span>
-              }
-            </div>
-            <div class="cs-mastery__add">
-              <input type="text" name="weaponProficiencyDraft" list="weaponCategoryList"
-                     [(ngModel)]="weaponProficiencyDraft"
-                     (keydown.enter)="$event.preventDefault(); addWeaponProficiency()"
-                     placeholder="Catégorie d'arme (liste ou libre)" />
-              <button type="button" class="cs-add" (click)="addWeaponProficiency()">＋ Ajouter</button>
-            </div>
-          </div>
+                </div>
 
-          <div class="cs-mastery">
-            <span class="cs-mastery__label">Armures maîtrisées</span>
-            <div class="cs-mastery__chips">
-              @for (p of masteredArmors; track p.key) {
-                <span class="cs-mastery__chip" [class.is-manual]="p.source === 'manual'"
-                      [title]="armorProficiencyHint(p.key)">
-                  {{ p.label }}
-                  @if (p.source === 'manual') {
-                    <button type="button" class="cs-mastery__del" title="Retirer cette maîtrise"
-                            (click)="removeArmorProficiency(p.key)">✕</button>
-                  }
-                </span>
-              } @empty {
-                <span class="cs-mastery__none">Aucune — il se bat sans rien sur la peau</span>
-              }
-            </div>
-            <div class="cs-mastery__add">
-              <input type="text" name="armorProficiencyDraft" list="armorCategoryList"
-                     [(ngModel)]="armorProficiencyDraft"
-                     (keydown.enter)="$event.preventDefault(); addArmorProficiency()"
-                     placeholder="Catégorie d'armure (liste ou libre)" />
-              <button type="button" class="cs-add" (click)="addArmorProficiency()">＋ Ajouter</button>
-            </div>
-          </div>
-        </fieldset>
-
-        @if (hasEarthDomain) {
-          <fieldset class="cs-fieldset">
-            <legend>Matériaux de Terre — étude</legend>
-            <p class="cs-stats-note">
-              La Terre n'a pas un sort par pierre : elle a un sort par famille, et sa
-              saveur vient de ce que vous façonnez. <b>Étudier</b> permet de conjurer
-              une matière n'importe où ; <b>connaître</b> (l'avoir vue ET touchée)
-              permet seulement de l'improviser, cher et à moitié. Ce que le sol offre
-              se façonne sans rien avoir appris.
-            </p>
-            <p class="cs-spell-cap">
-              Étudiés :
-              <b [class.is-full]="studySlotsUsed >= studySlotsTotal">{{ studySlotsUsed }} / {{ studySlotsTotal }}</b>
-              <span class="cs-spell-cap__hint">une place par palier de maîtrise (niv. 1, 5, 9, 13, 17)</span>
-            </p>
-
-            @for (famille of earthFamilies; track famille.key) {
-              <div class="cs-earth__family">
-                <span class="cs-earth__title" [title]="famille.description">{{ famille.name }}</span>
-                <ul class="cs-earth__list">
-                  @for (m of materialsIn(famille.key); track m.key) {
-                    <li class="cs-earth__item"
-                        [class.is-studied]="studiedMaterials.includes(m.key)"
-                        [class.is-known]="knownMaterials.includes(m.key)">
-                      <span class="cs-earth__name" [title]="materialHint(m)">
-                        {{ m.name }}
-                        @if (studiedMaterials.includes(m.key)) {
-                          <button type="button" class="cs-earth__equip"
-                                  [class.is-on]="equippedMaterial === m.key"
-                                  [title]="equippedMaterial === m.key
-                                    ? 'Matériau porté en tête — cliquez pour le retirer'
-                                    : 'Porter ce matériau en tête (se change au repos)'"
-                                  (click)="setEquipped(m.key)">✦</button>
-                        }
-                      </span>
-                      <span class="cs-earth__where" [title]="materialRegions(m)">{{ materialRegions(m) }}</span>
-                      <span class="cs-earth__acts">
-                        <button type="button" class="cs-earth__btn"
-                                [class.is-on]="studiedMaterials.includes(m.key)"
-                                [disabled]="!!studyBlocker(m.key)"
-                                [title]="studyBlocker(m.key) ?? 'Étudier — une place par palier de maîtrise'"
-                                (click)="toggleStudied(m.key)">étudié</button>
-                        <button type="button" class="cs-earth__btn"
-                                [class.is-on]="knownMaterials.includes(m.key)"
-                                title="Vu ET touché, sans étude : permet l'improvisation"
-                                (click)="toggleKnown(m.key)">connu</button>
-                      </span>
-                    </li>
-                  }
-                </ul>
-              </div>
-            }
-          </fieldset>
-        }
-
-        <fieldset class="cs-fieldset">
-          <legend>Sorts — Déblocage & équipement</legend>
-          @if (magicSources.length === 0) {
-            <p class="cs-stats-note">
-              Sélectionne au moins un domaine de magie — ou ouvre une branche non polarisée
-              (background Soldat/Sage, origine de l'Archipel, ou le trait correspondant) — pour
-              proposer des sorts.
-            </p>
-          } @else {
-            <p class="cs-spell-cap cs-inspiration" [class.is-empty]="inspirationLeft <= 0">
-              <span class="cs-inspiration__spark" aria-hidden="true">✦</span>
-              Inspiration : <b>{{ inspirationLeft }}</b> / {{ inspirationTotal }}
-              <span class="cs-spell-cap__hint">
-                @if (inspirationPerLevel > 0) {
-                  {{ inspirationPerLevel }}/niv. (classe) · sert à débloquer (1 pt) et améliorer (1 pt/rang) les sorts
-                } @else {
-                  Choisis une classe pour gagner des points d'inspiration.
-                }
-              </span>
-            </p>
-            <p class="cs-spell-cap">
-              Équipés :
-              <b [class.is-full]="equippedSpells.length >= equippedCap">{{ equippedSpells.length }} / {{ equippedCap }}</b>
-              <span class="cs-spell-cap__hint">plafond = 3 + mod. Intelligence · seuls les sorts équipés sont utilisables en combat</span>
-            </p>
-            <div class="cs-spell-tabs" role="tablist" aria-label="Magies du personnage">
-              @for (tab of spellTabs; track tab.key) {
-                <button type="button"
-                        class="cs-spell-tab"
-                        role="tab"
-                        [class.is-active]="spellTab === tab.key"
-                        [attr.aria-selected]="spellTab === tab.key"
-                        [title]="tab.unlocked + ' débloqué' + (tab.unlocked > 1 ? 's' : '') + ' sur ' + tab.total"
-                        (click)="selectSpellTab(tab.key)">
-                  @if (tab.icon) {
-                    <img class="cs-spell-tab__icon" [src]="tab.icon" alt="" aria-hidden="true" loading="lazy" />
-                  } @else {
-                    <span class="cs-spell-tab__sigil" aria-hidden="true">{{ tab.sigil }}</span>
-                  }
-                  <span class="cs-spell-tab__label">{{ tab.label }}</span>
-                  <span class="cs-spell-tab__count">{{ tab.unlocked }}/{{ tab.total }}</span>
-                </button>
-              }
-            </div>
-
-            <ul class="cs-spellpool">
-              @for (s of shownSpellPool; track s.key) {
-                <li class="cs-poolspell"
-                    [class.is-unlocked]="isSpellUnlocked(s.key)"
-                    [class.is-equipped]="isSpellEquipped(s.key)"
-                    [class.is-locked]="!isSpellUnlocked(s.key) && !canUnlock(s)">
-                  <div class="cs-poolspell__row">
-                    <span class="cs-poolspell__sigil" [title]="domainSpellNames(s)">
-                      @for (k of domainSpellKeys(s); track k) {
-                        @if (domainIcon(k); as icon) {
-                          <img [src]="icon" [alt]="domainName(k)" loading="lazy" />
-                        } @else {
-                          <span aria-hidden="true">{{ domainSigil(k) }}</span>
-                        }
-                      }
-                    </span>
-                    <span class="cs-poolspell__body">
-                      <span class="cs-poolspell__name">{{ s.name }}</span>
-                      <span class="cs-poolspell__meta">
-                        Niv. {{ s.level }} · {{ s.mana }} mana
-                        @if (s.requires?.length) { · <span class="cs-poolspell__req">requiert {{ requiresLabel(s) }}</span> }
-                      </span>
-                    </span>
-                    <span class="cs-poolspell__actions">
-                      @if (isSpellUnlocked(s.key)) {
-                        <button type="button" class="cs-chip" [class.is-on]="isSpellEquipped(s.key)"
-                                [disabled]="!isSpellEquipped(s.key) && equippedSpells.length >= equippedCap"
-                                [title]="isSpellEquipped(s.key) ? 'Déséquiper' : (equippedSpells.length >= equippedCap ? 'Plafond d\'équipés atteint' : 'Équiper (combat)')"
-                                (click)="toggleEquip(s.key)">
-                          {{ isSpellEquipped(s.key) ? '★ Équipé' : '☆ Équiper' }}
-                        </button>
-                        <button type="button" class="cs-chip" [class.is-on]="openWorkshop() === s.key"
-                                [disabled]="!customizableSpell(s.key)"
-                                [title]="customizableSpell(s.key) ? 'Régler ce sort' : 'Ce sort ne se personnalise pas'"
-                                (click)="toggleWorkshop(s.key)">
-                          ⚙ Niv. {{ spellLevel(s.key) }}
-                        </button>
-                        <button type="button" class="cs-mini-del" [disabled]="hasUnlockedDependents(s.key)"
-                                [title]="hasUnlockedDependents(s.key) ? 'Des sorts débloqués en dépendent' : 'Oublier ce sort'"
-                                (click)="forgetSpell(s.key)">✕</button>
-                      } @else if (canUnlock(s)) {
-                        <button type="button" class="cs-chip cs-chip--unlock" (click)="unlockSpell(s)">＋ Débloquer</button>
-                      } @else {
-                        <span class="cs-poolspell__lock" [title]="lockReason(s)">🔒</span>
-                      }
-                    </span>
+                @if (subracesForSelected.length > 0) {
+                  <span class="cs-axis__subhead">Sous-race</span>
+                  <div class="cs-races cs-races--sub">
+                    @for (s of subracesForSelected; track s.key) {
+                      <button type="button" class="cs-race"
+                              [class.is-selected]="model.identity.subrace === s.name"
+                              [attr.aria-pressed]="model.identity.subrace === s.name"
+                              (click)="model.identity.subrace = s.name">
+                        <span class="cs-race__name">{{ s.name }}</span>
+                        <span class="cs-race__profile">{{ subraceProfile(s) }}</span>
+                      </button>
+                    }
                   </div>
+                }
+              </fieldset>
 
-                  @if (openWorkshop() === s.key && customizableSpell(s.key); as cs) {
-                    <div class="cs-workshop">
-                      <div class="cs-xp">
-                        <span class="cs-xp__label">
-                          XP du sort — niveau {{ spellLevel(s.key) }}
-                          @if (spellProgressOf(s.key).nextThreshold; as next) {
-                            <small>{{ spellProgressOf(s.key).xp }} / {{ next }}</small>
-                          } @else { <small>niveau maximum</small> }
-                        </span>
-                        <span class="cs-xp__bar" aria-hidden="true">
-                          <span class="cs-xp__fill" [style.width.%]="spellXpPercent(s.key)"></span>
-                        </span>
-                        <span class="cs-xp__train">
-                          <button type="button" class="cs-rank__btn"
-                                  [disabled]="spellState(s.key).xp <= 0"
-                                  title="Retirer une séance d’entraînement"
-                                  (click)="untrainSpell(s.key)">−</button>
-                          <button type="button" class="cs-chip cs-chip--unlock"
-                                  [title]="'Une séance d’entraînement : +' + trainingXp + ' XP (plein tarif, hors combat)'"
-                                  (click)="trainSpell(s.key)">
-                            ✦ Entraîner +{{ trainingXp }}
-                          </button>
-                          <small>un lancer en combat vaut {{ combatXp }}</small>
-                        </span>
-                      </div>
-                      <spell-workshop
-                        [spell]="cs"
-                        [levelEditable]="false"
-                        [level]="spellLevel(s.key)"
-                        [build]="spellBuild(s.key)"
-                        (buildChange)="setSpellBuild(s.key, $event)" />
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Ce que la race accorde</legend>
+                @if (!selectedRace) {
+                  <p class="cs-stats-note">Choisis une race pour voir ce qu’elle apporte.</p>
+                } @else {
+                  @if (raceFreePoints) {
+                    <!-- Race sans profil imposé : le joueur pose lui-même ses points, un par
+                         attribut. Le compteur passe en alerte tant qu’il en reste. -->
+                    <div class="cs-points" [class.is-empty]="raceFreeLeft === 0" [class.is-over]="raceFreeLeft > 0">
+                      <span>Points de race à répartir</span>
+                      <strong>{{ raceFreePicks.length }} / {{ raceFreePoints }}</strong>
+                    </div>
+                    <p class="cs-stats-note">
+                      Un point par attribut, sur {{ raceFreePoints }} attributs différents.
+                      Clique un attribut déjà pris pour rendre son point.
+                    </p>
+                    <div class="cs-trait-chips">
+                      @for (a of attributes; track a.key) {
+                        <button type="button" class="cs-trait-chip"
+                                [class.is-selected]="isRaceAttrPicked(a.key)"
+                                [disabled]="!isRaceAttrPicked(a.key) && raceFreeLeft === 0"
+                                [attr.aria-pressed]="isRaceAttrPicked(a.key)"
+                                [title]="isRaceAttrPicked(a.key)
+                                  ? 'Rendre ce point'
+                                  : (raceFreeLeft ? 'Poser un point ici' : 'Plus de point à poser')"
+                                (click)="toggleRaceAttrPick(a.key)">
+                          {{ a.label }}
+                        </button>
+                      }
                     </div>
                   }
-                </li>
-              }
-            </ul>
-          }
-        </fieldset>
 
-        <fieldset class="cs-fieldset">
-          <legend>Compétences de classe</legend>
-          @if (classSpells.length === 0) {
-            <p class="cs-stats-note">Choisis une classe pour voir ses sorts/compétences.</p>
-          } @else {
-            <p class="cs-stats-note">Débloquées automatiquement selon le niveau ({{ model.level }}).</p>
-            <div class="cs-classpells">
-              @for (sp of classSpells; track sp.name) {
-                <div class="cs-classpell" [class.is-locked]="!spellUnlocked(sp)">
-                  <div class="cs-classpell__head">
-                    <span class="cs-classpell__lvl">Niv. {{ sp.level }}</span>
-                    <span class="cs-classpell__name">{{ sp.name }}</span>
-                    <span class="cs-classpell__end">{{ sp.endurance }} end.</span>
-                    @if (!spellUnlocked(sp)) { <span class="cs-classpell__lock">🔒</span> }
-                  </div>
-                  <p class="cs-classpell__desc">{{ sp.description }}</p>
-                </div>
-              }
-            </div>
-          }
-        </fieldset>
-
-        <fieldset class="cs-fieldset">
-          <legend>Équipement</legend>
-          <button
-            type="button"
-            class="cs-add"
-            (click)="autoEquipStartingGear()"
-            [disabled]="!canAutoEquip"
-            title="Équipe la tenue, l'arme et le matériel de départ du sous-background choisi"
-          >⚔ Équiper le matériel de départ</button>
-          <div class="cs-equip-grid">
-            @for (slot of equipmentSlots; track slot.key) {
-              <!-- Une arme à deux mains condamne la main faible : l'emplacement
-                   se ferme à la saisie plutôt que d'accepter ce qui ne pourrait
-                   ni se porter, ni se jouer. -->
-              <label class="cs-equip" [class.is-blocked]="slotBlocked(slot.key)">
-                <span>{{ slot.label }}</span>
-                <input
-                  type="text"
-                  [name]="'eq-' + slot.key"
-                  [(ngModel)]="model.equipment[slot.key]"
-                  (ngModelChange)="onEquipmentChange()"
-                  [attr.list]="'equip-' + slot.key"
-                  [disabled]="slotBlocked(slot.key)"
-                  [title]="slotBlocked(slot.key) ? 'Les deux mains tiennent déjà l’arme principale' : ''"
-                  [placeholder]="slotBlocked(slot.key) ? 'Les deux mains sont prises' : '—'"
-                />
-                <datalist [id]="'equip-' + slot.key">
-                  @for (opt of optionsFor(slot.key); track opt) {
-                    <option [value]="opt"></option>
+                  <span class="cs-axis__subhead">Attributs</span>
+                  @if (raceAttrBonuses.length) {
+                    <div class="cs-stats-grid">
+                      @for (b of raceAttrBonuses; track b.label) {
+                        <div class="cs-stat-readout">
+                          <span>{{ b.label }}</span>
+                          <strong>{{ formatBonus(b.value) }}</strong>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <p class="cs-stats-note">Aucun bonus d’attribut.</p>
                   }
-                </datalist>
-              </label>
-            }
-          </div>
-        </fieldset>
 
-        <fieldset class="cs-fieldset">
-          <legend>Sac</legend>
-          <datalist id="itemList">
-            @for (it of itemCatalog(); track it.name) { <option [value]="it.name"></option> }
-          </datalist>
-          @for (item of model.inventory; track trackByIndex($index)) {
-            <div class="cs-item">
-              <input type="text" class="cs-item__name" list="itemList" [name]="'in-' + $index" [(ngModel)]="item.name" (ngModelChange)="onItemNameChange(item)" placeholder="Objet (liste ou libre)" />
-              <input type="number" class="cs-item__qty" min="1" max="99" [name]="'iq-' + $index" [(ngModel)]="item.qty" (ngModelChange)="clampQty(item)" title="Quantité (max 99)" />
-              <input type="number" class="cs-item__weight" [name]="'iw-' + $index" [(ngModel)]="item.weight" title="Poids unitaire" />
-              <button type="button" class="cs-mini-del" (click)="removeItem($index)">✕</button>
+                  <span class="cs-axis__subhead">Traits innés</span>
+                  @if (raceTraitDefs.length) {
+                    <div class="cs-traits">
+                      @for (t of raceTraitDefs; track t.key) {
+                        <div class="cs-trait">
+                          <span class="cs-trait__name">{{ t.name }}</span>
+                          @if (t.description) { <span class="cs-trait__desc">{{ t.description }}</span> }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <p class="cs-stats-note">Aucun trait inné.</p>
+                  }
+                }
+              </fieldset>
+
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Génétique — les stats de départ</legend>
+                @if (raceGenome; as gen) {
+                  <p class="cs-stats-note">
+                    Les six valeurs brutes de la race, avant classe, niveau et traits :
+                    c’est le socle sur lequel tout le reste se pose. Chaque flèche désigne
+                    un allèle ; la jauge situe la valeur par rapport à la plus forte de la
+                    race.
+                  </p>
+                  <div class="cs-genome">
+                    <svg class="cs-genome__svg" [attr.viewBox]="'0 0 500 ' + geneHeight"
+                         role="img" aria-label="Double hélice : les allèles de la race et leurs stats de départ">
+                      <defs>
+                        <marker id="cs-gene-tip" viewBox="0 0 8 8" refX="7" refY="4"
+                                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                          <path d="M 0 0 L 8 4 L 0 8 z" fill="currentColor" />
+                        </marker>
+                      </defs>
+
+                      <!-- Les deux brins. -->
+                      <path class="cs-genome__strand" [attr.d]="gen.strandA" />
+                      <path class="cs-genome__strand cs-genome__strand--b" [attr.d]="gen.strandB" />
+
+                      @for (a of gen.alleles; track a.label) {
+                        <!-- Le barreau, puis l’allèle désigné, puis sa flèche. -->
+                        <line class="cs-genome__rung" [attr.x1]="a.nodeX" [attr.y1]="a.y"
+                              [attr.x2]="a.otherX" [attr.y2]="a.y" />
+                        <circle class="cs-genome__pair" [attr.cx]="a.otherX" [attr.cy]="a.y" r="4" />
+                        <circle class="cs-genome__allele" [attr.cx]="a.nodeX" [attr.cy]="a.y" r="6.5" />
+                        <line class="cs-genome__arrow" marker-end="url(#cs-gene-tip)"
+                              [attr.x1]="a.arrowFrom" [attr.y1]="a.y" [attr.x2]="a.arrowTo" [attr.y2]="a.y" />
+
+                        <text class="cs-genome__stat" [attr.x]="a.labelX" [attr.y]="a.y - 3"
+                              [attr.text-anchor]="a.side === 'right' ? 'start' : 'end'">{{ a.label }}</text>
+                        <text class="cs-genome__value" [attr.x]="a.labelX" [attr.y]="a.y + 15"
+                              [attr.text-anchor]="a.side === 'right' ? 'start' : 'end'">{{ a.value }}</text>
+                        <!-- Jauge de comparaison, sous la valeur. -->
+                        <rect class="cs-genome__gauge" [attr.x]="a.side === 'right' ? a.labelX + 18 : a.labelX - 18 - a.bar"
+                              [attr.y]="a.y + 8" [attr.width]="a.bar" height="4" rx="2" />
+                      }
+                    </svg>
+                  </div>
+                } @else {
+                  <p class="cs-stats-note">Choisis une race pour lire son génome.</p>
+                }
+              </fieldset>
             </div>
           }
-          <button type="button" class="cs-add" (click)="addItem()">＋ Ajouter un objet</button>
-          <p class="cs-total" [class.is-over]="overweight">Poids total : {{ totalWeight }} / {{ carryCapacity }}</p>
-        </fieldset>
+        </section>
 
-        <fieldset class="cs-fieldset">
-          <legend>Notes</legend>
-          <textarea name="notes" rows="5" [(ngModel)]="model.notes" placeholder="Histoire, traits, alliés…"></textarea>
-        </fieldset>
+        <!-- ══ BACKGROUND ══════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('background')">
+          @let badgeBackground = sectionBadge('background');
+          <button type="button" class="cs-sec__head" (click)="openSection('background')"
+                  [attr.aria-expanded]="isSection('background')" aria-controls="cs-sec-background">
+            <span class="cs-sec__title">Background</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeBackground.warn">{{ badgeBackground.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('background')) {
+            <div class="cs-sec__body" id="cs-sec-background">
+              <fieldset class="cs-fieldset">
+                <legend>Background</legend>
+                <p class="cs-stats-note">
+                  Le vécu : il donne la bourse de départ, quelques compétences et du
+                  matériel. Le sous-background précise le métier exact.
+                </p>
+                <div class="cs-row">
+                  <label class="cs-field">
+                    <span>Background</span>
+                    <select name="background" [(ngModel)]="model.identity.background" (ngModelChange)="onBackgroundChange()">
+                      <option value="">— Choisir —</option>
+                      @for (b of backgrounds(); track b.key) { <option [value]="b.name">{{ b.name }}</option> }
+                    </select>
+                  </label>
+                  @if (subbackgroundsForSelected.length > 0) {
+                    <label class="cs-field">
+                      <span>Sous-background</span>
+                      <select name="subbackground" [(ngModel)]="model.identity.subbackground">
+                        <option value="">— Choisir —</option>
+                        @for (s of subbackgroundsForSelected; track s.key) { <option [value]="s.name">{{ s.name }}</option> }
+                      </select>
+                    </label>
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Ce que le background accorde</legend>
+                @if (!selectedBackground) {
+                  <p class="cs-stats-note">Choisis un background pour voir ce qu’il apporte.</p>
+                } @else {
+                  <p class="cs-spell-cap">
+                    Bourse de départ : <b>{{ goldBase }}</b>
+                    <span class="cs-spell-cap__hint">elle se règle dans la Bourse, onglet Stats</span>
+                  </p>
+
+                  <span class="cs-axis__subhead">Compétences</span>
+                  @if (backgroundSkillRows.length) {
+                    <p class="cs-stats-note">
+                      @for (s of backgroundSkillRows; track s.label) {
+                        <span class="cs-skill-chip">{{ s.label }} {{ formatBonus(s.value) }}</span>
+                      }
+                    </p>
+                  } @else {
+                    <p class="cs-stats-note">Aucune compétence accordée.</p>
+                  }
+
+                  @if (backgroundTraitDefs.length) {
+                    <span class="cs-axis__subhead">Traits</span>
+                    <div class="cs-traits">
+                      @for (t of backgroundTraitDefs; track t.key) {
+                        <div class="cs-trait">
+                          <span class="cs-trait__name">{{ t.name }}</span>
+                          @if (t.description) { <span class="cs-trait__desc">{{ t.description }}</span> }
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <span class="cs-axis__subhead">Matériel de départ</span>
+                  @if (startingGearNames.length) {
+                    <p class="cs-stats-note">
+                      @for (n of startingGearNames; track n) { <span class="cs-skill-chip">{{ n }}</span> }
+                    </p>
+                    <button type="button" class="cs-add" [disabled]="!canAutoEquip"
+                            title="Équipe la tenue, l’arme et le matériel de départ du sous-background choisi"
+                            (click)="autoEquipStartingGear()">⚔ Équiper le matériel de départ</button>
+                  } @else {
+                    <p class="cs-stats-note">
+                      {{ subbackgroundsForSelected.length ? "Choisis un sous-background pour connaître son matériel." : "Aucun matériel de départ." }}
+                    </p>
+                  }
+                }
+              </fieldset>
+            </div>
+          }
+        </section>
+
+        <!-- ══ STATS ═══════════════════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('stats')">
+          @let badgeStats = sectionBadge('stats');
+          <button type="button" class="cs-sec__head" (click)="openSection('stats')"
+                  [attr.aria-expanded]="isSection('stats')" aria-controls="cs-sec-stats">
+            <span class="cs-sec__title">Stats</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeStats.warn">{{ badgeStats.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('stats')) {
+            <div class="cs-sec__body cs-sec__body--pairs" id="cs-sec-stats">
+              <fieldset class="cs-fieldset" style="grid-area: attrs">
+                <legend>Attributs</legend>
+
+                <div class="cs-stat-mode">
+                  <div class="cs-seg" role="group" aria-label="Mode de génération des attributs">
+                    <button type="button" [class.is-active]="attributeMode === 'pointbuy'" (click)="setAttributeMode('pointbuy')">Achat de points</button>
+                    <button type="button" [class.is-active]="attributeMode === 'roll'" (click)="setAttributeMode('roll')">Lancer de dés</button>
+                  </div>
+                </div>
+
+                @if (attributeMode === 'pointbuy') {
+                  <div class="cs-points" [class.is-empty]="pointsRemaining === 0" [class.is-over]="pointsRemaining < 0">
+                    <span>Points à répartir</span>
+                    <strong>{{ pointsRemaining }} / {{ attributePoints }}</strong>
+                  </div>
+                  <p class="cs-stats-note">Base {{ baseAttribute }} par attribut, {{ attributePoints }} points à dépenser jusqu'à {{ maxAttribute }} (14 et 15 coûtent plus cher). Descendre jusqu'à {{ minAttribute }} rend des points. Le total inclut les bonus de race/sous-race/background.</p>
+                } @else {
+                  <div class="cs-roll-bar">
+                    <button type="button" class="cs-add" (click)="rollAttributes()">🎲 Lancer 4d6 (×6)</button>
+                    @if (attributeRolls.length) {
+                      <span class="cs-roll-pool" aria-label="Résultats des dés">
+                        @for (v of attributeRolls; track $index) {
+                          <span class="cs-roll-chip" [class.is-used]="isRollUsed($index)">{{ v }}</span>
+                        }
+                      </span>
+                    }
+                  </div>
+                  <p class="cs-stats-note">4d6, on retire le dé le plus bas, six fois. Attribuez chaque résultat à un attribut ({{ rollsAssigned }}/6 affectés). Le total inclut les bonus de race/sous-race/background.</p>
+                }
+
+                <div class="cs-attrs-head" aria-hidden="true">
+                  <span>Attribut</span><span>Base</span><span>Total</span><span>Mod</span>
+                </div>
+                <div class="cs-attrs">
+                  @for (a of attributes; track a.key) {
+                    <div class="cs-attr">
+                      <span class="cs-attr__label">
+                        {{ a.label }}
+                        @if (attrBonus(a.key)) { <em class="cs-attr__bonus">{{ formatBonus(attrBonus(a.key)) }}</em> }
+                      </span>
+                      @if (attributeMode === 'pointbuy') {
+                        <div class="cs-stepper">
+                          <button type="button" (click)="decAttr(a.key)" [disabled]="!canDecAttr(a.key)" aria-label="Diminuer">−</button>
+                          <span class="cs-stepper__val">{{ model.attributes[a.key] }}</span>
+                          <button type="button" (click)="incAttr(a.key)" [disabled]="!canIncAttr(a.key)" aria-label="Augmenter">+</button>
+                        </div>
+                      } @else {
+                        <select
+                          class="cs-roll-select"
+                          [name]="'roll-' + a.key"
+                          [ngModel]="assignmentOf(a.key)"
+                          (ngModelChange)="assignRoll(a.key, $event)"
+                          [disabled]="!attributeRolls.length"
+                        >
+                          <option [ngValue]="-1">—</option>
+                          @for (opt of rollOptionsFor(a.key); track opt.idx) {
+                            <option [ngValue]="opt.idx">{{ opt.value }}</option>
+                          }
+                        </select>
+                      }
+                      <em class="cs-attr__total">{{ finalAttributes[a.key] }}</em>
+                      <em class="cs-attr__mod">{{ formatBonus(modifier(a.key)) }}</em>
+                    </div>
+                  }
+                </div>
+
+                <label class="cs-field cs-field--narrow">
+                  <span>Bonus de maîtrise</span>
+                  <input type="number" name="prof" [(ngModel)]="model.proficiencyBonus" />
+                </label>
+              </fieldset>
+
+              <fieldset class="cs-fieldset" style="grid-area: stats">
+                <legend>Statistiques</legend>
+                <p class="cs-stats-note">
+                  Calculées automatiquement : génétique de la race + montée de niveau de la classe + effets des traits.
+                </p>
+                <div class="cs-stat-mode">
+                  <div class="cs-seg" role="group" aria-label="Mode de calcul">
+                    <button type="button" [class.is-active]="model.statMode === 'random'" (click)="setStatMode('random')">Aléatoire</button>
+                    <button type="button" [class.is-active]="model.statMode === 'mean'" (click)="setStatMode('mean')">Moyenne</button>
+                  </div>
+                  @if (model.statMode === 'random') {
+                    <button type="button" class="cs-add" (click)="rerollStats()">⟳ Relancer les dés</button>
+                  }
+                </div>
+                @let fsForm = finalStats;
+                <div class="cs-stats-grid">
+                  @for (st of stats; track st.key) {
+                    <div class="cs-stat-readout">
+                      <span>{{ st.label }}</span>
+                      <strong>{{ fsForm[st.key] }}</strong>
+                    </div>
+                  }
+                </div>
+              </fieldset>
+
+              <!-- Réserves : le maximum est calculé, le niveau du moment ne l'est
+                   pas. D'où la barre partiellement remplie et les pas de ±1 / ±5 —
+                   on encaisse un coup, on souffle, on lance un sort. Ce qui est
+                   stocké, c'est le creux (cf. poolLoss). -->
+              <fieldset class="cs-fieldset" style="grid-area: pools">
+                <legend>Réserves</legend>
+                @let poolsForm = poolRows;
+                <div class="cs-pools">
+                  @for (p of poolsForm; track p.gauge.key) {
+                    <div class="cs-pool">
+                      <svg class="cs-pool__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="p.gauge.icon" /></svg>
+                      <span class="cs-pool__label">{{ p.gauge.label }}</span>
+                      <div class="cs-pool__track" [attr.aria-label]="p.gauge.label + ' : ' + p.current + ' sur ' + p.max">
+                        <div class="cs-pool__fill" [class]="'is-' + p.gauge.key" [style.width.%]="p.pct"></div>
+                      </div>
+                      <label class="cs-pool__value">
+                        <span class="cs-sr-only">{{ p.gauge.label }} restants</span>
+                        <input
+                          type="number"
+                          min="0"
+                          [max]="p.max"
+                          [ngModel]="p.current"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="setPool(p.gauge.key, $event, p.max)"
+                        />
+                        <span class="cs-pool__max">/ {{ p.max }}</span>
+                      </label>
+                      <div class="cs-pool__steps">
+                        @for (step of [-5, -1]; track step) {
+                          <button type="button" class="cs-xp__chip cs-xp__chip--minus" [disabled]="p.current <= 0" (click)="adjustPool(p, step)">{{ step }}</button>
+                        }
+                        @for (step of [1, 5]; track step) {
+                          <button type="button" class="cs-xp__chip" [disabled]="p.current >= p.max" (click)="adjustPool(p, step)">+{{ step }}</button>
+                        }
+                      </div>
+                      <span class="cs-pool__state" [class.is-empty]="p.current === 0">{{ p.stage }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="cs-roll-bar">
+                  <button type="button" class="cs-add" [disabled]="!poolsDrained" (click)="refillPools()">⟳ Pleine forme</button>
+                </div>
+                <p class="cs-stats-note">
+                  Le maximum se recalcule (race, classe, niveau, équipement) ; seul le creux est
+                  enregistré. Le report d’une séance de combat écrit ici ce que la table a laissé.
+                </p>
+              </fieldset>
+
+              <!-- Survie : compteurs tenus à la table, pas des stats calculées. D'où
+                   les crans cliquables — on raye un jour de réserve, on n'estime pas
+                   un pourcentage. -->
+              <fieldset class="cs-fieldset" style="grid-area: surv">
+                <legend>Survie</legend>
+                <div class="cs-survivals">
+                  @for (g of survivalGauges; track g.key) {
+                    <div class="cs-survival">
+                      <svg class="cs-survival__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="g.icon" /></svg>
+                      <span class="cs-survival__label">{{ g.label }}</span>
+                      <div class="cs-survival__segments" role="group" [attr.aria-label]="g.label">
+                        @for (seg of survivalSegments(g); track seg) {
+                          <button
+                            type="button"
+                            class="cs-survival__seg"
+                            [class.is-filled]="seg <= survivalValue(g)"
+                            [attr.aria-label]="g.label + ' : ' + seg + ' sur ' + g.segments"
+                            (click)="setSurvival(g, seg)"
+                          ></button>
+                        }
+                      </div>
+                      <span class="cs-survival__state" [class.is-empty]="survivalValue(g) === 0">
+                        {{ survivalStage(g) }} ({{ survivalValue(g) }}/{{ g.segments }})
+                      </span>
+                    </div>
+                  }
+                </div>
+                <div class="cs-roll-bar">
+                  <button type="button" class="cs-add" (click)="refillSurvival()">⟳ Repas, gourde pleine et nuit complète</button>
+                </div>
+                <p class="cs-stats-note">Un cran = un jour de réserve. Clique un cran pour fixer le niveau ; recliquer le dernier cran plein le vide.</p>
+              </fieldset>
+
+              <fieldset class="cs-fieldset" style="grid-area: purse">
+                <legend>Bourse</legend>
+                <!-- Bourse : le background donne le montant de départ, la partie le
+                     fait évoluer. On stocke l'écart, pas le total (cf. goldDelta). -->
+                <div class="cs-purse">
+                  <div class="cs-purse__head">
+                    <label class="cs-field cs-field--narrow">
+                      <span>Or</span>
+                      <input type="number" name="gold" min="0" [(ngModel)]="gold" />
+                    </label>
+                    <div class="cs-purse__gains">
+                      <span>Gain / dépense</span>
+                      <div>
+                        @for (coin of [-50, -10, -1]; track coin) {
+                          <button type="button" class="cs-xp__chip cs-xp__chip--minus" (click)="addGold(coin)">{{ coin }}</button>
+                        }
+                        @for (coin of [1, 10, 50]; track coin) {
+                          <button type="button" class="cs-xp__chip" (click)="addGold(coin)">+{{ coin }}</button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <p class="cs-stats-note">
+                    Départ (background) : <strong>{{ goldBase }}</strong>
+                    @if (goldAdjusted) {
+                      · évolution <strong>{{ formatBonus(model.goldDelta) }}</strong>
+                      <button type="button" class="cs-purse__reset" (click)="resetGold()">↺ remettre au départ</button>
+                    }
+                  </p>
+                </div>
+              </fieldset>
+            </div>
+          }
+        </section>
+
+        <!-- ══ MAGIE ═══════════════════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('magic')">
+          @let badgeMagic = sectionBadge('magic');
+          <button type="button" class="cs-sec__head" (click)="openSection('magic')"
+                  [attr.aria-expanded]="isSection('magic')" aria-controls="cs-sec-magic">
+            <span class="cs-sec__title">Magie</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeMagic.warn">{{ badgeMagic.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('magic')) {
+            <div class="cs-sec__body" id="cs-sec-magic">
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Domaines de magie ({{ model.domains.length }}/3)</legend>
+
+                <div class="cs-roll-bar">
+                  <button type="button" class="cs-add" (click)="rollMagicDomains()">🎲 Tirer les affinités</button>
+                  @if (magicRoll(); as roll) {
+                    <span class="cs-magic-roll" [class.is-sealed]="roll.count === 0">
+                      {{ roll.label }}@if (roll.domains.length) { — {{ rolledDomainNames }} }
+                    </span>
+                  }
+                </div>
+                <p class="cs-stats-note">Éveil tiré selon le lore ({{ affinityOdds }}), puis domaines tirés selon les affinités du peuple — table : {{ affinitySourceLabel }}. Le tirage remplace la sélection en cours.</p>
+
+                <div class="cs-domains">
+                  @for (d of domains; track d.key) {
+                    <button
+                      type="button"
+                      class="cs-domain"
+                      [class.is-selected]="isDomainSelected(d.key)"
+                      [disabled]="!isDomainSelected(d.key) && model.domains.length >= 3"
+                      (click)="toggleDomain(d.key)"
+                    >
+                      @if (domainIcon(d.key); as icon) {
+                        <img class="cs-domain__icon" [src]="icon" alt="" aria-hidden="true" loading="lazy" />
+                      } @else {
+                        <span class="cs-domain__sigil" aria-hidden="true">{{ d.sigil }}</span>
+                      }
+                      <span>{{ d.name }}</span>
+                    </button>
+                  }
+                </div>
+
+                <!-- Magie non polarisée : deux usages de la mana brute, hors des douze
+                     fréquences divines. Rien à cocher — c'est le vécu qui ouvre. -->
+                <span class="cs-nonpolar__label">Magie non polarisée</span>
+                <div class="cs-domains cs-domains--nonpolar">
+                  @for (m of nonPolarMagics; track m.key) {
+                    <div class="cs-domain cs-domain--nonpolar"
+                         [class.is-open]="m.open"
+                         [title]="m.open ? 'Ouverte : ' + m.via : 'Fermée — ' + m.via">
+                      @if (domainIcon(m.key); as icon) {
+                        <img class="cs-domain__icon" [src]="icon" alt="" aria-hidden="true" loading="lazy" />
+                      } @else {
+                        <span class="cs-domain__sigil" aria-hidden="true">{{ m.sigil }}</span>
+                      }
+                      <span>{{ m.name }}</span>
+                      <span class="cs-nonpolar__via">{{ m.open ? m.via : '🔒 ' + m.via }}</span>
+                    </div>
+                  }
+                </div>
+                <p class="cs-stats-note">
+                  Ni dieu ni affinité : elles ne se tirent pas, ne se choisissent pas et ne comptent pas
+                  dans les trois domaines. Un vécu les ouvre — le trait d'un background, une enfance dans
+                  l'Archipel — ou un slot de feat. Leurs sorts rejoignent alors le pool ci-dessous.
+                </p>
+              </fieldset>
+
+              @if (hasEarthDomain) {
+                <fieldset class="cs-fieldset cs-fieldset--wide cs-fieldset--cols cs-earth">
+                  <legend>Matériaux de Terre — étude</legend>
+                  <p class="cs-stats-note">
+                    La Terre n'a pas un sort par pierre : elle a un sort par famille, et sa
+                    saveur vient de ce que vous façonnez. <b>Étudier</b> permet de conjurer
+                    une matière n'importe où ; <b>connaître</b> (l'avoir vue ET touchée)
+                    permet seulement de l'improviser, cher et à moitié. Ce que le sol offre
+                    se façonne sans rien avoir appris.
+                  </p>
+                  <p class="cs-spell-cap">
+                    Étudiés :
+                    <b [class.is-full]="studySlotsUsed >= studySlotsTotal">{{ studySlotsUsed }} / {{ studySlotsTotal }}</b>
+                    <span class="cs-spell-cap__hint">
+                      une place par palier de maîtrise (niv. 1, 5, 9, 13, 17), partagée avec les espèces végétales
+                    </span>
+                  </p>
+
+                  @for (famille of earthFamilies; track famille.key) {
+                    <div class="cs-earth__family">
+                      <span class="cs-earth__title" [title]="famille.description">{{ famille.name }}</span>
+                      <ul class="cs-earth__list">
+                        @for (m of materialsIn(famille.key); track m.key) {
+                          <li class="cs-earth__item"
+                              [class.is-studied]="studiedMaterials.includes(m.key)"
+                              [class.is-known]="knownMaterials.includes(m.key)">
+                            <span class="cs-earth__name" [title]="materialHint(m)">
+                              {{ m.name }}
+                              @if (studiedMaterials.includes(m.key)) {
+                                <button type="button" class="cs-earth__equip"
+                                        [class.is-on]="equippedMaterial === m.key"
+                                        [title]="equippedMaterial === m.key
+                                          ? 'Matériau porté en tête — cliquez pour le retirer'
+                                          : 'Porter ce matériau en tête (se change au repos)'"
+                                        (click)="setEquipped(m.key)">✦</button>
+                              }
+                            </span>
+                            <span class="cs-earth__where" [title]="materialRegions(m)">{{ materialRegions(m) }}</span>
+                            <span class="cs-earth__acts">
+                              <button type="button" class="cs-earth__btn"
+                                      [class.is-on]="studiedMaterials.includes(m.key)"
+                                      [disabled]="!!studyBlocker(m.key)"
+                                      [title]="studyBlocker(m.key) ?? 'Étudier — une place par palier de maîtrise'"
+                                      (click)="toggleStudied(m.key)">étudié</button>
+                              <button type="button" class="cs-earth__btn"
+                                      [class.is-on]="knownMaterials.includes(m.key)"
+                                      title="Vu ET touché, sans étude : permet l'improvisation"
+                                      (click)="toggleKnown(m.key)">connu</button>
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                </fieldset>
+              }
+
+              @if (hasPlantDomain) {
+                <fieldset class="cs-fieldset cs-fieldset--wide cs-fieldset--cols cs-earth cs-plants">
+                  <legend>Espèces végétales — étude</legend>
+                  <p class="cs-stats-note">
+                    Les Plantes n'ont pas un sort par espèce : elles ont un sort par geste, et
+                    l'espèce employée décide de ce qu'il produit. <b>Étudier</b> donne le plein
+                    effet au prix normal ; <b>connaître</b> (l'avoir reconnue ET déjà maniée)
+                    garde toute la spécificité de la plante, mais le mana paie l'approximation.
+                    Une espèce ni l'un ni l'autre laisse le sort tourner sur le concept, sans
+                    rien de particulier.
+                  </p>
+                  <p class="cs-spell-cap">
+                    Étudiés :
+                    <b [class.is-full]="studySlotsUsed >= studySlotsTotal">{{ studySlotsUsed }} / {{ studySlotsTotal }}</b>
+                    <span class="cs-spell-cap__hint">
+                      pool commun avec les matériaux de Terre — {{ studiedMaterials.length }} pris par la Terre,
+                      {{ studiedPlants.length }} par les Plantes
+                    </span>
+                  </p>
+
+                  @for (famille of plantFamilies; track famille.key) {
+                    <div class="cs-earth__family">
+                      <span class="cs-earth__title" [title]="famille.description">{{ famille.name }}</span>
+                      <ul class="cs-earth__list">
+                        @for (p of plantsIn(famille.key); track p.key) {
+                          <li class="cs-earth__item"
+                              [class.is-studied]="studiedPlants.includes(p.key)"
+                              [class.is-known]="knownPlants.includes(p.key)">
+                            <span class="cs-earth__name" [title]="plantHint(p)">
+                              {{ p.name }}
+                              @if (studiedPlants.includes(p.key) || knownPlants.includes(p.key)) {
+                                <button type="button" class="cs-earth__equip"
+                                        [class.is-on]="equippedPlant === p.key"
+                                        [title]="equippedPlant === p.key
+                                          ? 'Espèce dans la besace — cliquez pour l’en sortir'
+                                          : 'Emporter cette espèce (' + plantTierOf(p.key) + ', se change au repos)'"
+                                        (click)="setEquippedPlant(p.key)">✦</button>
+                              }
+                            </span>
+                            <span class="cs-earth__where" [title]="plantRegions(p)">{{ plantRegions(p) }}</span>
+                            <span class="cs-earth__acts">
+                              <button type="button" class="cs-earth__btn"
+                                      [class.is-on]="studiedPlants.includes(p.key)"
+                                      [disabled]="!!plantStudyBlocker(p.key)"
+                                      [title]="plantStudyBlocker(p.key) ?? 'Étudier — une place par palier de maîtrise, partagée avec la Terre'"
+                                      (click)="togglePlantStudied(p.key)">étudiée</button>
+                              <button type="button" class="cs-earth__btn"
+                                      [class.is-on]="knownPlants.includes(p.key)"
+                                      [disabled]="studiedPlants.includes(p.key)"
+                                      title="Reconnue ET déjà maniée, sans étude : tous ses effets, mais le mana paie l’approximation"
+                                      (click)="togglePlantKnown(p.key)">connue</button>
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                </fieldset>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- ══ SORTS ═══════════════════════════════════════════════════════
+             Séparés de la magie : les domaines et les mécaniques exclusives
+             se choisissent une fois, les sorts se travaillent en continu. -->
+        <section class="cs-sec" [class.is-open]="isSection('spells')">
+          @let badgeSpells = sectionBadge('spells');
+          <button type="button" class="cs-sec__head" (click)="openSection('spells')"
+                  [attr.aria-expanded]="isSection('spells')" aria-controls="cs-sec-spells">
+            <span class="cs-sec__title">Sorts</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeSpells.warn">{{ badgeSpells.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('spells')) {
+            <div class="cs-sec__body" id="cs-sec-spells">
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Sorts — Déblocage &amp; équipement</legend>
+                @if (magicSources.length === 0) {
+                  <p class="cs-stats-note">
+                    Sélectionne au moins un domaine de magie — ou ouvre une branche non polarisée
+                    (background Soldat/Sage, origine de l'Archipel, ou le trait correspondant) — pour
+                    proposer des sorts.
+                  </p>
+                } @else {
+                  <p class="cs-spell-cap cs-inspiration" [class.is-empty]="inspirationLeft <= 0">
+                    <span class="cs-inspiration__spark" aria-hidden="true">✦</span>
+                    Inspiration : <b>{{ inspirationLeft }}</b> / {{ inspirationTotal }}
+                    <span class="cs-spell-cap__hint">
+                      @if (inspirationPerLevel > 0) {
+                        {{ inspirationPerLevel }}/niv. (classe) · sert à débloquer (1 pt) et améliorer (1 pt/rang) les sorts
+                      } @else {
+                        Choisis une classe pour gagner des points d'inspiration.
+                      }
+                    </span>
+                  </p>
+                  <p class="cs-spell-cap">
+                    Équipés :
+                    <b [class.is-full]="equippedSpells.length >= equippedCap">{{ equippedSpells.length }} / {{ equippedCap }}</b>
+                    <span class="cs-spell-cap__hint">plafond = 3 + mod. Intelligence · seuls les sorts équipés sont utilisables en combat</span>
+                  </p>
+                  <div class="cs-spell-tabs" role="tablist" aria-label="Magies du personnage">
+                    @for (tab of spellTabs; track tab.key) {
+                      <button type="button"
+                              class="cs-spell-tab"
+                              role="tab"
+                              [class.is-active]="spellTab === tab.key"
+                              [attr.aria-selected]="spellTab === tab.key"
+                              [title]="tab.unlocked + ' débloqué' + (tab.unlocked > 1 ? 's' : '') + ' sur ' + tab.total"
+                              (click)="selectSpellTab(tab.key)">
+                        @if (tab.icon) {
+                          <img class="cs-spell-tab__icon" [src]="tab.icon" alt="" aria-hidden="true" loading="lazy" />
+                        } @else {
+                          <span class="cs-spell-tab__sigil" aria-hidden="true">{{ tab.sigil }}</span>
+                        }
+                        <span class="cs-spell-tab__label">{{ tab.label }}</span>
+                        <span class="cs-spell-tab__count">{{ tab.unlocked }}/{{ tab.total }}</span>
+                      </button>
+                    }
+                  </div>
+
+                <!-- Le pool à gauche, le sort réglé à droite : le build reste à
+                     l'écran pendant qu'on parcourt la liste, au lieu de déplier
+                     chaque ligne et de repousser les suivantes hors de vue. -->
+                <div class="cs-spells">
+                    <div class="cs-spellpool__col">
+                      <ul class="cs-spellpool">
+                        @for (s of shownSpellPage; track s.key) {
+                          <li class="cs-poolspell"
+                              [class.is-unlocked]="isSpellUnlocked(s.key)"
+                              [class.is-equipped]="isSpellEquipped(s.key)"
+                              [class.is-selected]="openWorkshop() === s.key"
+                              [class.is-selectable]="canOpenWorkshop(s.key)"
+                              [class.is-locked]="!isSpellUnlocked(s.key) && !canUnlock(s)"
+                              [attr.role]="canOpenWorkshop(s.key) ? 'button' : null"
+                              [attr.tabindex]="canOpenWorkshop(s.key) ? 0 : null"
+                              [attr.aria-pressed]="canOpenWorkshop(s.key) ? openWorkshop() === s.key : null"
+                              (click)="selectWorkshopSpell(s.key, $event)"
+                              (keydown.enter)="selectWorkshopSpell(s.key)"
+                              (keydown.space)="$event.preventDefault(); selectWorkshopSpell(s.key)">
+                            <div class="cs-poolspell__row">
+                              <span class="cs-poolspell__sigil" [title]="domainSpellNames(s)">
+                                @for (k of domainSpellKeys(s); track k) {
+                                  @if (domainIcon(k); as icon) {
+                                    <img [src]="icon" [alt]="domainName(k)" loading="lazy" />
+                                  } @else {
+                                    <span aria-hidden="true">{{ domainSigil(k) }}</span>
+                                  }
+                                }
+                              </span>
+                              <span class="cs-poolspell__body">
+                                <span class="cs-poolspell__name">{{ s.name }}</span>
+                                <span class="cs-poolspell__meta">
+                                  Niv. {{ s.level }} · {{ s.mana }} mana
+                                  @if (s.requires?.length) { · <span class="cs-poolspell__req">requiert {{ requiresLabel(s) }}</span> }
+                                </span>
+                              </span>
+                              <span class="cs-poolspell__actions">
+                                @if (isSpellUnlocked(s.key)) {
+                                  <button type="button" class="cs-chip" [class.is-on]="isSpellEquipped(s.key)"
+                                          [disabled]="!isSpellEquipped(s.key) && equippedSpells.length >= equippedCap"
+                                          [title]="isSpellEquipped(s.key) ? 'Déséquiper' : (equippedSpells.length >= equippedCap ? 'Plafond d\'équipés atteint' : 'Équiper (combat)')"
+                                          (click)="toggleEquip(s.key)">
+                                    {{ isSpellEquipped(s.key) ? '★ Équipé' : '☆ Équiper' }}
+                                  </button>
+                                  <span class="cs-chip cs-chip--level"
+                                        [class.is-on]="openWorkshop() === s.key"
+                                        [class.is-mute]="!customizableSpell(s.key)"
+                                        [title]="customizableSpell(s.key) ? 'Cliquez la ligne pour régler ce sort' : 'Ce sort ne se personnalise pas'">
+                                    ⚙ Niv. {{ spellLevel(s.key) }}
+                                  </span>
+                                  <button type="button" class="cs-mini-del" [disabled]="hasUnlockedDependents(s.key)"
+                                          [title]="hasUnlockedDependents(s.key) ? 'Des sorts débloqués en dépendent' : 'Oublier ce sort'"
+                                          (click)="forgetSpell(s.key)">✕</button>
+                                } @else if (canUnlock(s)) {
+                                  <button type="button" class="cs-chip cs-chip--unlock" (click)="unlockSpell(s)">＋ Débloquer</button>
+                                } @else {
+                                  <span class="cs-poolspell__lock" [title]="lockReason(s)">🔒</span>
+                                }
+                              </span>
+                            </div>
+
+                          </li>
+                        }
+                      </ul>
+                      <pager class="cs-spellpool__pager"
+                             [total]="shownSpellPool.length" [perPage]="spellsPerPage"
+                             [(page)]="spellPage" unit="sorts" />
+                    </div>
+
+                  <aside class="cs-spellside" [class.is-preview]="workshopIsPreview"
+                         aria-label="Sort sélectionné">
+                    @if (workshopSpell; as ws) {
+                      @if (customizableSpell(ws.key); as cs) {
+                            <div class="cs-workshop">
+                              <spell-workshop #shop
+                                [spell]="cs"
+                                [variant]="'dark'"
+                                [summaryPlacement]="'top'"
+                                [lockedNote]="workshopLockedNote"
+                                [levelEditable]="false"
+                                [level]="spellLevel(ws.key)"
+                                [build]="spellBuild(ws.key)"
+                                (buildChange)="setSpellBuild(ws.key, $event)"
+                                [investedDomains]="investedDomains"
+                                [plantTraining]="plantTraining"
+                                [plant]="equippedPlant"
+                                (plantChange)="setEquippedPlant($event)">
+                                <!-- Projetés dans la bande de tête de l’atelier : le nom
+                                     partage sa ligne avec le niveau et les points. -->
+                                <div ws-lead class="cs-spellside__lead">
+                                  <span class="cs-spellside__name">{{ ws.name }}</span>
+                                  <span class="cs-spellside__meta">Niv. {{ ws.level }} · {{ ws.mana }} mana</span>
+                                </div>
+                                <button ws-trail type="button" class="cs-spellside__close"
+                                        aria-label="Fermer le réglage"
+                                        (click)="openWorkshop.set(null)">✕</button>
+                                <div ws-sub>
+                                  <!-- L'XP n'a de sens que pour un sort appris. Sinon on montre ce qui
+                                       sépare le personnage de son déblocage. -->
+                                  @if (isSpellUnlocked(ws.key)) {
+                                  <div class="cs-xp">
+                                    <span class="cs-xp__label">
+                                      XP du sort — niveau {{ spellLevel(ws.key) }}
+                                      @if (spellProgressOf(ws.key).nextThreshold; as next) {
+                                        <small>{{ spellProgressOf(ws.key).xp }} / {{ next }}</small>
+                                      } @else { <small>niveau maximum</small> }
+                                    </span>
+                                    <span class="cs-xp__bar" aria-hidden="true">
+                                      <span class="cs-xp__fill" [style.width.%]="spellXpPercent(ws.key)"></span>
+                                    </span>
+                                    <span class="cs-xp__train">
+                                      <button type="button" class="cs-rank__btn"
+                                              [disabled]="spellState(ws.key).xp <= 0"
+                                              title="Retirer une séance d’entraînement"
+                                              (click)="untrainSpell(ws.key)">−</button>
+                                      <button type="button" class="cs-chip cs-chip--unlock"
+                                              [title]="'Une séance d’entraînement : +' + trainingXp + ' XP (plein tarif, hors combat)'"
+                                              (click)="trainSpell(ws.key)">
+                                        ✦ Entraîner +{{ trainingXp }}
+                                      </button>
+                                      <small>un lancer en combat vaut {{ combatXp }}</small>
+                                    </span>
+                                  </div>
+                                  } @else if (canUnlock(ws)) {
+                                    <p class="cs-spellside__unlock">
+                                      <button type="button" class="cs-chip cs-chip--unlock" (click)="unlockSpell(ws)">
+                                        ＋ Débloquer ce sort
+                                      </button>
+                                      <span>1 point d'inspiration · {{ inspirationLeft }} restant{{ inspirationLeft > 1 ? 's' : '' }}</span>
+                                    </p>
+                                  } @else {
+                                    <p class="cs-spellside__unlock is-blocked">
+                                      <span aria-hidden="true">🔒</span>
+                                      <span>{{ lockReason(ws) || 'Hors de portée pour l’instant.' }}</span>
+                                    </p>
+                                  }
+                                </div>
+
+                                <!-- Sans slot : l'atelier la pose dans sa colonne de
+                                     résultat, à côté des réglages, où elle reste à
+                                     l'écran pendant qu'on règle.
+
+                                     C'est LA MÊME carte que la fiche du sort dans le
+                                     wiki — la phrase du sort tel qu'il est construit,
+                                     ses chiffres et leurs formules. Elle lit le nœud
+                                     que l'atelier vient de bâtir (`shop`), espèce
+                                     employée comprise : chaque cran déplacé réécrit la
+                                     phrase. -->
+                                @if (workshopNode(ws.key, shop.plantedStats()); as built) {
+                                <spell-detail
+                                  [node]="built"
+                                  [spell]="cs"
+                                  [domain]="domainSpellKeys(ws)[0] ?? ''"
+                                  [spellDamageType]="cs.damageType"
+                                  [shapesMaterial]="spellEntry(ws.key)?.shapesMaterial"
+                                  [weather]="spellEntry(ws.key)?.weather"
+                                  [upkeep]="shop.plantedStats().upkeep"
+                                  [kicker]="workshopKicker(ws.key, shop.touched())"
+                                  [variant]="'dark'"
+                                  [compact]="true" />
+                                }
+                              </spell-workshop>
+                            </div>
+                      } @else {
+                        <p class="cs-stats-note">Ce sort ne se personnalise pas.</p>
+                      }
+                    } @else {
+                      <p class="cs-spellside__empty">
+                        Sélectionne <b>⚙</b> sur un sort débloqué : son build s'ouvre ici.
+                      </p>
+                    }
+                  </aside>
+                </div>
+                }
+              </fieldset>
+            </div>
+          }
+        </section>
+
+        <!-- ══ TRAITS ═══════════════════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('traits')">
+          @let badgeTraits = sectionBadge('traits');
+          <button type="button" class="cs-sec__head" (click)="openSection('traits')"
+                  [attr.aria-expanded]="isSection('traits')" aria-controls="cs-sec-traits">
+            <span class="cs-sec__title">Traits</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeTraits.warn">{{ badgeTraits.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('traits')) {
+            <div class="cs-sec__body" id="cs-sec-traits">
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Traits accordés (race / sous-race / background / origine)</legend>
+                @if (grantedTraitDefs.length === 0) {
+                  <p class="cs-stats-note">Choisis une race (et sa sous-race) pour révéler ses traits.</p>
+                } @else {
+                  <div class="cs-traits">
+                    @for (t of grantedTraitDefs; track t.key) {
+                      <div class="cs-trait">
+                        <svg class="cs-trait__icon" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="t.icon" /></svg>
+                        <div class="cs-trait__body">
+                          <span class="cs-trait__name">{{ t.name }}</span>
+                          @if (t.description) { <span class="cs-trait__desc">{{ t.description }}</span> }
+                          @if (traitSources(t).length) {
+                            <span class="cs-trait__source">{{ traitSources(t).join(' · ') }}</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </fieldset>
+
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Traits &amp; feats</legend>
+
+                <div class="cs-points" [class.is-empty]="creationTraitsLeft === 0">
+                  <span>Trait{{ creationTraitSlots > 1 ? 's' : '' }} de création</span>
+                  <strong>{{ creationTraitKeys.length }} / {{ creationTraitSlots }}</strong>
+                </div>
+                <p class="cs-stats-note">
+                  Choisi à la création, en plus des traits de race et de background. Tout le reste du
+                  catalogue s'achète ensuite sur un slot de feat — un slot par palier (niveaux 5, 10, 15
+                  et 20), en concurrence avec le point d'attribut.
+                </p>
+
+                @for (group of traitGroups; track group.key) {
+                  <div class="cs-trait-group">
+                    <span class="cs-trait-group__label">{{ group.label }}</span>
+                    <div class="cs-trait-chips">
+                      @for (t of group.traits; track t.key) {
+                        <button
+                          type="button"
+                          class="cs-trait-chip"
+                          [class.is-selected]="isCreationTrait(t.key)"
+                          [class.is-blocked]="!!traitBlockedReason(t)"
+                          [disabled]="!isCreationTrait(t.key) && (creationTraitsLeft === 0 || traitUnavailable(t))"
+                          [title]="t.description + ' — ' + t.acquisition.condition + (traitBlockedReason(t) ? ' [' + traitBlockedReason(t) + ']' : '')"
+                          (click)="toggleCreationTrait(t)"
+                        >
+                          {{ t.name }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="cs-points" [class.is-empty]="featSlotsPending === 0">
+                  <span>Slots de feat en attente</span>
+                  <strong>{{ featSlotsPending }}</strong>
+                </div>
+
+                <div class="cs-feat-slots">
+                  @for (slot of featSlots; track slot.level) {
+                    <div class="cs-feat-slot" [class.is-locked]="!slot.open">
+                      <div class="cs-feat-slot__head">
+                        <span class="cs-feat-slot__lvl">Niveau {{ slot.level }}</span>
+                        @if (!slot.open) {
+                          <span class="cs-feat-slot__lock">Verrouillé jusqu'au niveau {{ slot.level }}</span>
+                        } @else if (featPick(slot.level)) {
+                          <button
+                            type="button"
+                            class="cs-feat-slot__clear"
+                            title="Remettre ce palier en attente"
+                            (click)="setFeatPick(slot.level, '')"
+                          >✕</button>
+                        }
+                      </div>
+
+                      @if (slot.open) {
+                        <div class="cs-seg cs-seg--feat" role="group" [attr.aria-label]="'Choix du palier ' + slot.level">
+                          <button type="button" [class.is-active]="featPick(slot.level) === 'attribute'" (click)="setFeatPick(slot.level, 'attribute')">Point d'attribut</button>
+                          <button type="button" [class.is-active]="featPick(slot.level) === 'trait'" (click)="setFeatPick(slot.level, 'trait')">Trait</button>
+                          <button type="button" [class.is-active]="featPick(slot.level) === 'domain'" (click)="setFeatPick(slot.level, 'domain')">Feat domanial</button>
+                        </div>
+
+                        @switch (featPick(slot.level)) {
+                          @case ('attribute') {
+                            <select
+                              class="cs-feat-select"
+                              [name]="'feat-attr-' + slot.level"
+                              [ngModel]="featChoiceAt(slot.level)?.attribute ?? ''"
+                              (ngModelChange)="setFeatAttribute(slot.level, $event)"
+                            >
+                              <option value="">— Attribut à renforcer —</option>
+                              @for (a of attributes; track a.key) {
+                                <option [value]="a.key">{{ a.label }} +1</option>
+                              }
+                            </select>
+                          }
+
+                          @case ('trait') {
+                            <select
+                              class="cs-feat-select"
+                              [name]="'feat-trait-' + slot.level"
+                              [ngModel]="featChoiceAt(slot.level)?.trait ?? ''"
+                              (ngModelChange)="setFeatTrait(slot.level, $event)"
+                            >
+                              <option value="">— Trait du catalogue —</option>
+                              @for (g of traitGroups; track g.key) {
+                                <optgroup [label]="g.label">
+                                  @for (t of g.traits; track t.key) {
+                                    <option [value]="t.key" [disabled]="traitUnavailable(t, slot.level)">
+                                      {{ t.name }}{{ traitBlockedReason(t, slot.level) ? ' — ' + traitBlockedReason(t, slot.level) : '' }}
+                                    </option>
+                                  }
+                                </optgroup>
+                              }
+                            </select>
+                            @if (traitDefAt(slot.level); as t) {
+                              <p class="cs-feat-desc">{{ t.description }}</p>
+                              <p class="cs-feat-note">{{ t.acquisition.condition }}</p>
+                            }
+                          }
+
+                          @case ('domain') {
+                            @if (featOptions(slot.level).length) {
+                              <select
+                                class="cs-feat-select"
+                                [name]="'feat-domain-' + slot.level"
+                                [ngModel]="featChoiceAt(slot.level)?.feat ?? ''"
+                                (ngModelChange)="setFeatDomainFeat(slot.level, $event)"
+                              >
+                                <option value="">— Feat domanial —</option>
+                                @for (g of featOptions(slot.level); track g.domain) {
+                                  <optgroup [label]="g.label">
+                                    @for (f of g.feats; track f.key) {
+                                      <option [value]="f.key" [disabled]="!!featBlockedReason(f, slot.level)">
+                                        {{ f.name }} (palier {{ f.level }}){{ featBlockedReason(f, slot.level) ? ' — ' + featBlockedReason(f, slot.level) : '' }}
+                                      </option>
+                                    }
+                                  </optgroup>
+                                }
+                              </select>
+                              @if (featDefAt(slot.level); as f) {
+                                <p class="cs-feat-desc">{{ f.description }}</p>
+                                <p class="cs-feat-req"><span>Prérequis</span> {{ f.prerequisite }}</p>
+                                @if (f.freeWith) {
+                                  <p class="cs-feat-req"><span>Gratuit avec</span> {{ f.freeWith }}</p>
+                                }
+                                <ul class="cs-feat-effects">
+                                  @for (e of f.effects; track e.label) {
+                                    <li [class]="'cs-feat-effect is-' + (e.tone ?? 'neutral')">
+                                      <span>{{ e.label }}</span><em>{{ e.value }}</em>
+                                    </li>
+                                  }
+                                </ul>
+                              }
+                            } @else {
+                              <p class="cs-stats-note">Choisis un domaine de magie (ou un background qui ouvre une branche non polarisée) pour accéder aux feats domaniaux.</p>
+                            }
+                          }
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+              </fieldset>
+            </div>
+          }
+        </section>
+
+        <!-- ══ COMPÉTENCES ═══════════════════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('skills')">
+          @let badgeSkills = sectionBadge('skills');
+          <button type="button" class="cs-sec__head" (click)="openSection('skills')"
+                  [attr.aria-expanded]="isSection('skills')" aria-controls="cs-sec-skills">
+            <span class="cs-sec__title">Compétences</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeSkills.warn">{{ badgeSkills.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('skills')) {
+            <div class="cs-sec__body" id="cs-sec-skills">
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Compétences</legend>
+
+                @if (backgroundSkills.size > 0) {
+                  <p class="cs-stats-note">Accordées par le background :
+                    @for (s of skills; track s.key) {
+                      @if (backgroundSkills.get(s.key)) { <span class="cs-skill-chip">{{ s.label }} +{{ backgroundSkills.get(s.key) }}</span> }
+                    }
+                  </p>
+                }
+
+                @if (classSkillChoices > 0) {
+                  <div class="cs-points" [class.is-empty]="chosenSkillCount >= classSkillChoices">
+                    <span>Compétences de classe</span>
+                    <strong>{{ chosenSkillCount }} / {{ classSkillChoices }}</strong>
+                  </div>
+                  <div class="cs-skills">
+                    @for (key of classSkillOptions; track key) {
+                      <label class="cs-skill">
+                        <input
+                          type="checkbox"
+                          [name]="'skill-' + key"
+                          [checked]="isSkillChosen(key)"
+                          [disabled]="!isSkillChosen(key) && chosenSkillCount >= classSkillChoices"
+                          (change)="toggleSkill(key)"
+                        />
+                        <span class="cs-skill__name">{{ skillLabel(key) }}</span>
+                      </label>
+                    }
+                  </div>
+                } @else {
+                  <p class="cs-stats-note">Choisis une classe pour sélectionner des compétences.</p>
+                }
+              </fieldset>
+
+              <fieldset class="cs-fieldset">
+                <legend>Compétences de classe</legend>
+                @if (classSpells.length === 0) {
+                  <p class="cs-stats-note">Choisis une classe pour voir ses sorts/compétences.</p>
+                } @else {
+                  <p class="cs-stats-note">Débloquées automatiquement selon le niveau ({{ model.level }}).</p>
+                  <div class="cs-classpells">
+                    @for (sp of classSpells; track sp.name) {
+                      <div class="cs-classpell" [class.is-locked]="!spellUnlocked(sp)">
+                        <div class="cs-classpell__head">
+                          <span class="cs-classpell__lvl">Niv. {{ sp.level }}</span>
+                          <span class="cs-classpell__name">{{ sp.name }}</span>
+                          <span class="cs-classpell__end">{{ sp.endurance }} end.</span>
+                          @if (!spellUnlocked(sp)) { <span class="cs-classpell__lock">🔒</span> }
+                        </div>
+                        <p class="cs-classpell__desc">{{ sp.description }}</p>
+                      </div>
+                    }
+                  </div>
+                }
+              </fieldset>
+
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Maîtrises — armes & armures</legend>
+                <p class="cs-stats-note">
+                  La classe donne les maîtrises de départ ; ajoute les autres à la main (entraînement en
+                  partie, don d'un maître d'armes…). Seule une arme maîtrisée profite du bonus de maîtrise
+                  au toucher.
+                </p>
+
+                <datalist id="weaponCategoryList">
+                  @for (c of weaponCategories; track c.key) { <option [value]="c.name"></option> }
+                </datalist>
+                <datalist id="armorCategoryList">
+                  @for (c of armorCategories; track c.key) { <option [value]="c.name"></option> }
+                </datalist>
+
+                <div class="cs-mastery">
+                  <span class="cs-mastery__label">Armes maîtrisées</span>
+                  <div class="cs-mastery__chips">
+                    @for (p of masteredWeapons; track p.key) {
+                      <span class="cs-mastery__chip" [class.is-manual]="p.source === 'manual'"
+                            [title]="weaponProficiencyHint(p.key)">
+                        {{ p.label }}
+                        @if (p.source === 'manual') {
+                          <button type="button" class="cs-mastery__del" title="Retirer cette maîtrise"
+                                  (click)="removeWeaponProficiency(p.key)">✕</button>
+                        }
+                      </span>
+                    } @empty {
+                      <span class="cs-mastery__none">Aucune — le combat à mains nues, ou rien</span>
+                    }
+                  </div>
+                  <div class="cs-mastery__add">
+                    <input type="text" name="weaponProficiencyDraft" list="weaponCategoryList"
+                           [(ngModel)]="weaponProficiencyDraft"
+                           (keydown.enter)="$event.preventDefault(); addWeaponProficiency()"
+                           placeholder="Catégorie d'arme (liste ou libre)" />
+                    <button type="button" class="cs-add" (click)="addWeaponProficiency()">＋ Ajouter</button>
+                  </div>
+                </div>
+
+                <div class="cs-mastery">
+                  <span class="cs-mastery__label">Armures maîtrisées</span>
+                  <div class="cs-mastery__chips">
+                    @for (p of masteredArmors; track p.key) {
+                      <span class="cs-mastery__chip" [class.is-manual]="p.source === 'manual'"
+                            [title]="armorProficiencyHint(p.key)">
+                        {{ p.label }}
+                        @if (p.source === 'manual') {
+                          <button type="button" class="cs-mastery__del" title="Retirer cette maîtrise"
+                                  (click)="removeArmorProficiency(p.key)">✕</button>
+                        }
+                      </span>
+                    } @empty {
+                      <span class="cs-mastery__none">Aucune — il se bat sans rien sur la peau</span>
+                    }
+                  </div>
+                  <div class="cs-mastery__add">
+                    <input type="text" name="armorProficiencyDraft" list="armorCategoryList"
+                           [(ngModel)]="armorProficiencyDraft"
+                           (keydown.enter)="$event.preventDefault(); addArmorProficiency()"
+                           placeholder="Catégorie d'armure (liste ou libre)" />
+                    <button type="button" class="cs-add" (click)="addArmorProficiency()">＋ Ajouter</button>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Affinités aux dégâts</legend>
+                <p class="cs-stats-note">
+                  Dérivées de l'équipement porté et des feats domaniaux pris — rien à saisir. Le
+                  simulateur applique exactement ces lignes.
+                </p>
+                <div class="cs-aff-grid">
+                  @for (col of affinityColumns; track col.key) {
+                    <div [class]="'cs-aff-col is-' + col.key">
+                      <span class="cs-aff-col__head">
+                        {{ col.label }}
+                        <em>{{ col.note }}</em>
+                      </span>
+                      @if (col.types.length) {
+                        <ul class="cs-aff-col__list">
+                          @for (type of col.types; track type.key) {
+                            <li class="cs-aff-type">
+                              @if (type.sigil) {
+                                <span class="cs-aff-type__sigil" aria-hidden="true">{{ type.sigil }}</span>
+                              }
+                              <span class="cs-aff-type__label">{{ type.label }}</span>
+                            </li>
+                          }
+                        </ul>
+                      } @else {
+                        <span class="cs-aff-col__empty">—</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </fieldset>
+            </div>
+          }
+        </section>
+
+        <!-- ══ ÉQUIPEMENT ═══════════════════════════════════════════════════════ -->
+        <section class="cs-sec" [class.is-open]="isSection('gear')">
+          @let badgeGear = sectionBadge('gear');
+          <button type="button" class="cs-sec__head" (click)="openSection('gear')"
+                  [attr.aria-expanded]="isSection('gear')" aria-controls="cs-sec-gear">
+            <span class="cs-sec__title">Équipement</span>
+            <span class="cs-sec__badge" [class.is-warn]="badgeGear.warn">{{ badgeGear.text }}</span>
+            <span class="cs-sec__chev" aria-hidden="true">▾</span>
+          </button>
+          @if (isSection('gear')) {
+            <div class="cs-sec__body" id="cs-sec-gear">
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Équipement</legend>
+                <!-- Le matériel de départ s’équipe depuis l’onglet Background,
+                     où la liste de ce qu’il pose est sous les yeux. -->
+                <div class="cs-equip-grid">
+                  @for (slot of equipmentSlots; track slot.key) {
+                    <!-- Une arme à deux mains condamne la main faible : l'emplacement
+                         se ferme à la saisie plutôt que d'accepter ce qui ne pourrait
+                         ni se porter, ni se jouer. -->
+                    <label class="cs-equip" [class.is-blocked]="slotBlocked(slot.key)">
+                      <span>{{ slot.label }}</span>
+                      <input
+                        type="text"
+                        [name]="'eq-' + slot.key"
+                        [(ngModel)]="model.equipment[slot.key]"
+                        (ngModelChange)="onEquipmentChange()"
+                        [attr.list]="'equip-' + slot.key"
+                        [disabled]="slotBlocked(slot.key)"
+                        [title]="slotBlocked(slot.key) ? 'Les deux mains tiennent déjà l’arme principale' : ''"
+                        [placeholder]="slotBlocked(slot.key) ? 'Les deux mains sont prises' : '—'"
+                      />
+                      <datalist [id]="'equip-' + slot.key">
+                        @for (opt of optionsFor(slot.key); track opt) {
+                          <option [value]="opt"></option>
+                        }
+                      </datalist>
+                    </label>
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="cs-fieldset cs-fieldset--wide">
+                <legend>Sac</legend>
+                <datalist id="itemList">
+                  @for (it of itemCatalog(); track it.name) { <option [value]="it.name"></option> }
+                </datalist>
+                <!-- `row.index` est l'index réel dans l'inventaire, pas le rang
+                     dans la page : les noms de champ et le retrait en dépendent. -->
+                @for (row of bagPageItems; track trackByIndex(row.index)) {
+                  <div class="cs-item">
+                    <input type="text" class="cs-item__name" list="itemList" [name]="'in-' + row.index" [(ngModel)]="row.item.name" (ngModelChange)="onItemNameChange(row.item)" placeholder="Objet (liste ou libre)" />
+                    <input type="number" class="cs-item__qty" min="1" max="99" [name]="'iq-' + row.index" [(ngModel)]="row.item.qty" (ngModelChange)="clampQty(row.item)" title="Quantité (max 99)" />
+                    <input type="number" class="cs-item__weight" [name]="'iw-' + row.index" [(ngModel)]="row.item.weight" title="Poids unitaire" />
+                    <button type="button" class="cs-mini-del" (click)="removeItem(row.index)">✕</button>
+                  </div>
+                } @empty {
+                  <p class="cs-stats-note">Sac vide.</p>
+                }
+                <div class="cs-item-foot">
+                  <button type="button" class="cs-add" (click)="addItem()">＋ Ajouter un objet</button>
+                  <pager [total]="model.inventory.length" [perPage]="bagPerPage"
+                         [(page)]="bagPage" unit="objets" />
+                </div>
+                <p class="cs-total" [class.is-over]="overweight">Poids total : {{ totalWeight }} / {{ carryCapacity }}</p>
+              </fieldset>
+            </div>
+          }
+        </section>
       </form>
 
-      <!-- ───────────────── COLONNE APERÇU (imprimée) ───────────────── -->
-      <div class="cs-preview-wrap">
+    </div>
+
+    <!-- ───────────────── APERÇU DE LA FICHE (imprimé) ─────────────────
+         En surimpression, au premier plan, sur un créateur de fiche flouté :
+         il prenait sinon la moitié de la largeur, dont le formulaire a besoin
+         pour tenir sur un écran. Hors de `.cs-grid` justement parce que
+         celle-ci porte le flou — un filtre sur un ancêtre casserait le
+         positionnement fixe. L'impression le remet à plat (cf. la feuille de
+         style), et `beforeprint` le déplie tout seul. -->
+    @if (previewOpen()) {
+      <div class="cs-overlay no-print" (click)="previewOpen.set(false)"></div>
+      <div class="cs-modal" role="dialog" aria-modal="true" aria-label="Aperçu de la fiche">
+        <div class="cs-modal__bar no-print">
+          <span class="cs-modal__title">Aperçu de la fiche</span>
+          <button type="button" class="cs-modal__close" aria-label="Fermer l’aperçu"
+                  (click)="previewOpen.set(false)">✕</button>
+        </div>
+        <div class="cs-preview-wrap" id="cs-preview">
         <article class="sheet" #sheetRef>
           <!-- PERSONNAGE -->
           <section class="sheet-block sheet-character">
@@ -1716,8 +2239,9 @@
             </section>
           }
         </article>
+        </div>
       </div>
-    </div>
+    }
     }
   </main>
 </div>

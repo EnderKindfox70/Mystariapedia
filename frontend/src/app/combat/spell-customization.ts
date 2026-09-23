@@ -39,12 +39,13 @@ import {
   SpellScalingAffects,
   SpellScalingSource,
   SpellNode,
+  SpellPlantVariant,
   SpellTarget,
   SpellUsage,
   SwapOptions,
 } from '../wiki.types';
 
-export type { Cap, CapAnchor, CapKind, GovernedField, ParamDef, ParamKindKey, ScalingSwapRule, SpellCustomization, SpellOwnEffect } from '../wiki.types';
+export type { Cap, CapAnchor, CapKind, GovernedField, ParamDef, ParamKindKey, ScalingSwapRule, SpellCustomization, SpellOwnEffect, SpellPlantVariant } from '../wiki.types';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -93,6 +94,8 @@ export interface CustomizableSpell {
   crossDomain?: { eligible: string[] } | null;
   domainGoverned?: { field: GovernedField; mechanic: string; reason: string }[];
   lockedFields?: { field: string; reason: string }[];
+  /** Espèces que ce sort sait employer, et ce que chacune en fait (Plantes). */
+  compatiblePlants?: SpellPlantVariant[];
 }
 
 export interface Build {
@@ -456,6 +459,7 @@ export function fromSpellEntry(spell: DomainSpellEntry, domains: string[]): Cust
     crossDomain: spell.crossDomain,
     domainGoverned: spell.domainGoverned,
     lockedFields: spell.lockedFields,
+    compatiblePlants: spell.compatiblePlants,
   };
 }
 

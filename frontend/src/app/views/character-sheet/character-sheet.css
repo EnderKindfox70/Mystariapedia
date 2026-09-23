@@ -14,6 +14,33 @@
   margin-bottom: 1.2rem;
 }
 
+/* Hauteur réservée à la barre collante : les colonnes collantes (rail, aperçu)
+   se calent en dessous plutôt que de passer sous elle. */
+.cs-root { --cs-toolbar-h: 3.3rem; }
+
+/* Collante au-delà de 900px seulement. En dessous, la mise en page passe en
+   colonne et la navbar devient collante à son tour (styles.css) : la barre
+   d'outils lui passerait dessous, en plus d'enrouler sur deux ou trois
+   lignes. L'accordéon y garde de toute façon les en-têtes à portée. */
+@media screen and (min-width: 901px) {
+  .cs-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    /* Débord jusqu’aux bords de la zone : une barre, pas un bloc posé.
+
+       Pas de marge négative en HAUT : elle plaçait la barre à zéro dans le
+       flux, mais `sticky` la repoussait ensuite au bord du <main> (son
+       remplissage de 1.4rem), si bien qu’elle recouvrait de 12px le premier
+       cadre — et que le rail, lui, se calait plus bas encore. */
+    margin: 0 calc(-1 * clamp(0.8rem, 3vw, 2.2rem)) 0.6rem;
+    padding: 0.7rem clamp(0.8rem, 3vw, 2.2rem);
+    background: rgba(12, 10, 9, 0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid color-mix(in srgb, var(--ancient-gold) 20%, transparent);
+  }
+}
+
 .cs-back {
   font-family: var(--font-title);
   font-size: 0.8rem;
@@ -23,6 +50,8 @@
 
 .cs-toolbar__actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: 0.7rem;
 }
@@ -31,17 +60,26 @@
 .cs-error { color: #e08a8a; font-size: 0.85rem; }
 
 .cs-btn {
-  padding: 0.6rem 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
   font-family: var(--font-title);
-  font-size: 0.8rem;
-  letter-spacing: 0.07em;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--abyss);
   background: linear-gradient(180deg, var(--burned-paper), var(--ancient-gold));
   border: 1px solid var(--ancient-gold);
-  border-radius: 7px;
+  border-radius: 6px;
   cursor: pointer;
 }
+.cs-btn__glyph { font-size: 0.85rem; line-height: 1; }
+/* Les boutons secondaires sont des outils, pas des appels à l’action : seul
+   le bouton principal garde le fond doré. */
+.cs-btn--primary { font-weight: 600; }
 .cs-btn:hover:not(:disabled) { filter: brightness(1.1); }
 .cs-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -49,35 +87,353 @@
   color: var(--faded-ivory);
   background: transparent;
 }
+/* Outil enclenché — l’aperçu ouvert, par exemple. Sur téléphone le libellé
+   du bouton est masqué : cet état est alors la seule chose qui le dise. */
+.cs-btn--ghost.is-active {
+  color: var(--abyss);
+  background: linear-gradient(180deg, var(--burned-paper), var(--ancient-gold));
+}
 
 /* Le bouton d'import est un <label> portant un <input type="file"> caché :
-   il doit donc s'aligner comme un bouton et refléter l'état occupé. */
-label.cs-btn {
-  display: inline-block;
-  line-height: normal;
-}
+   il ne reflète donc pas l'état occupé tout seul. */
 label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
+
+/* Sous 700px les libellés n’ont plus la place : les outils se réduisent à
+   leur glyphe. L’intitulé reste dans l’`aria-label`, et seule l’action
+   principale garde ses mots — c’est celle qu’on cherche. */
+@media screen and (max-width: 700px) {
+  .cs-btn__text { display: none; }
+  .cs-btn { padding: 0.4rem 0.55rem; gap: 0; }
+  .cs-btn--primary { padding: 0.4rem 0.7rem; }
+  .cs-toolbar { gap: 0.5rem; }
+  .cs-toolbar__actions { gap: 0.4rem; }
+  .cs-back { font-size: 0.72rem; }
+}
 
 .cs-loading { color: var(--burned-paper); font-style: italic; }
 
-/* ── Grille principale : formulaire + aperçu ───────────────────────────── */
+/* ── Grille principale : rail + formulaire + aperçu ─────────────────────
+   Trois zones, trois régimes. Au-delà de 1280px le rail de sections prend sa
+   propre colonne ; en dessous il se replie en une rangée de pastilles qui
+   barre toute la largeur ; à 900px et moins il disparaît et chaque section porte
+   son propre en-tête d'accordéon. */
 .cs-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.15fr);
-  gap: 1.6rem;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
   align-items: start;
 }
 
-@media (max-width: 1100px) {
-  .cs-grid { grid-template-columns: 1fr; }
+@media (min-width: 1441px) {
+  .cs-grid { grid-template-columns: 12.5rem minmax(0, 1fr); }
+}
+
+/* Créateur de fiche flouté et inerte pendant l'aperçu. Le filtre reste sur
+   la grille seule : la barre d’outils garde sa netteté, puisque c’est elle
+   qui porte le bouton pour refermer. */
+.cs-grid.is-blurred {
+  filter: blur(4px) saturate(0.8);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Rail de sections (grand écran) ─────────────────────────────────────── */
+.cs-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: sticky;
+  top: calc(var(--cs-toolbar-h) + 0.5rem);
+}
+
+.cs-nav__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-title);
+  font-size: 0.73rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--burned-paper);
+  background: rgba(20, 17, 15, 0.55);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 24%, transparent);
+  border-left-width: 3px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.cs-nav__item:hover {
+  color: var(--faded-ivory);
+  border-color: color-mix(in srgb, var(--ancient-gold) 50%, transparent);
+}
+.cs-nav__item.is-active {
+  color: var(--faded-ivory);
+  background: color-mix(in srgb, var(--ancient-gold) 15%, rgba(20, 17, 15, 0.8));
+  border-color: color-mix(in srgb, var(--ancient-gold) 42%, transparent);
+  border-left-color: var(--ancient-gold);
+}
+.cs-nav__label { min-width: 0; }
+
+/* Le résumé de la section : sa valeur du moment, pas son titre. */
+.cs-nav__badge,
+.cs-sec__badge {
+  flex-shrink: 0;
+  max-width: 7rem;
+  padding: 0.05rem 0.4rem;
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+  color: var(--burned-paper);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+/* Ce qu'il reste à dépenser ou à décider — visible sans entrer dans la section. */
+.cs-nav__badge.is-warn,
+.cs-sec__badge.is-warn {
+  color: #e0a273;
+  background: rgba(194, 84, 47, 0.18);
+  border-color: rgba(194, 84, 47, 0.45);
+}
+
+/* Sous 1441px le rail perd sa colonne : il devient une barre de pastilles
+   au-dessus du formulaire et de l'aperçu. Déclaré après les règles de base
+   du rail, sinon celles-ci le réécrasent. */
+@media screen and (max-width: 1440px) {
+  .cs-nav {
+    grid-column: 1 / -1;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .cs-nav__item { width: auto; flex: 0 1 auto; }
+}
+
+/* ── Sections du formulaire ─────────────────────────────────────────────── */
+/* Sur grand écran l'en-tête est inutile : le rail dit déjà où l'on est. */
+.cs-sec__head { display: none; }
+.cs-sec__body { display: flex; flex-direction: column; gap: 1rem; }
+
+/* Au-delà de 900px, les fieldsets d'une section coulent côte à côte plutôt
+   que de s'empiler : c'est ce qui rapproche chaque section d'un seul écran.
+
+   Multi-colonnes et non grille : les fieldsets ont des hauteurs très
+   inégales, et une grille aurait aligné des rangées sur le plus haut d'entre
+   eux — deux colonnes vides à droite d'« Identité ». Le flux multi-colonnes
+   les tasse. `break-inside: avoid` empêche de couper un fieldset en deux, et
+   `column-span` rend la largeur entière à ceux dont le contenu est déjà une
+   grille : les resserrer les rendrait plus hauts, pas plus courts. */
+@media screen and (min-width: 901px) {
+  .cs-sec__body {
+    display: block;
+    column-width: 20rem;
+    column-gap: 0.7rem;
+  }
+  .cs-sec__body > .cs-fieldset {
+    break-inside: avoid;
+    margin-bottom: 0.7rem;
+  }
+  .cs-fieldset--wide { column-span: all; }
+
+  /* Fieldset qui n'est qu'une pile de champs simples : ses propres enfants
+     coulent en colonnes, ce qui le rend large et court au lieu de haut. */
+  .cs-fieldset--cols {
+    column-width: 15rem;
+    column-gap: 1.1rem;
+  }
+  .cs-fieldset--cols > * { break-inside: avoid; }
+
+  /* Une section qui pose sa propre disposition sort du flux : ses boîtes
+     occupent des aires nommées au lieu de se ranger par hauteur. Empilées
+     par défaut — la trame à deux colonnes arrive plus bas. */
+  .cs-sec__body--pairs {
+    display: grid;
+    grid-template-columns: 1fr;
+    column-width: auto;
+    gap: 0.7rem;
+    align-items: stretch;
+  }
+  .cs-sec__body--pairs > .cs-fieldset { margin-bottom: 0; }
+}
+
+/* Section Stats : une disposition dessinée, pas un flux.
+
+   À gauche, les deux gros tableaux se partagent la hauteur en deux. À
+   droite, deux petites boîtes empilées — les statistiques calculées et la
+   bourse — puis la survie sur une hauteur normale. Quatre rangées égales
+   servent de trame : chaque boîte en occupe une ou deux.
+
+        ┌──────────────┬──────────────┐
+        │              │ STATISTIQUES │
+        │  ATTRIBUTS   ├──────────────┤
+        │              │ BOURSE       │
+        ├──────────────┼──────────────┤
+        │  RÉSERVES    │ SURVIE       │
+        └──────────────┴──────────────┘
+
+   La trame ne vaut que si chaque colonne reste assez large pour une rangée
+   de jauge entière (30rem) : en dessous, les boîtes s'empilent dans leur
+   hauteur naturelle et les aires nommées restent sans effet. */
+@media screen and (min-width: 1300px) {
+  .cs-sec__body--pairs {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "attrs stats"
+      "attrs purse"
+      "pools surv"
+      "pools surv";
+    /* Rangées à la hauteur de leur contenu, et non toutes égales : forcer
+       `1fr` étirait Réserves et Survie de 250 à 477px pour rien, et la
+       section passait sous la ligne de flottaison. `align-items: stretch`
+       suffit à garder les bords alignés dans chaque rangée. */
+  }
+}
+
+/* ── Accordéon (mobile) ─────────────────────────────────────────────────
+   Le rail s'efface, chaque section reprend son titre et son résumé. Les
+   requêtes sont limitées à `screen` : à l'impression le formulaire est masqué
+   (`.no-print`) et l'aperçu doit rester entier. */
+@media screen and (max-width: 900px) {
+  .cs-nav { display: none; }
+
+  .cs-sec__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 46px;
+    padding: 0.75rem 0.9rem;
+    font-family: var(--font-title);
+    font-size: 0.78rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--ancient-gold);
+    background: linear-gradient(180deg, rgba(32, 27, 23, 0.92), rgba(20, 17, 15, 0.75));
+    border: 1px solid color-mix(in srgb, var(--ancient-gold) 30%, transparent);
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  .cs-sec__title { flex: 1; min-width: 0; }
+  .cs-sec.is-open > .cs-sec__head {
+    color: var(--faded-ivory);
+    border-bottom-color: transparent;
+    border-radius: 9px 9px 0 0;
+  }
+  .cs-sec.is-open .cs-sec__chev { transform: rotate(180deg); }
+
+  .cs-sec__body {
+    gap: 0.7rem;
+    padding: 0.7rem 0 0;
+  }
+}
+
+.cs-sec__chev {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+  /* L'or du thème est trop sombre sur ce fond : le chevron passait inaperçu. */
+  color: var(--burned-paper);
+  transition: transform 0.18s;
+}
+
+
+/* ── Aperçu en surimpression ─────────────────────────────────────────── */
+.cs-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(6, 5, 4, 0.55);
+}
+
+.cs-modal {
+  position: fixed;
+  z-index: 41;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  width: min(56rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  background: rgba(14, 11, 10, 0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 34%, transparent);
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+}
+
+.cs-modal__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-shrink: 0;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ancient-gold) 20%, transparent);
+}
+.cs-modal__title {
+  font-family: var(--font-title);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ancient-gold);
+}
+.cs-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  font-size: 0.9rem;
+  color: var(--burned-paper);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 26%, transparent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.cs-modal__close:hover { color: var(--faded-ivory); border-color: var(--ancient-gold); }
+
+/* La fiche défile dans le panneau, jamais la page derrière. */
+.cs-modal .cs-preview-wrap {
+  position: static;
+  overflow-y: auto;
+  padding: 0.8rem;
 }
 
 /* ── Formulaire ────────────────────────────────────────────────────────── */
-.cs-form { display: flex; flex-direction: column; gap: 1rem; }
+/* Écart entre sections : celui de l’accordéon, où toutes les en-têtes sont
+   visibles. Sur grand écran une seule section est rendue — les autres, réduites
+   à une en-tête masquée, ont une hauteur nulle — mais le `gap` s’appliquait
+   quand même : la section ouverte descendait de 16px par section qui la
+   précède, si bien qu’Identité commençait à 62px et Équipement à 190px.
+
+   L'override est déclaré JUSTE APRÈS, et non dans les blocs de mise en page
+   plus haut : à spécificité égale, c’est le dernier qui gagne, et les deux
+   tentatives précédentes étaient donc mortes. */
+.cs-form { display: flex; flex-direction: column; gap: 0.5rem; }
+@media screen and (min-width: 901px) {
+  .cs-form { gap: 0; }
+}
 
 .cs-fieldset {
   margin: 0;
-  padding: 0.9rem 1rem 1.1rem;
+  padding: 0.55rem 0.7rem 0.7rem;
+  /* Conteneur de requête : en colonnes, ce qui décide de la mise en page
+     d'une rangée est la largeur de la colonne, pas celle de la fenêtre.
+     Sans ça, les rangées larges (réserves, survie) débordaient de leur
+     colonne — et le débordement était rogné par le `overflow` du <main>,
+     donc invisible et inatteignable. */
+  container-type: inline-size;
   background: rgba(20, 17, 15, 0.55);
   border: 1px solid color-mix(in srgb, var(--ancient-gold) 30%, transparent);
   border-radius: 9px;
@@ -92,17 +448,19 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   color: var(--ancient-gold);
 }
 
-.cs-field { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.7rem; }
-.cs-field span { font-size: 0.72rem; letter-spacing: 0.05em; color: var(--burned-paper); }
+.cs-field { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.45rem; }
+.cs-field span { font-size: 0.67rem; letter-spacing: 0.04em; color: var(--burned-paper); }
 .cs-field--narrow { max-width: 12rem; }
-.cs-row { display: flex; gap: 0.8rem; }
-.cs-row .cs-field { flex: 1; }
+/* En grille plutôt qu'en ligne flex : les champs d'une rangée se replient
+   tout seuls quand la colonne se resserre, au lieu de se comprimer. */
+.cs-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.5rem; }
 
 .cs-form input,
 .cs-form select,
 .cs-form textarea {
   width: 100%;
-  padding: 0.5rem 0.6rem;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.85rem;
   color: var(--faded-ivory);
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid color-mix(in srgb, var(--ancient-gold) 24%, transparent);
@@ -169,6 +527,126 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-purse__reset:hover { color: var(--ancient-gold); }
 
 /* Domaines */
+/* ── Choix de la race ────────────────────────────────────────────────────
+   Cinq races, et de la place : des cartes plutôt qu’une liste déroulante.
+   Chacune annonce ce à quoi elle est bonne — le choix se lit avant de se
+   faire. Les sous-races suivent le même dessin, en plus discret. */
+.cs-races {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0.6rem;
+}
+.cs-race {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  color: var(--burned-paper);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 22%, transparent);
+  border-left-width: 3px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.cs-race:hover {
+  color: var(--faded-ivory);
+  border-color: color-mix(in srgb, var(--ancient-gold) 45%, transparent);
+}
+.cs-race.is-selected {
+  color: var(--faded-ivory);
+  background: color-mix(in srgb, var(--ancient-gold) 15%, rgba(0, 0, 0, 0.35));
+  border-color: color-mix(in srgb, var(--ancient-gold) 40%, transparent);
+  border-left-color: var(--ancient-gold);
+}
+.cs-race__name {
+  font-family: var(--font-title);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+}
+.cs-race__profile {
+  font-size: 0.66rem;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--dust-brown);
+}
+.cs-race.is-selected .cs-race__profile { color: var(--burned-paper); }
+.cs-races--sub { grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); }
+.cs-races--sub .cs-race__name { font-size: 0.76rem; }
+
+/* ── Génome de la race ───────────────────────────────────────────────────
+   Une double hélice, six barreaux, six flèches : chaque allèle porte une
+   des six valeurs de départ. Le dessin est en SVG dans le flux (pas une
+   image de fond) pour que le texte reste du texte — sélectionnable,
+   traduisible, et lisible par un lecteur d’écran via le libellé du <svg>. */
+.cs-genome {
+  display: flex;
+  justify-content: center;
+  padding: 0.2rem 0;
+}
+.cs-genome__svg {
+  width: 100%;
+  max-width: 42rem;
+  height: auto;
+  overflow: visible;
+  color: var(--ancient-gold);
+}
+
+.cs-genome__strand {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ancient-gold) 70%, transparent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+/* Le brin arrière passe derrière : plus pâle, il donne la profondeur. */
+.cs-genome__strand--b {
+  stroke: color-mix(in srgb, var(--ancient-gold) 34%, transparent);
+  stroke-width: 2;
+}
+.cs-genome__rung {
+  stroke: color-mix(in srgb, var(--ancient-gold) 30%, transparent);
+  stroke-width: 1.6;
+  stroke-dasharray: 3 3;
+}
+/* L’extrémité non désignée du barreau : présente, mais muette. */
+.cs-genome__pair {
+  fill: rgba(0, 0, 0, 0.55);
+  stroke: color-mix(in srgb, var(--ancient-gold) 40%, transparent);
+  stroke-width: 1.4;
+}
+.cs-genome__allele {
+  fill: color-mix(in srgb, var(--ancient-gold) 55%, rgba(0, 0, 0, 0.6));
+  stroke: var(--ancient-gold);
+  stroke-width: 1.8;
+}
+.cs-genome__arrow {
+  stroke: color-mix(in srgb, var(--ancient-gold) 55%, transparent);
+  stroke-width: 1.4;
+}
+
+.cs-genome__stat {
+  fill: var(--faded-ivory);
+  font-family: var(--font-title);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+}
+.cs-genome__value {
+  fill: var(--ancient-gold);
+  font-family: var(--font-title);
+  font-size: 14px;
+  font-weight: 700;
+}
+.cs-genome__gauge { fill: color-mix(in srgb, var(--ancient-gold) 45%, transparent); }
+
+/* Sur un écran étroit, les libellés latéraux n’ont plus la place : le dessin
+   se réduit sans déborder, et le viewBox garde tout à l’échelle. */
+@media screen and (max-width: 520px) {
+  .cs-genome__stat { font-size: 13px; }
+  .cs-genome__value { font-size: 15px; }
+}
+
 .cs-domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 0.5rem; }
 .cs-domain {
   display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
@@ -224,10 +702,10 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-domain:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* Portrait (formulaire) */
-.cs-portrait-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 0.9rem; }
+.cs-portrait-row { display: flex; gap: 0.7rem; align-items: center; margin-bottom: 0.55rem; }
 .cs-portrait-preview {
   flex-shrink: 0;
-  width: 84px; height: 104px;
+  width: 58px; height: 72px;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
   color: var(--burned-paper);
@@ -237,8 +715,8 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   border-radius: 7px;
 }
 .cs-portrait-preview img { width: 100%; height: 100%; object-fit: cover; }
-.cs-portrait-preview--full { width: 84px; height: 130px; }
-.cs-portrait-actions { display: flex; flex-direction: column; gap: 0.45rem; align-items: flex-start; }
+.cs-portrait-preview--full { width: 58px; height: 90px; }
+.cs-portrait-actions { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; }
 .cs-file-title { font-size: 0.74rem; letter-spacing: 0.04em; color: var(--ancient-gold); }
 .cs-file-btn {
   padding: 0.5rem 0.9rem;
@@ -263,8 +741,14 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-crop__row input[type="range"] { width: 100%; accent-color: var(--ancient-gold); }
 
 /* Statistiques (formulaire) */
-.cs-stats-note { margin-bottom: 0.6rem; font-size: 0.74rem; font-style: italic; color: var(--burned-paper); }
-.cs-stat-mode { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
+.cs-stats-note {
+  margin-bottom: 0.4rem;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  font-style: italic;
+  color: var(--burned-paper);
+}
+.cs-stat-mode { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
 .cs-seg {
   display: inline-flex; border: 1px solid color-mix(in srgb, var(--ancient-gold) 35%, transparent);
   border-radius: 7px; overflow: hidden;
@@ -441,7 +925,11 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-attrs-head,
 .cs-attr {
   display: grid;
-  grid-template-columns: 1fr 7.5rem 2.2rem 2.6rem;
+  /* Le nom porte aussi le bonus de race (« Constitution +1 ») : sa colonne
+     ne descend pas sous 6rem. Le pas de réglage, lui, a le droit de se
+     resserrer jusqu’à 5.4rem — sinon la rangée réclame 312px et dépasse de
+     quatre pixels sur un écran de 360. */
+  grid-template-columns: minmax(6rem, 1fr) minmax(5.4rem, 6.5rem) 2.6rem 2.6rem;
   align-items: center;
   gap: 0.6rem;
 }
@@ -452,8 +940,10 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-attrs-head span:not(:first-child),
 .cs-attr__total,
 .cs-attr__mod { text-align: center; }
-.cs-attrs { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.9rem; }
-.cs-attr__label { font-size: 0.82rem; color: var(--faded-ivory); }
+.cs-attrs { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.5rem; }
+.cs-attr__label { font-size: 0.82rem; color: var(--faded-ivory); min-width: 0; }
+/* Le bonus ne doit pas se détacher du nom sur une ligne à lui seul. */
+.cs-attr__label .cs-attr__bonus { white-space: nowrap; }
 .cs-attr__bonus { margin-left: 0.3rem; font-style: normal; font-size: 0.74rem; color: var(--domain-life, #77a356); }
 .cs-attr__total { font-style: normal; font-weight: 700; color: var(--faded-ivory); }
 .cs-attr__mod {
@@ -501,7 +991,7 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
    réserve garde sa couleur pour être reconnue d'un coup d'œil. */
 .cs-pools { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 0.6rem; }
 .cs-pool {
-  display: grid; grid-template-columns: auto 6.5rem 1fr auto auto auto;
+  display: grid; grid-template-columns: auto 5.5rem 1fr auto auto auto;
   align-items: center; gap: 0.5rem;
 }
 .cs-pool__icon {
@@ -525,7 +1015,9 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-pool__max { font-size: 0.74rem; color: var(--burned-paper); white-space: nowrap; }
 .cs-pool__steps { display: flex; gap: 0.2rem; }
 .cs-pool__steps button:disabled { opacity: 0.35; cursor: not-allowed; }
-.cs-pool__state { font-size: 0.72rem; font-style: italic; color: var(--burned-paper); white-space: nowrap; }
+/* L’état peut se couper : son `nowrap` réservait 90px et poussait la rangée
+   au-delà de ce qu’une colonne de 30rem peut offrir. */
+.cs-pool__state { font-size: 0.72rem; font-style: italic; color: var(--burned-paper); }
 /* Réserve à sec : l'état avertit au lieu de mentionner. */
 .cs-pool__state.is-empty { color: #c2542f; font-style: normal; font-weight: 700; }
 /* Intitulé réservé aux lecteurs d'écran (le champ n'a pas de libellé visible). */
@@ -535,6 +1027,18 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 }
 
 @media (max-width: 720px) {
+  .cs-pool { grid-template-columns: auto 1fr auto; }
+  .cs-pool__track { grid-column: 1 / -1; }
+  .cs-pool__steps { grid-column: 1 / -1; justify-content: flex-end; }
+  .cs-pool__state { grid-column: 1 / -1; }
+}
+
+/* Même repli, mais sur la largeur du fieldset : en colonnes, la fenêtre est
+   large alors que la colonne ne fait que 21rem, et les chips ±1/±5 sortaient
+   du cadre — rognées par le <main>, donc perdues. */
+/* Le repli n’intervient plus qu’en dessous de 29rem : la rangée amaigrie
+   tient sur une ligne bien avant. */
+@container (max-width: 29rem) {
   .cs-pool { grid-template-columns: auto 1fr auto; }
   .cs-pool__track { grid-column: 1 / -1; }
   .cs-pool__steps { grid-column: 1 / -1; justify-content: flex-end; }
@@ -563,6 +1067,12 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-survival__state.is-empty { color: #c2542f; font-style: normal; font-weight: 700; }
 
 @media (max-width: 520px) {
+  .cs-survival { grid-template-columns: auto 1fr; }
+  .cs-survival__segments { grid-column: 1 / -1; }
+  .cs-survival__state { grid-column: 1 / -1; }
+}
+
+@container (max-width: 20rem) {
   .cs-survival { grid-template-columns: auto 1fr; }
   .cs-survival__segments { grid-column: 1 / -1; }
   .cs-survival__state { grid-column: 1 / -1; }
@@ -692,6 +1202,16 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   border-radius: 6px;
   cursor: pointer;
 }
+/* Pied de liste paginée : ajouter d’un côté, tourner les pages de l’autre. */
+.cs-item-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
 .cs-total { margin-top: 0.5rem; font-size: 0.82rem; color: var(--ancient-gold); }
 
 /* ── Sorts : déblocage & équipement ── */
@@ -794,6 +1314,116 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   opacity: 0.75;
 }
 
+/* La liste et son pager occupent ensemble UNE colonne de la grille : sans ce
+   conteneur, le pager prenait la cellule de la barre latérale. */
+.cs-spellpool__col { min-width: 0; }
+.cs-spellpool__pager { display: block; margin-top: 0.4rem; }
+.cs-spellpool__pager .pager { justify-content: flex-end; }
+
+/* ── Sorts : pool à gauche, sort réglé à droite ──────────────────────────
+   L'atelier tenait dans la ligne du sort : l'ouvrir repoussait toute la
+   suite du pool hors de l'écran. Il vit maintenant dans une barre latérale
+   collante, et la liste ne bouge plus. Sous 62rem de colonne, la barre
+   repasse sous la liste — la section est de toute façon en accordéon. */
+.cs-spells {
+  display: grid;
+  gap: 0.8rem;
+  align-items: start;
+}
+@container (min-width: 62rem) {
+  .cs-spells { grid-template-columns: minmax(20rem, 22rem) minmax(0, 1fr); }
+  .cs-spellside {
+    position: sticky;
+    top: 0.4rem;
+    /* Plus de plafond ni de défilement interne : l'atelier passe lui-même en
+       deux colonnes dans cette largeur (cf. spell-workshop.css), ce qui le
+       fait tenir en entier. */
+  }
+}
+
+.cs-spellside {
+  padding: 0.9rem 1rem 1rem;
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 32%, transparent);
+  border-radius: 10px;
+  box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.35);
+}
+
+/* Le nom du sort n'est plus un bloc à part : il est projeté dans la bande de
+   tête de l'atelier, où il partage sa ligne avec le niveau et les points.
+   C’est donc l’atelier qui porte le cadre et l’espacement. */
+.cs-spellside__lead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.cs-spellside__name {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: var(--faded-ivory);
+}
+.cs-spellside__meta {
+  font-size: 0.7rem;
+  color: var(--burned-paper);
+}
+.cs-spellside__close {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: var(--burned-paper);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 24%, transparent);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.cs-spellside__close:hover { color: var(--faded-ivory); border-color: var(--ancient-gold); }
+
+/* Le bloc d'XP tient sur deux lignes serrées : il surplombe l'atelier, et
+   toute sa hauteur est prise sur celle des réglages. */
+.cs-spellside .cs-xp { gap: 0.15rem; margin-bottom: 0.35rem; }
+.cs-spellside .cs-xp__train { margin-top: 0.15rem; }
+
+/* ── Aperçu d’un sort non débloqué ───────────────────────────────────────
+   On le consulte pour savoir ce qu’il vaudra avant d’y mettre son
+   inspiration. Les réglages sont déjà inertes (l’atelier désactive son
+   fieldset au niveau 0) : le cadre en pointillé et la teinte plus sourde
+   disent que ce n’est pas encore à nous. */
+.cs-spellside.is-preview {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--ancient-gold) 24%, transparent);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* Ce qui sépare le personnage du déblocage, sous la bande de tête. */
+.cs-spellside__unlock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--burned-paper);
+}
+.cs-spellside__unlock.is-blocked {
+  font-style: italic;
+  color: var(--dust-brown);
+}
+
+/* Rien de sélectionné : la barre dit quoi faire plutôt que de rester vide. */
+.cs-spellside__empty {
+  margin: 0;
+  padding: 1.2rem 0.4rem;
+  font-size: 0.78rem;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--dust-brown);
+}
+.cs-spellside__empty b { font-style: normal; color: var(--ancient-gold); }
+
 .cs-spellpool { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
 .cs-poolspell {
   padding: 0.35rem 0.55rem;
@@ -806,6 +1436,24 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-poolspell.is-locked { opacity: 0.5; }
 .cs-poolspell.is-unlocked { border-left-color: color-mix(in srgb, var(--ancient-gold) 55%, transparent); }
 .cs-poolspell.is-equipped { border-left-color: var(--ancient-gold); background: rgba(214, 167, 54, 0.12); }
+
+/* Toute la ligne ouvre le réglage du sort — d'où l'affordance sur la ligne
+   elle-même, et non sur une pastille. Seules les lignes qui ont un build à
+   montrer la portent. */
+.cs-poolspell.is-selectable { cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.cs-poolspell.is-selectable:hover {
+  background: rgba(0, 0, 0, 0.38);
+  border-color: color-mix(in srgb, var(--ancient-gold) 40%, transparent);
+}
+.cs-poolspell.is-selectable:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ancient-gold) 60%, transparent);
+  outline-offset: 2px;
+}
+/* La ligne dont le build est ouvert : elle répond au panneau de droite. */
+.cs-poolspell.is-selected {
+  background: color-mix(in srgb, var(--ancient-gold) 14%, rgba(0, 0, 0, 0.3));
+  border-color: color-mix(in srgb, var(--ancient-gold) 45%, transparent);
+}
 .cs-poolspell__sigil {
   display: flex; align-items: center; gap: 0.15rem;
   font-size: 0.9rem; color: var(--ancient-gold); white-space: nowrap;
@@ -837,6 +1485,11 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .cs-chip--unlock { border-style: dashed; }
 .cs-chip:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Le niveau du sort n'est plus un bouton : la ligne s'en charge. Il reste
+   comme indicateur, donc sans curseur ni survol. */
+.cs-chip--level { cursor: default; }
+.cs-chip--level.is-mute { opacity: 0.4; }
+
 .cs-inspiration { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem; }
 .cs-inspiration b { color: var(--ancient-gold); }
 .cs-inspiration.is-empty b { color: #e08a8a; }
@@ -846,7 +1499,7 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 .sheet-inv__total.is-over { color: var(--ritual-red); }
 
 /* ════════════════ APERÇU « FICHE » (imprimé) ════════════════ */
-.cs-preview-wrap { position: sticky; top: 1rem; }
+.cs-preview-wrap { position: sticky; top: calc(var(--cs-toolbar-h) + 0.5rem); }
 
 .sheet {
   display: grid;
@@ -884,6 +1537,36 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   box-shadow: inset 0 0 0 2px #847059, inset 0 0 50px rgba(132, 112, 89, 0.5), 0 10px 30px rgba(0, 0, 0, 0.3);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+/* La fiche rendue tient sur deux colonnes : à largeur de téléphone, elles
+   forçaient la page à déborder horizontalement. Elle passe donc en une
+   colonne, et son cadre de parchemin s'affine pour rendre de la largeur. */
+@media screen and (max-width: 900px) {
+  .sheet {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "character"
+      "attrs"
+      "pools"
+      "survival"
+      "stats"
+      "sorts"
+      "classpells"
+      "mastery"
+      "equipment"
+      "skills"
+      "inventory"
+      "affinities"
+      "langs"
+      "traits"
+      "faith"
+      "feats"
+      "notes"
+      "artwork";
+    padding: 0.9rem;
+    border-width: 8px;
+  }
 }
 
 
@@ -1379,7 +2062,21 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   .no-print, navbar, .stat-tip { display: none !important; }
   .layout, .cs-main { display: block; padding: 0; margin: 0; }
   .cs-grid { display: block; }
-  .cs-preview-wrap { position: static; }
+  .cs-preview-wrap { position: static; overflow: visible; padding: 0; }
+  /* Le panneau n’est plus un panneau : juste la fiche, à plat sur la page. */
+  .cs-modal {
+    position: static;
+    display: block;
+    width: auto;
+    max-height: none;
+    background: none;
+    backdrop-filter: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+  }
+  .cs-grid.is-blurred { filter: none; }
   .sheet {
     border-image: none;
     border: 2px solid #5e4632;
@@ -1466,6 +2163,15 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 /* ══ MATÉRIAUX DE TERRE — les contrôles, côté FORMULAIRE ═════════════════════
    L'aperçu de droite part au PDF : il ne porte qu'un résumé en lecture seule.
    Tout ce qui se clique vit ici. */
+/* Une ligne de matière exige ~22rem (nom, provenances, les deux bascules) :
+   19rem est le plus étroit qui la tienne sans rogner, et c'est ce qui donne
+   trois colonnes. Elles suffisent à montrer les trente-deux
+   matières d'un coup — les comparer est tout l'objet de cet écran, une
+   pagination en aurait caché la moitié sans rien gagner en hauteur. */
+.cs-earth { column-width: 19rem; }
+/* Une famille ne se coupe jamais en deux colonnes. */
+.cs-earth__family { break-inside: avoid; }
+
 .cs-earth__family { margin-bottom: .7rem; }
 .cs-earth__title {
   display: block;
@@ -1535,6 +2241,10 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
   border-top: 1px dashed color-mix(in srgb, var(--ancient-gold) 24%, transparent);
 }
 
+/* Dans la barre latérale, l'en-tête du sort sépare déjà : le filet pointillé,
+   hérité du temps où l'atelier se dépliait dans la ligne, ferait doublon. */
+.cs-spellside .cs-workshop { margin-top: 0; padding-top: 0; border-top: 0; }
+
 /* La jauge d'XP : ce qui sépare le sort de son prochain niveau, donc de ses
    prochains points. Elle se lit d'un coup d'œil, sans ouvrir l'atelier. */
 .cs-xp { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.5rem; }
@@ -1556,6 +2266,7 @@ label.cs-btn.is-busy { opacity: 0.5; cursor: not-allowed; }
 
 /* Les pastilles de niveau ne se cliquent pas ici : le niveau vient de l'XP. */
 .cs-workshop .ws-pip:disabled { cursor: default; opacity: 1; }
+
 
 /* Entraîner un sort : le travail hors combat, à plein tarif. */
 .cs-xp__train { display: flex; align-items: center; gap: 0.35rem; margin-top: 0.3rem; flex-wrap: wrap; }

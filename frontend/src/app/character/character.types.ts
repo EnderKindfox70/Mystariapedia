@@ -327,6 +327,11 @@ export interface CharacterSheet {
    * inspiration) le lisent directement.
    */
   level: number;
+  /**
+   * Attributs choisis par le joueur au titre des points libres de sa race
+   * (cf. `RaceDef.freeAttributePoints`). Un +1 par clé, sans répétition.
+   */
+  raceAttributePicks?: AttributeKey[];
   /** Jusqu'à 3 clés de domaine de magie. */
   domains: string[];
   attributes: Record<AttributeKey, number>;
@@ -395,6 +400,15 @@ export interface CharacterSheet {
    */
   earthMaterials?: EarthMaterialTraining;
   /**
+   * Espèces végétales : ce que le personnage sait des plantes, et laquelle il
+   * a dans la besace aujourd'hui.
+   *
+   * Absent sur une fiche qui n'a jamais touché au domaine. Les études comptent
+   * dans le MÊME pool que celles de la Terre : cinq au total, pas cinq de
+   * chaque.
+   */
+  plantSpecies?: PlantSpeciesTraining;
+  /**
    * Maîtrises d'armes AJOUTÉES à la main, en plus de celles que la classe
    * accorde (cf. `ClassDef.weaponProficiencies`). Un guerrier qui a passé
    * l'hiver chez un maître de hache l'apprend sans changer de classe : la
@@ -460,6 +474,30 @@ export interface EarthMaterialTraining {
   equipped?: string;
 }
 
+/**
+ * Ce qu'un personnage sait des espèces végétales.
+ *
+ * Trois degrés, comme la Terre, mais ils ne monnaient pas la même chose :
+ * ÉTUDIÉ (plein effet, prix normal), CONNU (toute la spécificité de la plante,
+ * mais le mana paie l'approximation), et le reste — le sort tourne alors sur
+ * le concept, sans rien de particulier. Cf. `combat/plants.ts`.
+ */
+export interface PlantSpeciesTraining {
+  /**
+   * Espèces étudiées. Une place par palier de maîtrise, partagée avec les
+   * matériaux de la Terre : cinq au maximum sur une carrière, toutes sources
+   * confondues.
+   */
+  studied: string[];
+  /**
+   * Espèces RECONNUES et déjà maniées, sans étude. Aucune place à payer : on
+   * les a croisées assez souvent pour savoir ce qu'elles font.
+   */
+  known?: string[];
+  /** L'espèce que le lanceur a dans la besace. Se change au repos. */
+  equipped?: string;
+}
+
 export interface CharacterSheetSummary {
   id: string;
   name: string;
@@ -507,6 +545,14 @@ export interface RaceDef {
   name: string;
   subraces: SubraceDef[];
   attributes?: StatKV[];
+  /**
+   * Points d'attribut que la race laisse au joueur, à poser lui-même.
+   *
+   * L'Humain n'a pas de profil : au lieu d'un +1 partout, il reçoit trois
+   * points à répartir sur trois attributs DIFFÉRENTS — un +1 chacun. Une race
+   * sans ce champ impose ses bonus, comme avant.
+   */
+  freeAttributePoints?: number;
   'genetics-stats'?: StatKV[];
 }
 

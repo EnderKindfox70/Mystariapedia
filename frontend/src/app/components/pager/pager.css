@@ -1,0 +1,68 @@
+/* Pagination : une barre discrète, au même registre que les autres contrôles
+   du grimoire (Cinzel en petites capitales, or éteint, boutons cernés d'or). */
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* Une seule page : la barre ne sert plus qu'à dire combien il y a d'éléments,
+   les flèches restent en place mais s'effacent. */
+.pager.is-single .pager__step { opacity: 0.25; }
+
+.pager__step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--burned-paper);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 26%, transparent);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pager__step:hover:not(:disabled) {
+  color: var(--faded-ivory);
+  border-color: var(--ancient-gold);
+}
+.pager__step:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pager__label {
+  font-family: var(--font-title);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--burned-paper);
+  white-space: nowrap;
+}
+.pager__label b {
+  font-weight: 600;
+  color: var(--faded-ivory);
+}
+
+.pager__count {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-style: italic;
+  color: var(--dust-brown);
+  white-space: nowrap;
+}
+
+/* Sur un écran étroit, le décompte passe sous les flèches plutôt que de
+   comprimer l'intitulé. */
+@media screen and (max-width: 420px) {
+  .pager__count {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}

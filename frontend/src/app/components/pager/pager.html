@@ -1,0 +1,31 @@
+<nav class="pager" [class.is-single]="pageCount() === 1">
+  <button
+    type="button"
+    class="pager__step"
+    [disabled]="!hasPrev()"
+    aria-label="Page précédente"
+    (click)="go(-1)"
+  >‹</button>
+
+  <span class="pager__label">
+    Page <b>{{ page() + 1 }}</b> sur <b>{{ pageCount() }}</b>
+  </span>
+
+  <button
+    type="button"
+    class="pager__step"
+    [disabled]="!hasNext()"
+    aria-label="Page suivante"
+    (click)="go(1)"
+  >›</button>
+
+  @if (showCount()) {
+    <span class="pager__count">
+      @if (total() === 0) {
+        aucun {{ unit() }}
+      } @else {
+        {{ from() }}–{{ to() }} sur {{ total() }} {{ unit() }}
+      }
+    </span>
+  }
+</nav>

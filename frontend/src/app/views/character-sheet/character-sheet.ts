@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
@@ -11,11 +11,13 @@ import {
   MaterialFamilyKey,
   Material,
   ResourceIndexEntry,
+  SpellNode,
   WeaponEntry,
 } from '../../wiki.types';
 import {
   cannotStudy,
-  MATERIAL_FAMILIES,
+  EARTH_FAMILIES,
+  isEarthMaterial,
   MATERIALS,
   MATERIAL_REGIONS,
   MATERIAL_BY_KEY,
@@ -24,18 +26,30 @@ import {
   studySlots,
 } from '../../combat/materials';
 import {
+  cannotStudyPlant,
+  normalizePlantTraining,
+  PLANT_BY_KEY,
+  PLANT_FAMILIES,
+  PLANT_TIERS,
+  plantTier,
+  plantsOfFamily,
+} from '../../combat/plants';
+import { PlantFamily, PlantFamilyKey, PlantSpecies } from '../../wiki.types';
+import {
   AttributeKey,
   BackgroundDef,
   CharacterSheet,
   ClassDef,
   CatalogTrait,
   CharacterSpells,
+  InventoryItem,
   LanguageDef,
   ClassSpell,
   DomainFeatDef,
   DomainStanding,
   EarthMaterialTraining,
   FeatChoice,
+  PlantSpeciesTraining,
   FeatPick,
   OriginDef,
   ReligionDef,
@@ -49,9 +63,12 @@ import {
 } from '../../character/character.types';
 import {
   Build,
+  BuilderStats,
+  builtNode,
   CustomizableSpell,
   DEFAULT_RULES,
   emptyBuild,
+  fillTemplate,
   fromSpellEntry,
   spellProgress,
   xpForCast,
@@ -59,6 +76,8 @@ import {
 } from '../../combat/spell-customization';
 import { SpellsService } from '../../services/spells.service';
 import { SpellWorkshop } from '../../components/spell-workshop/spell-workshop';
+import { SpellDetail } from '../../components/spell-detail/spell-detail';
+import { Pager } from '../../components/pager/pager';
 import {
   ATTRIBUTES,
   ATTRIBUTE_POINTS,
@@ -95,6 +114,8 @@ import {
   STATS,
   abilityModifier,
   attributeBonuses,
+  attributeKeyOf,
+  freeAttributePicks,
   backgroundSkillBonuses,
   computeAttributes,
   computeGold,
@@ -325,9 +346,21 @@ const EQUIPPED_WEIGHT_FACTOR = 0.5;
 /** Le socle, pour les sorts dont l'atelier n'a jamais été ouvert. Jamais modifié. */
 const EMPTY_BUILD: Build = emptyBuild();
 
+/** Les six sections du formulaire de fiche (cf. `formSections`). */
+export type FormSectionKey =
+  | 'identity'
+  | 'race'
+  | 'background'
+  | 'stats'
+  | 'magic'
+  | 'spells'
+  | 'traits'
+  | 'skills'
+  | 'gear';
+
 @Component({
   selector: 'app-character-sheet',
-  imports: [FormsModule, RouterLink, Navbar, SpellWorkshop],
+  imports: [FormsModule, RouterLink, Navbar, SpellWorkshop, SpellDetail, Pager],
   templateUrl: './character-sheet.html',
   styleUrl: './character-sheet.css',
 })
@@ -393,6 +426,145 @@ export class CharacterSheetEditor {
   readonly domainSigil = domainSigil;
   readonly domainIcon = domainIcon;
   readonly formatBonus = formatBonus;
+
+  /* ── Navigation par sections ───────────────────────────────────────────────
+     Les dix-neuf fieldsets du formulaire sont regroupés en six sections dont
+     une seule est ouverte à la fois. Le même état sert aux deux rendus : rail
+     d'onglets sur grand écran, accordéon à 900px et moins (cf. la feuille de style).
+     Le corps d'une section fermée n'est pas rendu — ça évite de faire tourner
+     la détection de changement sur un millier de lignes invisibles.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  readonly formSections = [
+    { key: 'identity', label: 'Identité' },
+    { key: 'race', label: 'Race' },
+    { key: 'background', label: 'Background' },
+    { key: 'stats', label: 'Stats' },
+    { key: 'magic', label: 'Magie' },
+    { key: 'spells', label: 'Sorts' },
+    { key: 'traits', label: 'Traits' },
+    { key: 'skills', label: 'Compétences' },
+    { key: 'gear', label: 'Équipement' },
+  ] as const;
+
+  readonly activeSection = signal<FormSectionKey>('identity');
+
+  /**
+   * Aperçu de la fiche : replié par défaut, et alors pas rendu du tout. Il
+   * prenait la moitié de la largeur, dont le formulaire a besoin pour tenir
+   * sur un écran.
+   */
+  readonly previewOpen = signal(false);
+
+  /** Vrai quand c'est l'impression qui a déplié l'aperçu, à replier après. */
+  private previewForPrint = false;
+
+  /**
+   * L'aperçu porte la fiche imprimée — le formulaire, lui, est en `no-print`.
+   * Replié il n'existe pas dans le DOM, donc un Ctrl+P sortirait une page
+   * blanche : on le déplie le temps de l'impression. Le bouton « Télécharger
+   * PDF » n'en dépend pas, son rendu est vectoriel (cf. sheet-pdf.ts).
+   */
+  @HostListener('window:beforeprint')
+  onBeforePrint(): void {
+    if (this.previewOpen()) return;
+    this.previewForPrint = true;
+    this.previewOpen.set(true);
+  }
+
+  @HostListener('window:afterprint')
+  onAfterPrint(): void {
+    if (!this.previewForPrint) return;
+    this.previewForPrint = false;
+    this.previewOpen.set(false);
+  }
+
+  /** Échap referme l'aperçu, comme tout panneau posé au premier plan. */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.previewOpen()) this.previewOpen.set(false);
+  }
+
+  isSection(key: FormSectionKey): boolean {
+    return this.activeSection() === key;
+  }
+
+  /** Ouvre une section et l'inscrit dans l'URL, pour qu'un rechargement y revienne. */
+  openSection(key: FormSectionKey): void {
+    this.activeSection.set(key);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { section: key },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  /**
+   * Résumé porté par l'onglet et par l'en-tête replié : la valeur du moment,
+   * pas le titre. `warn` marque ce qu'il reste à dépenser ou à décider, pour
+   * qu'on le voie sans entrer dans la section.
+   */
+  sectionBadge(key: FormSectionKey): { text: string; warn: boolean } {
+    switch (key) {
+      case 'identity': {
+        const name = this.model.identity.name?.trim();
+        return name
+          ? { text: `${name} · ${this.model.level}`, warn: false }
+          : { text: 'à nommer', warn: true };
+      }
+      case 'race': {
+        const nom = this.model.identity.race?.trim();
+        if (!nom) return { text: 'à choisir', warn: true };
+        // Des points libres non posés valent un avertissement : le personnage
+        // est incomplet alors que la race, elle, est choisie.
+        const reste = this.raceFreeLeft;
+        return reste
+          ? { text: reste + (reste > 1 ? " pts libres" : " pt libre"), warn: true }
+          : { text: nom, warn: false };
+      }
+      case 'background': {
+        const nom = this.model.identity.background?.trim();
+        return nom ? { text: nom, warn: false } : { text: 'à choisir', warn: true };
+      }
+      case 'stats':
+        return this.attributeMode === 'pointbuy'
+          ? { text: `${this.pointsRemaining} pts`, warn: this.pointsRemaining !== 0 }
+          : { text: `${this.rollsAssigned}/6 dés`, warn: this.rollsAssigned < 6 };
+      case 'magic':
+        return {
+          text: `${this.model.domains.length}/3`,
+          warn: this.model.domains.length === 0,
+        };
+      case 'spells': {
+        const debloques = this.model.spells.unlocked.length;
+        if (!debloques) return { text: '—', warn: false };
+        // Un sort débloqué mais non équipé ne sert à rien en combat : on le dit.
+        return {
+          text: `${this.equippedSpells.length}/${this.equippedCap}`,
+          warn: this.equippedSpells.length === 0,
+        };
+      }
+      case 'traits': {
+        const left = this.creationTraitsLeft + this.featSlotsPending;
+        return {
+          text: `${this.creationTraitKeys.length}/${this.creationTraitSlots}`,
+          warn: left > 0,
+        };
+      }
+      case 'skills': {
+        if (!this.classSkillChoices) return { text: '—', warn: false };
+        return {
+          text: `${this.chosenSkillCount}/${this.classSkillChoices}`,
+          warn: this.chosenSkillCount < this.classSkillChoices,
+        };
+      }
+      case 'gear': {
+        const n = this.model.inventory.length;
+        return { text: `${n} obj.`, warn: this.overweight };
+      }
+    }
+  }
 
   constructor() {
     // Datasets pilotant les listes déroulantes race/sous-race/background/classe.
@@ -579,6 +751,243 @@ export class CharacterSheetEditor {
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) this.load(id);
+
+    // ?section=magie : on reprend la fiche là où on l'avait laissée.
+    const section = this.route.snapshot.queryParamMap.get('section');
+    if (this.formSections.some((s) => s.key === section)) {
+      this.activeSection.set(section as FormSectionKey);
+    }
+  }
+
+  /* ── Ce que la race et le background accordent ───────────────────────────
+     Les deux ont leur propre onglet : ce sont des choix structurants, et ce
+     qu'ils donnent (attributs, traits, compétences, matériel) se lisait
+     jusqu’ici éparpillé entre Identité, Traits et Équipement. */
+
+  /* ── Points d’attribut libres de la race ─────────────────────────────────
+
+     Une race peut laisser au joueur des points à poser (l'Humain en a trois,
+     au lieu d’un profil imposé). La règle : un point par attribut, donc
+     autant d’attributs DIFFÉRENTS que de points. Le modèle ne garde que les
+     clés choisies, la validation vit dans `freeAttributePicks`. */
+
+  /** Combien de points la race laisse à poser (0 si elle impose son profil). */
+  get raceFreePoints(): number {
+    return this.selectedRace?.freeAttributePoints ?? 0;
+  }
+
+  /** Les points effectivement posés, validés. */
+  get raceFreePicks(): AttributeKey[] {
+    return freeAttributePicks(this.selectedRace, this.model.raceAttributePicks);
+  }
+
+  get raceFreeLeft(): number {
+    return Math.max(0, this.raceFreePoints - this.raceFreePicks.length);
+  }
+
+  isRaceAttrPicked(key: AttributeKey): boolean {
+    return this.raceFreePicks.includes(key);
+  }
+
+  /**
+   * Pose ou retire un point sur un attribut.
+   *
+   * Un attribut ne peut pas en recevoir deux : cliquer un attribut déjà pris
+   * rend son point. Au-delà du quota, le clic ne fait rien plutôt que de
+   * remplacer un choix au hasard.
+   */
+  toggleRaceAttrPick(key: AttributeKey): void {
+    const poses = this.raceFreePicks;
+    if (poses.includes(key)) {
+      this.model.raceAttributePicks = poses.filter((k) => k !== key);
+      return;
+    }
+    if (poses.length >= this.raceFreePoints) return;
+    this.model.raceAttributePicks = [...poses, key];
+  }
+
+  /** Bonus d'attribut dus à la SEULE race (et sa sous-race), sans les feats. */
+  get raceAttrBonuses(): { label: string; value: number }[] {
+    const bonus = attributeBonuses(
+      this.selectedRace,
+      this.model.identity.subrace,
+      this.model.raceAttributePicks,
+    );
+    return this.attributes
+      .map((a) => ({ label: a.label, value: bonus[a.key] }))
+      .filter((b) => b.value !== 0);
+  }
+
+  /* ── Génome de la race ────────────────────────────────────────────────────
+
+     Les `genetics-stats` d'une race sont son point de départ : six valeurs
+     brutes (PV, attaques, endurance, mana, vitesse) sur lesquelles tout le
+     reste se construit. Six valeurs, donc six allèles : on les dessine sur
+     une double hélice, chacun désigné par une flèche qui porte sa stat.
+
+     La géométrie est calculée ici et non écrite dans le template : les deux
+     brins, les barreaux et les amorces de flèche doivent rester cohérents,
+     et une seule constante de pas suffit à tout replacer.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  /** Repères du dessin, en unités du viewBox. */
+  private readonly geneGeom = {
+    cx: 250,
+    top: 42,
+    step: 54,
+    amp: 34,
+    /** Où commence le texte, de chaque côté. */
+    labelRight: 336,
+    labelLeft: 164,
+  };
+
+  /** Hauteur du dessin : six barreaux plus une marge. */
+  get geneHeight(): number {
+    const g = this.geneGeom;
+    return g.top + 5 * g.step + g.top;
+  }
+
+  /**
+   * Les six allèles de la race, prêts à dessiner : position du barreau, côté
+   * où pointe la flèche, et longueur de la jauge de comparaison.
+   *
+   * `null` tant aucune race n’est choisie — le panneau invite alors à choisir.
+   */
+  get raceGenome(): {
+    strandA: string;
+    strandB: string;
+    alleles: {
+      label: string;
+      value: number;
+      y: number;
+      nodeX: number;
+      otherX: number;
+      side: string;
+      labelX: number;
+      arrowFrom: number;
+      arrowTo: number;
+      bar: number;
+    }[];
+  } | null {
+    const genes = this.selectedRace?.['genetics-stats'];
+    if (!genes?.length) return null;
+
+    const g = this.geneGeom;
+    const nom = (cle: string) => this.stats.find((st) => st.key === cle)?.label ?? cle;
+    // La jauge se lit par comparaison : la plus forte valeur fait la longueur.
+    const plafond = Math.max(...genes.map((x) => x.value), 1);
+
+    const alleles = genes.map((gene, i) => {
+      const y = g.top + i * g.step;
+      // Un barreau sur deux part du brin de droite : les flèches alternent
+      // donc d'elles-mêmes, trois d'un côté, trois de l'autre.
+      const droite = i % 2 === 0;
+      return {
+        label: nom(gene.key),
+        value: gene.value,
+        y,
+        nodeX: droite ? g.cx + g.amp : g.cx - g.amp,
+        otherX: droite ? g.cx - g.amp : g.cx + g.amp,
+        side: droite ? 'right' : 'left',
+        labelX: droite ? g.labelRight : g.labelLeft,
+        arrowFrom: droite ? g.labelRight - 8 : g.labelLeft + 8,
+        arrowTo: droite ? g.cx + g.amp + 10 : g.cx - g.amp - 10,
+        bar: Math.round((gene.value / plafond) * 58),
+      };
+    });
+
+    // Les brins : une demi-période par barreau, en S adoucie. Le brin B est
+    // le miroir du brin A, d'où le même tracé lu à l'envers.
+    const brin = (depart: number) => {
+      let d = `M ${depart} ${g.top}`;
+      let x = depart;
+      for (let i = 1; i < genes.length; i++) {
+        const y0 = g.top + (i - 1) * g.step;
+        const y1 = g.top + i * g.step;
+        const suivant = x === g.cx + g.amp ? g.cx - g.amp : g.cx + g.amp;
+        const k = g.step / 2;
+        d += ` C ${x} ${y0 + k} ${suivant} ${y1 - k} ${suivant} ${y1}`;
+        x = suivant;
+      }
+      return d;
+    };
+
+    return {
+      strandA: brin(g.cx + g.amp),
+      strandB: brin(g.cx - g.amp),
+      alleles,
+    };
+  }
+
+  /**
+   * Ce à quoi une race est bonne, en deux mots : ses deux plus fortes stats
+   * génétiques. Sert de sous-titre sur les cartes de sélection.
+   */
+  raceProfile(race: RaceDef): string {
+    const genes = race['genetics-stats'] ?? [];
+    if (!genes.length) return '';
+    return [...genes]
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 2)
+      .map((x) => `${this.stats.find((st) => st.key === x.key)?.label ?? x.key} ${x.value}`)
+      .join(' · ');
+  }
+
+  /**
+   * Ce qu'une sous-race change, en deux mots : ses écarts d'attribut.
+   *
+   * Une sous-race affine, elle ne refait pas le génome — elle n'a donc pas de
+   * `genetics-stats`, seulement des écarts, souvent un gain contre une perte.
+   */
+  subraceProfile(sub: SubraceDef): string {
+    return (sub.attributes ?? [])
+      .filter((a) => a.value !== 0)
+      .map((a) => {
+        // Les datasets nomment les attributs en anglais, le moteur en français.
+        const cle = attributeKeyOf(a.key);
+        const nom = this.attributes.find((x) => x.key === cle)?.label ?? a.key;
+        return `${nom} ${formatBonus(a.value)}`;
+      })
+      .join(' · ');
+  }
+
+  /** Traits accordés par une catégorie de source (`race`, `subrace`, `background`). */
+  private traitsGrantedBy(...kinds: string[]): CatalogTrait[] {
+    return this.grantedTraitDefs.filter((t) =>
+      (t.grantedBy ?? []).some((ref) => kinds.includes(ref.split(':')[0])),
+    );
+  }
+
+  get raceTraitDefs(): CatalogTrait[] {
+    return this.traitsGrantedBy('race', 'subrace');
+  }
+
+  get backgroundTraitDefs(): CatalogTrait[] {
+    return this.traitsGrantedBy('background');
+  }
+
+  /** Compétences accordées par le background, en lignes affichables. */
+  get backgroundSkillRows(): { label: string; value: number }[] {
+    const bonus = this.backgroundSkills;
+    return this.skills
+      .filter((s) => bonus.get(s.key))
+      .map((s) => ({ label: s.label, value: bonus.get(s.key)! }));
+  }
+
+  /** Matériel de départ du sous-background, résolu en noms lisibles. */
+  get startingGearNames(): string[] {
+    const sub = this.selectedSubbackground;
+    if (!sub) return [];
+    const noms: string[] = [];
+    const arme = sub.startingWeapon && this.weaponNameBySlug().get(sub.startingWeapon);
+    if (arme) noms.push(arme);
+    const tenue = this.outfitBySlug().get(sub.key);
+    if (tenue?.name) noms.push(tenue.name);
+    for (const slug of sub.startingItems ?? []) {
+      const it = this.itemBySlug().get(slug);
+      if (it?.name) noms.push(it.name);
+    }
+    return noms;
   }
 
   /** Sous-races disponibles pour la race actuellement sélectionnée. */
@@ -647,6 +1056,8 @@ export class CharacterSheetEditor {
   onRaceChange(): void {
     const valid = this.subracesForSelected.some((s) => s.name === this.model.identity.subrace);
     if (!valid) this.model.identity.subrace = '';
+    // Les points libres appartiennent à la race qu'on quitte : on les rend.
+    this.model.raceAttributePicks = [];
   }
 
   /** Idem pour le background → sous-background. */
@@ -1575,6 +1986,11 @@ export class CharacterSheetEditor {
       proficiencyBonus: data.proficiencyBonus ?? base.proficiencyBonus,
       skills: Array.isArray(data.skills) ? data.skills : [],
       creationTraits: this.normalizeCreationTraits(data.creationTraits),
+      raceAttributePicks: Array.isArray(data.raceAttributePicks)
+        ? (data.raceAttributePicks.filter(
+            (k): k is AttributeKey => typeof k === 'string',
+          ) as AttributeKey[])
+        : [],
       languages: Array.isArray(data.languages)
         ? [...new Set(data.languages.filter((k): k is string => typeof k === 'string' && !!languageByKey(k)))]
         : [],
@@ -1591,6 +2007,14 @@ export class CharacterSheetEditor {
       // qu'on ait sauvegardé. C'est ce qui donnait l'impression que l'étude ne
       // s'enregistrait pas.
       earthMaterials: normalizeTraining(data.earthMaterials, levelForXp(xp)),
+      // Les deux catalogues se partagent les cinq places : ce que la Terre a
+      // pris n'est plus disponible pour les Plantes, et la relecture doit le
+      // savoir — sans quoi une fiche chargée rouvrirait des places déjà prises.
+      plantSpecies: normalizePlantTraining(
+        data.plantSpecies,
+        levelForXp(xp),
+        normalizeTraining(data.earthMaterials, levelForXp(xp))?.studied.length ?? 0,
+      ),
       notes: data.notes ?? '',
     };
   }
@@ -1719,7 +2143,7 @@ export class CharacterSheetEditor {
    */
   attrBonus(key: AttributeKey): number {
     return (
-      attributeBonuses(this.selectedRace, this.model.identity.subrace)[key] +
+      attributeBonuses(this.selectedRace, this.model.identity.subrace, this.model.raceAttributePicks)[key] +
       this.featAttributePoints[key]
     );
   }
@@ -2065,8 +2489,9 @@ export class CharacterSheetEditor {
      d'arme — et elle n'apparaît que pour qui a le domaine.
   ─────────────────────────────────────────────────────────────────────────── */
 
-  readonly earthMaterials = MATERIALS;
-  readonly earthFamilies = MATERIAL_FAMILIES;
+  readonly earthMaterials = MATERIALS.filter((m) => isEarthMaterial(m.key));
+  readonly earthFamilies = EARTH_FAMILIES;
+
 
   /** Le personnage touche-t-il à la Terre ? Sinon, la section n'a rien à dire. */
   get hasEarthDomain(): boolean {
@@ -2078,12 +2503,18 @@ export class CharacterSheetEditor {
     return (this.model.earthMaterials ??= { studied: [], known: [] });
   }
 
+  /*
+   * Filtrés : une fiche enregistrée avant que l'offre soit restreinte peut
+   * porter du bois ou du cuir. On les ignore au lieu de les réécrire — ils ne
+   * comptent alors plus de place d'étude et ne s'affichent plus, mais la
+   * donnée reste intacte si la règle changeait.
+   */
   get studiedMaterials(): string[] {
-    return this.model.earthMaterials?.studied ?? [];
+    return (this.model.earthMaterials?.studied ?? []).filter(isEarthMaterial);
   }
 
   get knownMaterials(): string[] {
-    return this.model.earthMaterials?.known ?? [];
+    return (this.model.earthMaterials?.known ?? []).filter(isEarthMaterial);
   }
 
   get equippedMaterial(): string | undefined {
@@ -2095,8 +2526,15 @@ export class CharacterSheetEditor {
     return studySlots(this.model.level);
   }
 
+  /**
+   * Places prises, TOUTES sources confondues.
+   *
+   * Le repos long qu'on passe sur une belladone n'est plus disponible pour une
+   * pierre : compter les deux catalogues séparément laisserait croire à dix
+   * places quand il n'y en a que cinq.
+   */
   get studySlotsUsed(): number {
-    return this.studiedMaterials.length;
+    return this.studiedMaterials.length + this.studiedPlants.length;
   }
 
   /** Les matériaux d'une famille, pour l'affichage par colonne. */
@@ -2107,7 +2545,7 @@ export class CharacterSheetEditor {
   /** Ce qui empêche d'étudier ce matériau, ou `null`. */
   studyBlocker(key: string): string | null {
     if (this.studiedMaterials.includes(key)) return null;
-    return cannotStudy(key, this.studiedMaterials, this.model.level);
+    return cannotStudy(key, this.studiedMaterials, this.model.level, this.studiedPlants.length);
   }
 
   /** Étudie le matériau, ou renonce à l'étude. */
@@ -2123,7 +2561,7 @@ export class CharacterSheetEditor {
       if (bloc.equipped && !bloc.studied.includes(bloc.equipped)) bloc.equipped = undefined;
       return;
     }
-    if (cannotStudy(key, bloc.studied, this.model.level)) return;
+    if (cannotStudy(key, bloc.studied, this.model.level, this.studiedPlants.length)) return;
     bloc.studied.push(key);
   }
 
@@ -2164,6 +2602,117 @@ export class CharacterSheetEditor {
     return m.native
       .map((k) => MATERIAL_REGIONS.find((r) => r.key === k)?.name ?? k)
       .join(', ');
+  }
+
+  /* ── Espèces végétales ───────────────────────────────────────────────────
+     Le pendant botanique des matériaux : le domaine des Plantes a un sort par
+     geste, et l'espèce employée décide de ce que ce geste produit. Trois
+     degrés, comme la Terre, mais la plante CONNUE garde toute sa spécificité —
+     elle coûte seulement plus cher à lancer.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  readonly plantFamilies: PlantFamily[] = PLANT_FAMILIES;
+  readonly plantTierLegend = [PLANT_TIERS.etudiee, PLANT_TIERS.connue, PLANT_TIERS.inconnue];
+
+  /** Le personnage touche-t-il aux Plantes ? Sinon, la section n'a rien à dire. */
+  get hasPlantDomain(): boolean {
+    return this.model.domains.includes('plant');
+  }
+
+  /** Le bloc de la fiche, créé à la première utilisation. */
+  private get plantTrainingBlock(): PlantSpeciesTraining {
+    return (this.model.plantSpecies ??= { studied: [], known: [] });
+  }
+
+  /** Ce que l'atelier doit savoir du lecteur pour lire chaque espèce au bon degré. */
+  get plantTraining(): PlantSpeciesTraining {
+    return this.model.plantSpecies ?? { studied: [], known: [] };
+  }
+
+  get studiedPlants(): string[] {
+    return (this.model.plantSpecies?.studied ?? []).filter((k) => PLANT_BY_KEY.has(k));
+  }
+
+  get knownPlants(): string[] {
+    return (this.model.plantSpecies?.known ?? []).filter((k) => PLANT_BY_KEY.has(k));
+  }
+
+  get equippedPlant(): string | null {
+    return this.model.plantSpecies?.equipped ?? null;
+  }
+
+  plantsIn(family: PlantFamilyKey): PlantSpecies[] {
+    return plantsOfFamily(family);
+  }
+
+  /** Ce qui empêche d'étudier cette espèce, ou `null`. */
+  plantStudyBlocker(key: string): string | null {
+    if (this.studiedPlants.includes(key)) return null;
+    return cannotStudyPlant(key, this.studiedPlants, this.model.level, this.studiedMaterials.length);
+  }
+
+  /** Étudie l'espèce, ou renonce à l'étude. */
+  togglePlantStudied(key: string): void {
+    const bloc = this.plantTrainingBlock;
+    const i = bloc.studied.indexOf(key);
+    if (i >= 0) {
+      bloc.studied.splice(i, 1);
+      return;
+    }
+    if (this.plantStudyBlocker(key)) return;
+    bloc.studied.push(key);
+    // Étudier ce qu'on connaissait déjà : la plante quitte la liste des connues,
+    // sinon elle apparaîtrait aux deux degrés à la fois.
+    bloc.known = (bloc.known ?? []).filter((k) => k !== key);
+  }
+
+  /** Marque une espèce comme reconnue et déjà maniée, sans étude. */
+  togglePlantKnown(key: string): void {
+    const bloc = this.plantTrainingBlock;
+    // Une espèce étudiée est déjà mieux que connue : le bouton n'a rien à dire.
+    if (bloc.studied.includes(key)) return;
+    bloc.known ??= [];
+    const i = bloc.known.indexOf(key);
+    if (i >= 0) {
+      bloc.known.splice(i, 1);
+      if (bloc.equipped === key) bloc.equipped = undefined;
+    } else bloc.known.push(key);
+  }
+
+  /**
+   * L'espèce qu'on a dans la besace.
+   *
+   * Seulement une espèce étudiée ou connue : emporter une plante qu'on ne
+   * saurait pas nommer ne changerait rien — le sort retomberait de toute façon
+   * sur son geste nu.
+   */
+  setEquippedPlant(key: string | null): void {
+    const bloc = this.plantTrainingBlock;
+    if (!key || !(bloc.studied.includes(key) || (bloc.known ?? []).includes(key))) {
+      bloc.equipped = undefined;
+      return;
+    }
+    bloc.equipped = bloc.equipped === key ? undefined : key;
+  }
+
+  /** Le degré auquel le personnage connaît cette espèce. */
+  plantTierOf(key: string): string {
+    return PLANT_TIERS[plantTier(key, this.plantTraining)].label;
+  }
+
+  /** Une ligne lisible pour l'infobulle d'une espèce. */
+  plantHint(p: PlantSpecies): string {
+    return `${p.latin} — ${p.part}, ${p.property.toLowerCase()}. ${p.habitat}.`;
+  }
+
+  /** Nom affiché d'une espèce, depuis sa clé (résumé de l'aperçu). */
+  plantName(key: string): string {
+    return PLANT_BY_KEY.get(key)?.name ?? key;
+  }
+
+  /** Les régions où l'espèce pousse d'elle-même, en clair. */
+  plantRegions(p: PlantSpecies): string {
+    return p.native.map((k) => MATERIAL_REGIONS.find((r) => r.key === k)?.name ?? k).join(', ');
   }
 
   // ── Domaines de magie ──────────────────────────────────────────────────────
@@ -2394,6 +2943,22 @@ export class CharacterSheetEditor {
 
   selectSpellTab(key: string): void {
     this.spellTabKey.set(key);
+    // Changer d'onglet change la liste : rester page 3 y afficherait du vide.
+    this.spellPage.set(0);
+  }
+
+  /* ── Pool de sorts : par pages plutôt qu’en défilement ──────────────────
+     Trois domaines donnent une trentaine de sorts, et la liste poussait le
+     réglage du sort sélectionné hors de vue. Huit par page : la barre
+     latérale reste en regard du pool. */
+
+  readonly spellsPerPage = 8;
+  readonly spellPage = signal(0);
+
+  /** La page courante du pool, déjà filtré par l'onglet de magie. */
+  get shownSpellPage(): DomainSpell[] {
+    const debut = this.spellPage() * this.spellsPerPage;
+    return this.shownSpellPool.slice(debut, debut + this.spellsPerPage);
   }
 
   /** Un onglet par magie du personnage, plus « Tous » — avec ce que chacun contient. */
@@ -2529,13 +3094,162 @@ export class CharacterSheetEditor {
   /** L'atelier ouvert, ou `null` : un seul sort se règle à la fois. */
   readonly openWorkshop = signal<string | null>(null);
 
-  toggleWorkshop(key: string): void {
-    const ouvrir = this.openWorkshop() !== key;
+  /**
+   * Le sort dont l'atelier est ouvert, s'il est toujours dans le pool.
+   *
+   * L'atelier ne vit plus dans la ligne du sort mais dans la barre latérale
+   * de la section : c'est ce getter qui lui dit quoi montrer. `null` quand
+   * rien n'est sélectionné, ou quand le sort a quitté le pool (domaine
+   * retiré) — la barre affiche alors son invitation.
+   */
+  get workshopSpell(): DomainSpell | null {
+    const key = this.openWorkshop();
+    return key ? (this.domainSpellPool.find((sp) => sp.key === key) ?? null) : null;
+  }
+
+  /**
+   * Ce sort a-t-il un build à MONTRER ?
+   *
+   * Débloqué ou non : un sort qu'on n'a pas encore appris se consulte quand
+   * même — on veut voir ce qu’il donnera avant de dépenser son inspiration.
+   * Seuls les sorts que le moteur ne sait pas personnaliser restent inertes.
+   */
+  canOpenWorkshop(key: string): boolean {
+    return !!this.customizableSpell(key);
+  }
+
+  /** Le sort ouvert n'est pas encore appris : on n'en montre que le socle. */
+  get workshopIsPreview(): boolean {
+    const s = this.workshopSpell;
+    return !!s && !this.isSpellUnlocked(s.key);
+  }
+
+  /**
+   * Ce que l'atelier doit dire à la place de sa phrase de niveau 0, quand le
+   * sort n'est pas débloqué. `null` pour un sort appris : la phrase d'origine
+   * convient alors.
+   */
+  get workshopLockedNote(): string | null {
+    const s = this.workshopSpell;
+    if (!s || this.isSpellUnlocked(s.key)) return null;
+    const socle = "Sort non débloqué — voici son socle, tel qu’on l’apprendra. ";
+    if (this.canUnlock(s)) return socle + "Débloque-le pour gagner de l’XP dessus et le régler.";
+    const raison = this.lockReason(s);
+    return socle + (raison ? raison + "." : "Hors de portée pour l’instant.");
+  }
+
+  /* ── Ce que le sort réglé FAIT ───────────────────────────────────────────
+     L'atelier montre des chiffres ; la barre latérale doit aussi dire la
+     phrase. Elle se projette dans la colonne de résultat, à côté des
+     réglages, et suit le build quand la fiche du sort déclare un texte
+     vivant — les `stats` viennent de l'atelier lui-même (cf. `#shop`).
+  ───────────────────────────────────────────────────────────────────────── */
+
+  /** La description du sort tel qu'il est construit ; jamais vide. */
+  spellText(key: string, stats: BuilderStats): string {
+    const page = this.spellPages.bySlug(key);
+    if (!page) return '';
+    const live = page.spell.liveText;
+    return this.fillLive(key, live?.lead ?? live?.description, stats) ?? page.spell.description ?? '';
+  }
+
+  /** Ce que le sort construit vaut dans un contexte ; `''` si la fiche n'en dit rien. */
+  spellUsageText(key: string, mode: 'combat' | 'outOfCombat', stats: BuilderStats): string {
+    const page = this.spellPages.bySlug(key);
+    if (!page) return '';
+    return this.fillLive(key, page.spell.liveText?.[mode], stats) ?? page.spell.usage?.[mode] ?? '';
+  }
+
+  /** Remplit un texte vivant avec les stats du build ; `null` sans texte vivant. */
+  private fillLive(key: string, text: string | undefined, stats: BuilderStats): string | null {
+    if (!text) return null;
+    const spell = this.customizableSpell(key);
+    return spell ? fillTemplate(text, spell, stats) : null;
+  }
+
+  /**
+   * Le sort construit, sous la forme que lit la carte de détail — la même
+   * fabrique (`builtNode`) que la fiche du wiki et que le moteur de combat.
+   *
+   * Mémoïsé sur les stats : la carte le reçoit en ENTRÉE, et un nœud neuf à
+   * chaque cycle de détection la ferait se redessiner sans fin.
+   */
+  workshopNode(key: string, stats: BuilderStats): SpellNode | null {
+    const signature = `${key}|${JSON.stringify(stats)}`;
+    if (this.nodeMemo?.signature !== signature) {
+      const spell = this.customizableSpell(key);
+      if (!spell) return null;
+      const combat = this.spellUsageText(key, 'combat', stats);
+      const horsCombat = this.spellUsageText(key, 'outOfCombat', stats);
+      this.nodeMemo = {
+        signature,
+        node: builtNode(spell, stats, {
+          description: this.spellText(key, stats),
+          usage: { combat: combat || undefined, outOfCombat: horsCombat || undefined },
+        }),
+      };
+    }
+    return this.nodeMemo.node;
+  }
+  private nodeMemo: { signature: string; node: SpellNode } | null = null;
+
+  /**
+   * La fiche du sort telle que le wiki la déclare.
+   *
+   * La carte de détail y lit ses replis : la matière qu'un sort façonne, la
+   * météo qu'il invoque — des champs que le nœud construit ne porte que s'il
+   * les change lui-même.
+   */
+  spellEntry(key: string) {
+    return this.spellPages.bySlug(key)?.spell ?? null;
+  }
+
+  /** Sur-titre de la carte : l'état du sort qu'elle décrit. */
+  workshopKicker(key: string, touched: boolean): string {
+    return touched ? `Build réglé · sort niv. ${this.spellLevel(key)}` : 'Socle du sort';
+  }
+
+  /**
+   * Les domaines où le personnage a RÉELLEMENT investi : ceux d'au moins un
+   * sort appris. Même règle que le moteur (`investedDomains`), pour que
+   * l'atelier ferme d'avance le domaine non natif que l'export refuserait.
+   *
+   * Mémoïsé sur la liste des sorts appris : c'est une ENTRÉE de l'atelier, et
+   * un tableau neuf à chaque cycle de détection le ferait recalculer sans fin.
+   */
+  get investedDomains(): string[] {
+    const signature = this.model.spells.unlocked.join('|');
+    if (signature !== this.investedMemo.signature) {
+      const domaines = new Set<string>();
+      for (const s of this.unlockedSpells) for (const d of this.domainSpellKeys(s)) domaines.add(d);
+      this.investedMemo = { signature, domains: [...domaines] };
+    }
+    return this.investedMemo.domains;
+  }
+  private investedMemo: { signature: string; domains: string[] } = { signature: '\u0000', domains: [] };
+
+  /**
+   * Sélectionne un sort : son build s'ouvre dans la barre latérale.
+   *
+   * C'est la LIGNE entière qui appelle ceci, pas une pastille — d'où le garde
+   * sur les boutons : équiper, débloquer et oublier vivent dans la ligne et ne
+   * doivent pas la sélectionner au passage.
+   *
+   * Sélectionner, jamais basculer : refermer se fait par la croix du panneau.
+   * Un second clic sur une ligne déjà ouverte le fermerait par surprise.
+   */
+  selectWorkshopSpell(key: string, event?: Event): void {
+    if (event && (event.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+    if (!this.canOpenWorkshop(key)) return;
     // Ouvrir l'atelier matérialise le build : tant qu'il vaut `null`, le sort
-    // est à son socle, et l'atelier n'aurait rien de stable à régler.
-    const state = this.model.spells.states[key];
-    if (ouvrir && state && !state.build) state.build = emptyBuild();
-    this.openWorkshop.set(ouvrir ? key : null);
+    // est à son socle, et l'atelier n'aurait rien de stable à régler. Rien
+    // n'est écrit pour un sort non débloqué — la consultation ne doit pas
+    // laisser de trace dans la fiche.
+    if (this.isSpellUnlocked(key)) {
+      const state = this.model.spells.states[key];
+      if (state && !state.build) state.build = emptyBuild();
+    }
+    this.openWorkshop.set(key);
   }
 
   isSpellUnlocked(key: string): boolean {
@@ -2658,8 +3372,27 @@ export class CharacterSheetEditor {
     }
   }
 
+  /* ── Sac : pagination plutôt que défilement ───────────────────────────────
+     Un sac se remplit vite, et sa liste poussait la section hors de l'écran.
+     Elle se lit donc par pages de six. On garde l'index RÉEL de chaque ligne :
+     les noms de champ (`in-3`, `iq-3`…) et le retrait s'appuient dessus, pas
+     sur le rang dans la page. */
+
+  readonly bagPerPage = 6;
+  readonly bagPage = signal(0);
+
+  /** Les lignes de la page courante, chacune avec son index dans l'inventaire. */
+  get bagPageItems(): { item: InventoryItem; index: number }[] {
+    const debut = this.bagPage() * this.bagPerPage;
+    return this.model.inventory
+      .map((item, index) => ({ item, index }))
+      .slice(debut, debut + this.bagPerPage);
+  }
+
+  /** Ajoute un objet et saute à la page où il vient d'atterrir. */
   addItem(): void {
     this.model.inventory.push({ name: '', qty: 1, weight: 0 });
+    this.bagPage.set(Math.floor((this.model.inventory.length - 1) / this.bagPerPage));
   }
 
   removeItem(index: number): void {

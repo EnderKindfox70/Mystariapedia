@@ -3,11 +3,51 @@
    Deux colonnes dès que la place le permet : les réglages à gauche, le
    résultat à droite, qui reste à l'écran pendant qu'on règle. */
 
+/* ═════════ Palette ═════════
+   Deux registres pour un seul atelier. `parchment` (défaut) est celui de la
+   fiche de sort du wiki : encre sombre sur papier — on n'y touche pas.
+   `ws--dark` est celui de la fiche de personnage, où l’atelier est posé sur
+   le grimoire : ivoire sur fond sombre. Tout passe par ces jetons, donc
+   basculer de registre ne redéfinit aucune règle de mise en page. */
 :host {
   display: block;
   container-type: inline-size;
-  color: #241713;
+
+  /* Encre et filets (texte, bordures) — jamais des fonds. */
+  --ws-ink-rgb: 43 26 18;
+  --ws-ink: #241713;
+  --ws-ink-strong: #16110d;
+  /* Fonds : panneaux posés, et boutons en relief. */
+  --ws-panel-rgb: 237 230 214;
+  --ws-surface-rgb: 255 253 246;
+  /* Messages. */
+  --ws-error-rgb: 138 47 26;
+  --ws-error: #8a2f1a;
+  --ws-warn-rgb: 185 150 46;
+  --ws-warn: #6f5216;
+  /* Accents des familles de réglages. */
+  --ws-fam-2: #3d6a8a;
+  --ws-fam-3: #6b4e89;
+  --ws-fam-4: #4f7a3a;
+
+  color: var(--ws-ink);
   font-family: var(--font-body, 'Spectral', serif);
+}
+
+:host(.ws--dark) {
+  --ws-ink-rgb: 237 230 214;
+  --ws-ink: var(--faded-ivory, #ede6d6);
+  --ws-ink-strong: #fff8e6;
+  /* Mêmes opacités, mais sur du noir : les panneaux se creusent au lieu de
+     se poser, ce qui est la logique du reste de la fiche. */
+  --ws-panel-rgb: 0 0 0;
+  --ws-surface-rgb: 0 0 0;
+  --ws-error: #e6947a;
+  --ws-warn: #d9b65f;
+  /* Les accents remontent en clarté, sinon ils se noient dans le fond. */
+  --ws-fam-2: #6ba3c4;
+  --ws-fam-3: #a488c4;
+  --ws-fam-4: #8bb863;
 }
 
 .ws { display: grid; gap: 1.2rem; grid-template-columns: minmax(0, 1fr); }
@@ -27,22 +67,22 @@
   font: 700 .62rem var(--font-title);
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: rgba(43, 26, 18, .6);
+  color: rgb(var(--ws-ink-rgb) / .6);
 }
 
 /* ═════════ Réglages ═════════ */
 .ws-controls { display: grid; gap: .9rem; min-width: 0; }
 
-.ws-help { font-size: .88rem; color: rgba(34, 23, 19, .8); }
+.ws-help { font-size: .88rem; color: rgb(var(--ws-ink-rgb) / .8); }
 .ws-help summary {
   cursor: pointer;
   font: 600 .7rem var(--font-title);
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: rgba(43, 26, 18, .65);
+  color: rgb(var(--ws-ink-rgb) / .65);
 }
 .ws-help p { margin: .45rem 0 0; line-height: 1.5; }
-.ws-help__legend { color: rgba(43, 26, 18, .65); }
+.ws-help__legend { color: rgb(var(--ws-ink-rgb) / .65); }
 
 /* Niveau 0 : le socle, verrouillé. */
 .ws-locked-note {
@@ -50,12 +90,12 @@
   gap: .5rem;
   margin: 0;
   padding: .55rem .75rem;
-  border: 1px solid rgba(43, 26, 18, .22);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .22);
   border-radius: 6px;
-  background: rgba(237, 230, 214, .45);
+  background: rgb(var(--ws-panel-rgb) / .45);
   font-size: .86rem;
   line-height: 1.4;
-  color: rgba(34, 23, 19, .82);
+  color: rgb(var(--ws-ink-rgb) / .82);
 }
 .ws-fieldset { display: grid; gap: .9rem; min-width: 0; margin: 0; padding: 0; border: 0; }
 .ws-fieldset:disabled { opacity: .55; }
@@ -63,10 +103,10 @@
 
 .ws-fam { padding-left: .75rem; border-left: 3px solid var(--fam-color); }
 .ws-fam--1 { --fam-color: var(--domain-color, var(--ancient-gold)); }
-.ws-fam--2 { --fam-color: #3d6a8a; }
-.ws-fam--3 { --fam-color: #6b4e89; }
-.ws-fam--4 { --fam-color: #4f7a3a; }
-.ws-fam--5 { --fam-color: rgba(43, 26, 18, .35); }
+.ws-fam--2 { --fam-color: var(--ws-fam-2); }
+.ws-fam--3 { --fam-color: var(--ws-fam-3); }
+.ws-fam--4 { --fam-color: var(--ws-fam-4); }
+.ws-fam--5 { --fam-color: rgb(var(--ws-ink-rgb) / .35); }
 .ws-fam h3 {
   margin: 0 0 .15rem;
   font: 600 .74rem var(--font-title);
@@ -74,7 +114,7 @@
   text-transform: uppercase;
   color: var(--fam-color);
 }
-.ws-fam h3 small { margin-left: .4rem; font: 400 .74rem var(--font-body, serif); letter-spacing: 0; text-transform: none; color: rgba(43, 26, 18, .55); }
+.ws-fam h3 small { margin-left: .4rem; font: 400 .74rem var(--font-body, serif); letter-spacing: 0; text-transform: none; color: rgb(var(--ws-ink-rgb) / .55); }
 
 /* Ligne de paramètre : nom | − | valeur | + | total */
 .ws-row {
@@ -84,18 +124,18 @@
   align-items: center;
   gap: .35rem;
   padding: .3rem 0;
-  border-bottom: 1px solid rgba(43, 26, 18, .1);
+  border-bottom: 1px solid rgb(var(--ws-ink-rgb) / .1);
 }
 .ws-row:last-child { border-bottom: 0; }
 .ws-row__name { min-width: 0; line-height: 1.2; }
-.ws-row__label { display: block; font-weight: 600; color: #16110d; }
+.ws-row__label { display: block; font-weight: 600; color: var(--ws-ink-strong); }
 .ws-row__label::first-letter { text-transform: uppercase; }
 .ws-row__label sup { color: #6b4e89; margin-left: .1rem; }
 .ws-row__name small {
   display: block;
   overflow: hidden;
   font-size: .72rem;
-  color: rgba(43, 26, 18, .55);
+  color: rgb(var(--ws-ink-rgb) / .55);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -119,8 +159,8 @@
 }
 .ws-row__value.is-long b { font-size: .8rem; overflow-wrap: anywhere; }
 .ws-row__value.is-long s { font-size: .66rem; }
-.ws-row__value s { font-size: .76rem; color: rgba(43, 26, 18, .45); }
-.ws-row__value b { font: 700 .98rem var(--font-title); color: #16110d; }
+.ws-row__value s { font-size: .76rem; color: rgb(var(--ws-ink-rgb) / .45); }
+.ws-row__value b { font: 700 .98rem var(--font-title); color: var(--ws-ink-strong); }
 .ws-row.is-changed .ws-row__value b { color: var(--fam-color); }
 .ws-row__value[data-zone='warn'] b { color: #8a6a12; }
 .ws-row__value[data-zone='info'] b { color: #2f5670; }
@@ -132,16 +172,16 @@
   width: 2.3rem;
   height: 2.3rem;
   padding: 0;
-  border: 1px solid rgba(43, 26, 18, .28);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .28);
   border-radius: 6px;
-  background: rgba(255, 253, 246, .65);
-  color: #241713;
+  background: rgb(var(--ws-surface-rgb) / .65);
+  color: var(--ws-ink);
   line-height: 1;
   cursor: pointer;
 }
 .ws-nudge span { font: 700 1.05rem var(--font-title); }
-.ws-nudge small { font-size: .6rem; color: rgba(43, 26, 18, .6); font-variant-numeric: tabular-nums; }
-.ws-nudge:hover:not(:disabled) { border-color: var(--fam-color); background: rgba(255, 253, 246, .95); }
+.ws-nudge small { font-size: .6rem; color: rgb(var(--ws-ink-rgb) / .6); font-variant-numeric: tabular-nums; }
+.ws-nudge:hover:not(:disabled) { border-color: var(--fam-color); background: rgb(var(--ws-surface-rgb) / .95); }
 .ws-nudge:disabled { opacity: .35; cursor: not-allowed; }
 
 .ws-cost {
@@ -150,7 +190,7 @@
   color: var(--fam-color);
   font-variant-numeric: tabular-nums;
 }
-.ws-cost.is-zero { color: rgba(43, 26, 18, .3); }
+.ws-cost.is-zero { color: rgb(var(--ws-ink-rgb) / .3); }
 
 /* Option discrète : libellé | contrôle */
 .ws-opt {
@@ -159,27 +199,39 @@
   align-items: center;
   gap: .3rem .6rem;
   padding: .35rem 0;
-  border-bottom: 1px solid rgba(43, 26, 18, .1);
+  border-bottom: 1px solid rgb(var(--ws-ink-rgb) / .1);
 }
 .ws-opt:last-child { border-bottom: 0; }
-.ws-opt__label { flex: 1 1 10rem; min-width: 0; font-weight: 600; color: #16110d; line-height: 1.2; }
-.ws-opt__label small { display: block; font-weight: 400; font-size: .72rem; color: rgba(43, 26, 18, .55); }
+.ws-opt__label { flex: 1 1 10rem; min-width: 0; font-weight: 600; color: var(--ws-ink-strong); line-height: 1.2; }
+.ws-opt__label small { display: block; font-weight: 400; font-size: .72rem; color: rgb(var(--ws-ink-rgb) / .55); }
 .ws-opt select {
   max-width: 100%;
   padding: .25rem .45rem;
-  border: 1px solid rgba(43, 26, 18, .3);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .3);
   border-radius: 5px;
-  background: rgba(255, 253, 246, .75);
-  color: #241713;
+  background: rgb(var(--ws-surface-rgb) / .75);
+  color: var(--ws-ink);
   font: inherit;
   font-size: .9rem;
+}
+
+.ws-opt select:disabled { cursor: not-allowed; opacity: .6; }
+/* Une option hors de portée reste lisible : le lecteur doit voir ce qu'il
+   pourrait ouvrir, et pourquoi il ne le peut pas encore. */
+.ws-opt.is-off .ws-opt__label { color: rgb(var(--ws-ink-rgb) / .55); }
+.ws-opt__why {
+  flex: 1 1 100%;
+  font-size: .72rem;
+  font-style: italic;
+  line-height: 1.3;
+  color: rgb(var(--ws-ink-rgb) / .6);
 }
 
 /* Sous-titre d'un groupe d'options (ex. sources des ratios). */
 .ws-sub {
   margin: .35rem 0 0;
   font-size: .74rem;
-  color: rgba(43, 26, 18, .6);
+  color: rgb(var(--ws-ink-rgb) / .6);
 }
 
 .ws-chip {
@@ -187,13 +239,13 @@
   align-items: center;
   gap: .3rem;
   padding: .15rem .6rem;
-  border: 1px solid rgba(43, 26, 18, .28);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .28);
   border-radius: 999px;
-  background: rgba(255, 253, 246, .5);
+  background: rgb(var(--ws-surface-rgb) / .5);
   font-size: .86rem;
   cursor: pointer;
 }
-.ws-chip.is-on { border-color: var(--fam-color); background: rgba(255, 253, 246, .95); }
+.ws-chip.is-on { border-color: var(--fam-color); background: rgb(var(--ws-surface-rgb) / .95); }
 .ws-chip input { margin: 0; accent-color: var(--fam-color); }
 
 .ws-mix {
@@ -201,13 +253,101 @@
   height: .5rem;
   margin-top: .3rem;
   overflow: hidden;
-  border: 1px solid rgba(43, 26, 18, .2);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .2);
   border-radius: 999px;
 }
 .ws-mix > span { background: var(--dt-color, var(--domain-color, var(--ancient-gold))); transition: width .15s ease; }
 
-.ws-locked { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; font-size: .86rem; color: rgba(34, 23, 19, .78); }
-.ws-empty { margin: 0; color: rgba(43, 26, 18, .55); font-style: italic; }
+.ws-locked { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; font-size: .86rem; color: rgb(var(--ws-ink-rgb) / .78); }
+.ws-empty { margin: 0; color: rgb(var(--ws-ink-rgb) / .55); font-style: italic; }
+
+/* ── Plantes compatibles ────────────────────────────────────────────
+   Une liste, pas un sélecteur : ce qui décide de l’espèce employée, c’est
+   l’étude sur la fiche de personnage, jamais un clic dans l’atelier. */
+.ws-plants { display: grid; gap: .45rem; }
+.ws-plants__branch {
+  margin: .35rem 0 0;
+  font: 600 .78rem var(--font-body, serif);
+  color: rgb(var(--ws-ink-rgb) / .72);
+}
+.ws-plants__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+
+/* Chaque espèce est un bouton : la choisir, c'est voir le sort tel qu'elle
+   le rend. Recliquer la repose. */
+.ws-plant {
+  width: 100%;
+  display: flex;
+  gap: .45rem;
+  align-items: flex-start;
+  padding: .3rem .4rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: .86rem;
+  line-height: 1.35;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.ws-plant:hover { background: rgb(var(--ws-panel-rgb) / .45); }
+.ws-plant.is-on {
+  border-color: rgb(var(--ws-ink-rgb) / .3);
+  background: rgb(var(--ws-panel-rgb) / .7);
+}
+.ws-plant__dot {
+  flex: none;
+  width: .6rem;
+  height: .6rem;
+  margin-top: .32rem;
+  border: 1px solid rgb(var(--ws-ink-rgb) / .3);
+  border-radius: 50%;
+}
+.ws-plant__body { min-width: 0; }
+.ws-plant__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; }
+.ws-plant__body b { color: var(--ws-ink-strong); }
+.ws-plant__body i { font-size: .76rem; color: rgb(var(--ws-ink-rgb) / .5); }
+.ws-plant__tier {
+  padding: .02rem .3rem;
+  border: 1px solid rgb(var(--ws-ink-rgb) / .22);
+  border-radius: 999px;
+  font-size: .68rem;
+  text-transform: lowercase;
+  color: rgb(var(--ws-ink-rgb) / .6);
+}
+.ws-plant[data-tier='etudiee'] .ws-plant__tier { border-color: var(--domain-color, var(--ancient-gold)); }
+.ws-plant__body small { display: block; color: rgb(var(--ws-ink-rgb) / .78); }
+.ws-plant__tags { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .2rem; }
+.ws-plant__tags em {
+  padding: .04rem .3rem;
+  border: 1px solid rgb(var(--ws-ink-rgb) / .22);
+  border-radius: 999px;
+  background: rgb(var(--ws-panel-rgb) / .45);
+  font: 400 .72rem var(--font-body, serif);
+  font-style: normal;
+  color: rgb(var(--ws-ink-rgb) / .7);
+}
+
+/* L'impact réel : « Mana 4 → 6 », et rien qui ne bouge pas. */
+.ws-plant-impact {
+  display: grid;
+  gap: .3rem;
+  margin-top: .3rem;
+  padding: .5rem .6rem;
+  border: 1px solid rgb(var(--ws-ink-rgb) / .22);
+  border-left: 3px solid var(--domain-color, var(--ancient-gold));
+  border-radius: 6px;
+  background: rgb(var(--ws-panel-rgb) / .45);
+}
+.ws-plant-impact.is-generic { border-left-color: rgb(var(--ws-ink-rgb) / .35); }
+.ws-plant-impact.is-generic .ws-plant-impact__note { font-style: italic; }
+.ws-plant-impact__note { margin: 0; font-size: .82rem; color: rgb(var(--ws-ink-rgb) / .8); }
+.ws-plant-impact__rows { list-style: none; margin: 0; padding: 0; display: grid; gap: .15rem; font-size: .84rem; }
+.ws-plant-impact__rows li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem; }
+.ws-plant-impact__label { flex: 1 1 8rem; min-width: 0; color: rgb(var(--ws-ink-rgb) / .7); }
+.ws-plant-impact__before { color: rgb(var(--ws-ink-rgb) / .5); text-decoration: line-through; }
+.ws-plant-impact__after { font-weight: 600; color: var(--ws-ink-strong); }
+.ws-plant-impact__special { margin: 0; font-size: .78rem; font-style: italic; color: rgb(var(--ws-ink-rgb) / .62); }
 
 /* ═════════ Résultat ═════════ */
 .ws-result { display: grid; gap: .7rem; min-width: 0; }
@@ -219,10 +359,10 @@
   justify-content: space-between;
   gap: .6rem 1rem;
   padding: .7rem .9rem;
-  border: 1px solid rgba(43, 26, 18, .22);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .22);
   border-left: 3px solid var(--domain-color, var(--ancient-gold));
   border-radius: 6px;
-  background: rgba(237, 230, 214, .45);
+  background: rgb(var(--ws-panel-rgb) / .45);
 }
 .ws-levels { display: grid; gap: .3rem; }
 .ws-pips { display: flex; gap: .25rem; }
@@ -230,35 +370,35 @@
   width: 1.85rem;
   height: 1.85rem;
   padding: 0;
-  border: 1px solid rgba(43, 26, 18, .35);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .35);
   border-radius: 50%;
-  background: rgba(255, 253, 246, .6);
-  color: rgba(43, 26, 18, .7);
+  background: rgb(var(--ws-surface-rgb) / .6);
+  color: rgb(var(--ws-ink-rgb) / .7);
   font: 700 .82rem var(--font-title);
   cursor: pointer;
 }
-.ws-pip.is-reached { border-color: var(--domain-color, var(--ancient-gold)); color: #16110d; }
+.ws-pip.is-reached { border-color: var(--domain-color, var(--ancient-gold)); color: var(--ws-ink-strong); }
 .ws-pip.is-active { background: var(--domain-color, var(--ancient-gold)); color: #f6efdf; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
 
 .ws-points { display: flex; align-items: center; gap: .55rem; }
 .ws-points > b { font: 700 1.9rem var(--font-title); line-height: 1; color: #2f6e46; font-variant-numeric: tabular-nums; }
-.ws-points.is-negative > b { color: #8a2f1a; }
-.ws-points small { display: block; font-size: .74rem; color: rgba(43, 26, 18, .62); }
+.ws-points.is-negative > b { color: var(--ws-error); }
+.ws-points small { display: block; font-size: .74rem; color: rgb(var(--ws-ink-rgb) / .62); }
 
 .ws-msgs { list-style: none; margin: 0; padding: 0; display: grid; gap: .25rem; }
 .ws-msgs li { padding: .3rem .6rem; border-radius: 5px; font-size: .82rem; }
-.ws-msgs .is-error { background: rgba(138, 47, 26, .1); color: #8a2f1a; }
-.ws-msgs .is-warning { background: rgba(185, 150, 46, .14); color: #6f5216; }
+.ws-msgs .is-error { background: rgb(var(--ws-error-rgb) / .1); color: var(--ws-error); }
+.ws-msgs .is-warning { background: rgb(var(--ws-warn-rgb) / .14); color: var(--ws-warn); }
 
 .ws-reset {
   padding: .2rem .7rem;
-  border: 1px solid rgba(43, 26, 18, .3);
+  border: 1px solid rgb(var(--ws-ink-rgb) / .3);
   border-radius: 999px;
   background: transparent;
   font: 600 .64rem var(--font-title);
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: #241713;
+  color: var(--ws-ink);
   cursor: pointer;
 }
 .ws-reset:hover { border-color: var(--domain-color, var(--ancient-gold)); }
@@ -278,3 +418,88 @@
 [data-type="death"]     { --dt-color: #6a635b; }
 [data-type="space"]     { --dt-color: #4a4f8f; }
 [data-type="time"]      { --dt-color: #9a8438; }
+
+/* ═════════ Récapitulatif en bande (summaryPlacement="top") ═════════
+   En tête, sur toute la largeur, au-dessus des colonnes : le niveau et les
+   points restants sont ce qu’on surveille en réglant. Les laisser en pied de
+   la colonne de résultat les envoyait hors écran. */
+.ws > .ws-summary { grid-column: 1 / -1; }
+
+/* ═════════ Registre sombre : la barre latérale d’une fiche ═════════
+   L'atelier n'y dispose que de ~35rem et devait défiler : ses réglages
+   faisaient 600px de haut.
+
+   Ce sont les FAMILLES de réglages qui coulent en colonnes, pas la grille
+   `.ws` : dans une fiche de personnage, la colonne de résultat est presque
+   vide — le socle du sort vient d'un `ng-content` que seul le wiki fournit.
+   La scinder en deux ne faisait donc que rétrécir les réglages, qui
+   grandissaient d’autant en hauteur. Une ligne de réglage tient dans 19rem
+   sans que ses intitulés cassent sur trois lignes.
+
+   Le reste n’est que du resserrage : dans une barre latérale, chaque pixel
+   de hauteur compte. */
+@container (min-width: 34rem) {
+  :host(.ws--dark) .ws-fieldset {
+    display: block;
+    column-width: 19rem;
+    column-gap: 0.9rem;
+  }
+  /* Une famille ne se coupe jamais entre deux colonnes. */
+  :host(.ws--dark) .ws-fam {
+    break-inside: avoid;
+    margin-bottom: 0.6rem;
+  }
+}
+
+:host(.ws--dark) .ws { gap: .7rem; }
+:host(.ws--dark) .ws-controls { gap: .6rem; }
+:host(.ws--dark) .ws-fieldset { gap: .6rem; }
+:host(.ws--dark) .ws-row { padding: .16rem 0; }
+:host(.ws--dark) .ws-row__value b { font-size: .88rem; }
+/* Un intitulé long doit pouvoir se couper : en barre latérale — et plus
+   encore sur téléphone — la colonne du nom descend sous 8rem, et
+   « simultanée(s) » sortait du cadre. */
+:host(.ws--dark) .ws-row__label { overflow-wrap: anywhere; }
+:host(.ws--dark) .ws-opt__label { overflow-wrap: anywhere; }
+:host(.ws--dark) .ws-row__name small { font-size: .66rem; }
+:host(.ws--dark) .ws-fam h3 { font-size: .68rem; }
+:host(.ws--dark) .ws-fam { padding-left: .55rem; }
+:host(.ws--dark) .ws-summary { padding: .45rem .6rem; gap: .35rem .7rem; }
+:host(.ws--dark) .ws-pip { width: 1.5rem; height: 1.5rem; font-size: .72rem; }
+:host(.ws--dark) .ws-points > b { font-size: 1.4rem; }
+:host(.ws--dark) .ws-points small { font-size: .66rem; }
+:host(.ws--dark) .ws-opt { padding: .2rem 0; }
+:host(.ws--dark) .ws-help { font-size: .8rem; }
+:host(.ws--dark) .ws-locked-note { padding: .4rem .55rem; font-size: .8rem; }
+
+/* ═════════ Bande de tête ═════════
+   Une seule ligne : le contenu projeté à gauche, le niveau et les points au
+   milieu, le bouton de fermeture à droite. Le cadre passe sur la bande, le
+   récapitulatif le perd — sinon on aurait deux cadres imbriqués. */
+/* La tête occupe toute la largeur : la bande, puis ce que l’appelant glisse
+   en dessous. */
+.ws-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: .45rem;
+}
+.ws-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .9rem;
+  padding: .45rem .6rem;
+  border: 1px solid rgb(var(--ws-ink-rgb) / .22);
+  border-left: 3px solid var(--domain-color, var(--ancient-gold));
+  border-radius: 6px;
+}
+/* Le nom projeté pousse le reste à droite. */
+.ws-topbar > [ws-lead] { flex: 1 1 10rem; min-width: 0; }
+.ws-topbar > [ws-trail] { flex: 0 0 auto; margin-left: auto; }
+.ws-topbar .ws-summary {
+  flex: 0 1 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  gap: .35rem .8rem;
+}

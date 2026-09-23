@@ -898,6 +898,15 @@ export interface DomainSpellEntry {
    * en puissance. Surchargeable par nœud si un palier changeait de famille.
    */
   shapesMaterial?: MaterialFamilyKey;
+  /**
+   * Espèces que ce sort sait employer, et ce que chacune en fait (Plantes).
+   *
+   * Le pendant botanique de `shapesMaterial`, mais énuméré plutôt que dérivé
+   * d'une famille : une même espèce ne rend pas le même service d'un sort à
+   * l'autre, donc la variante d'effet vit ici, à l'intersection, et le
+   * catalogue (plants.json) ne garde que l'identité de l'espèce.
+   */
+  compatiblePlants?: SpellPlantVariant[];
   /** Météo invoquée par le sort (cf. weathers.json) ; surchargeable par nœud. */
   weather?: string;
   /**
@@ -2051,6 +2060,109 @@ export interface MaterialRegion {
   name: string;
   description: string;
   materials: string[];
+}
+
+/* ──────────────────────────────────────────
+   ESPÈCES VÉGÉTALES (plants.json)
+   Le pendant botanique des matériaux de la Terre.
+─────────────────────────────────────────── */
+
+export type PlantFamilyKey =
+  | 'toxique'
+  | 'neurotoxique'
+  | 'epineuse'
+  | 'fongique'
+  | 'parasite'
+  | 'medicinale'
+  | 'ligneuse'
+  | 'grimpante';
+
+/** Une famille botanique du catalogue, pour ranger et parcourir. */
+export interface PlantFamily {
+  key: PlantFamilyKey;
+  name: string;
+  description: string;
+}
+
+/**
+ * Une espèce du catalogue — son IDENTITÉ, et rien d'autre.
+ *
+ * Contrairement à un matériau, une espèce ne porte AUCUN chiffre d'effet : la
+ * même ronce accroche au sol, blesse en riposte ou nimbe une lame selon le
+ * sort qui l'emploie. Ce que l'espèce fait se lit donc sur le sort
+ * (`DomainSpellEntry.compatiblePlants`), jamais ici.
+ */
+export interface PlantSpecies {
+  key: string;
+  name: string;
+  /** Nom binominal, parce que la méprise botanique se joue là-dessus. */
+  latin: string;
+  family: PlantFamilyKey;
+  /** Ce qu'on récolte : baies, racine, sève, spores, écorce… */
+  part: string;
+  /** Sa nature en une phrase, comme la `property` d'un matériau. */
+  property: string;
+  rarity: string;
+  habitat: string;
+  /** Régions où elle pousse d'elle-même (clés de `MaterialRegion`). */
+  native: string[];
+  /** Rareté de l'étude : 1 courante, 2 rare. */
+  studyCost: number;
+  /** Teinte de l'espèce, pour la dessiner sur le plateau et la fiche. */
+  color: string;
+}
+
+/** Un statut que l'espèce ajoute à ce que le sort inflige déjà. */
+export interface PlantAddedStatus {
+  status: string;
+  chance: number;
+}
+
+/**
+ * Ce qu'une espèce fait d'UN sort donné — l'intersection (sort × espèce).
+ *
+ * C'est le cœur de la mécanique du domaine : le sort décrit un geste, l'espèce
+ * équipée décide de ce que ce geste produit. Les facteurs absents valent 1 ;
+ * `effect` reste la description de référence, et elle fait foi partout où le
+ * moteur n'applique pas encore la règle (`special`).
+ */
+export interface SpellPlantVariant {
+  /** Clé de l'espèce dans plants.json. */
+  plant: string;
+  /** Ce que l'espèce ÉTUDIÉE fait de ce sort, en clair. */
+  effect: string;
+  /**
+   * Branche interne visée, quand le sort en a plusieurs : le `name` d'un choix
+   * (Symbiose végétale) ou l'`id` d'un effet propre (Armure d'écorce). Absent =
+   * l'espèce s'applique au sort entier.
+   */
+  slot?: string;
+  /**
+   * Statut IMPOSÉ à la place de celui du socle. Réservé aux sorts qui déclarent
+   * `statusType` gouverné par le domaine : ailleurs, le statut est verrouillé et
+   * l'espèce ne peut que le moduler.
+   */
+  inflicts?: string;
+  /** Statut AJOUTÉ à celui du sort, sans le remplacer. */
+  adds?: PlantAddedStatus[];
+  /** Multiplicateurs ; absents = 1. Même chaîne que la météo et le matériau. */
+  damageFactor?: number;
+  chanceFactor?: number;
+  durationFactor?: number;
+  manaFactor?: number;
+  radiusFactor?: number;
+  /** Échelle de l'effet de stat du sort (défense, vitesse…). */
+  effectFactor?: number;
+  healFactor?: number;
+  recoilFactor?: number;
+  /** Vitesse retranchée à qui porte l'espèce (le chêne pèse). */
+  speedPenalty?: number;
+  /**
+   * Règle propre à l'espèce, que les facteurs ne savent pas dire — pic tardif,
+   * contagion au contact, drain de mana. Identifiant stable pour le moteur ;
+   * tant qu'il ne la connaît pas, `effect` est la seule source de vérité.
+   */
+  special?: string;
 }
 
 /* ──────────────────────────────────────────

@@ -3,32 +3,7 @@
         "key": "humain",
         "name": "Humain",
         "subraces": [],
-        "attributes": [
-            {
-                "key": "strength",
-                "value": 1
-            },
-            {
-                "key": "dexterity",
-                "value": 1
-            },
-            {
-                "key": "constitution",
-                "value": 1
-            },
-            {
-                "key": "intelligence",
-                "value": 1
-            },
-            {
-                "key": "wisdom",
-                "value": 1
-            },
-            {
-                "key": "charisma",
-                "value": 1
-            }
-        ],
+        "attributes": [],
         "genetics-stats": [
             {
                 "key": "hp",
@@ -54,7 +29,8 @@
                 "key": "speed",
                 "value": 8
             }
-        ]
+        ],
+        "freeAttributePoints": 3
     },
     {
         "key": "nain",

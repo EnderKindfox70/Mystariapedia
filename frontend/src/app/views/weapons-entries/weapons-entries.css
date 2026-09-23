@@ -169,24 +169,35 @@
 /* ═══════════════════════════════════════════
    INFORMATIONS (colonnes Type / Rareté / …)
 ═══════════════════════════════════════════ */
+/* Le plancher d'une piste doit tenir le plus long libellé, icône et marges
+   comprises : en capitales espacées, « COÛT D'ENDURANCE » demande ~9,5rem.
+   Sous ce plancher, `auto-fit` taillait assez de pistes pour que chaque case
+   soit plus étroite que son contenu — et comme une case de grille ne descend
+   pas sous sa largeur minimale, c'est la GRILLE qui débordait, d'où la barre
+   de défilement horizontale en bas de la fiche. Le `min(…, 100%)` garde le
+   plancher inoffensif sur un écran plus étroit que lui. */
 .re-info-grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(10rem, 100%), 1fr));
   gap: 1rem;
 }
 
 .re-info {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: auto auto;
   column-gap: .7rem;
   align-items: start;
   align-content: start;
   padding: 0 1rem;
   border-left: 1px solid var(--re-line);
+  /* Garde-fou : quoi qu'on mette un jour dans une case, elle cède avant la
+     grille. Le plancher ci-dessus est là pour que ça n'ait jamais à servir. */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .re-info:first-child {

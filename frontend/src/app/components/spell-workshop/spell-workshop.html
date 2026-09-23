@@ -21,7 +21,55 @@
   </div>
 </ng-template>
 
+<!-- Le récapitulatif (niveau du sort + points restants) se place à deux
+     endroits selon `summaryPlacement` : en tête de la colonne de résultat (la
+     fiche du wiki) ou en bande tout en haut (la barre latérale d'une fiche de
+     personnage, où la colonne de résultat arrive après des centaines de
+     pixels de réglages). Un seul markup, deux emplacements. -->
+<ng-template #summary>
+  <div class="ws-summary">
+    <div class="ws-levels">
+      <span class="ws-label">Niveau de sort</span>
+      <div class="ws-pips" role="radiogroup"
+           [attr.aria-label]="levelEditable() ? 'Niveau de sort supposé' : 'Niveau de sort atteint'">
+        @for (n of levels; track n) {
+          <button type="button" class="ws-pip" role="radio" [class.is-active]="n === level()" [class.is-reached]="n <= level()"
+                  [disabled]="!levelEditable()" [attr.aria-checked]="n === level()"
+                  [title]="levelEditable() ? 'Essayer le sort à ce niveau' : 'Niveau atteint par l’XP de ce sort'"
+                  (click)="setLevel(n)">{{ n }}</button>
+        }
+      </div>
+    </div>
+    <div class="ws-points" [class.is-negative]="assessment().remaining < 0">
+      <b>{{ fmt(assessment().remaining) }}</b>
+      <span>
+        <span class="ws-label">points restants</span>
+        <small>{{ assessment().progress.pointsEarned }} gagnés · {{ fmt(assessment().gross) }} dépensés@if (assessment().refunded) { · {{ fmt(assessment().refunded) }} rendus}</small>
+      </span>
+    </div>
+    @if (touched()) {
+      <button type="button" class="ws-reset" (click)="reset()">Revenir au socle</button>
+    }
+  </div>
+</ng-template>
+
 <div class="ws">
+  @if (summaryPlacement() === 'top') {
+    <!-- Bande de tête : ce que l’appelant y projette (le nom du sort, son
+         bouton de fermeture) partage la ligne avec le niveau et les points.
+         L'espace à droite du nom était vide, et cette hauteur-là est prise
+         sur celle des réglages. -->
+    <div class="ws-head">
+      <div class="ws-topbar">
+        <ng-content select="[ws-lead]" />
+        <ng-container *ngTemplateOutlet="summary" />
+        <ng-content select="[ws-trail]" />
+      </div>
+      <!-- Seconde rangée : ce que l’appelant veut sous la bande mais au-dessus
+           des réglages (la jauge d’XP du sort, sur une fiche de personnage). -->
+      <ng-content select="[ws-sub]" />
+    </div>
+  }
   <!-- ═════════ Réglages ═════════ -->
   <div class="ws-controls">
     <details class="ws-help">
@@ -40,8 +88,12 @@
     @if (locked()) {
       <p class="ws-locked-note">
         <span aria-hidden="true">🔒</span>
-        <span><b>Niveau 0 — le socle du sort</b>, tel qu'on l'apprend : rien ne s'y modifie.
-        Choisissez un niveau de sort pour disposer de points et personnaliser.</span>
+        @if (lockedNote(); as note) {
+          <span>{{ note }}</span>
+        } @else {
+          <span><b>Niveau 0 — le socle du sort</b>, tel qu'on l'apprend : rien ne s'y modifie.
+          Choisissez un niveau de sort pour disposer de points et personnaliser.</span>
+        }
       </p>
     }
 
@@ -217,14 +269,21 @@
             </select>
           </div>
         }
-        @if (opts().crossDomain; as cd) {
-          <div class="ws-opt">
+        @if (opts().crossDomain) {
+          <!-- Un domaine non investi ne s'ouvre pas : l'option reste visible,
+               mais éteinte et nommée pour ce qu'elle est. -->
+          <div class="ws-opt" [class.is-off]="!!crossDomainNote()">
             <span class="ws-opt__label" title="Ouvre la répartition vers un domaine que le lanceur a aussi investi ; n'ajoute aucun dégât">
               Domaine non natif <small>{{ rules.costs.crossDomainUnlock }} pts · aucun dégât ajouté</small></span>
-            <select (change)="setCrossDomain(valueOf($event))">
+            <select [disabled]="!!crossDomainNote()" (change)="setCrossDomain(valueOf($event))">
               <option value="" [selected]="!shown().crossDomain">— aucun —</option>
-              @for (d of cd.eligible; track d) { <option [value]="d" [selected]="shown().crossDomain === d">{{ domainLabel(d) }}</option> }
+              @for (d of crossDomainChoices(); track d.key) {
+                <option [value]="d.key" [selected]="shown().crossDomain === d.key" [disabled]="!d.reachable">{{ d.label }}</option>
+              }
             </select>
+            @if (crossDomainNote(); as note) {
+              <small class="ws-opt__why"><span aria-hidden="true">🔒</span> {{ note }}</small>
+            }
           </div>
         }
         @if ((opts().mix || opts().crossDomain) && hasDamage() && mix().type; as type) {
@@ -257,6 +316,70 @@
       </section>
     }
 
+    @if (usesPlants()) {
+      <section class="ws-fam ws-fam--5 ws-plants">
+        <h3>Plante employée <small>hors budget — elle se ramasse et s’étudie</small></h3>
+        <p class="ws-locked-note"><span aria-hidden="true">🌿</span> {{ plantLead() }}</p>
+        @for (g of plantGroups(); track g.key) {
+          @if (g.label) { <h4 class="ws-plants__branch">{{ g.label }}</h4> }
+          <ul class="ws-plants__list">
+            @for (p of g.plants; track p.key) {
+              <li>
+                <button type="button" class="ws-plant"
+                        [class.is-on]="p.selected"
+                        [attr.aria-pressed]="p.selected"
+                        [attr.data-tier]="p.tier"
+                        [title]="p.tierHint"
+                        (click)="selectPlant(p.key)">
+                  <span class="ws-plant__dot" [style.background]="p.color" aria-hidden="true"></span>
+                  <span class="ws-plant__body">
+                    <span class="ws-plant__head">
+                      <b>{{ p.name }}</b> <i>{{ p.latin }}</i>
+                      <span class="ws-plant__tier">{{ p.tierLabel }}</span>
+                    </span>
+                    <small>{{ p.effect }}</small>
+                    @if (p.tags.length) {
+                      <span class="ws-plant__tags">
+                        @for (t of p.tags; track $index) { <em>{{ t }}</em> }
+                      </span>
+                    }
+                  </span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+
+        <!-- L'impact réel : ce que l'espèce change au sort TEL QU'IL EST
+             construit, et rien d'autre. -->
+        @if (plantBinding(); as lien) {
+          <div class="ws-plant-impact" [class.is-generic]="!lien.species">
+            <p class="ws-plant-impact__note">{{ lien.note }}</p>
+            @if (plantImpactRows().length) {
+              <ul class="ws-plant-impact__rows">
+                @for (r of plantImpactRows(); track r.key) {
+                  <li>
+                    <span class="ws-plant-impact__label">{{ r.label }}</span>
+                    <span class="ws-plant-impact__before">{{ r.before }}</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="ws-plant-impact__after">{{ r.after }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="ws-empty">Cette espèce ne change aucun chiffre de ce build.</p>
+            }
+            @if (lien.special) {
+              <p class="ws-plant-impact__special">
+                <span aria-hidden="true">✦</span>
+                Règle propre à l’espèce, à arbitrer à la table : le moteur ne la joue pas encore.
+              </p>
+            }
+          </div>
+        }
+      </section>
+    }
+
     @if (locks().length || governed().length) {
       <section class="ws-fam ws-fam--5">
         <h3>Hors budget</h3>
@@ -271,30 +394,9 @@
 
   <!-- ═════════ Résultat (reste à l'écran) ═════════ -->
   <aside class="ws-result">
-    <div class="ws-summary">
-      <div class="ws-levels">
-        <span class="ws-label">Niveau de sort</span>
-        <div class="ws-pips" role="radiogroup"
-             [attr.aria-label]="levelEditable() ? 'Niveau de sort supposé' : 'Niveau de sort atteint'">
-          @for (n of levels; track n) {
-            <button type="button" class="ws-pip" role="radio" [class.is-active]="n === level()" [class.is-reached]="n <= level()"
-                    [disabled]="!levelEditable()" [attr.aria-checked]="n === level()"
-                    [title]="levelEditable() ? 'Essayer le sort à ce niveau' : 'Niveau atteint par l’XP de ce sort'"
-                    (click)="setLevel(n)">{{ n }}</button>
-          }
-        </div>
-      </div>
-      <div class="ws-points" [class.is-negative]="assessment().remaining < 0">
-        <b>{{ fmt(assessment().remaining) }}</b>
-        <span>
-          <span class="ws-label">points restants</span>
-          <small>{{ assessment().progress.pointsEarned }} gagnés · {{ fmt(assessment().gross) }} dépensés@if (assessment().refunded) { · {{ fmt(assessment().refunded) }} rendus}</small>
-        </span>
-      </div>
-      @if (touched()) {
-        <button type="button" class="ws-reset" (click)="reset()">Revenir au socle</button>
-      }
-    </div>
+    @if (summaryPlacement() === 'result') {
+      <ng-container *ngTemplateOutlet="summary" />
+    }
 
     @if (assessment().errors.length || assessment().warnings.length) {
       <ul class="ws-msgs">

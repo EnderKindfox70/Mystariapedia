@@ -814,6 +814,7 @@ export function emptySheet(): CharacterSheet {
     proficiencyBonus: 2,
     skills: [],
     creationTraits: [],
+    raceAttributePicks: [],
     languages: [],
     feats: [],
     spells: { unlocked: [], equipped: [], states: {} },
@@ -1467,10 +1468,29 @@ const ATTR_KEY_MAP: Record<string, AttributeKey> = {
   charisma: 'charisme',
 };
 
-/** Bonus d'attributs cumulés de la race + de la sous-race sélectionnée. */
+/**
+ * Clé interne d'un attribut tel que les datasets le nomment, ou `undefined`.
+ *
+ * Les jeux de données parlent anglais (`dexterity`), le moteur français
+ * (`dexterite`) : tout ce qui lit un `StatKV` d'attribut brut doit passer par
+ * ici, sinon il affiche la clé du dataset telle quelle.
+ */
+export const attributeKeyOf = (datasetKey: string): AttributeKey | undefined =>
+  ATTR_KEY_MAP[datasetKey];
+
+/**
+ * Bonus d'attributs cumulés de la race, de la sous-race, et des points
+ * libres que le joueur a posés lui-même.
+ *
+ * `picks` porte les attributs choisis au titre de `freeAttributePoints` : un
+ * +1 par clé. On les dédoublonne ici et on ne dépasse jamais le quota de la
+ * race — c'est la dernière barrière avant le calcul, une fiche importée
+ * pourrait en porter plus.
+ */
 export function attributeBonuses(
   race: RaceDef | undefined,
   subraceName: string,
+  picks?: AttributeKey[],
 ): Record<AttributeKey, number> {
   const out = Object.fromEntries(ATTRIBUTES.map((a) => [a.key, 0])) as Record<AttributeKey, number>;
   const apply = (kv?: StatKV[]) => {
@@ -1481,7 +1501,23 @@ export function attributeBonuses(
   };
   apply(race?.attributes);
   apply(race?.subraces.find((s) => s.name === subraceName)?.attributes);
+  for (const key of freeAttributePicks(race, picks)) out[key] += 1;
   return out;
+}
+
+/**
+ * Les points libres réellement valides : dédoublonnés, connus, et coupés au
+ * quota de la race. Sert au calcul comme à l'affichage, pour que les deux
+ * comptent la même chose.
+ */
+export function freeAttributePicks(
+  race: RaceDef | undefined,
+  picks: AttributeKey[] | undefined,
+): AttributeKey[] {
+  const quota = race?.freeAttributePoints ?? 0;
+  if (!quota || !picks?.length) return [];
+  const connus = new Set(ATTRIBUTES.map((a) => a.key));
+  return [...new Set(picks)].filter((k) => connus.has(k)).slice(0, quota);
 }
 
 /**
@@ -1493,7 +1529,7 @@ export function computeAttributes(
   race: RaceDef | undefined,
   subraceName: string,
 ): Record<AttributeKey, number> {
-  const bonuses = attributeBonuses(race, subraceName);
+  const bonuses = attributeBonuses(race, subraceName, sheet.raceAttributePicks);
   const feats = featAttributeBonuses(sheet);
   const featEffects = featStatEffects(sheet);
   const out = {} as Record<AttributeKey, number>;

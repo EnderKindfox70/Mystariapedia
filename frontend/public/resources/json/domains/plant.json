@@ -36,6 +36,116 @@
             "subdomains": [
                 "Poison & Médecine naturelle"
             ],
+            "compatiblePlants": [
+                {
+                    "plant": "belladone",
+                    "effect": "Montée lente, pic tardif : la toxine prend moins facilement, mais une fois installée elle frappe bien plus fort au troisième tour.",
+                    "inflicts": "poison",
+                    "chanceFactor": 0.85,
+                    "damageFactor": 1.3,
+                    "special": "pic-tardif"
+                },
+                {
+                    "plant": "aconit",
+                    "effect": "La racine engourdit en rongeant : la cible ralentit en plus d’être empoisonnée.",
+                    "inflicts": "poison",
+                    "adds": [
+                        {
+                            "status": "ralentissement",
+                            "chance": 30
+                        }
+                    ],
+                    "manaFactor": 1.1
+                },
+                {
+                    "plant": "ricin",
+                    "effect": "La ricine ronge à travers les protections : le poison ignore une part de la résistance magique de la cible.",
+                    "inflicts": "poison",
+                    "manaFactor": 1.2,
+                    "special": "perce-res-mag"
+                },
+                {
+                    "plant": "if",
+                    "effect": "Rien ne se voit pendant deux tours, puis tout arrive d’un coup : effet retardé, dégâts finaux accrus.",
+                    "inflicts": "poison",
+                    "damageFactor": 1.35,
+                    "special": "effet-retarde"
+                },
+                {
+                    "plant": "datura",
+                    "effect": "Le délire accompagne le poison : la cible peut sombrer dans la confusion.",
+                    "inflicts": "poison",
+                    "adds": [
+                        {
+                            "status": "confusion",
+                            "chance": 25
+                        }
+                    ],
+                    "manaFactor": 1.15
+                },
+                {
+                    "plant": "digitale",
+                    "effect": "Le poison s’en prend au cœur : ses dégâts suivent la Constitution de la cible au lieu d’un montant fixe — plus elle est robuste, plus elle souffre.",
+                    "inflicts": "poison",
+                    "special": "echelle-con-cible"
+                },
+                {
+                    "plant": "colchique",
+                    "effect": "Poison interminable mais discret : durée bien plus longue, intensité réduite.",
+                    "inflicts": "poison",
+                    "durationFactor": 1.6,
+                    "damageFactor": 0.7
+                },
+                {
+                    "plant": "euphorbe",
+                    "effect": "Sève de contact : qui touche la cible empoisonnée dans le tour reçoit le poison à son tour.",
+                    "inflicts": "poison",
+                    "special": "contagion-contact"
+                },
+                {
+                    "plant": "grande-cigue",
+                    "effect": "La paralysie remonte des jambes : la vitesse tombe à zéro avant que le reste du corps ne se fige.",
+                    "inflicts": "paralysie",
+                    "manaFactor": 1.1,
+                    "special": "paralysie-progressive"
+                },
+                {
+                    "plant": "laurier-rose",
+                    "effect": "Le cœur faiblit sous la torpeur : un tic de dégâts persiste pendant la paralysie.",
+                    "inflicts": "paralysie",
+                    "adds": [
+                        {
+                            "status": "poison",
+                            "chance": 40
+                        }
+                    ]
+                },
+                {
+                    "plant": "curare",
+                    "effect": "Prise quasi immédiate, relâchement tout aussi rapide : très fiable, très bref.",
+                    "inflicts": "paralysie",
+                    "chanceFactor": 1.3,
+                    "durationFactor": 0.5,
+                    "manaFactor": 1.2
+                },
+                {
+                    "plant": "narcisse",
+                    "effect": "Plus de paralysie : la cible s’endort, et peut être achevée sans se réveiller.",
+                    "inflicts": "sommeil"
+                },
+                {
+                    "plant": "jusquiame",
+                    "effect": "Hallucinations : la cible peut retourner sa fureur contre un allié proche.",
+                    "inflicts": "paralysie",
+                    "adds": [
+                        {
+                            "status": "provocation",
+                            "chance": 30
+                        }
+                    ],
+                    "manaFactor": 1.2
+                }
+            ],
             "baseStats": {
                 "damageMin": 1,
                 "damageMax": 1,
@@ -167,6 +277,40 @@
             ],
             "requires": [
                 "plant-toxine-vegetale"
+            ],
+            "compatiblePlants": [
+                {
+                    "plant": "ronce-commune",
+                    "effect": "Qui se débat s’entaille : l’enracinement ajoute un saignement léger.",
+                    "adds": [
+                        {
+                            "status": "saignement",
+                            "chance": 25
+                        }
+                    ]
+                },
+                {
+                    "plant": "liseron",
+                    "effect": "La zone s’étend d’un tour sur l’autre au lieu de rester figée où elle est née.",
+                    "manaFactor": 1.15,
+                    "special": "zone-croissante"
+                },
+                {
+                    "plant": "rosier-sauvage",
+                    "effect": "Les épines fines entaillent à l’entrée : qui pénètre la zone risque de saigner.",
+                    "adds": [
+                        {
+                            "status": "saignement",
+                            "chance": 20
+                        }
+                    ]
+                },
+                {
+                    "plant": "salsepareille",
+                    "effect": "Les tiges retiennent plus qu’elles ne clouent : zone nettement plus large, prise plus lâche.",
+                    "radiusFactor": 1.6,
+                    "chanceFactor": 0.8
+                }
             ],
             "baseStats": {
                 "damageMin": 1,
@@ -311,6 +455,41 @@
             ],
             "requires": [
                 "plant-toxine-vegetale"
+            ],
+            "compatiblePlants": [
+                {
+                    "plant": "amanite-tue-mouches",
+                    "effect": "La confusion devient l’effet principal du nuage au lieu d’un supplément.",
+                    "inflicts": "confusion",
+                    "manaFactor": 1.1
+                },
+                {
+                    "plant": "vesse-de-loup",
+                    "effect": "Nuage bien plus dense et plus large, mais purement affaiblissant : aucune confusion.",
+                    "inflicts": "affaiblissement",
+                    "radiusFactor": 1.5,
+                    "chanceFactor": 1.1
+                },
+                {
+                    "plant": "ergot-de-seigle",
+                    "effect": "L’affaiblissement cède la place à un poison léger qui court sur la durée.",
+                    "inflicts": "poison",
+                    "durationFactor": 1.3
+                },
+                {
+                    "plant": "psilocybe",
+                    "effect": "Spécialisation mentale : la confusion s’impose, l’affaiblissement s’efface.",
+                    "inflicts": "confusion",
+                    "chanceFactor": 1.25,
+                    "damageFactor": 0.7
+                },
+                {
+                    "plant": "nielle",
+                    "effect": "La poussière retombe et reste : la zone demeure active longtemps après le passage du lanceur.",
+                    "inflicts": "affaiblissement",
+                    "durationFactor": 1.8,
+                    "manaFactor": 1.2
+                }
             ],
             "baseStats": {
                 "damageMin": 1,
@@ -458,6 +637,35 @@
             ],
             "requires": [
                 "plant-ronces-etreignantes"
+            ],
+            "compatiblePlants": [
+                {
+                    "plant": "gui",
+                    "effect": "Le lien tient à distance : le drain continue même si la cible s’éloigne du poison.",
+                    "inflicts": "poison",
+                    "manaFactor": 1.15,
+                    "special": "lien-distant"
+                },
+                {
+                    "plant": "cuscute",
+                    "effect": "Tout le vol en un seul tour : drain bien plus rapide, mais bien plus court.",
+                    "inflicts": "poison",
+                    "durationFactor": 0.5,
+                    "special": "drain-immediat"
+                },
+                {
+                    "plant": "orobanche",
+                    "effect": "La greffe se branche sur le mana plutôt que sur les muscles : elle draine la magie au lieu de la Force.",
+                    "inflicts": "poison",
+                    "special": "drain-mana"
+                },
+                {
+                    "plant": "figuier-etrangleur",
+                    "effect": "L’étreinte prime sur la sève : poison réduit, mais le drain prend des points de vie en plus de l’Attaque physique.",
+                    "inflicts": "poison",
+                    "damageFactor": 0.7,
+                    "special": "drain-pv"
+                }
             ],
             "baseStats": {
                 "damageMin": 1,
@@ -625,6 +833,95 @@
             ],
             "requires": [
                 "plant-toxine-vegetale"
+            ],
+            "compatiblePlants": [
+                {
+                    "plant": "ronce-commune",
+                    "effect": "L’épine se retourne moins contre son porteur : le contrecoup est nettement moins lourd.",
+                    "slot": "Ronces",
+                    "recoilFactor": 0.6
+                },
+                {
+                    "plant": "acacia-epineux",
+                    "effect": "Épines plus longues, frappe plus lourde — et blessures en retour un peu plus vives.",
+                    "slot": "Ronces",
+                    "damageFactor": 1.25,
+                    "recoilFactor": 1.2
+                },
+                {
+                    "plant": "argousier",
+                    "effect": "Les baies compensent l’épine : une part du contrecoup revient en points de vie.",
+                    "slot": "Ronces",
+                    "recoilFactor": 0.8,
+                    "special": "contrecoup-en-soin"
+                },
+                {
+                    "plant": "lierre",
+                    "effect": "Le soin non consommé s’accumule en réserve au lieu d’être perdu.",
+                    "slot": "Lierre régénérant",
+                    "special": "soin-en-reserve"
+                },
+                {
+                    "plant": "aloe-vera",
+                    "effect": "Soin immédiat bien plus fort, mais qui ne laisse rien derrière lui.",
+                    "slot": "Lierre régénérant",
+                    "healFactor": 1.6,
+                    "durationFactor": 0.4
+                },
+                {
+                    "plant": "achillee",
+                    "effect": "Le soin referme aussi les plaies ouvertes : il retire un Saignement au passage.",
+                    "slot": "Lierre régénérant",
+                    "healFactor": 0.9,
+                    "special": "purge-saignement"
+                },
+                {
+                    "plant": "consoude",
+                    "effect": "Peu de chose en plein combat, mais un repos sous consoude en vaut deux.",
+                    "slot": "Lierre régénérant",
+                    "healFactor": 0.6,
+                    "special": "soin-de-repos"
+                },
+                {
+                    "plant": "chene",
+                    "effect": "Protection supérieure, mais l’écorce pèse : un peu de vitesse en moins.",
+                    "slot": "Écorce protectrice",
+                    "effectFactor": 1.3,
+                    "speedPenalty": 2
+                },
+                {
+                    "plant": "bouleau",
+                    "effect": "Écorce légère : moins de défense, aucune perte de vitesse.",
+                    "slot": "Écorce protectrice",
+                    "effectFactor": 0.8
+                },
+                {
+                    "plant": "sequoia",
+                    "effect": "La meilleure protection de la branche, au prix d’un mana nettement plus élevé.",
+                    "slot": "Écorce protectrice",
+                    "effectFactor": 1.5,
+                    "manaFactor": 1.4
+                },
+                {
+                    "plant": "vigne",
+                    "effect": "Bond supérieur, mais en terrain naturel seulement : la vrille a besoin de prise.",
+                    "slot": "Vrille véloce",
+                    "effectFactor": 1.4,
+                    "special": "terrain-naturel"
+                },
+                {
+                    "plant": "houblon",
+                    "effect": "Bonus plus modeste, valable partout, sans condition de terrain.",
+                    "slot": "Vrille véloce"
+                },
+                {
+                    "plant": "passiflore",
+                    "effect": "Une esquive supplémentaire, une fois par combat, en plus de la vitesse.",
+                    "slot": "Vrille véloce",
+                    "effectFactor": 1.1,
+                    "manaFactor": 1.2,
+                    "special": "esquive-unique"
+                }
             ],
             "baseStats": {
                 "mana": 5,
@@ -807,6 +1104,34 @@
                 "Croissance végétale"
             ],
             "damageType": "plant",
+            "compatiblePlants": [
+                {
+                    "plant": "ronce-commune",
+                    "effect": "L’épine ordinaire : dégâts de base, aucun travers. Le choix par défaut."
+                },
+                {
+                    "plant": "acacia-epineux",
+                    "effect": "Longues épines droites : dégâts accrus contre les cibles peu armurées.",
+                    "damageFactor": 1.2,
+                    "special": "anti-peu-armure"
+                },
+                {
+                    "plant": "aubepine",
+                    "effect": "Le rameau entaille autant qu’il frappe : chaque coup peut faire saigner.",
+                    "adds": [
+                        {
+                            "status": "saignement",
+                            "chance": 20
+                        }
+                    ]
+                },
+                {
+                    "plant": "cactus",
+                    "effect": "Raquettes épineuses : moins de dégâts, mais l’enchantement coûte moins cher.",
+                    "damageFactor": 0.8,
+                    "manaFactor": 0.7
+                }
+            ],
             "baseStats": {
                 "damageMin": 1,
                 "damageMax": 2,
@@ -922,6 +1247,34 @@
                 "Croissance végétale"
             ],
             "damageType": "plant",
+            "compatiblePlants": [
+                {
+                    "plant": "ronce-commune",
+                    "effect": "L’épine ordinaire : dégâts de base, aucun travers. Le choix par défaut."
+                },
+                {
+                    "plant": "acacia-epineux",
+                    "effect": "Longues épines droites : dégâts accrus contre les cibles peu armurées.",
+                    "damageFactor": 1.2,
+                    "special": "anti-peu-armure"
+                },
+                {
+                    "plant": "aubepine",
+                    "effect": "Le rameau entaille autant qu’il frappe : chaque coup peut faire saigner.",
+                    "adds": [
+                        {
+                            "status": "saignement",
+                            "chance": 20
+                        }
+                    ]
+                },
+                {
+                    "plant": "cactus",
+                    "effect": "Raquettes épineuses : moins de dégâts, mais l’enchantement coûte moins cher.",
+                    "damageFactor": 0.8,
+                    "manaFactor": 0.7
+                }
+            ],
             "baseStats": {
                 "damageMin": 1,
                 "damageMax": 2,
@@ -1044,6 +1397,65 @@
             "level": 3,
             "subdomains": [
                 "Croissance végétale"
+            ],
+            "compatiblePlants": [
+                {
+                    "plant": "chene",
+                    "effect": "Défense accrue, mais contre les coups physiques uniquement.",
+                    "effectFactor": 1.25,
+                    "special": "physique-seulement"
+                },
+                {
+                    "plant": "if",
+                    "effect": "Protection uniforme, physique comme magique, pour une valeur totale plus faible.",
+                    "effectFactor": 0.85,
+                    "special": "defense-partagee"
+                },
+                {
+                    "plant": "bambou",
+                    "effect": "Gangue creuse : moins de défense, mais un coût en mana réduit.",
+                    "effectFactor": 0.8,
+                    "manaFactor": 0.7
+                },
+                {
+                    "plant": "ronce-commune",
+                    "effect": "Chance de saignement accrue, sévérité inchangée.",
+                    "slot": "epines-sanglantes",
+                    "chanceFactor": 1.3
+                },
+                {
+                    "plant": "sumac",
+                    "effect": "Sève anticoagulante : le saignement est bien plus grave, la chance inchangée.",
+                    "slot": "epines-sanglantes",
+                    "damageFactor": 1.3
+                },
+                {
+                    "plant": "aubepine",
+                    "effect": "Le buisson mord large : la riposte touche aussi un ennemi adjacent.",
+                    "slot": "epines-sanglantes",
+                    "manaFactor": 1.2,
+                    "special": "riposte-en-zone"
+                },
+                {
+                    "plant": "ortie",
+                    "effect": "Poison léger, mais qui s’applique même quand la riposte échoue : le frôlement suffit.",
+                    "slot": "epines-venimeuses",
+                    "damageFactor": 0.8,
+                    "special": "poison-inconditionnel"
+                },
+                {
+                    "plant": "sumac-veneneux",
+                    "effect": "Poison de contact bien plus sévère, chance inchangée.",
+                    "slot": "epines-venimeuses",
+                    "damageFactor": 1.35
+                },
+                {
+                    "plant": "euphorbe",
+                    "effect": "La sève passe de main en main : le poison gagne un allié de la cible au contact.",
+                    "slot": "epines-venimeuses",
+                    "manaFactor": 1.15,
+                    "special": "contagion-contact"
+                }
             ],
             "baseStats": {
                 "mana": 3,

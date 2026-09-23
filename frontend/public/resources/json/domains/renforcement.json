@@ -803,7 +803,7 @@
             "effects": [
                 {
                     "label": "Force",
-                    "value": "+1",
+                    "value": "+2",
                     "tone": "boon"
                 },
                 {
@@ -815,7 +815,7 @@
             "statEffects": [
                 {
                     "key": "force",
-                    "value": 1
+                    "value": 2
                 },
                 {
                     "key": "mana",

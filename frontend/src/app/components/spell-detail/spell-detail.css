@@ -1,0 +1,867 @@
+/* LA CARTE DU SORT CONSTRUIT — la phrase et les chiffres du sort tel que
+   l'atelier vient de le régler.
+
+   Elle vient de la fiche de sort du wiki, dont elle garde le parchemin. Tout
+   passe par les jetons ci-dessous, pour qu'elle tienne aussi sur la fiche de
+   personnage, où le fond est sombre et où l'encre brune devenait illisible.
+
+   ═════════ Palette ═════════
+   Mêmes valeurs que l'atelier (cf. spell-workshop.css) : les deux pièces se
+   côtoient, elles ne peuvent pas diverger d'un ton. */
+:host {
+  display: block;
+  /* La carte est un enfant direct de la grille de résultat de l'atelier sur
+     une fiche de personnage : sans cela, elle refuse de descendre sous la
+     largeur de son contenu et pousse la colonne à défiler de côté. */
+  min-width: 0;
+
+  /* Encre et filets (texte, bordures) — jamais des fonds. */
+  --sd-ink-rgb: 43 26 18;
+  --sd-ink: #241713;
+  --sd-ink-strong: #16110d;
+  /* Fonds : panneaux posés, et champs en creux. */
+  --sd-panel-rgb: 237 230 214;
+  --sd-surface-rgb: 255 253 246;
+  /* Encre froide : les blocs d'ambiance (météo, hors combat). */
+  --sd-cool-rgb: 43 68 90;
+  /* Accents sémantiques : ce qui blesse, ce qui aide, ce qui refroidit. */
+  --sd-danger: #8a2f1a;
+  --sd-good: #47632f;
+  --sd-cool: #3a5a8a;
+  --sd-warm: #6b4a1f;
+
+  color: var(--sd-ink);
+}
+
+/* Registre sombre : la fiche de personnage, où la carte est posée sur le
+   grimoire. Les fonds se CREUSENT au lieu de se poser — c'est la logique du
+   reste de la fiche — et les accents remontent en clarté, sinon ils se
+   noient. Aucune règle de mise en page n'est redéfinie ici. */
+:host(.sd--dark) {
+  --sd-ink-rgb: 237 230 214;
+  --sd-ink: var(--faded-ivory, #ede6d6);
+  --sd-ink-strong: #fff8e6;
+  --sd-panel-rgb: 0 0 0;
+  --sd-surface-rgb: 0 0 0;
+  --sd-cool-rgb: 170 200 225;
+  --sd-danger: #e6947a;
+  --sd-good: #9ec47a;
+  --sd-cool: #8fb6e0;
+  --sd-warm: #d9b65f;
+}
+
+
+.se-usage__none {
+  display: block;
+  font-style: italic;
+  color: rgb(var(--sd-ink-rgb) / .5);
+}
+
+/* ═══════════════════════════════════════════
+   DÉTAIL DU SORT CONSTRUIT + SIMULATEUR
+═══════════════════════════════════════════ */
+.se-detail {
+  margin-top: 1.6rem;
+  padding: 1.3rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .2);
+  border-radius: 8px;
+  background: rgb(var(--sd-panel-rgb) / .3);
+}
+
+.se-detail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem .9rem;
+  margin-bottom: .5rem;
+  padding-bottom: .5rem;
+  border-bottom: 2px solid var(--branch-color, var(--domain-color, var(--ancient-gold)));
+}
+.se-detail__titles {
+  display: flex;
+  align-items: baseline;
+  gap: .7rem;
+}
+.se-detail__tier {
+  font: 700 .68rem var(--font-title);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--branch-color, var(--domain-color, var(--ancient-gold)));
+}
+.se-detail__name {
+  margin: 0;
+  font: 600 1.4rem var(--font-title);
+  color: var(--sd-ink-strong);
+}
+/* Phrase d'effet générée (la description « qui explique ») */
+.se-detail__effect {
+  margin: 0 0 .6rem;
+  padding: .6rem .8rem;
+  border-left: 3px solid var(--branch-color, var(--domain-color, var(--ancient-gold)));
+  background: rgb(var(--sd-surface-rgb) / .5);
+  border-radius: 0 5px 5px 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  font-weight: 600;
+  color: var(--sd-ink);
+}
+.se-effect-chip {
+  padding: .2rem .55rem;
+  border-radius: 4px;
+  font: 600 .74rem var(--font-title);
+  background: rgba(119, 163, 86, .18);
+  color: var(--sd-good);
+  border: 1px solid rgba(119, 163, 86, .34);
+}
+.se-effect-chip.is-malus {
+  background: rgba(184, 72, 43, .14);
+  color: var(--sd-danger);
+  border-color: rgba(184, 72, 43, .3);
+}
+.se-effect-chip.has-tip {
+  position: relative;
+  cursor: help;
+  border-bottom-style: dashed;
+}
+.se-effect-chip.has-tip:focus-visible {
+  outline: 2px solid var(--domain-color, var(--ancient-gold));
+  outline-offset: 1px;
+}
+
+/* Infobulle de décomposition — la formule derrière un chiffre.
+
+   `position: fixed`, et non `absolute`. La carte est posée dans la colonne de
+   résultat de l'atelier, qui défile (`overflow-y: auto`, ce qui force
+   `overflow-x` à `auto`) : une boîte en absolu y est prisonnière, elle y
+   ajoute une barre de défilement horizontale et se fait couper au bord. En
+   fixe, elle relève de la fenêtre et d'elle seule — plus de barre, plus de
+   coupure. Le prix à payer est qu'elle n'a plus de repère : ses coordonnées
+   sont calculées au survol (cf. `placeTip` dans spell-detail.ts), et rabattues
+   dans la fenêtre pour qu'aucune ne sorte de l'écran.
+
+   `display: none` au repos plutôt qu'une simple opacité : même en fixe, une
+   boîte affichée hors champ élargit la page. Le fondu survit grâce à
+   `allow-discrete`. */
+.se-effect-tip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translateY(.3rem);
+  z-index: 60;
+  display: none;
+  flex-direction: column;
+  gap: .15rem;
+  width: max-content;
+  max-width: 17rem;
+  padding: .55rem .7rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .4);
+  border-radius: 6px;
+  background: var(--sd-ink);
+  color: rgb(var(--sd-panel-rgb));
+  font: 500 .74rem var(--font-body);
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 6px 16px rgba(10, 8, 7, .45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s, transform .16s, display .16s allow-discrete;
+}
+.se-effect-chip.has-tip:hover .se-effect-tip,
+.se-effect-chip.has-tip:focus-visible .se-effect-tip,
+.se-effect-chip.has-tip:focus-within .se-effect-tip,
+.se-inline-val.has-tip:hover .se-effect-tip,
+.se-inline-val.has-tip:focus-visible .se-effect-tip,
+.se-inline-val.has-tip:focus-within .se-effect-tip {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+/* La flèche vise le mot, pas le milieu de la boîte : rabattue contre un bord,
+   l'infobulle n'est plus centrée sur lui. */
+.se-effect-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--tip-arrow, 50%);
+  transform: translateX(-50%);
+  border: .4rem solid transparent;
+  border-top-color: var(--sd-ink);
+}
+/* Retournée sous son mot, faute de place au-dessus : la flèche pointe en haut. */
+.se-effect-tip[data-flip]::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--sd-ink);
+}
+/* L'entrée du fondu : sans cet état de départ, une boîte qui passe de
+   `display: none` à `display: flex` apparaît d'un coup. */
+@starting-style {
+  .se-effect-chip.has-tip:hover .se-effect-tip,
+  .se-effect-chip.has-tip:focus-visible .se-effect-tip,
+  .se-effect-chip.has-tip:focus-within .se-effect-tip,
+  .se-inline-val.has-tip:hover .se-effect-tip,
+  .se-inline-val.has-tip:focus-visible .se-effect-tip,
+  .se-inline-val.has-tip:focus-within .se-effect-tip,
+  .se-status-chip:hover .se-effect-tip,
+  .se-status-chip:focus-visible .se-effect-tip,
+  .se-status-chip:focus-within .se-effect-tip,
+  .se-dmg-type.has-tip:hover .se-effect-tip,
+  .se-dmg-type.has-tip:focus-visible .se-effect-tip,
+  .se-dmg-type.has-tip:focus-within .se-effect-tip,
+  .se-status-kw:hover .se-effect-tip,
+  .se-status-kw:focus-visible .se-effect-tip,
+  .se-status-kw:focus-within .se-effect-tip {
+    opacity: 0;
+    transform: translateY(.3rem);
+  }
+}
+
+.se-effect-tip__row { white-space: nowrap; color: rgb(var(--sd-panel-rgb) / .82); }
+.se-effect-tip__row b { color: #ffe9c2; font-weight: 700; }
+
+/* ═══════════════════════════════════════════
+   STATUTS INFLIGÉS
+═══════════════════════════════════════════ */
+.se-statuses {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+.se-statuses__label {
+  font: 700 .68rem var(--font-title);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgb(var(--sd-ink-rgb) / .55);
+}
+.se-status-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .28);
+  background: rgb(var(--sd-panel-rgb) / .55);
+  font: 600 .78rem var(--font-title);
+  color: var(--sd-ink);
+  cursor: help;
+}
+.se-status-chip__icon { width: 1.1rem; height: 1.1rem; object-fit: contain; }
+.se-status-chip__chance {
+  padding: 0 .35rem;
+  border-radius: 999px;
+  background: rgb(var(--sd-ink-rgb) / .12);
+  font-size: .72rem;
+}
+/* Accent par catégorie de statut */
+.se-status-chip[data-cat="dot"]     { background: rgba(184, 72, 43, .16);  border-color: rgba(184, 72, 43, .4); }
+.se-status-chip[data-cat="control"] { background: rgba(61, 121, 168, .16); border-color: rgba(61, 121, 168, .4); }
+.se-status-chip[data-cat="debuff"]  { background: rgba(122, 90, 60, .16);  border-color: rgba(122, 90, 60, .4); }
+.se-status-chip[data-cat="mental"]  { background: rgba(155, 91, 176, .16); border-color: rgba(155, 91, 176, .42); }
+.se-status-chip[data-cat="buff"]    { background: rgba(119, 163, 86, .18); border-color: rgba(119, 163, 86, .4); }
+.se-status-chip:focus-visible {
+  outline: 2px solid var(--domain-color, var(--ancient-gold));
+  outline-offset: 2px;
+}
+.se-status-chip:hover .se-effect-tip,
+.se-status-chip:focus-visible .se-effect-tip,
+.se-status-chip:focus-within .se-effect-tip {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+.se-status-tip { max-width: 20rem; white-space: normal; }
+.se-status-tip__head {
+  font-weight: 700;
+  color: #ffe9c2;
+  margin-bottom: .2rem;
+}
+.se-status-tip .se-effect-tip__row { white-space: normal; }
+.se-status-tip__antiheal { color: #e6a5a5; font-weight: 600; }
+.se-status-tip__save { color: #a5c7e6; font-weight: 600; }
+.se-status-tip__ends {
+  margin-top: .2rem;
+  padding-top: .25rem;
+  border-top: 1px solid rgb(var(--sd-panel-rgb) / .2);
+  color: rgb(var(--sd-panel-rgb) / .6);
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════
+   BONUS DE CLASSE
+═══════════════════════════════════════════ */
+.se-class-bonuses {
+  margin-bottom: 1rem;
+  padding: .8rem 1rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .2);
+  border-radius: 7px;
+  background: rgba(28, 20, 15, .05);
+}
+.se-class-bonuses__label {
+  display: block;
+  margin-bottom: .5rem;
+  font: 700 .68rem var(--font-title);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgb(var(--sd-ink-rgb) / .6);
+}
+.se-class-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+.se-class-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .6rem;
+  align-items: start;
+}
+.se-class-badge {
+  padding: .2rem .55rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 28%, rgb(var(--sd-panel-rgb)));
+  border: 1px solid rgb(var(--sd-ink-rgb) / .3);
+  font: 700 .72rem var(--font-title);
+  color: var(--sd-ink);
+  white-space: nowrap;
+}
+.se-class-desc {
+  font-size: .92rem;
+  line-height: 1.5;
+  color: rgb(var(--sd-ink-rgb) / .82);
+}
+.se-class-effect {
+  display: inline-block;
+  margin-left: .35rem;
+  padding: .05rem .4rem;
+  border-radius: 3px;
+  background: rgba(119, 163, 86, .2);
+  color: var(--sd-good);
+  font: 700 .74rem var(--font-title);
+  white-space: nowrap;
+}
+.se-class-effect--mana {
+  background: rgba(58, 90, 138, .18);
+  color: var(--sd-cool);
+}
+
+/* ═══════════════════════════════════════════
+   MÉTÉO INVOQUÉE
+═══════════════════════════════════════════ */
+.se-weather {
+  margin-bottom: 1rem;
+  padding: .8rem 1rem;
+  border: 1px solid rgba(61, 121, 168, .35);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(61, 121, 168, .12), transparent 60%),
+    rgba(237, 240, 246, .5);
+}
+.se-weather__label {
+  display: block;
+  font: 700 .68rem var(--font-title);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgb(var(--sd-cool-rgb) / .7);
+}
+.se-weather__head {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  margin: .1rem 0 .3rem;
+}
+.se-weather__name {
+  font: 700 1.25rem var(--font-title);
+  color: #16283a;
+}
+.se-weather__dur {
+  font: 600 .74rem var(--font-title);
+  color: rgb(var(--sd-cool-rgb) / .7);
+}
+.se-weather__desc {
+  margin: 0 0 .6rem;
+  font-size: .92rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: rgba(28, 40, 55, .7);
+}
+.se-weather__fx {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+.se-weather__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.se-weather__fx-label {
+  min-width: 8.5rem;
+  font: 700 .68rem var(--font-title);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: rgb(var(--sd-cool-rgb) / .6);
+}
+.se-weather__note { font-size: .8rem; color: rgba(28, 40, 55, .6); }
+.se-weather__mod {
+  padding: .1rem .5rem;
+  border-radius: 999px;
+  font: 700 .78rem var(--font-title);
+  background: rgb(var(--sd-cool-rgb) / .1);
+  color: #2f5a7a;
+}
+.se-weather__mod.is-cheaper  { background: rgba(119, 163, 86, .2);  color: var(--sd-good); }
+.se-weather__mod.is-costlier { background: rgba(184, 72, 43, .16);  color: var(--sd-danger); }
+
+/* ═══════════════════════════════════════════
+   ORDRES (sorts à commandes, ex. Verbe d'autorité)
+═══════════════════════════════════════════ */
+.se-choices {
+  margin-bottom: 1rem;
+  padding: .8rem 1rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .2);
+  border-left: 3px solid var(--branch-color, var(--domain-color, var(--ancient-gold)));
+  border-radius: 0 7px 7px 0;
+  background: rgb(var(--sd-surface-rgb) / .45);
+}
+.se-choices__label {
+  display: block;
+  margin-bottom: .5rem;
+  font: 700 .68rem var(--font-title);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgb(var(--sd-ink-rgb) / .6);
+}
+.se-choices__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+.se-choice {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px dashed rgb(var(--sd-ink-rgb) / .14);
+}
+.se-choice:last-child { padding-bottom: 0; border-bottom: none; }
+.se-choice__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.se-choice__name {
+  font: 700 1rem var(--font-title);
+  color: var(--sd-ink);
+}
+.se-choice__fx {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .3rem;
+  font-weight: 600;
+  color: var(--sd-ink);
+}
+.se-choice__unit { font-weight: 600; color: rgb(var(--sd-ink-rgb) / .7); }
+.se-choice__mana {
+  padding: .05rem .45rem;
+  border-radius: 999px;
+  background: rgba(58, 90, 138, .14);
+  border: 1px solid rgba(58, 90, 138, .35);
+  font: 700 .72rem var(--font-title);
+  color: var(--sd-cool);
+}
+.se-choice__recoil { font-weight: 600; color: var(--sd-danger); }
+.se-choice__chip {
+  padding: .05rem .45rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 40%, transparent);
+  background: color-mix(in srgb, var(--domain-color, var(--ancient-gold)) 12%, transparent);
+  font: 700 .72rem var(--font-title);
+  color: var(--sd-ink);
+}
+.se-choice__dur { font: 600 .8rem var(--font-body); color: rgb(var(--sd-ink-rgb) / .7); }
+.se-choice__chance {
+  font: 700 .74rem var(--font-title);
+  color: var(--domain-color, var(--ancient-gold));
+}
+.se-choice__desc {
+  font-size: .9rem;
+  line-height: 1.45;
+  color: rgb(var(--sd-ink-rgb) / .75);
+}
+
+/* Badge de type de dégâts — précédé d'un espace, coloré à la teinte de son type
+   (repli sur la couleur du domaine si le type est inconnu). */
+.se-dmg-type {
+  display: inline-block;
+  margin-left: .35rem;
+  padding: .05rem .45rem;
+  border-radius: 999px;
+  font: 700 .72rem var(--font-title);
+  letter-spacing: .03em;
+  vertical-align: baseline;
+  color: var(--dt-color, var(--domain-color, var(--ancient-gold)));
+  background: color-mix(in srgb, var(--dt-color, var(--domain-color, var(--ancient-gold))) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dt-color, var(--domain-color, var(--ancient-gold))) 45%, transparent);
+  cursor: default;
+}
+/* Un badge qui porte une explication : il faut voir qu'il y a quelque chose à
+   survoler, sinon le renvoi à l'arme reste une étiquette qu'on ne lit pas. */
+.se-dmg-type.has-tip {
+  position: relative;
+  cursor: help;
+  border-style: dashed;
+  border-width: 1px 1px 2px;
+}
+.se-dmg-type.has-tip::after {
+  content: '?';
+  margin-left: .3rem;
+  font-size: .62rem;
+  vertical-align: super;
+  opacity: .75;
+}
+.se-dmg-type.has-tip:hover,
+.se-dmg-type.has-tip:focus-visible {
+  background: color-mix(in srgb, var(--dt-color, var(--ancient-gold)) 28%, transparent);
+}
+.se-dmg-type.has-tip:hover .se-effect-tip,
+.se-dmg-type.has-tip:focus-visible .se-effect-tip,
+.se-dmg-type.has-tip:focus-within .se-effect-tip {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Une infobulle de PHRASE, et non de valeurs alignées : elle doit revenir à la
+   ligne, là où les lignes « + 0,3 × Force » tiennent à ne pas se couper. */
+.se-effect-tip__row--wrap { white-space: normal; }
+/* Valeur chiffrée de dégâts : teintée par le type quand il est connu. */
+.se-inline-val[data-type] { color: var(--dt-color); }
+/* Valeur de soin : teinte « vie ». */
+.se-inline-val--heal { color: #4aa06a; }
+
+/* Phrase d'effet interactive (valeurs inline survolables) */
+.se-effect-line {
+  line-height: 1.8;
+}
+.se-effect-line.is-malus {
+  border-left-color: var(--sd-danger);
+}
+.se-inline-val {
+  position: relative;
+  font-weight: 800;
+  color: var(--branch-color, var(--domain-color, var(--ancient-gold)));
+  white-space: nowrap;
+}
+.se-effect-line.is-malus .se-inline-val {
+  color: var(--sd-danger);
+}
+.se-inline-val.has-tip {
+  cursor: help;
+  border-bottom: 1px dashed currentColor;
+}
+.se-inline-val.has-tip:focus-visible {
+  outline: 2px solid var(--domain-color, var(--ancient-gold));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════
+   BOX DE SORT (style « League of Legends »)
+   flavor + mécaniques chiffrées + statut, mêlés
+═══════════════════════════════════════════ */
+.se-spell-box {
+  line-height: 1.85;
+}
+.se-box__mech {
+  display: block;
+  font-weight: 600;
+  color: var(--sd-ink);
+}
+/* Texte d'ambiance du palier, fondu dans le bloc d'effets (non-italique,
+   cohérent avec la vue hors-combat qui rend le texte de la même manière). */
+.se-box__lead {
+  display: block;
+  margin-bottom: .4rem;
+}
+.se-box__mech.is-malus .se-inline-val {
+  color: var(--sd-danger);
+}
+.se-box__inflict::before {
+  content: '';
+  display: inline-block;
+  width: .3rem;
+}
+.se-box__sep { color: inherit; }
+
+/* Clause de contre-coup (drawback : le lanceur se blesse) */
+.se-box__recoil {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(138, 47, 26, .35);
+  font-weight: 600;
+  color: var(--sd-danger);
+}
+.se-inline-val.is-recoil { color: var(--sd-danger); }
+
+/* Clause de riposte (épines : l'attaquant subit un effet en retour) */
+.se-box__retaliate {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(196, 122, 44, .4);
+  font-weight: 600;
+  color: #a5651f;
+}
+/* Clause de purification (statuts levés tant que le buff tient) */
+.se-box__cleanse {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(90, 160, 140, .4);
+  font-weight: 600;
+  color: #3f8f7a;
+}
+/* Clause de jet imposé au corps de la cible (le sort peut se retourner) */
+.se-box__save {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(168, 90, 61, .4);
+  font-weight: 600;
+  color: #a85a3d;
+}
+/* Clause d'esquive (chance d'annuler une attaque) */
+.se-box__evade {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(61, 121, 168, .4);
+  font-weight: 600;
+  color: var(--sd-cool);
+}
+
+/* Repoussement : même gabarit que l'esquive, teinte d'eau vive */
+.se-box__knockback {
+  display: block;
+  margin-top: .5rem;
+  padding-top: .45rem;
+  border-top: 1px dashed rgba(38, 134, 150, .4);
+  font-weight: 600;
+  color: #268696;
+}
+
+/* Mot-clé de statut inline (survolable → détail du statut) */
+.se-status-kw {
+  position: relative;
+  font-weight: 800;
+  cursor: help;
+  border-bottom: 1px dotted currentColor;
+}
+.se-status-kw[data-cat="dot"]     { color: var(--sd-danger); }
+.se-status-kw[data-cat="control"] { color: var(--sd-cool); }
+.se-status-kw[data-cat="debuff"]  { color: #7a5a3c; }
+.se-status-kw[data-cat="mental"]  { color: #9b5bb0; }
+.se-status-kw[data-cat="buff"]    { color: #5f8f3d; }
+.se-status-kw:hover .se-effect-tip,
+.se-status-kw:focus-visible .se-effect-tip,
+.se-status-kw:focus-within .se-effect-tip {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+.se-status-kw:focus-visible {
+  outline: 2px solid var(--domain-color, var(--ancient-gold));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Grille de stats ── */
+.se-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: .7rem;
+  margin: 0 0 1rem;
+}
+.se-stat {
+  padding: .5rem .7rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .16);
+  border-radius: 5px;
+  background: rgb(var(--sd-surface-rgb) / .5);
+}
+.se-stat dt {
+  font: 700 .64rem var(--font-title);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgb(var(--sd-ink-rgb) / .55);
+  margin-bottom: .2rem;
+}
+.se-stat dd {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+.se-stat__base {
+  font: 700 1.1rem var(--font-title);
+  color: var(--sd-ink-strong);
+}
+/* Hiérarchie d'une case : libellé < unité < valeur écrite < chiffre. Une
+   valeur écrite (« Continue ») se lit comme « Personnel » ou « Soi-même » :
+   en texte courant, pas dans la fonte des chiffres. */
+.se-stat__unit {
+  font-size: .78rem;
+  color: rgb(var(--sd-ink-rgb) / .65);
+  white-space: nowrap;
+}
+.se-stat__text { color: var(--sd-ink-strong); }
+/* Un échelon nommé (« Assainissement ») peut être plus long que la case : il se coupe au besoin. */
+.se-stat--grade dd { min-width: 0; }
+
+.se-stat--grade .se-stat__text { overflow-wrap: anywhere; hyphens: auto; font-size: .88em; line-height: 1.15; }
+
+/* ── Cibles ── */
+.se-targets {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: 1rem;
+}
+.se-targets__label {
+  font: 700 .68rem var(--font-title);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgb(var(--sd-ink-rgb) / .55);
+}
+
+/* ══ MATÉRIAUX DE TERRE ══════════════════════════════════════════════════════
+   Un sélecteur, pas un tableau : c'est lui qui relit toute la fiche. Page sur
+   PARCHEMIN — les teintes claires du simulateur y seraient invisibles. */
+.se-materials {
+  margin-top: .9rem;
+  padding-top: .8rem;
+  border-top: 1px dotted rgba(139, 107, 47, .35);
+}
+.se-materials__label {
+  display: block;
+  margin-bottom: .35rem;
+  font-family: 'Cinzel', serif;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--sd-warm);
+}
+.se-materials__select {
+  width: 100%;
+  max-width: 26rem;
+  padding: .35rem .5rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .35);
+  border-radius: 2px;
+  background: rgb(var(--sd-surface-rgb) / .85);
+  color: var(--sd-ink-strong);
+  font-family: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+}
+.se-materials__select:focus { outline: none; border-color: var(--sd-warm); }
+.se-materials__intro {
+  margin: .5rem 0 .5rem;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: rgb(var(--sd-ink-rgb) / .75);
+}
+.se-materials__facts {
+  list-style: none;
+  margin: 0 0 .5rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: .15rem .9rem;
+}
+.se-materials__facts li {
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .18rem 0;
+  border-bottom: 1px solid rgb(var(--sd-ink-rgb) / .1);
+  font-size: .8rem;
+}
+.se-materials__facts span { color: rgb(var(--sd-ink-rgb) / .6); }
+.se-materials__facts b { color: var(--sd-ink-strong); font-weight: 500; text-align: right; }
+.se-materials__note {
+  margin: 0;
+  font-size: .78rem;
+  font-style: italic;
+  color: rgb(var(--sd-ink-rgb) / .7);
+}
+/* Une matière qui n'oppose rien à la magie : le dire, plutôt qu'un « +0 ». */
+.se-materials__none { font-style: italic; color: rgb(var(--sd-ink-rgb) / .45); font-weight: 400; }
+/* ═════════ Registre compact ═════════
+   La carte logée dans la colonne de résultat de l'atelier : toute la grille de
+   stats descend d'un cran, proportions gardées. */
+:host(.sd--compact) .se-detail { margin-top: 0; padding: .9rem 1rem; }
+:host(.sd--compact) .se-stats { grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: .45rem; }
+:host(.sd--compact) .se-stat { padding: .4rem .55rem; }
+:host(.sd--compact) .se-stat dt { font-size: .56rem; }
+:host(.sd--compact) .se-stat dd { gap: .3rem; font-size: .9rem; }
+:host(.sd--compact) .se-stat__base { font-size: 1rem; }
+:host(.sd--compact) .se-stat__unit { font-size: .72rem; }
+
+/* Accent piloté par le contexte lu : braise en combat, azur hors combat. */
+.se-detail__main { --usage-accent: #8a3a20; }
+.se-detail__main[data-usage='outOfCombat'] { --usage-accent: #3d6a8a; }
+:host(.sd--dark) .se-detail__main { --usage-accent: #c96a45; }
+:host(.sd--dark) .se-detail__main[data-usage='outOfCombat'] { --usage-accent: #6ba3c4; }
+
+/* La bascule combat / hors combat, reprise du cadran de la fiche du wiki :
+   elle vit dans l'en-tête de la carte, la page n'a plus à la lui prêter. */
+.se-usage__switch {
+  display: inline-flex;
+  gap: .25rem;
+  margin-bottom: .7rem;
+  padding: .25rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .22);
+  border-radius: 999px;
+  background: rgb(var(--sd-panel-rgb) / .5);
+}
+.se-detail__head .se-usage__switch { margin-bottom: 0; }
+.se-usage__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .9rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(var(--sd-ink-rgb) / .55);
+  font: 600 .72rem var(--font-title);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.se-usage__tab:hover { color: var(--sd-ink); }
+.se-usage__tab.is-active {
+  background: var(--usage-accent);
+  color: #f6efdf;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+}
+.se-usage__icon { font-size: .95rem; line-height: 1; }
+.se-usage__cadran {
+  padding: 1rem 1.15rem;
+  border: 1px solid rgb(var(--sd-ink-rgb) / .22);
+  border-left: 3px solid var(--usage-accent);
+  border-radius: 6px;
+  background: rgb(var(--sd-panel-rgb) / .34);
+}

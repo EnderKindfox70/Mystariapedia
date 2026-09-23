@@ -166,14 +166,14 @@ describe('Familles 2 et 3', () => {
 describe('Famille 4, 4bis et 4ter', () => {
   it('swaps à coût plat : forme de zone, statut, cible', () => {
     const lava = evaluate(spell('combo-coulee-de-lave'), build({
-      swaps: { scalings: [], areaShape: 'Cône', defaultTarget: false, statusType: { index: 0, to: 'enracinement' } },
+      swaps: { scalings: [], areaShape: 'Cône', defaultTarget: false, statusType: { index: 0, to: 'enracinement' }, damageType: null },
     }), player('brenn'), ctx);
     expect(lava.stats.area).toBe('Cône 3 m');
     expect(lava.stats.inflicts?.[0].status).toBe('enracinement');
     expect(lava.net).toBe(2 + 3);
 
     const fils = evaluate(spell('darkness-fils-du-marionnettiste'), build({
-      swaps: { scalings: [], areaShape: null, defaultTarget: true, statusType: null },
+      swaps: { scalings: [], areaShape: null, defaultTarget: true, statusType: null, damageType: null },
     }), player('ignis'), ctx);
     expect(fils.stats.targets).toEqual(['ally']);
     expect(fils.net).toBe(4);
@@ -227,7 +227,7 @@ describe('Famille 4, 4bis et 4ter', () => {
     expect(spellOptions(toxine).statusUnlock).toBeNull();
     expect(lintSpell(toxine).some((i) => i.includes('gouverné'))).toBe(true);
     const ev = evaluate(toxine, build({
-      swaps: { scalings: [], areaShape: null, defaultTarget: false, statusType: { index: 0, to: 'paralysie' } },
+      swaps: { scalings: [], areaShape: null, defaultTarget: false, statusType: { index: 0, to: 'paralysie' }, damageType: null },
     }), player('seve'), ctx);
     expect(ev.stats.inflicts?.[0].status).toBe('poison');
     expect(ev.errors.some((e) => e.includes('gouverné'))).toBe(true);
