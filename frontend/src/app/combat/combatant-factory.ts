@@ -32,7 +32,7 @@ import {
   SKILLS,
 } from '../character/universe-data';
 import { LootDrop } from './loot';
-import { survivalFromNotches } from './survival';
+import { survivalFromSheet } from './survival';
 import { isProficientWith } from './rules';
 import { BuilderContextService } from '../services/builder-context.service';
 import { SpellsService } from '../services/spells.service';
@@ -51,6 +51,8 @@ import {
   classSkillsFor,
   careAbility,
   consumableAbility,
+  gearAbility,
+  type GearUseSource,
   venomAbility,
   type CareSource,
   type VenomSource,
@@ -114,6 +116,12 @@ const HEALER_TRAIT = 'soigneur';
 interface CareEntry {
   name?: string;
   care?: Omit<CareSource, 'name' | 'slug'>;
+}
+
+/** Fiche d'équipement : seul son bloc `use` intéresse le combat. */
+interface GearUseEntry {
+  name?: string;
+  use?: Omit<GearUseSource, 'name' | 'slug'>;
 }
 
 /** Fiche de dépouille : seul son bloc `venom` intéresse le combat. */
@@ -204,6 +212,23 @@ interface EquipmentStat {
 interface GearStat {
   material?: string;
   weightKg?: number;
+  /** Usages par exemplaire (7 jours de rations, 3 doses de sels). */
+  uses?: number;
+  /** Statuts de météo dont l'objet protège (vareuse huilée : Trempé). */
+  weatherWards?: string[];
+}
+
+/**
+ * Les usages d'une ligne de sac, quand l'objet en compte plusieurs. Une valeur
+ * d'entame hors bornes (fiche retouchée à la main) est ramenée dans l'intervalle
+ * plutôt que de faire croire à un flacon de quatre doses sur trois.
+ */
+function usesOf(per: number | undefined, left: number | undefined): Partial<CarriedItem> {
+  const usesPer = Math.round(per ?? 1);
+  if (usesPer <= 1) return {};
+  const usesLeft =
+    left === undefined ? undefined : Math.min(usesPer, Math.max(1, Math.round(left)));
+  return usesLeft === undefined || usesLeft === usesPer ? { usesPer } : { usesPer, usesLeft };
 }
 
 let counter = 0;
@@ -226,6 +251,8 @@ export class CombatantFactory {
   private readonly venomsByName = new Map<string, VenomSource>();
   /** Matériel de soin indexé par nom : bandages, garrot, sels, trousse. */
   private readonly careByName = new Map<string, CareSource>();
+  /** Objets qui se jouent (bloc `use`) : torche, filet, chausse-trappes, entraves. */
+  private readonly gearUseByName = new Map<string, GearUseSource>();
   /** Nom FR d'un statut → sa clé, pour lire les purges écrites sur les fioles. */
   private readonly statusKeys = new Map<string, string>(
     inject(StatusEffectsService)
@@ -365,6 +392,28 @@ export class CombatantFactory {
       map((list) => list.filter((c): c is CareSource => !!c)),
     );
 
+    // Objets qui se jouent : même lecture. L'index dit lesquels (tag `use`), la
+    // fiche dit ce qu'ils font.
+    const gearUse$ = this.wiki.loadAll<ResourceIndexEntry>(GEAR_COLLECTION).pipe(
+      catchError(() => of([] as ResourceIndexEntry[])),
+      map((index) => index.filter((e) => e.tags?.includes('use'))),
+      switchMap((index) =>
+        index.length
+          ? forkJoin(
+              index.map((e) =>
+                this.wiki.load<GearUseEntry>(GEAR_COLLECTION, e.slug).pipe(
+                  map((g) =>
+                    g.use ? { name: g.name || e.name, slug: e.slug, ...g.use } : null,
+                  ),
+                  catchError(() => of(null)),
+                ),
+              ),
+            )
+          : of([] as (GearUseSource | null)[]),
+      ),
+      map((list) => list.filter((g): g is GearUseSource => !!g)),
+    );
+
     // Venins : l'index dit LESQUELS le sont (tag `venom`), la fiche dit ce
     // qu'ils font. On ne charge donc que les fiches taguées, pas la collection.
     const venoms$ = this.wiki.loadAll<ResourceIndexEntry>(REMAINS_COLLECTION).pipe(
@@ -387,6 +436,7 @@ export class CombatantFactory {
 
     return forkJoin([
       care$,
+      gearUse$,
       venoms$,
       weapons$,
       armor$,
@@ -398,8 +448,9 @@ export class CombatantFactory {
       this.wiki.load<ClassDef[]>('characters', 'classes').pipe(catchError(() => of([]))),
       this.wiki.load<BackgroundDef[]>('characters', 'backgrounds').pipe(catchError(() => of([]))),
     ]).pipe(
-      tap(([care, venoms, weapons, armors, ammunition, potions, gear, artifacts, races, classes, backgrounds]) => {
+      tap(([care, gearUse, venoms, weapons, armors, ammunition, potions, gear, artifacts, races, classes, backgrounds]) => {
         for (const piece of care) this.careByName.set(piece.name, piece);
+        for (const piece of gearUse) this.gearUseByName.set(piece.name, piece);
         for (const venom of venoms) this.venomsByName.set(venom.name, venom);
         for (const potion of potions) this.consumablesByName.set(potion.name, potion);
         for (const weapon of weapons) this.weaponsByName.set(weapon.name, weapon);
@@ -427,7 +478,12 @@ export class CombatantFactory {
           }
         }
         for (const item of gear) {
-          this.gearByName.set(item.name, { material: item.material, weightKg: item.weight });
+          this.gearByName.set(item.name, {
+            material: item.material,
+            weightKg: item.weight,
+            uses: item.uses,
+            weatherWards: item.weatherWards,
+          });
         }
         for (const item of artifacts) {
           if (!item.name || !item.statEffects?.length) continue;
@@ -576,9 +632,9 @@ export class CombatantFactory {
             equipped: sheet.earthMaterials.equipped,
           }
         : undefined,
-      // Les jauges suivent le voyage, elles : la fiche les stocke en crans, la
+      // Les jauges suivent le voyage, elles : la fiche en stocke le creux, la
       // table les reprend là où la dernière séance les avait laissées.
-      survival: survivalFromNotches(sheet.survival),
+      survival: survivalFromSheet(sheet, attributes),
       purse: purseTotal(computeGold(sheet, background), sheet.goldDelta ?? 0),
       purseBase: computeGold(sheet, background),
       initiative: 0,
@@ -637,6 +693,10 @@ export class CombatantFactory {
         material: gear?.material,
         metallic: isFerromagnetic(gear?.material),
         weightKg: gear?.weightKg,
+        // Un lot entamé reste entamé d'une séance à l'autre : la fiche garde ce
+        // qui restait dans l'exemplaire ouvert.
+        ...usesOf(gear?.uses ?? care?.charges, line.usesLeft),
+        weatherWards: gear?.weatherWards,
       };
     });
 
@@ -742,6 +802,12 @@ export class CombatantFactory {
       } else if (line.kind === 'care') {
         const piece = this.careByName.get(line.name);
         if (piece) abilities.push(careAbility(piece, { hasKit, healer }));
+      }
+      // Un objet qui se joue reste un bagage : il se compte, se donne et se
+      // ramasse comme n'importe quelle ligne — il gagne seulement un geste.
+      const geste = this.gearUseByName.get(line.name);
+      if (geste && !abilities.some((a) => a.id === `gear:${geste.slug ?? geste.name}`)) {
+        abilities.push(gearAbility(geste));
       }
     }
     return abilities;

@@ -55,6 +55,32 @@
     "Prévenir le groupe avant de les répandre. La moitié des blessures causées par des chausse-trappes le sont chez les alliés.",
     "Semées devant une porte que l'on referme, elles valent trois tours de répit. Semées au hasard, elles ne valent rien."
   ],
+  "tags": [
+    "use"
+  ],
+  "use": {
+    "label": "Répandre les chausse-trappes",
+    "rangeMeters": 3,
+    "consumed": true,
+    "hazard": {
+      "radiusMeters": 1.5,
+      "inflicts": [
+        {
+          "status": "ralentissement",
+          "chance": 100,
+          "duration": 2
+        }
+      ],
+      "creatureInflicts": [
+        {
+          "status": "saignement",
+          "chance": 100
+        }
+      ],
+      "maxFootprint": 2
+    },
+    "note": "Sans effet sur les créatures volantes. Se ramassent en dix minutes, hors combat."
+  },
   "references": [
     {
       "label": "Matériel associé",

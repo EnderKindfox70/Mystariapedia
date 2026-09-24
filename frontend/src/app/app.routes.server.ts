@@ -21,6 +21,10 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'characters/new', renderMode: RenderMode.Client },
   { path: 'characters/:id', renderMode: RenderMode.Client },
 
+  // Tables de jeu : dépendent du compte et d'une connexion en direct.
+  { path: 'tables', renderMode: RenderMode.Client },
+  { path: 'tables/join/:code', renderMode: RenderMode.Client },
+
   // Bancs d'essai : le spell builder garde son joueur type dans le stockage
   // local du navigateur, qu'un prérendu ne peut pas connaître.
   { path: 'tests', renderMode: RenderMode.Client },

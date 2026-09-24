@@ -55,5 +55,8 @@
     "Ne jamais la faire sécher près d'un feu vif : l'huile de lin s'enflamme, et une vareuse qui prend feu est portée par quelqu'un.",
     "La ré-huiler à la fin de l'automne, avant la saison des pluies. Ceux qui attendent le premier orage s'en souviennent longtemps."
   ],
+  "weatherWards": [
+    "wet"
+  ],
   "references": []
 }

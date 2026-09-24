@@ -55,5 +55,20 @@
     "Un berger reconnaît la houlette d'un autre à l'usure du crochet, comme un forgeron reconnaît un marteau.",
     "Les chiens de troupeau obéissent au geste de la houlette autant qu'à la voix. Sans elle, un berger doit tout recommencer à crier."
   ],
+  "tags": [
+    "use"
+  ],
+  "use": {
+    "label": "Coup de houlette",
+    "rangeMeters": 2,
+    "damages": [
+      {
+        "min": 1,
+        "max": 2,
+        "type": "bludgeoning"
+      }
+    ],
+    "note": "Arme improvisée, avec l'allonge d'un bâton."
+  },
   "references": []
 }

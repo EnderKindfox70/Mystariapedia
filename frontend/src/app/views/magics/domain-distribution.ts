@@ -1,3 +1,5 @@
+import { DOMAINS } from '../../domains.catalog';
+
 export interface PieSlice {
   key: string;
   label: string;
@@ -5,6 +7,10 @@ export interface PieSlice {
   details: string;
   color: string;
   start: number;
+  /** Secteur d'anneau SVG (viewBox 0 0 100 100), calculé une fois pour toutes. */
+  path: string;
+  /** Icône officielle du domaine (catalogue), absente pour les parts hors domaine. */
+  icon?: string;
 }
 
 export interface PieChart {
@@ -29,13 +35,44 @@ export const DOMAIN_COLORS: Record<string, string> = {
   space: 'var(--domain-space)',
 };
 
+/* Anneau : centre 50/50, rayons 34 → 56 (l'ancien trait de 22 autour de r=45). */
+const RING_INNER = 34;
+const RING_OUTER = 56;
+
+const ringPoint = (r: number, pct: number): string => {
+  const a = (pct / 100) * 2 * Math.PI - Math.PI / 2; // 0 % = midi, sens horaire
+  return `${(50 + r * Math.cos(a)).toFixed(3)} ${(50 + r * Math.sin(a)).toFixed(3)}`;
+};
+
+/**
+ * Secteur d'anneau en `<path>` plein. Les anciens cercles pointillés
+ * (stroke-dasharray + pathLength) se déformaient dans Chrome au raccord du
+ * cercle, à midi : les petites parts (Temps, Espace des elfes) débordaient
+ * sur la première.
+ */
+function ringSector(start: number, value: number): string {
+  if (value >= 100) {
+    // Un arc SVG ne peut pas boucler sur lui-même : deux demi-anneaux.
+    return `${ringSector(0, 50)} ${ringSector(50, 50)}`;
+  }
+  const end = start + value;
+  const large = value > 50 ? 1 : 0;
+  return [
+    `M ${ringPoint(RING_OUTER, start)}`,
+    `A ${RING_OUTER} ${RING_OUTER} 0 ${large} 1 ${ringPoint(RING_OUTER, end)}`,
+    `L ${ringPoint(RING_INNER, end)}`,
+    `A ${RING_INNER} ${RING_INNER} 0 ${large} 0 ${ringPoint(RING_INNER, start)}`,
+    'Z',
+  ].join(' ');
+}
+
 export function buildSlices(
-  slices: Array<Omit<PieSlice, 'start'>>
+  slices: Array<Omit<PieSlice, 'start' | 'path'>>
 ): PieSlice[] {
   let start = 0;
 
   return slices.map((slice) => {
-    const pieSlice = { ...slice, start };
+    const pieSlice = { ...slice, start, path: ringSector(start, slice.value) };
     start += slice.value;
     return pieSlice;
   });
@@ -93,6 +130,11 @@ export const AFFINITY_SLICE_COUNT: Record<string, number> = {
   many: 3,
 };
 
+/** Les clés des graphiques suivent les couleurs CSS ; le catalogue, les slugs. */
+const CATALOG_SLUG: Record<string, string> = { lightning: 'electricity', plants: 'plant' };
+const ICON_BY_KEY = (key: string): string =>
+  DOMAINS.find((d) => d.slug === (CATALOG_SLUG[key] ?? key))?.icon ?? '';
+
 function domainSlices(
   slices: Array<[key: string, label: string, value: number]>
 ): PieSlice[] {
@@ -103,6 +145,7 @@ function domainSlices(
       value,
       details: 'Domaine documenté dans cette population éveillée',
       color: DOMAIN_COLORS[key],
+      icon: ICON_BY_KEY(key),
     }))
   );
 }

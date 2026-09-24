@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { AttributeKey, CharacterSheet, StatKey } from '../character/character.types';
-import { emptySheet, SURVIVAL_GAUGES } from '../character/universe-data';
+import { AttributeKey, CharacterSheet, StatKey, SurvivalKey } from '../character/character.types';
+import {
+  emptySheet,
+  hungerPerSegment,
+  knockoutSegments,
+  manaEffect,
+  manaTier,
+  needEffect,
+  noSurvivalLoss,
+  sheetSurvivalLoss,
+  survivalMaxima,
+} from '../character/universe-data';
 import {
   advanceClock,
   DAY,
@@ -13,30 +23,53 @@ import {
   startingClock,
   startOfDaytime,
 } from './clock';
-import { Affinities, Combatant, Encounter, Team } from './combat.types';
+import { Affinities, CombatAbility, Combatant, Encounter, Team } from './combat.types';
 import { Rng } from './dice';
 import { emptyEncounter, migrateEncounter } from './encounter';
 import { carriedAsLoot, pileSize, rollDrops } from './loot';
-import { applyAction, carriedQty, clockOf, effectiveStat, phaseOf, terrainFor } from './rules';
+import {
+  applyAction,
+  carriedQty,
+  clockOf,
+  effectiveStat,
+  needSteps,
+  phaseOf,
+  precisionOf,
+  terrainFor,
+  vigorThreshold,
+} from './rules';
 import { blocksMovement, blocksSight, DoorState, moveCostOf, newDoor } from './terrain';
 import { applyReport, diffAgainstSheet, summarize } from './sheet-report';
 import {
+  absoluteSeconds,
   activityByKey,
+  advanceSurvival,
   drain,
-  elapsedForNotches,
+  halfKnockout,
+  NIGHT_SECONDS,
   EMPTY_WATERSKIN,
   freshSurvival,
-  gaugeOf,
+  FORAGE_SECONDS,
+  FORAGE_TOTAL,
+  forageOutcome,
+  HUNT_SECONDS,
+  SNARE_CHECK_SECONDS,
+  SNARE_SET_SECONDS,
+  SNARE_TOTAL,
+  SNARE_WAIT_SECONDS,
+  snareOutcome,
   HUNT_TOTAL,
   huntBonus,
   huntOutcome,
-  NOTCH_SECONDS,
-  notchesLeft,
+  migrateSurvival,
   nourishmentOf,
+  pointsLeft,
+  profileOf,
   restore,
-  survivalFromNotches,
-  survivalMods,
-  survivalToNotches,
+  restRecovery,
+  SEGMENT_SECONDS,
+  SurvivalState,
+  survivalToLoss,
   WATERSKIN,
 } from './survival';
 
@@ -131,9 +164,16 @@ describe('horloge', () => {
     expect(formatClock(startingClock())).toBe('Jour 1 — 8h00');
   });
 
+  it('compte des journées de vingt-six heures', () => {
+    expect(DAY).toBe(26 * HOUR);
+    expect(formatClock({ day: 2, seconds: 25 * HOUR + 30 * MINUTE })).toBe('Jour 2 — 25h30');
+  });
+
   it('enjambe minuit en changeant de jour', () => {
-    const soir = { day: 3, seconds: 23 * HOUR };
+    const soir = { day: 3, seconds: 25 * HOUR };
     expect(advanceClock(soir, 2 * HOUR)).toEqual({ day: 4, seconds: HOUR });
+    // 23 h n'est pas encore minuit : il reste trois heures au jour.
+    expect(advanceClock({ day: 3, seconds: 23 * HOUR }, 2 * HOUR)).toEqual({ day: 3, seconds: 25 * HOUR });
   });
 
   it('enjambe plusieurs jours d’un coup', () => {
@@ -152,10 +192,17 @@ describe('horloge', () => {
     expect(daytimeAt({ day: 1, seconds: 16 * HOUR })).toBe('apres-midi');
     expect(daytimeAt({ day: 1, seconds: 19 * HOUR })).toBe('soiree');
     expect(daytimeAt({ day: 1, seconds: 22 * HOUR })).toBe('nuit');
+    // Les deux heures de plus vont à la nuit.
+    expect(daytimeAt({ day: 1, seconds: 25 * HOUR })).toBe('nuit');
+  });
+
+  it('allonge la nuit à dix heures, sans toucher aux phases éveillées', () => {
+    expect(NIGHT_SECONDS).toBe(10 * HOUR);
+    expect(SEGMENT_SECONDS).toBe(6.5 * HOUR);
   });
 
   it('couvre la journée entière, sans trou ni chevauchement', () => {
-    for (let h = 0; h < 24; h++) {
+    for (let h = 0; h < 26; h++) {
       expect(daytimeAt({ day: 1, seconds: h * HOUR })).toBeTruthy();
     }
   });
@@ -174,128 +221,352 @@ describe('horloge', () => {
 
 /* ── Les jauges ────────────────────────────────────────────────────────────── */
 
+/** Profil d'un personnage aux attributs de référence (tout à 10). */
+const P = profileOf(ATTRS());
+const pts = (key: SurvivalKey, state: SurvivalState | undefined): number => pointsLeft(key, state, P);
+/** Une heure du premier jour. */
+const at = (hours: number) => ({ day: 1, seconds: hours * HOUR });
+/** Un état entamé : points manquants par jauge. */
+const worn = (loss: Partial<Record<SurvivalKey, number>>, extra: Partial<SurvivalState> = {}): SurvivalState => ({
+  loss: { hunger: 0, thirst: 0, rest: 0, ...loss },
+  ...extra,
+});
+const withAttrs = (over: Partial<Record<AttributeKey, number>>) => ({ ...ATTRS(), ...over });
+
 describe('jauges de survie', () => {
-  it('part pleine et se vide au rythme annoncé', () => {
+  it('taille les réservoirs sur la Constitution', () => {
+    expect(survivalMaxima(ATTRS())).toEqual({ hunger: 48, thirst: 16, rest: 15 });
+    // CON 14 (+2) : Faim 48 + 12, Soif 16 + 4, Repos inchangé.
+    expect(survivalMaxima(withAttrs({ constitution: 14 }))).toEqual({ hunger: 60, thirst: 20, rest: 15 });
+    expect(survivalMaxima(withAttrs({ constitution: 6 }))).toEqual({ hunger: 36, thirst: 12, rest: 15 });
+  });
+
+  it('ne fait payer la Force qu’à la faim, et seulement au-delà de +2', () => {
+    expect(hungerPerSegment(withAttrs({ force: 14 }))).toBe(1);
+    expect(hungerPerSegment(withAttrs({ force: 16 }))).toBe(2);
+    expect(hungerPerSegment(withAttrs({ force: 18 }))).toBe(2);
+    expect(hungerPerSegment(withAttrs({ force: 20 }))).toBe(3);
+  });
+
+  it('use faim et soif d’un point par segment de journée', () => {
     const route = activityByKey('route')!;
-    let state = freshSurvival();
-    expect(notchesLeft('thirst', state)).toBe(4);
+    let state = drain(freshSurvival(), P, at(8), SEGMENT_SECONDS, route);
+    expect(pts('hunger', state)).toBe(47);
+    expect(pts('thirst', state)).toBe(15);
 
-    state = drain(state, 4 * HOUR, route);
-    expect(notchesLeft('thirst', state)).toBe(3);
+    state = drain(freshSurvival(), P, at(8), DAY, route);
+    expect(pts('hunger', state)).toBe(44);
+    expect(pts('thirst', state)).toBe(12);
+  });
 
-    state = drain(state, 12 * HOUR, route);
-    expect(notchesLeft('thirst', state)).toBe(0);
+  it('ne raye un point qu’une fois le segment écoulé', () => {
+    const state = drain(freshSurvival(), P, at(8), SEGMENT_SECONDS / 2, activityByKey('route')!);
+    expect(state.loss.thirst).toBeCloseTo(0.5);
+    expect(pts('thirst', state)).toBe(16);
+  });
+
+  it('use plus vite la faim d’un colosse', () => {
+    const fort = profileOf(withAttrs({ force: 16 }));
+    const state = drain(freshSurvival(), fort, at(8), SEGMENT_SECONDS, activityByKey('route')!);
+    expect(pointsLeft('hunger', state, fort)).toBe(46);
+    expect(pointsLeft('thirst', state, fort)).toBe(15);
   });
 
   it('ne perd rien à découper le temps en tranches', () => {
     const route = activityByKey('route')!;
-    const gros = drain(freshSurvival(), 2 * HOUR, route);
+    const gros = drain(freshSurvival(), P, at(8), 2 * HOUR, route);
 
     let petit = freshSurvival();
-    for (let i = 0; i < 12; i++) petit = drain(petit, 10 * MINUTE, route);
-
-    expect(petit).toEqual(gros);
+    for (let i = 0; i < 12; i++) {
+      petit = drain(petit, P, { day: 1, seconds: 8 * HOUR + i * 10 * MINUTE }, 10 * MINUTE, route);
+    }
+    for (const key of ['hunger', 'thirst', 'rest'] as SurvivalKey[]) {
+      expect(petit.loss[key]).toBeCloseTo(gros.loss[key], 9);
+    }
   });
 
-  it('ne s’enfonce pas sous zéro : trois jours de jeûne se rattrapent en un repas', () => {
-    const route = activityByKey('route')!;
-    const affame = drain(freshSurvival(), 10 * DAY, route);
-    const plafond = 6 * NOTCH_SECONDS['hunger'];
-    expect(affame.hunger).toBe(plafond);
-    expect(notchesLeft('hunger', restore(affame, 'hunger', 6))).toBe(6);
-  });
-
-  it('ne déborde pas au-dessus du plein', () => {
-    const repu = restore(freshSurvival(), 'hunger', 99);
-    expect(repu.hunger).toBe(0);
-  });
-
-  it('rend une nuit de huit heures suffisante pour effacer une journée debout', () => {
-    const veille = activityByKey('veille')!;
-    const sommeil = activityByKey('sommeil')!;
-    let state = drain(freshSurvival(), 20 * HOUR, veille);
-    expect(notchesLeft('rest', state)).toBe(0);
-
-    state = drain(state, 8 * HOUR, sommeil);
-    expect(notchesLeft('rest', state)).toBe(5);
+  it('ne s’enfonce pas sous zéro, et ne déborde pas au-dessus du plein', () => {
+    const affame = drain(freshSurvival(), P, at(8), 30 * DAY, activityByKey('route')!);
+    expect(affame.loss.hunger).toBe(48);
+    expect(pts('hunger', restore(affame, 'hunger', 8))).toBe(8);
+    expect(restore(freshSurvival(), 'hunger', 99).loss.hunger).toBe(0);
+    expect(pts('thirst', restore(worn({ thirst: 12 }), 'thirst'))).toBe(16);
   });
 
   it('use la soif trois fois plus vite au combat qu’en marchant', () => {
-    const route = drain(freshSurvival(), HOUR, activityByKey('route')!);
-    const combat = drain(freshSurvival(), HOUR, activityByKey('combat')!);
-    expect(combat.thirst).toBe(route.thirst * 3);
-  });
-
-  it('fait l’aller-retour avec les crans stockés sur la fiche', () => {
-    const crans = { hunger: 4, thirst: 2, rest: 5 };
-    expect(survivalToNotches(survivalFromNotches(crans))).toEqual(crans);
-  });
-
-  it('repart d’une jauge pleine pour une fiche qui n’en portait pas', () => {
-    expect(survivalToNotches(survivalFromNotches(undefined))).toEqual({
-      hunger: 6,
-      thirst: 4,
-      rest: 5,
-    });
-  });
-
-  it('convertit les crans en temps écoulé de façon cohérente', () => {
-    for (const gauge of SURVIVAL_GAUGES) {
-      for (let n = 0; n <= gauge.segments; n++) {
-        const state = { ...freshSurvival(), [gauge.key]: elapsedForNotches(gauge.key, n) };
-        expect(notchesLeft(gauge.key, state)).toBe(n);
-      }
-    }
+    const route = drain(freshSurvival(), P, at(8), HOUR, activityByKey('route')!);
+    const combat = drain(freshSurvival(), P, at(8), HOUR, activityByKey('combat')!);
+    expect(combat.loss.thirst).toBeCloseTo(route.loss.thirst * 3);
   });
 });
 
-/* ── Ce que le vide coûte ──────────────────────────────────────────────────── */
+describe('fatigue : une dette de sommeil', () => {
+  it('ne coûte rien sur une journée normale', () => {
+    const state = drain(freshSurvival(), P, at(5), 16 * HOUR, activityByKey('route')!);
+    expect(pts('rest', state)).toBe(15);
+  });
+
+  it('ouvre la dette quand on veille la nuit : −3 pour la nuit sautée', () => {
+    const state = drain(freshSurvival(), P, at(21), NIGHT_SECONDS, activityByKey('veille')!);
+    expect(pts('rest', state)).toBe(12);
+  });
+
+  it('creuse ensuite −3 par phase éveillée, jusqu’à l’endormissement forcé', () => {
+    const { state, events } = advanceSurvival(freshSurvival(), P, at(21), 24 * HOUR, activityByKey('veille')!);
+    // Nuit −3, aube −3, matinée −3, midi −3, après-midi −3 : zéro à 18 h.
+    const chute = events.find((e) => e.kind === 'knockout')!;
+    expect(chute.cause).toBe('rest');
+    expect(chute.sleep).toBe(true);
+    expect(chute.at).toBe(DAY + 18 * HOUR);
+    // 2 segments − mod. CON (0) : douze heures de sommeil forcé…
+    expect(chute.segments).toBe(2);
+    // … qui remboursent la dette pendant qu'on dort.
+    expect(pts('rest', state)).toBeGreaterThan(0);
+  });
+
+  it('rembourse au prorata d’une nuit écourtée', () => {
+    const sommeil = activityByKey('sommeil')!;
+    // 3 points restants, une demi-nuit (5 h) : la moitié de la jauge revient.
+    const state = drain(worn({ rest: 12 }), P, at(21), NIGHT_SECONDS / 2, sommeil);
+    expect(state.loss.rest).toBeCloseTo(4.5);
+    expect(pts('rest', state)).toBe(11);
+  });
+
+  it('remet la jauge à neuf après une nuit complète', () => {
+    const state = drain(worn({ rest: 15 }), P, at(21), NIGHT_SECONDS, activityByKey('sommeil')!);
+    expect(pts('rest', state)).toBe(15);
+  });
+
+  it('garde la dette ouverte tant qu’on n’a pas dormi', () => {
+    // Trois heures de matinée (phase de 4 h) avec une dette déjà ouverte.
+    const state = drain(worn({ rest: 3 }), P, at(7), 3 * HOUR, activityByKey('route')!);
+    expect(state.loss.rest).toBeCloseTo(3 + 3 * (3 / 4));
+    expect(pts('rest', state)).toBe(10);
+  });
+});
+
+describe('perdre connaissance', () => {
+  it('s’évanouit quand la soif TOMBE à zéro, puis se réveille à vide', () => {
+    const route = activityByKey('route')!;
+    const chute = 8 * HOUR + SEGMENT_SECONDS;
+    const { state, events } = advanceSurvival(worn({ thirst: 15 }), P, at(8), SEGMENT_SECONDS, route);
+    expect(events).toEqual([
+      { kind: 'knockout', cause: 'thirst', at: chute, sleep: false, segments: 3 },
+    ]);
+    expect(state.out).toEqual({ cause: 'thirst', until: chute + 3 * SEGMENT_SECONDS, sleep: false });
+
+    const reveil = advanceSurvival(state, P, { day: 1, seconds: chute }, 3 * SEGMENT_SECONDS, route);
+    expect(reveil.events.map((e) => e.kind)).toEqual(['wake']);
+    expect(reveil.state.out).toBeUndefined();
+    // Toujours à sec : se réveiller ne désaltère pas, mais ne relance pas non plus.
+    expect(pts('thirst', reveil.state)).toBe(0);
+  });
+
+  it('raccourcit la perte de connaissance avec la Constitution, jamais sous un segment', () => {
+    expect(knockoutSegments(3, 0)).toBe(3);
+    expect(knockoutSegments(3, 2)).toBe(1);
+    expect(knockoutSegments(3, 5)).toBe(1);
+    expect(knockoutSegments(2, -1)).toBe(3);
+  });
+
+  it('pose le statut au moteur et le lève au réveil', () => {
+    // La Vigueur se jette : on cherche une graine où Kael ne tient pas. Les
+    // graines sont fixes, donc le test ne vacille pas.
+    let trouve = false;
+    for (let seed = 1; seed <= 40 && !trouve; seed++) {
+      let enc = camp({ survival: worn({ thirst: 15 }) });
+      enc.seed = seed;
+      enc = applyAction(enc, { type: 'passTime', seconds: SEGMENT_SECONDS + HOUR, activity: 'route' });
+      let kael = enc.combatants[0];
+      if (!kael.statuses.some((s) => s.key === 'evanouissement')) continue;
+      trouve = true;
+      expect(enc.log.some((l) => l.text.includes('déshydraté'))).toBe(true);
+      expect(enc.log.some((l) => l.details?.some((d) => d.startsWith('Vigueur :')))).toBe(true);
+
+      enc = applyAction(enc, { type: 'passTime', seconds: 3 * SEGMENT_SECONDS, activity: 'route' });
+      kael = enc.combatants[0];
+      expect(kael.statuses.some((s) => s.key === 'evanouissement')).toBe(false);
+      expect(kael.survival!.out).toBeUndefined();
+    }
+    expect(trouve).toBe(true);
+  });
+});
+
+describe('sauvegarde de Vigueur', () => {
+  const route = activityByKey('route')!;
+
+  it('calcule le seuil comme un jet de toucher inversé', () => {
+    const moyen = mkUnit({ id: 'a', name: 'A', team: 'allies' });
+    // CON 10 : résistance 0 × 4 − 12 = −12 → −2 crans → seuil 10.
+    expect(vigorThreshold(moyen, 'thirst')).toBe(10);
+    // Faim, sévérité 8 : −8 → −2 crans (−1,6 arrondi) → seuil 10.
+    expect(vigorThreshold(moyen, 'hunger')).toBe(10);
+    // CON 18 (+4) et maîtrise 4 : 16 − 12 = 4 → +1 cran, 2 crans de maîtrise → seuil 5.
+    const robuste = mkUnit({ id: 'b', name: 'B', team: 'allies', proficiency: 4, attributes: withAttrs({ constitution: 18 }) });
+    expect(vigorThreshold(robuste, 'thirst')).toBe(5);
+  });
+
+  it('garde conscient un segment de plus sur une réussite, puis fait rejouer', () => {
+    const jets: number[] = [];
+    const { state, events } = advanceSurvival(
+      worn({ thirst: 15 }),
+      P,
+      at(8),
+      2 * SEGMENT_SECONDS + HOUR,
+      route,
+      (_cause, t) => {
+        jets.push(t);
+        return 'tient';
+      },
+    );
+    expect(events).toEqual([]);
+    expect(state.out).toBeUndefined();
+    // Un jet à la chute, un autre un segment plus tard, et ainsi de suite.
+    expect(jets).toEqual([8 * HOUR + SEGMENT_SECONDS, 8 * HOUR + 2 * SEGMENT_SECONDS]);
+    expect(pts('thirst', state)).toBe(0);
+  });
+
+  it('abrège la perte de connaissance sur une résistance partielle', () => {
+    const { events } = advanceSurvival(worn({ thirst: 15 }), P, at(8), SEGMENT_SECONDS, route, () => 'demi');
+    expect(events[0]).toMatchObject({ kind: 'knockout', segments: halfKnockout(3) });
+    expect(halfKnockout(3)).toBe(2);
+    expect(halfKnockout(1)).toBe(1);
+  });
+
+  it('laisse un segment de répit au réveil avant de rejouer', () => {
+    const jets: number[] = [];
+    const chute = 8 * HOUR + SEGMENT_SECONDS;
+    const reveil = chute + 3 * SEGMENT_SECONDS;
+    advanceSurvival(worn({ thirst: 15 }), P, at(8), 5 * SEGMENT_SECONDS, route, (_c, t) => {
+      jets.push(t);
+      return jets.length === 1 ? 'tombe' : 'tient';
+    });
+    expect(jets).toEqual([chute, reveil + SEGMENT_SECONDS]);
+  });
+});
+
+describe('le lien avec la mana', () => {
+  it('lit le Manque sur la Réserve : 50 / 25 / 10 % puis vide', () => {
+    expect(manaTier(20, 20)).toBe('plein');
+    expect(manaTier(10, 20)).toBe('leger');
+    expect(manaTier(5, 20)).toBe('modere');
+    expect(manaTier(2, 20)).toBe('severe');
+    expect(manaTier(0, 20)).toBe('critique');
+    // Pas de Réserve, pas de Manque.
+    expect(manaTier(0, 0)).toBeUndefined();
+  });
+
+  it('double l’usure de la faim et de la soif le jour d’un Manque sévère', () => {
+    const route = activityByKey('route')!;
+    const state = drain(worn({}, { strainDay: 1 }), P, at(8), SEGMENT_SECONDS, route);
+    expect(pts('hunger', state)).toBe(46);
+    expect(pts('thirst', state)).toBe(14);
+
+    // Le lendemain, le rythme redevient normal.
+    const lendemain = drain(worn({}, { strainDay: 1 }), P, { day: 2, seconds: 8 * HOUR }, SEGMENT_SECONDS, route);
+    expect(pts('thirst', lendemain)).toBe(15);
+  });
+
+  it('coûte l’incantation d’abord, puis le bras, puis la connaissance', () => {
+    expect(manaEffect('modere', 0)).toMatchObject({ castingSteps: 1, physicalSteps: 0 });
+    expect(manaEffect('severe', 0)).toMatchObject({ castingSteps: 2, physicalSteps: 1, strain: true });
+    expect(manaEffect('critique', 1).knockout).toEqual({ segments: 2, sleep: false });
+  });
+});
+
+/* ── Ce que le manque coûte ────────────────────────────────────────────────── */
+
+const WEAPON = { kind: 'weapon', attackAttribute: 'force' } as CombatAbility;
+const SPELL = { kind: 'spell', attackAttribute: 'intelligence' } as CombatAbility;
 
 describe('malus de survie', () => {
+  const pj = (survival: SurvivalState, over: Partial<Combatant> = {}) =>
+    mkUnit({ id: 'a', name: 'A', team: 'allies', survival, ...over });
+
   it('ne coûte rien tant que les jauges tiennent', () => {
-    expect(survivalMods(freshSurvival())).toEqual([]);
+    const repu = pj(freshSurvival());
+    expect(needSteps(repu, WEAPON)).toBe(0);
+    expect(needSteps(repu, SPELL)).toBe(0);
+    expect(effectiveStat(repu, 'endurance')).toBe(20);
   });
 
-  it('pèse sur les stats effectives dès qu’une jauge se vide', () => {
-    const repu = mkUnit({ id: 'a', name: 'A', team: 'allies', survival: freshSurvival() });
-    const assoiffe = mkUnit({
-      id: 'b',
-      name: 'B',
-      team: 'allies',
-      survival: survivalFromNotches({ hunger: 6, thirst: 0, rest: 5 }),
-    });
-
-    expect(effectiveStat(repu, 'def_phy')).toBe(10);
-    expect(effectiveStat(assoiffe, 'def_phy')).toBe(7);
-    expect(effectiveStat(assoiffe, 'speed')).toBe(8);
+  it('fait payer la faim à la précision physique, pas aux sorts', () => {
+    const affame = pj(worn({ hunger: 30 })); // 18/48 : modéré
+    expect(needSteps(affame, WEAPON)).toBe(1);
+    expect(needSteps(affame, SPELL)).toBe(0);
+    expect(precisionOf(affame, WEAPON)).toBe(precisionOf(pj(freshSurvival()), WEAPON) - 5);
   });
 
-  it('cumule les trois besoins', () => {
-    const epuise = mkUnit({
-      id: 'c',
-      name: 'C',
-      team: 'allies',
-      survival: survivalFromNotches({ hunger: 0, thirst: 0, rest: 0 }),
-    });
-    // Endurance : −3 (faim) −4 (soif) −2 (sommeil).
-    expect(effectiveStat(epuise, 'endurance')).toBe(20 - 9);
+  it('fait payer la soif à l’incantation, pas au bras', () => {
+    const assoiffe = pj(worn({ thirst: 13 })); // 3/16 : sévère
+    expect(needSteps(assoiffe, SPELL)).toBe(2);
+    expect(needSteps(assoiffe, WEAPON)).toBe(0);
+    expect(effectiveStat(assoiffe, 'endurance')).toBe(15);
+  });
+
+  it('épuise d’abord le corps, la magie ensuite', () => {
+    const epuise = pj(worn({ rest: 12 })); // 3/15 : sévère
+    expect(needSteps(epuise, WEAPON)).toBe(2);
+    expect(needSteps(epuise, SPELL)).toBe(1);
+    // Endurance max −30 % à CON 10.
+    expect(effectiveStat(epuise, 'endurance')).toBe(14);
+  });
+
+  it('adoucit la fatigue d’un corps robuste, sans jamais l’effacer', () => {
+    const robuste = pj(worn({ rest: 12 }), { attributes: withAttrs({ constitution: 18 }) });
+    // CON +4 : −2 crans ramenés à −1 ; Endurance −30 % + 8 % → −22 %.
+    expect(needSteps(robuste, WEAPON)).toBe(1);
+    expect(effectiveStat(robuste, 'endurance')).toBe(16);
+    expect(needEffect('rest', 'severe', 10).enduranceShare).toBe(0.15);
+  });
+
+  it('cumule les besoins entre eux', () => {
+    const tout = pj(worn({ hunger: 40, thirst: 13 }));
+    // Endurance max −25 % (faim) −25 % (soif).
+    expect(effectiveStat(tout, 'endurance')).toBe(10);
+  });
+
+  it('fait peser le Manque de mana sur les jets', () => {
+    const vide = pj(freshSurvival(), { mana: 1 }); // 1/20 : sévère
+    expect(needSteps(vide, SPELL)).toBe(2);
+    expect(needSteps(vide, WEAPON)).toBe(1);
   });
 
   it('ne touche pas une créature, qui ne tient aucune jauge', () => {
-    const bete = mkUnit({ id: 'w', name: 'Loup', team: 'ennemis' });
-    expect(effectiveStat(bete, 'def_phy')).toBe(10);
+    const bete = mkUnit({ id: 'w', name: 'Loup', team: 'ennemis', mana: 0 });
+    expect(needSteps(bete, SPELL)).toBe(0);
+    expect(effectiveStat(bete, 'endurance')).toBe(20);
+  });
+});
+
+/* ── Relire les anciennes jauges ───────────────────────────────────────────── */
+
+describe('anciennes jauges à crans', () => {
+  it('convertit une fiche à crans en gardant la proportion', () => {
+    const loss = sheetSurvivalLoss({ survival: { hunger: 3, thirst: 4, rest: 0 } }, ATTRS());
+    expect(loss).toEqual({ hunger: 24, thirst: 0, rest: 15 });
   });
 
-  it('ne descend jamais une stat sous zéro', () => {
-    const frele = mkUnit({
-      id: 'd',
-      name: 'D',
-      team: 'allies',
-      base: STATS({ speed: 1, def_phy: 1 }),
-      survival: survivalFromNotches({ hunger: 0, thirst: 0, rest: 0 }),
-    });
-    expect(effectiveStat(frele, 'speed')).toBe(0);
-    expect(effectiveStat(frele, 'def_phy')).toBe(0);
+  it('préfère le creux au format ancien quand les deux existent', () => {
+    const loss = sheetSurvivalLoss(
+      { survival: { hunger: 0, thirst: 0, rest: 0 }, survivalLoss: { hunger: 2, thirst: 1, rest: 0 } },
+      ATTRS(),
+    );
+    expect(loss).toEqual({ hunger: 2, thirst: 1, rest: 0 });
+  });
+
+  it('relit une partie sauvegardée en secondes écoulées', () => {
+    // Ancienne soif : 4 crans de 4 h ; 8 h écoulées = moitié de la jauge.
+    const state = migrateSurvival({ hunger: 0, thirst: 8 * HOUR, rest: 0 }, ATTRS());
+    expect(state!.loss).toEqual({ hunger: 0, thirst: 8, rest: 0 });
+    // Une partie déjà au nouveau format passe telle quelle.
+    expect(migrateSurvival(worn({ hunger: 3 }), ATTRS())).toEqual(worn({ hunger: 3 }));
+  });
+
+  it('écrit sur la fiche la partie entière du creux, qui conserve les points annoncés', () => {
+    const state = worn({ hunger: 1.5, thirst: 0.2 });
+    expect(survivalToLoss(state, P)).toEqual({ hunger: 1, thirst: 0, rest: 0 });
+    expect(pts('hunger', state)).toBe(47);
   });
 });
 
@@ -329,11 +600,12 @@ describe('passer le temps', () => {
     expect(enc.daytime).toBe('midi');
   });
 
-  it('use les jauges du groupe, et le journal le dit', () => {
-    const after = applyAction(camp(), { type: 'passTime', seconds: 8 * HOUR, activity: 'route' });
+  it('use les jauges du groupe, et le journal annonce le palier franchi', () => {
+    const after = applyAction(camp(), { type: 'passTime', seconds: 5 * SEGMENT_SECONDS, activity: 'route' });
     const kael = after.combatants.find((c) => c.id === 'pc')!;
-    expect(notchesLeft('thirst', kael.survival)).toBe(2);
-    expect(after.log.some((l) => l.kind === 'survival')).toBe(true);
+    // Cinq segments : 16 − 5 = 11, sous les 75 % (« la gorge sèche »).
+    expect(pts('thirst', kael.survival)).toBe(11);
+    expect(after.log.some((l) => l.kind === 'survival' && l.text.includes('La gorge sèche'))).toBe(true);
   });
 
   it('fige les jauges d’un blessé à terre : il ne se punit pas deux fois', () => {
@@ -351,28 +623,31 @@ describe('passer le temps', () => {
 describe('manger, boire, dormir', () => {
   it('comble la jauge de tout le groupe quand personne n’est désigné', () => {
     let enc = camp();
-    enc = applyAction(enc, { type: 'passTime', seconds: 12 * HOUR, activity: 'route' });
-    enc = applyAction(enc, { type: 'restore', gauge: 'thirst', notches: 4, source: 'la rivière' });
-    expect(notchesLeft('thirst', enc.combatants[0].survival)).toBe(4);
+    enc = applyAction(enc, { type: 'passTime', seconds: 2 * SEGMENT_SECONDS, activity: 'route' });
+    enc = applyAction(enc, { type: 'restore', gauge: 'thirst', source: 'la rivière' });
+    expect(pts('thirst', enc.combatants[0].survival)).toBe(16);
   });
 
-  it('consomme une ration du sac et la retire', () => {
+  it('mange une journée de rations : le lot s’entame, il ne disparaît pas', () => {
     let enc = camp({ inventory: [{ name: 'Rations de voyage', qty: 2, kind: 'other' }] });
-    enc = applyAction(enc, { type: 'passTime', seconds: 24 * HOUR, activity: 'route' });
+    enc = applyAction(enc, { type: 'passTime', seconds: DAY, activity: 'route' });
     enc = applyAction(enc, { type: 'eat', actorId: 'pc', item: 'Rations de voyage' });
 
     const kael = enc.combatants[0];
-    expect(notchesLeft('hunger', kael.survival)).toBe(6);
-    expect(kael.inventory.find((i) => i.name === 'Rations de voyage')!.qty).toBe(1);
+    expect(pts('hunger', kael.survival)).toBe(48);
+    // Deux lots de sept jours : un entamé à six, un intact.
+    const ligne = kael.inventory.find((i) => i.name === 'Rations de voyage')!;
+    expect(ligne.qty).toBe(2);
+    expect(ligne.usesLeft).toBe(6);
   });
 
   it('vide l’outre plutôt que de la faire disparaître du sac', () => {
     let enc = camp({ inventory: [{ name: 'Outre en peau', qty: 1, kind: 'other' }] });
-    enc = applyAction(enc, { type: 'passTime', seconds: 12 * HOUR, activity: 'route' });
+    enc = applyAction(enc, { type: 'passTime', seconds: 2 * SEGMENT_SECONDS, activity: 'route' });
     enc = applyAction(enc, { type: 'eat', actorId: 'pc', item: 'Outre en peau' });
 
     const kael = enc.combatants[0];
-    expect(notchesLeft('thirst', kael.survival)).toBe(4);
+    expect(pts('thirst', kael.survival)).toBe(16);
     expect(kael.inventory.find((i) => i.name === 'Outre en peau')).toBeUndefined();
     expect(kael.inventory.find((i) => i.name === EMPTY_WATERSKIN)!.qty).toBe(1);
   });
@@ -387,21 +662,21 @@ describe('manger, boire, dormir', () => {
   });
 
   it('échelonne les trois tailles de ration sur la jauge de faim', () => {
-    // Une ration de voyage vaut UNE journée, comme l'écrit sa fiche ; la petite
-    // en est le tiers, la grande vaut les deux jours de la jauge entière.
-    expect(nourishmentOf({ name: 'Petite ration' })!.notches).toBe(1);
-    expect(nourishmentOf({ name: 'Rations de voyage' })!.notches).toBe(3);
-    expect(nourishmentOf({ name: 'Grande ration' })!.notches).toBe(6);
-    expect(gaugeOf('hunger').segments).toBe(6);
+    // Une ration de voyage vaut UNE journée (quatre segments), comme l'écrit sa
+    // fiche ; la petite en est la moitié, la grande vaut deux jours.
+    expect(nourishmentOf({ name: 'Petite ration' })!.points).toBe(2);
+    expect(nourishmentOf({ name: 'Rations de voyage' })!.points).toBe(4);
+    expect(nourishmentOf({ name: 'Grande ration' })!.points).toBe(8);
+    expect(nourishmentOf({ name: 'Outre en peau' })!.points).toBe(4);
   });
 
-  it('ne comble qu’un cran avec une petite ration', () => {
+  it('ne comble qu’une demi-journée avec une petite ration', () => {
     let enc = camp({ inventory: [{ name: 'Petite ration', qty: 1, kind: 'other' }] });
-    enc = applyAction(enc, { type: 'passTime', seconds: 24 * HOUR, activity: 'route' });
-    expect(notchesLeft('hunger', enc.combatants[0].survival)).toBe(3);
+    enc = applyAction(enc, { type: 'passTime', seconds: DAY, activity: 'route' });
+    expect(pts('hunger', enc.combatants[0].survival)).toBe(44);
 
     enc = applyAction(enc, { type: 'eat', actorId: 'pc', item: 'Petite ration' });
-    expect(notchesLeft('hunger', enc.combatants[0].survival)).toBe(4);
+    expect(pts('hunger', enc.combatants[0].survival)).toBe(46);
   });
 
   it('entame la plus grosse ration en premier au repas du groupe', () => {
@@ -415,15 +690,15 @@ describe('manger, boire, dormir', () => {
     enc = applyAction(enc, { type: 'meal', gauge: 'hunger', team: 'allies' });
 
     const kael = enc.combatants[0];
-    expect(notchesLeft('hunger', kael.survival)).toBe(6);
+    expect(pts('hunger', kael.survival)).toBe(48);
     expect(kael.inventory.find((i) => i.name === 'Grande ration')).toBeUndefined();
     expect(kael.inventory.find((i) => i.name === 'Petite ration')!.qty).toBe(1);
   });
 
   it('le ravitaillement rapporte des vivres, pas de la satiété', () => {
     let enc = camp();
-    enc = applyAction(enc, { type: 'passTime', seconds: 24 * HOUR, activity: 'route' });
-    const avant = notchesLeft('hunger', enc.combatants[0].survival);
+    enc = applyAction(enc, { type: 'passTime', seconds: DAY, activity: 'route' });
+    const avant = pts('hunger', enc.combatants[0].survival);
 
     enc = applyAction(enc, {
       type: 'provision',
@@ -435,7 +710,7 @@ describe('manger, boire, dormir', () => {
 
     const kael = enc.combatants[0];
     // La jauge n'a pas bougé : c'est le SAC qui s'est rempli. Il reste à manger.
-    expect(notchesLeft('hunger', kael.survival)).toBe(avant);
+    expect(pts('hunger', kael.survival)).toBe(avant);
     expect(kael.inventory.find((i) => i.name === 'Grande ration')!.qty).toBe(1);
     expect(kael.inventory.find((i) => i.name === 'Grande ration')!.slug).toBe('grande-ration');
   });
@@ -507,6 +782,22 @@ describe('manger, boire, dormir', () => {
     expect(une.combatants[0].inventory).toEqual(deux.combatants[0].inventory);
   });
 
+  it('fait passer le temps de la battue, et le chasseur revient dans tous les cas', () => {
+    const avant = camp();
+    const apres = applyAction(avant, { type: 'hunt', actorId: 'pc' });
+    expect(clockOf(apres)).toEqual(advanceClock(clockOf(avant), HUNT_SECONDS));
+    // Le chasseur court, le groupe attend : le journal dit qui faisait quoi.
+    expect(apres.log.some((l) => l.text.includes('Kael : effort soutenu'))).toBe(true);
+    expect(apres.log.some((l) => l.text.startsWith('Kael revient de la chasse'))).toBe(true);
+  });
+
+  it('refuse la battue à qui est sans connaissance', () => {
+    const avant = camp({ survival: { ...freshSurvival(), out: { until: 1e12, sleep: false } } });
+    const apres = applyAction(avant, { type: 'hunt', actorId: 'pc' });
+    expect(clockOf(apres)).toEqual(clockOf(avant));
+    expect(apres.combatants[0].inventory).toEqual([]);
+  });
+
   it('respecte la distribution annoncée sur un grand nombre de battues', () => {
     // Le seul garde-fou qui attrape une table mal cumulée : les bornes peuvent
     // être justes une à une et la répartition fausse malgré tout.
@@ -528,38 +819,37 @@ describe('manger, boire, dormir', () => {
   });
 
   it('le repas du groupe prend sur les vivres de chacun', () => {
-    let enc = camp({ inventory: [{ name: 'Rations de voyage', qty: 3, kind: 'other' }] });
-    enc = applyAction(enc, { type: 'passTime', seconds: 24 * HOUR, activity: 'route' });
+    let enc = camp({ inventory: [{ name: 'Rations de voyage', qty: 3, kind: 'other', usesLeft: 1 }] });
+    enc = applyAction(enc, { type: 'passTime', seconds: DAY, activity: 'route' });
     enc = applyAction(enc, { type: 'meal', gauge: 'hunger', team: 'allies' });
 
     const kael = enc.combatants[0];
-    expect(notchesLeft('hunger', kael.survival)).toBe(6);
+    expect(pts('hunger', kael.survival)).toBe(48);
     expect(kael.inventory.find((i) => i.name === 'Rations de voyage')!.qty).toBe(2);
   });
 
   it('nomme au journal ceux qui n’ont rien à manger', () => {
     let enc = camp({ inventory: [] });
-    enc = applyAction(enc, { type: 'passTime', seconds: 24 * HOUR, activity: 'route' });
+    enc = applyAction(enc, { type: 'passTime', seconds: DAY, activity: 'route' });
     enc = applyAction(enc, { type: 'meal', gauge: 'hunger', team: 'allies' });
 
-    expect(notchesLeft('hunger', enc.combatants[0].survival)).toBe(3);
+    expect(pts('hunger', enc.combatants[0].survival)).toBe(44);
     expect(enc.log.some((l) => l.text.includes('Rien à manger pour Kael'))).toBe(true);
   });
 
   it('ne nourrit pas les adversaires avec le repas du groupe', () => {
     // Un adversaire qui tient ses jauges : un humanoïde monté depuis une fiche.
     let enc = camp({}, { down: false, hp: 40, survival: freshSurvival() });
-    enc = applyAction(enc, { type: 'passTime', seconds: 12 * HOUR, activity: 'route' });
+    enc = applyAction(enc, { type: 'passTime', seconds: 2 * SEGMENT_SECONDS, activity: 'route' });
     enc = applyAction(enc, {
       type: 'restore',
       gauge: 'thirst',
-      notches: 4,
       team: 'allies',
       source: 'la source',
     });
 
-    expect(notchesLeft('thirst', enc.combatants[0].survival)).toBe(4);
-    expect(notchesLeft('thirst', enc.combatants[1].survival)).toBe(1);
+    expect(pts('thirst', enc.combatants[0].survival)).toBe(16);
+    expect(pts('thirst', enc.combatants[1].survival)).toBe(14);
   });
 
   it('reconnaît ce qui nourrit, par slug comme par nom', () => {
@@ -573,9 +863,9 @@ describe('manger, boire, dormir', () => {
       type: 'setSurvival',
       actorId: 'pc',
       gauge: 'rest',
-      notches: 1,
+      points: 4,
     });
-    expect(notchesLeft('rest', after.combatants[0].survival)).toBe(1);
+    expect(pts('rest', after.combatants[0].survival)).toBe(4);
   });
 });
 
@@ -772,7 +1062,7 @@ describe('report sur les fiches', () => {
   /** Une fiche neuve, jauges pleines, sac connu, bourse au tirage. */
   const sheet = (over: Partial<CharacterSheet> = {}): CharacterSheet => ({
     ...emptySheet(),
-    survival: { hunger: 6, thirst: 4, rest: 5 },
+    survivalLoss: noSurvivalLoss(),
     inventory: [{ name: 'Flèche', qty: 20, weight: 0.05 }],
     goldDelta: 0,
     ...over,
@@ -796,13 +1086,18 @@ describe('report sur les fiches', () => {
     expect(diffAgainstSheet(pion(), sheet(), 's1').changed).toBe(false);
   });
 
-  it('annonce les crans de jauge perdus', () => {
-    const use = pion({ survival: survivalFromNotches({ hunger: 6, thirst: 1, rest: 5 }) });
+  it('annonce les points de jauge perdus', () => {
+    const use = pion({ survival: worn({ thirst: 13 }) });
     const report = diffAgainstSheet(use, sheet(), 's1');
     expect(report.changed).toBe(true);
     expect(report.gauges).toEqual([
-      { key: 'thirst', label: 'Soif', from: 4, to: 1, stage: 'Assoiffé' },
+      { key: 'thirst', label: 'Soif', from: 16, to: 3, max: 16, stage: 'Déshydraté' },
     ]);
+  });
+
+  it('ne voit aucun écart sur une fiche à crans restée au même niveau', () => {
+    const ancienne = sheet({ survivalLoss: undefined, survival: { hunger: 3, thirst: 4, rest: 5 } });
+    expect(diffAgainstSheet(pion({ survival: worn({ hunger: 24 }) }), ancienne, 's1').gauges).toEqual([]);
   });
 
   it('annonce les réserves entamées, maximum du pion à l’appui', () => {
@@ -875,7 +1170,7 @@ describe('report sur les fiches', () => {
   it('écrit les jauges, le sac et l’écart de bourse sur la fiche', () => {
     const base = sheet();
     const use = pion({
-      survival: survivalFromNotches({ hunger: 3, thirst: 4, rest: 5 }),
+      survival: worn({ hunger: 24.5 }),
       inventory: [
         { name: 'Flèche', qty: 14, kind: 'ammunition' },
         { name: 'Croc de loup', qty: 3, kind: 'other' },
@@ -885,7 +1180,8 @@ describe('report sur les fiches', () => {
     const report = diffAgainstSheet(use, base, 's1');
     const next = applyReport(base, report, use, (name) => (name === 'Croc de loup' ? 0.1 : 0));
 
-    expect(next.survival).toEqual({ hunger: 3, thirst: 4, rest: 5 });
+    expect(next.survivalLoss).toEqual({ hunger: 24, thirst: 0, rest: 0 });
+    expect(next.survival).toBeUndefined();
     expect(next.inventory).toEqual([
       { name: 'Flèche', qty: 14, weight: 0.05 },
       { name: 'Croc de loup', qty: 3, weight: 0.1 },
@@ -915,13 +1211,13 @@ describe('report sur les fiches', () => {
   });
 
   it('part d’une réserve pleine pour une fiche d’avant les jauges', () => {
-    const ancienne = sheet({ survival: undefined });
+    const ancienne = sheet({ survivalLoss: undefined });
     expect(diffAgainstSheet(pion(), ancienne, 's1').gauges).toEqual([]);
   });
 
   it('résume la ligne en une phrase lisible', () => {
-    const use = pion({ survival: survivalFromNotches({ hunger: 6, thirst: 2, rest: 5 }), purse: 40 });
-    expect(summarize(diffAgainstSheet(use, sheet(), 's1'))).toBe('soif 4 → 2 · +10 po');
+    const use = pion({ survival: worn({ thirst: 4 }), purse: 40 });
+    expect(summarize(diffAgainstSheet(use, sheet(), 's1'))).toBe('soif 16 → 12 · +10 po');
   });
 
   it('met les réserves en tête du résumé', () => {
@@ -1186,5 +1482,235 @@ describe('reprendre le combat depuis le camp', () => {
     enc.phase = 'combat';
     enc.round = 4;
     expect(applyAction(enc, { type: 'start' }).round).toBe(4);
+  });
+});
+
+describe('La cueillette', () => {
+  it('couvre exactement 100 %', () => {
+    expect(FORAGE_TOTAL).toBe(100);
+  });
+
+  it('découpe le d100 : bredouille, baies, puis les herbes de plus en plus rares', () => {
+    expect(forageOutcome(20).key).toBe('bredouille');
+    expect(forageOutcome(21).nourishment!.name).toBe('Petite ration');
+    expect(forageOutcome(56).resource).toBe('Herbes médicinales');
+    expect(forageOutcome(100 + 30).key).toBe('racine');
+  });
+
+  it('fait passer le temps et range la trouvaille dans le sac du cueilleur', () => {
+    const avant = camp({ skills: { nature: 40 } });
+    const apres = applyAction(avant, { type: 'forage', actorId: 'pc' });
+    expect(clockOf(apres)).toEqual(advanceClock(clockOf(avant), FORAGE_SECONDS));
+    // +40 : le pire jet dépasse la bande « bredouille ».
+    expect(apres.combatants[0].inventory.length).toBe(1);
+    expect(apres.log.some((l) => l.text.startsWith('Kael revient de la cueillette'))).toBe(true);
+  });
+});
+
+describe('Les tours de garde', () => {
+  it('laisse veiller l’un pendant que l’autre dort', () => {
+    // Deux membres du groupe : Kael veille, Mira dort.
+    let enc = camp({}, { id: 'mira', name: 'Mira', team: 'allies', down: false, hp: 40, survival: freshSurvival() });
+    // Une longue marche d'abord : la fatigue est une dette, il faut qu'il y en ait une.
+    enc = applyAction(enc, { type: 'passTime', seconds: DAY, activity: 'route' });
+    enc = applyAction(enc, { type: 'passTime', seconds: NIGHT_SECONDS, activity: 'sommeil', individual: { pc: 'veille' } });
+
+    const kael = enc.combatants.find((c) => c.id === 'pc')!;
+    const mira = enc.combatants.find((c) => c.id === 'mira')!;
+    expect(pts('rest', kael.survival)).toBeLessThan(pts('rest', mira.survival));
+    expect(enc.log.some((l) => l.text.includes('Kael : veille'))).toBe(true);
+  });
+});
+
+describe('Se refaire au camp', () => {
+  const sommeil = activityByKey('sommeil')!;
+  const repos = activityByKey('repos')!;
+  const veille = activityByKey('veille')!;
+  const blesse = { hp: 4, maxHp: 40, mana: 0, maxMana: 20, endurance: 0, maxEndurance: 20 };
+
+  it('rend l’Endurance en une heure de calme, au repos comme en dormant', () => {
+    expect(restRecovery(repos, HOUR, blesse).endurance).toBe(20);
+    expect(restRecovery(repos, HOUR / 2, blesse).endurance).toBe(10);
+  });
+
+  it('referme les plaies, mais jamais au-delà de la moitié des PV', () => {
+    expect(restRecovery(repos, HOUR, blesse).hp).toBe(6); // 5 % de 40
+    expect(restRecovery(sommeil, HOUR, blesse).hp).toBe(8); // 10 % de 40
+    expect(restRecovery(sommeil, NIGHT_SECONDS, blesse).hp).toBe(20);
+    // Déjà au-dessus de la mi-santé : rien ne bouge, et rien ne baisse.
+    expect(restRecovery(sommeil, NIGHT_SECONDS, { ...blesse, hp: 30 }).hp).toBe(30);
+  });
+
+  it('rend la mana surtout en dormant, au prorata, et un filet au repos', () => {
+    expect(restRecovery(repos, HOUR, blesse).mana).toBe(1); // 5 % de 20
+    expect(restRecovery(repos, 10 * HOUR, blesse).mana).toBe(10);
+    expect(restRecovery(sommeil, NIGHT_SECONDS / 2, blesse).mana).toBe(10);
+    expect(restRecovery(sommeil, NIGHT_SECONDS, blesse).mana).toBe(20);
+  });
+
+  it('ne rend rien à qui veille', () => {
+    expect(restRecovery(veille, NIGHT_SECONDS, blesse)).toEqual(blesse);
+  });
+
+  it('applique la récupération au passage du temps, et la journalise', () => {
+    let enc = camp({ hp: 4, mana: 0, endurance: 0 });
+    enc = applyAction(enc, { type: 'passTime', seconds: NIGHT_SECONDS, activity: 'sommeil' });
+    const kael = enc.combatants[0];
+    expect(kael.hp).toBe(Math.floor(kael.base.hp / 2));
+    expect(kael.mana).toBe(effectiveStat(kael, 'mana'));
+    expect(enc.log.some((l) => l.text.startsWith('Kael récupère'))).toBe(true);
+  });
+});
+
+describe('S’entraîner à la clairière', () => {
+  const sort: CombatAbility = {
+    id: 'spell:trait',
+    ref: 'light-trait',
+    name: 'Trait de lumière',
+    kind: 'spell',
+    rangeMeters: 12,
+    shape: { kind: 'targets', count: 1 },
+    targets: ['enemy'],
+    manaCost: 6,
+    enduranceCost: 0,
+    damages: [],
+  } as CombatAbility;
+
+  it('fait payer la mana du sort à chaque séance', () => {
+    let enc = camp({ abilities: [sort], mana: 10 });
+    enc = applyAction(enc, { type: 'trainSpell', actorId: 'pc', ref: 'light-trait', delta: 1 });
+    expect(enc.combatants[0].mana).toBe(4);
+    expect(enc.combatants[0].spellTraining).toEqual({ 'light-trait': 1 });
+  });
+
+  it('refuse la séance sans la mana pour lancer le sort', () => {
+    let enc = camp({ abilities: [sort], mana: 5 });
+    enc = applyAction(enc, { type: 'trainSpell', actorId: 'pc', ref: 'light-trait', delta: 1 });
+    expect(enc.combatants[0].mana).toBe(5);
+    expect(enc.combatants[0].spellTraining ?? {}).toEqual({});
+  });
+
+  it('rend la mana d’une séance retirée', () => {
+    let enc = camp({ abilities: [sort], mana: 10 });
+    enc = applyAction(enc, { type: 'trainSpell', actorId: 'pc', ref: 'light-trait', delta: 1 });
+    enc = applyAction(enc, { type: 'trainSpell', actorId: 'pc', ref: 'light-trait', delta: -1 });
+    expect(enc.combatants[0].mana).toBe(10);
+    expect(enc.combatants[0].spellTraining).toEqual({});
+  });
+});
+
+describe('Les pièges du camp', () => {
+  const avecPieges = () =>
+    camp({
+      inventory: [
+        { name: 'Fil de soie et clochette', qty: 1, kind: 'other' },
+        { name: 'Chausse-trappes', qty: 2, kind: 'other' },
+      ],
+    });
+
+  it('pose un piège pris au sac', () => {
+    let enc = avecPieges();
+    enc = applyAction(enc, { type: 'campTrap', act: 'set', actorId: 'pc', item: 'Fil de soie et clochette' });
+    enc = applyAction(enc, { type: 'campTrap', act: 'set', actorId: 'pc', item: 'Chausse-trappes' });
+    expect(enc.campTraps?.length).toBe(2);
+    expect(carriedQty(enc.combatants[0], 'Fil de soie et clochette')).toBe(0);
+  });
+
+  it('se déclenche sur un intrus, puis se réarme', () => {
+    let enc = applyAction(avecPieges(), { type: 'campTrap', act: 'set', actorId: 'pc', item: 'Chausse-trappes' });
+    const id = enc.campTraps![0].id;
+    enc = applyAction(enc, { type: 'campTrap', act: 'spring', trapId: id });
+    expect(enc.campTraps![0].sprung).toBe(true);
+    expect(enc.log.some((l) => l.text === 'Chausse-trappes se déclenche !')).toBe(true);
+    enc = applyAction(enc, { type: 'campTrap', act: 'rearm', trapId: id });
+    expect(enc.campTraps![0].sprung).toBe(false);
+  });
+
+  it('rend les pièges relevés au sac de qui les a posés', () => {
+    let enc = applyAction(avecPieges(), { type: 'campTrap', act: 'set', actorId: 'pc', item: 'Chausse-trappes' });
+    enc = applyAction(enc, { type: 'campTrap', act: 'liftAll' });
+    expect(enc.campTraps).toBeUndefined();
+    expect(carriedQty(enc.combatants[0], 'Chausse-trappes')).toBe(2);
+  });
+});
+
+describe('Se servir du sac au camp', () => {
+  const potion = {
+    id: 'item:potion',
+    name: 'Potion de soin',
+    kind: 'item',
+    rangeMeters: 1.5,
+    shape: { kind: 'targets', count: 1 },
+    targets: ['self', 'ally'],
+    manaCost: 0,
+    enduranceCost: 0,
+    damages: [],
+    autoHit: true,
+    heal: 7,
+    consumes: { item: 'Potion de soin', qty: 1 },
+  } as CombatAbility;
+
+  it('soigne un compagnon à l’autre bout du camp : autour du feu, tout est à portée', () => {
+    let enc = camp(
+      { abilities: [potion], inventory: [{ name: 'Potion de soin', qty: 1, kind: 'consumable' }] },
+      { id: 'mira', name: 'Mira', team: 'allies', down: false, hp: 10, pos: { x: 8, y: 0 } },
+    );
+    enc = applyAction(enc, { type: 'campUse', actorId: 'pc', abilityId: 'item:potion', targetId: 'mira' });
+    expect(enc.combatants.find((c) => c.id === 'mira')!.hp).toBe(17);
+    expect(carriedQty(enc.combatants[0], 'Potion de soin')).toBe(0);
+    // Pas de tour hors combat : les créneaux restent libres.
+    expect(enc.combatants[0].actionUsed).toBe(false);
+  });
+
+  it('refuse en plein combat', () => {
+    const enc = camp({ abilities: [potion], inventory: [{ name: 'Potion de soin', qty: 1, kind: 'consumable' }] });
+    enc.phase = 'combat';
+    const apres = applyAction(enc, { type: 'campUse', actorId: 'pc', abilityId: 'item:potion' });
+    expect(carriedQty(apres.combatants[0], 'Potion de soin')).toBe(1);
+  });
+});
+
+describe('Le piège à mâchoires en forêt', () => {
+  const trappeur = (over: Partial<Combatant> = {}) =>
+    camp({ inventory: [{ name: 'Piège à mâchoires', qty: 1, kind: 'other' }], ...over });
+
+  it('couvre exactement 100 %', () => {
+    expect(SNARE_TOTAL).toBe(100);
+    expect(snareOutcome(40).nourishment).toBeUndefined();
+    expect(snareOutcome(41).nourishment!.name).toBe('Petite ration');
+  });
+
+  it('se pose en forêt : il quitte le sac et le temps passe', () => {
+    const avant = trappeur();
+    const apres = applyAction(avant, { type: 'snare', act: 'set', actorId: 'pc' });
+    expect(apres.snares?.length).toBe(1);
+    expect(carriedQty(apres.combatants[0], 'Piège à mâchoires')).toBe(0);
+    expect(clockOf(apres)).toEqual(advanceClock(clockOf(avant), SNARE_SET_SECONDS));
+  });
+
+  it('ne rend rien si l’on va voir trop tôt, et reste armé', () => {
+    let enc = applyAction(trappeur({ skills: { nature: 80 } }), { type: 'snare', act: 'set', actorId: 'pc' });
+    enc = applyAction(enc, { type: 'snare', act: 'check', actorId: 'pc', snareId: enc.snares![0].id });
+    expect(enc.snares?.length).toBe(1);
+    expect(enc.combatants[0].inventory.filter((i) => i.qty > 0)).toEqual([]);
+  });
+
+  it('rend une prise une fois le temps passé, et se réarme sur place', () => {
+    let enc = applyAction(trappeur({ skills: { nature: 80 } }), { type: 'snare', act: 'set', actorId: 'pc' });
+    enc = applyAction(enc, { type: 'passTime', seconds: SNARE_WAIT_SECONDS, activity: 'repos' });
+    const id = enc.snares![0].id;
+    enc = applyAction(enc, { type: 'snare', act: 'check', actorId: 'pc', snareId: id });
+    // +80 de Nature : le pire jet dépasse la bande « vide ».
+    expect(carriedQty(enc.combatants[0], 'Petite ration') + carriedQty(enc.combatants[0], 'Rations de voyage')).toBe(1);
+    expect(enc.snares![0].setAt).toBe(absoluteSeconds(clockOf(enc)));
+  });
+
+  it('revient au sac quand on le rapporte', () => {
+    let enc = applyAction(trappeur(), { type: 'snare', act: 'set', actorId: 'pc' });
+    const avant = enc;
+    enc = applyAction(enc, { type: 'snare', act: 'lift', actorId: 'pc', snareId: enc.snares![0].id });
+    expect(enc.snares).toBeUndefined();
+    expect(carriedQty(enc.combatants[0], 'Piège à mâchoires')).toBe(1);
+    expect(clockOf(enc)).toEqual(advanceClock(clockOf(avant), SNARE_CHECK_SECONDS));
   });
 });

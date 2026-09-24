@@ -49,6 +49,8 @@ interface ParamRow extends C.ParamView {
   action: StepAction;
   lower: NudgeView;
   raise: NudgeView;
+  /** Seuil de niveau qui ferme encore ce réglage, ou `null`. */
+  gate: C.Gate | null;
 }
 
 /** « coût 2 » → « −2 », « rend 2 » → « +2 » : la notation du budget. */
@@ -205,10 +207,36 @@ export class SpellWorkshop {
   readonly sourceLabel = C.sourceLabel;
   readonly domainLabel = C.domainLabel;
   readonly damageTypeLabel = C.damageTypeLabel;
-  readonly targetLabel = (t: SpellTarget) => C.TARGET_LABELS[t];
+  readonly targetLabel = (t: SpellTarget) => C.targetLabelFor(t, this.spell().baseStats.targetKind);
   readonly statusName = (key: string) => this.statuses.byKey(key)?.name ?? key;
 
   readonly assessment = computed(() => C.assessAtLevel(this.spell(), this.shown(), this.level(), this.ctx));
+
+  /* ── Seuils de niveau ─────────────────────────────────────────────────────
+     Ce que le sort garde fermé tant qu'il n'a pas grandi. Le moteur refuserait
+     de toute façon ; l'atelier l'éteint d'avance et dit à quel niveau ça
+     s'ouvre, plutôt que de laisser cliquer sur une porte close.
+  ───────────────────────────────────────────────────────────────────────── */
+
+  /** Le seuil qui ferme cette option au niveau affiché, ou `null`. */
+  gate(key: string): C.Gate | null {
+    return C.gateAt(this.spell(), key, this.level());
+  }
+
+  /** Le jeton accolé à un libellé fermé (« · niv. 3 »), vide s'il est ouvert. */
+  gateTag(key: string): string {
+    const g = this.gate(key);
+    return g ? ` · niv. ${g.minLevel}` : '';
+  }
+
+  /** L'infobulle d'une option fermée : le niveau, et la raison si la fiche en donne une. */
+  gateTitle(key: string): string {
+    const g = this.gate(key);
+    return g ? C.gateText(g) : '';
+  }
+
+  /** Tous les seuils déclarés, franchis ou non : le récapitulatif de la fiche. */
+  readonly gates = computed(() => C.gateSummary(this.spell(), this.level()));
   readonly opts = computed(() => C.spellOptions(this.spell()));
   readonly base = computed(() => C.baseStatsOf(this.spell()));
   readonly touched = computed(() => this.assessment().ledger.length > 0);
@@ -345,6 +373,7 @@ export class SpellWorkshop {
       // Un ratio échangé porte le nom de sa nouvelle source (« Ratio Force → Vitesse »).
       const ref = factors[p.path] ? refs.get(p.path) : undefined;
       const swappedLabel = ref && `Ratio ${C.sourceLabel(ref.source)}${ref.list === 'scaling' ? '' : ` → ${ref.scales}`}`;
+      const gate = this.gate(`param:${p.id}`);
       return this.row(p.id, { type: 'param', id: p.id }, {
         label: swappedLabel || p.label,
         kind,
@@ -352,8 +381,8 @@ export class SpellWorkshop {
         units: b.params[p.id] ?? 0,
         cap,
         limits: p,
-        locked: b.continuous && p.kind === 'duration',
-      });
+        locked: !!gate || (b.continuous && p.kind === 'duration'),
+      }, gate);
     });
   });
 
@@ -408,6 +437,8 @@ export class SpellWorkshop {
   /** Plafond de cibles simultanées de CE sort (propre au sort, sous le plafond absolu). */
   readonly targetsCeiling = computed(() => C.extraTargetsCeiling(this.opts().extraTargets ?? {}, this.rules));
   readonly extraTargetsTotal = computed(() => (this.opts().extraTargets?.base ?? 0) + this.shown().extraTargets);
+  /** Le seuil qui ferme la cible suivante (un palier à la fois), ou `null`. */
+  readonly nextTargetGate = computed(() => this.gate(`extraTargets:${this.extraTargetsTotal() + 1}`));
   readonly effectsCount = computed(() => (this.base().effects ?? []).length + this.shown().extraEffects.length);
   readonly hasF3 = computed(() => !!(this.opts().extraTargets || this.opts().extraEffects || this.opts().ownEffects));
 
@@ -441,7 +472,7 @@ export class SpellWorkshop {
     (this.base().inflicts ?? []).flatMap((inf, i) =>
       (this.opts().statusTypeSwap?.eligible ?? [])
         .filter((to) => to !== inf.status)
-        .map((to) => ({ value: `${i}:${to}`, label: `${this.statusName(inf.status)} → ${this.statusName(to)}` })),
+        .map((to) => ({ value: `${i}:${to}`, to, label: `${this.statusName(inf.status)} → ${this.statusName(to)}` })),
     ),
   );
   readonly statusSwapValue = computed(() => {
@@ -515,13 +546,13 @@ export class SpellWorkshop {
     return !!(o.scalingSwap || o.areaShapeSwap || o.defaultTargetSwap || o.statusTypeSwap || o.damageTypeSwap || o.crossDomain || o.mix);
   });
 
-  private row(key: string, action: StepAction, view: Parameters<typeof C.paramView>[0]): ParamRow {
+  private row(key: string, action: StepAction, view: Parameters<typeof C.paramView>[0], gate: C.Gate | null = null): ParamRow {
     const v = C.paramView({ ...view, locked: view.locked || this.locked() });
     // La mana s'améliore en baissant : son « − » est le cran qui coûte.
     const [lower, raise] = v.better === 'down'
       ? [nudge(v.up, 1), nudge(v.down, -1)]
       : [nudge(v.down, -1), nudge(v.up, 1)];
-    return { ...v, key, action, lower, raise };
+    return { ...v, key, action, lower, raise, gate };
   }
 
   private mutate(fn: (b: C.Build) => void): void {

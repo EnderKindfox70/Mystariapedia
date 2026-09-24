@@ -120,6 +120,13 @@
     "weight": 1.2
   },
   {
+    "slug": "pierre-d-ame",
+    "name": "Pierre d'âme",
+    "subtitle": "Contenant d'âme",
+    "rarity": "Rare",
+    "weight": 0.3
+  },
+  {
     "slug": "sel_cristallin",
     "name": "Sel cristallin",
     "subtitle": "Minerai commun",

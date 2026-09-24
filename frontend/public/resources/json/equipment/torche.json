@@ -54,6 +54,31 @@
     "Compter les torches avant de descendre, pas au fond du gouffre.",
     "Les mineurs de Fendreroche refusent les torches dans les galeries profondes : la flamme dit tout de suite si l'air est mauvais, mais elle le dit en explosant."
   ],
+  "tags": [
+    "use"
+  ],
+  "use": {
+    "label": "Coup de torche",
+    "damages": [
+      {
+        "min": 1,
+        "max": 1,
+        "type": "bludgeoning"
+      },
+      {
+        "min": 1,
+        "max": 1,
+        "type": "fire"
+      }
+    ],
+    "inflicts": [
+      {
+        "status": "brulure",
+        "chance": 25
+      }
+    ],
+    "note": "Arme improvisée. S'éteint sous une pluie battante ou sur une cible Trempée."
+  },
   "references": [
     {
       "label": "Domaines liés",

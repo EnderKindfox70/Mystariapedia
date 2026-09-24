@@ -54,6 +54,25 @@
     "Un filet ne remplace pas un plan. Une créature entravée reste une créature qui hurle et qui appelle.",
     "Ne jamais lancer sur une cible en feu ou électrifiée : le chanvre conduit très bien ce qu'on ne veut pas voir remonter jusqu'à sa main."
   ],
+  "tags": [
+    "use"
+  ],
+  "use": {
+    "label": "Lancer le filet",
+    "rangeMeters": 6,
+    "attackAttribute": "dexterite",
+    "requiresHit": true,
+    "inflicts": [
+      {
+        "status": "enracinement",
+        "chance": 100
+      }
+    ],
+    "maxTargetFootprint": 1,
+    "consumed": true,
+    "dropsOnTarget": true,
+    "note": "La cible se libère sur un jet de Force réussi, ou en infligeant 5 dégâts tranchants au filet."
+  },
   "references": [
     {
       "label": "Matériel associé",

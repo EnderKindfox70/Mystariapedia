@@ -8,7 +8,7 @@
       <section class="se-hero">
         <div class="se-hero__text">
           <span class="se-hero__kicker">
-            {{ p.kind === 'combination' ? 'Sort de combinaison' : 'Sort élémentaire' }}
+            {{ ritual() ? 'Sort rituel' : p.kind === 'combination' ? 'Sort de combinaison' : 'Sort élémentaire' }}
           </span>
           <h1 class="se-hero__name">{{ p.spell.name }}</h1>
           <div class="se-hero__rule" aria-hidden="true"></div>
@@ -83,6 +83,143 @@
               <li class="se-tag">{{ sub }}</li>
             }
           </ul>
+        </section>
+      }
+
+      <!-- ── Rituel : comment le rite se fait, et ce qu'il exige ── -->
+      @if (ritual(); as r) {
+        <section class="se-section se-ritual">
+          <div class="se-section-heading"><h2>Rituel</h2></div>
+
+          @if (r.summary) { <p class="se-ritual__summary">{{ r.summary }}</p> }
+
+          <dl class="se-ritual__facts">
+            <div><dt>Incantation</dt><dd>{{ r.castingTime }}</dd></div>
+            <div><dt>En combat</dt><dd>{{ r.inCombat ? 'Oui' : 'Non — hors combat seulement' }}</dd></div>
+            @if (r.immobilization) {
+              <div><dt>Immobilisation</dt><dd>{{ r.immobilization }}</dd></div>
+            }
+          </dl>
+
+          @if (r.soulStone; as stone) {
+            <div class="se-ritual__stone">
+              <span class="se-ritual__stone-role">Pierre d'âme — {{ soulStoneRoles[stone.role] }}</span>
+              <p>{{ stone.note }}</p>
+            </div>
+          }
+
+          @if (r.components.length) {
+            <h3 class="se-ritual__subtitle">Composants</h3>
+            <ul class="se-ritual__list">
+              @for (c of r.components; track c.label) {
+                <li>
+                  @if (c.ref && c.collection) {
+                    <a [routerLink]="{ ref: c.ref, collection: c.collection, label: c.label } | wikiLink">{{ c.label }}</a>
+                  } @else {
+                    <strong>{{ c.label }}</strong>
+                  }
+                  @if (c.quantity) { <span class="se-ritual__qty">× {{ c.quantity }}</span> }
+                  <span class="se-tag">{{ c.consumed ? 'Consommé' : 'Conservé' }}</span>
+                  @if (c.note) { <p class="se-ritual__note">{{ c.note }}</p> }
+                </li>
+              }
+            </ul>
+          }
+
+          @if (r.procedure?.length) {
+            <h3 class="se-ritual__subtitle">Déroulé</h3>
+            <ol class="se-ritual__steps">
+              @for (step of r.procedure; track step.title) {
+                <li>
+                  <strong class="se-ritual__step-title">{{ step.title }}</strong>
+                  <p>{{ ritualText(step.text) }}</p>
+                </li>
+              }
+            </ol>
+          }
+
+          @if (r.checks?.length) {
+            <h3 class="se-ritual__subtitle">Jets</h3>
+            @for (check of r.checks; track check.label) {
+              <div class="se-ritual__check">
+                <p class="se-ritual__check-head">
+                  <strong>{{ check.label }}</strong> — d20, {{ checkAttributes[check.attribute] }} contre {{ check.against }}.
+                </p>
+                @if (check.when) { <p class="se-ritual__note">{{ check.when }}</p> }
+                @if (check.outcomes?.length) {
+                  <table class="se-ritual__table">
+                    <thead><tr><th>Degré</th><th>d20</th><th>Effet</th></tr></thead>
+                    <tbody>
+                      @for (o of check.outcomes; track o.degree) {
+                        <tr [attr.data-degree]="o.degree">
+                          <th scope="row">{{ degreeLabels[o.degree] }}</th>
+                          <td class="se-ritual__band">{{ degreeBands[o.degree] }}</td>
+                          <td>{{ o.effect }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+            }
+
+            @if (usesSeverityTable()) {
+              <div class="se-ritual__check">
+                <p class="se-ritual__check-head"><strong>Seuils à atteindre</strong> — selon la sévérité de la mort</p>
+                <p class="se-ritual__note">
+                  Le dé est lu tel quel, rien ne s'y ajoute : l'attribut et la maîtrise déplacent le seuil.
+                  Seuil = 8 − (modificateur × 4 − sévérité) ÷ 5, arrondi, − maîtrise ; borné entre 3 et 18.
+                  Le même tableau sert au jet de Capture (Charisme) et au jet de Lecture (Intelligence).
+                </p>
+                <label class="se-ritual__mastery">
+                  Maîtrise
+                  <select [value]="ritualMastery()" (change)="setRitualMastery($event)">
+                    @for (m of masteryChoices; track m) { <option [value]="m">{{ m }}</option> }
+                  </select>
+                </label>
+                <div class="se-ritual__table-wrap">
+                  <table class="se-ritual__table se-ritual__table--grid">
+                    <thead>
+                      <tr>
+                        <th>Mort</th>
+                        @for (m of ritualMods; track m) { <th>{{ signed(m) }}</th> }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of severityTable(); track row.key) {
+                        <tr>
+                          <th scope="row">{{ row.name }} <small>({{ row.severity }})</small></th>
+                          @for (t of row.thresholds; track $index) { <td>{{ t }}+</td> }
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+          }
+
+          @if (r.interruption) {
+            <h3 class="se-ritual__subtitle">Si le rite est interrompu</h3>
+            <p>{{ r.interruption }}</p>
+          }
+
+          @if (r.notes?.length) {
+            <h3 class="se-ritual__subtitle">À savoir</h3>
+            <ul class="se-ritual__list">
+              @for (n of r.notes; track n) { <li>{{ n }}</li> }
+            </ul>
+          }
+        </section>
+      }
+
+      <!-- ── Archétypes : ce que le sort relève ou invoque ── -->
+      @if (p.spell.archetypes; as arch) {
+        <section class="se-section">
+          <div class="se-section-heading">
+            <h2>{{ arch.kind === 'undead' ? 'Archétypes de mort-vivant' : 'Archétypes de fantôme' }}</h2>
+          </div>
+          <death-archetypes [kind]="arch.kind" [note]="arch.note" [veil]="!!arch.veil" />
         </section>
       }
 

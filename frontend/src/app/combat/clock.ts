@@ -14,7 +14,9 @@
 /** Secondes d'une minute, d'une heure, d'un jour — écrites une fois. */
 export const MINUTE = 60;
 export const HOUR = 60 * MINUTE;
-export const DAY = 24 * HOUR;
+/** Heures d'une journée de Mystaria : vingt-six, pas vingt-quatre. */
+export const HOURS_PER_DAY = 26;
+export const DAY = HOURS_PER_DAY * HOUR;
 
 /**
  * Durée d'un round de combat. Six secondes : le temps d'un échange, la
@@ -40,6 +42,11 @@ export const startingClock = (): EncounterClock => ({ day: 1, seconds: 8 * HOUR 
  * Les clés sont celles de `daytime.json` : c'est ce catalogue qui porte les
  * modificateurs de magie (la lumière est reine à midi, l'ombre l'est la nuit),
  * l'horloge ne fait que désigner lequel s'applique.
+ *
+ * Les journées durent **26 h**, et les deux heures de plus qu'un jour
+ * terrestre vont à la NUIT (cf. `mystaria_gameplay_survie.md`, section 3) :
+ * les phases éveillées gardent leurs longueurs, la nuit court de 21 h à 5 h
+ * en passant par 24 h et 25 h, soit dix heures.
  *
  * La nuit est **coupée en deux** — avant l'aube et après la soirée — parce
  * qu'elle est le seul moment à enjamber minuit. La ranger comme les autres

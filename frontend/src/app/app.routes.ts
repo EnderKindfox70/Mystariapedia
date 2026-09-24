@@ -32,6 +32,8 @@ import { Register } from './views/auth/register/register';
 import { Characters } from './views/characters/characters';
 import { CharacterSheetEditor } from './views/character-sheet/character-sheet';
 import { CombatView } from './views/combat/combat';
+import { CampView } from './views/camp/camp';
+import { TablesView } from './views/tables/tables';
 import { authGuard } from './services/auth.guard';
 
 export const routes: Routes =
@@ -91,5 +93,12 @@ export const routes: Routes =
     { path: 'characters/:id', component: CharacterSheetEditor, canActivate: [authGuard] },
     // Table de combat : les rencontres sont rattachées à leur MJ, donc au compte.
     { path: 'combat', component: CombatView, canActivate: [authGuard] },
+    // Le camp partage la rencontre en mémoire (EncounterService) : c'est une autre
+    // vue sur la même table, pas une autre partie.
+    { path: 'combat/camp', component: CampView, canActivate: [authGuard] },
+    // Tables de jeu partagées : le MJ y invite ses joueurs, qui y amènent leur
+    // personnage. Le lien d'invitation arrive sur la même page, code prérempli.
+    { path: 'tables', component: TablesView, canActivate: [authGuard] },
+    { path: 'tables/join/:code', component: TablesView, canActivate: [authGuard] },
     { path: 'tests', component: Tests },
 ];

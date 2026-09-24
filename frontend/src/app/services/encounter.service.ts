@@ -59,8 +59,33 @@ export class EncounterService {
     this.history.set([]);
   }
 
+  /* ── Table partagée ───────────────────────────────────────────────────────
+     Chez un JOUEUR, le moteur ne tourne pas : chaque action part au MJ par le
+     relais, et l'état revient publié. Le relais branché, `dispatch` n'applique
+     plus rien localement, `edit` et `undo` sont sans effet — seul le MJ tient
+     la partie.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  private readonly relay = signal<((action: CombatAction) => void) | null>(null);
+
+  /** Vrai chez un joueur : l'état vient du MJ, on ne le modifie pas ici. */
+  readonly remote = computed(() => this.relay() !== null);
+
+  /** Branche (ou débranche, avec `null`) l'envoi des actions au MJ. */
+  setRelay(send: ((action: CombatAction) => void) | null): void {
+    this.relay.set(send);
+    if (send) this.history.set([]);
+  }
+
+  /** Reçoit l'état publié par le MJ : il remplace tout, sans historique. */
+  receive(encounter: Encounter): void {
+    this.state.set(migrateEncounter(encounter));
+    this.history.set([]);
+  }
+
   /** Modifie la rencontre hors combat (ajout de combattant, terrain, grille). */
   edit(mutate: (draft: Encounter) => void): void {
+    if (this.relay()) return;
     const draft = structuredClone(this.state());
     mutate(draft);
     this.history.update((h) => [...h.slice(-49), this.state()]);
@@ -69,6 +94,8 @@ export class EncounterService {
 
   /** Joue une action : le moteur en tire le nouvel état et la ligne de journal. */
   dispatch(action: CombatAction): void {
+    const send = this.relay();
+    if (send) return send(action);
     const before = this.state();
     this.history.update((h) => [...h.slice(-49), before]);
     this.state.set(applyAction(before, action));
@@ -76,6 +103,7 @@ export class EncounterService {
 
   /** Annule la dernière action (état précédent, journal compris). */
   undo(): void {
+    if (this.relay()) return;
     const stack = this.history();
     if (!stack.length) return;
     this.state.set(stack[stack.length - 1]);

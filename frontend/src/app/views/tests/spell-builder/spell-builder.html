@@ -312,7 +312,8 @@
               <select aria-label="Statut débloqué" [disabled]="!resting()" (change)="setStatusUnlock(valueOf($event))">
                 <option value="" [selected]="!build().statusUnlock">— aucun —</option>
                 @for (s of su.eligible; track s) {
-                  <option [value]="s" [selected]="build().statusUnlock?.status === s" [disabled]="baseStatuses().has(s)">{{ statusName(s) }}</option>
+                  <option [value]="s" [selected]="build().statusUnlock?.status === s"
+                    [disabled]="baseStatuses().has(s) || !!gate('statusUnlock:' + s)">{{ statusName(s) }}{{ gateTag('statusUnlock:' + s) }}</option>
                 }
               </select>
             </div>
@@ -323,8 +324,8 @@
               <span class="grow"><b>Débloquer le repoussement</b>
                 <small>{{ rules().costs.knockbackUnlock }} pts pour {{ rules().unlockedKnockbackCells }} case, puis {{ rules().paramKinds.knockback.cost }} pts la case</small></span>
               <label class="chip" [class.on]="!!build().knockback">
-                <input type="checkbox" [checked]="!!build().knockback" [disabled]="!resting()"
-                  (change)="toggleKnockback(checkedOf($event))" /> repousse
+                <input type="checkbox" [checked]="!!build().knockback" [disabled]="!resting() || !!gate('knockbackUnlock')"
+                  (change)="toggleKnockback(checkedOf($event))" /> repousse{{ gateTag('knockbackUnlock') }}
               </label>
             </div>
             @if (knockbackRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
@@ -335,8 +336,9 @@
               @for (t of tu.eligible; track t) {
                 <label class="chip" [class.on]="build().targetUnlocks.includes(t)">
                   <input type="checkbox" [checked]="build().targetUnlocks.includes(t)"
-                    [disabled]="!resting() || (base().targets ?? []).includes(t)" (change)="toggleTarget(t, checkedOf($event))" />
-                  {{ targetLabel(t) }}
+                    [disabled]="!resting() || (base().targets ?? []).includes(t) || !!gate('targetUnlock:' + t)"
+                    (change)="toggleTarget(t, checkedOf($event))" />
+                  {{ targetLabel(t) }}{{ gateTag('targetUnlock:' + t) }}
                 </label>
               }
             </div>
@@ -410,15 +412,28 @@
               @for (e of own; track e.id) {
                 <label class="chip" [class.on]="build().ownEffects.includes(e.id)" [title]="e.description ?? ''">
                   <input type="checkbox" [checked]="build().ownEffects.includes(e.id)"
-                    [disabled]="!resting()"
+                    [disabled]="!resting() || !!gate('ownEffects:' + e.id)"
                     (change)="toggleOwnEffect(e.id, checkedOf($event))" />
-                  {{ e.label }} <small>{{ e.cost ?? rules().costs.extraEffect }} pts</small>
+                  {{ e.label }} <small>{{ e.cost ?? rules().costs.extraEffect }} pts{{ gateTag('ownEffects:' + e.id) }}</small>
                 </label>
               }
             </div>
           }
           @if (!opts().extraTargets && !opts().extraEffects && !opts().ownEffects) { <p class="muted">Aucun palier structurel déclaré pour ce sort.</p> }
         </section>
+
+        <!-- Seuils : ce que le sort garde fermé tant qu'il n'a pas grandi. -->
+        @if (gates().length) {
+          <section class="family">
+            <h3>Seuils de niveau <small>hors budget — ça ne s'achète pas, ça se pratique</small></h3>
+            @for (g of gates(); track g.key) {
+              <div class="opt">
+                <span class="grow"><b>{{ g.open ? '✓' : '🔒' }} Niveau {{ g.minLevel }}</b>
+                  <small>{{ g.label }}@if (g.reason) { — {{ g.reason }}}</small></span>
+              </div>
+            }
+          </section>
+        }
 
         <!-- Famille 4 -->
         <section class="family f4">

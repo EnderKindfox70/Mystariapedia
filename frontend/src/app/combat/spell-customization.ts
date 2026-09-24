@@ -26,6 +26,7 @@ import {
   Cap,
   CapKind,
   DomainSpellEntry,
+  GateDecl,
   GovernedField,
   LadderStep,
   ParamDef,
@@ -45,7 +46,7 @@ import {
   SwapOptions,
 } from '../wiki.types';
 
-export type { Cap, CapAnchor, CapKind, GovernedField, ParamDef, ParamKindKey, ScalingSwapRule, SpellCustomization, SpellOwnEffect, SpellPlantVariant } from '../wiki.types';
+export type { Cap, CapAnchor, CapKind, GovernedField, LevelGate, ParamDef, ParamKindKey, ScalingSwapRule, SpellCustomization, SpellOwnEffect, SpellPlantVariant } from '../wiki.types';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -56,7 +57,7 @@ export interface ParamKind {
   /** Sens dans lequel on « améliore » : la mana s'améliore en baissant. */
   better: 'up' | 'down';
   capKind: CapKind;
-  unit?: 'm' | 'tour' | '%' | 'case' | 'mL' | 'g' | 'part';
+  unit?: 'm' | 'tour' | '%' | 'case' | 'mL' | 'g' | 'part' | 'jour';
   /** Progression multiplicative (cf. `ParamGrowth`) ; absente = additive. */
   growth?: ParamGrowth;
   /** Coût non chiffré par le document : hypothèse, signalée à l'écran. */
@@ -243,6 +244,15 @@ export const TARGET_LABELS: Record<SpellTarget, string> = {
   enemy: 'Ennemis', ally: 'Alliés', self: 'Soi-même', everyone: 'Tout le monde',
 };
 
+/** Les mêmes cibles, quand le sort vise des cadavres (`targetKind: 'corpse'`). */
+export const CORPSE_TARGET_LABELS: Record<SpellTarget, string> = {
+  enemy: 'Cadavres ennemis', ally: 'Cadavres alliés', self: 'Son propre corps', everyone: 'Tout cadavre',
+};
+
+/** Libellé d'une cible, selon la nature de ce que le sort vise. */
+export const targetLabelFor = (t: SpellTarget, kind?: SpellNodeStats['targetKind']): string =>
+  (kind === 'corpse' ? CORPSE_TARGET_LABELS : TARGET_LABELS)[t] ?? t;
+
 /** Formes de zone échangeables (Famille 4 : cercle ↔ cône ↔ ligne). */
 export const AREA_SHAPES = ['Rayon', 'Cône', 'Ligne', 'Rectangle', 'Anneau'];
 
@@ -340,6 +350,16 @@ export const DEFAULT_RULES: Rules = {
     /** Une case de repoussement de plus, au-delà de celle que donne le déblocage. */
     knockback: { label: 'Repoussement', cost: 3, step: 1, better: 'up', capKind: 'soft', unit: 'case', assumption: true },
     chance: { label: "Chance d'infliger", cost: 1, step: 5, better: 'up', capKind: 'soft', unit: '%', assumption: true },
+    /**
+     * Durée d'un rite, en jours : ce qu'on immobilise pendant qu'il prend. Elle
+     * s'améliore en RACCOURCISSANT, comme la mana.
+     */
+    ritualTime: { label: 'Durée du rite', cost: 1, step: 1, better: 'down', capKind: 'soft', unit: 'jour', assumption: true },
+    /**
+     * Ce qu'un rite retire à sa cible, en % de ses stats (Embaumement). Moins
+     * on abîme, mieux c'est — et le plancher se déclare par `min`.
+     */
+    statLoss: { label: 'Perte de stats', cost: 2, step: 1, better: 'down', capKind: 'soft', unit: '%', assumption: true },
   },
   costs: {
     statusUnlock: 3,
@@ -770,7 +790,8 @@ export interface ParamView {
 /** Suffixe d'unité d'un type de paramètre (« m », « cases »…), vide s'il n'en a pas. */
 const unitSuffix = (kind: ParamKind, v: number): string =>
   kind.unit === 'm' ? ' m' : kind.unit === '%' ? ' %' : kind.unit === 'tour' ? ' t.'
-  : kind.unit === 'case' ? (Math.abs(v) > 1 ? ' cases' : ' case') : '';
+  : kind.unit === 'case' ? (Math.abs(v) > 1 ? ' cases' : ' case')
+  : kind.unit === 'jour' ? (Math.abs(v) > 1 ? ' jours' : ' jour') : '';
 
 /**
  * Une valeur de curseur telle qu'on la lit : l'échelon nommé d'une échelle,
@@ -1196,6 +1217,116 @@ export const unlockParams = {
   upkeep: (opts: SpellOptions) => ({ cap: opts.continuousMode?.upkeepCap ?? null, min: 1 }),
 };
 
+/* ── Seuils de niveau ───────────────────────────────────────────────────────
+   Le budget dit combien on peut dépenser ; le seuil dit à partir de quand une
+   option EXISTE. Deux limites de nature différente : un sort riche mais jeune
+   reste devant une porte fermée, et c'est voulu — certaines choses ne
+   s'achètent pas, elles s'attendent.
+
+   Tout est déclaré par la fiche (`customization.gates`), rien n'est codé ici :
+   le moteur ne connaît que la grammaire des clés et la règle de résolution.
+─────────────────────────────────────────────────────────────────────────── */
+
+/** Familles d'options qu'un seuil peut viser, et leur nom à l'écran. */
+export const GATE_FAMILIES: Record<string, string> = {
+  param: 'Paramètre',
+  statusUnlock: 'Statut débloqué',
+  knockbackUnlock: 'Repoussement',
+  targetUnlock: 'Cible',
+  scalingUnlock: 'Scaling',
+  continuousMode: 'Mode continu',
+  extraTargets: 'Cibles simultanées',
+  extraEffects: 'Effet simultané',
+  ownEffects: 'Effet propre',
+  scalingSwap: 'Source de ratio',
+  areaShapeSwap: 'Forme de zone',
+  defaultTargetSwap: 'Cible par défaut',
+  statusTypeSwap: 'Statut substitué',
+  damageTypeSwap: 'Type de dégâts',
+  crossDomain: 'Domaine non natif',
+  mix: 'Répartition de type',
+};
+
+/** Un seuil résolu : l'option qu'il ferme, le niveau qu'il exige, et pourquoi. */
+export interface Gate {
+  /** Clé effectivement déclarée (`statusUnlock:paralysie`, ou sa famille). */
+  key: string;
+  minLevel: number;
+  reason?: string;
+}
+
+/** La famille d'une clé d'option : ce qui précède le premier « : ». */
+export const gateFamily = (key: string): string => key.split(':', 1)[0];
+
+const asGate = (key: string, decl: GateDecl | undefined): Gate | null => {
+  if (decl == null) return null;
+  const g = typeof decl === 'number' ? { minLevel: decl } : decl;
+  return Number.isFinite(g.minLevel) && g.minLevel > 0 ? { key, minLevel: g.minLevel, reason: g.reason } : null;
+};
+
+/**
+ * Le seuil qui gouverne une option, quel que soit le niveau atteint.
+ *
+ * La clé la plus précise l'emporte : `statusUnlock:paralysie` passe avant
+ * `statusUnlock`. Une entrée peut ainsi devancer sa famille (ouverte plus tôt)
+ * aussi bien que la retarder.
+ */
+export function gateOf(spell: CustomizableSpell, key: string): Gate | null {
+  const gates = spell.customization.gates;
+  if (!gates) return null;
+  const exact = asGate(key, gates[key]);
+  if (exact) return exact;
+  const family = gateFamily(key);
+  return family === key ? null : asGate(family, gates[family]);
+}
+
+/**
+ * Le seuil qui FERME cette option au niveau donné, ou `null` si elle est
+ * ouverte. `level` absent (une évaluation hors progression) : rien ne ferme,
+ * parce qu'on ne sait pas encore à quel niveau on juge.
+ */
+export function gateAt(spell: CustomizableSpell, key: string, level: number | null | undefined): Gate | null {
+  if (level == null) return null;
+  const gate = gateOf(spell, key);
+  return gate && level < gate.minLevel ? gate : null;
+}
+
+/** Ce qu'un seuil dit, en une phrase : le refus du moteur et l'infobulle de la fiche. */
+export const gateText = (gate: Gate): string =>
+  `s'ouvre au niveau ${gate.minLevel} du sort${gate.reason ? ` — ${gate.reason}` : ''}`;
+
+/** Le nom d'une option visée par un seuil, tel qu'on le lit. */
+export function gateLabel(spell: CustomizableSpell, key: string): string {
+  const family = gateFamily(key);
+  const entry = key.slice(family.length + 1);
+  const name = GATE_FAMILIES[family] ?? family;
+  if (!entry) return name;
+  if (family === 'param') return `${name} — ${spell.customization.params?.find((p) => p.id === entry)?.label ?? entry}`;
+  if (family === 'ownEffects') return `${name} — ${spell.customization.ownEffects?.find((e) => e.id === entry)?.label ?? entry}`;
+  if (family === 'extraTargets') return `${name} — ${entry} au total`;
+  return `${name} — ${entry}`;
+}
+
+/** Un seuil tel que la fiche le récapitule : déjà franchi, ou encore devant. */
+export interface GateView extends Gate {
+  label: string;
+  open: boolean;
+}
+
+/**
+ * Tous les seuils déclarés, du plus proche au plus lointain : ce que ce sort
+ * garde en réserve. La fiche en fait une liste, pour que le lecteur voie d'un
+ * coup ce qui l'attend plus haut.
+ */
+export function gateSummary(spell: CustomizableSpell, level: number | null | undefined): GateView[] {
+  const gates = spell.customization.gates ?? {};
+  return Object.keys(gates)
+    .map((key) => asGate(key, gates[key]))
+    .filter((g): g is Gate => g !== null)
+    .map((g) => ({ ...g, label: gateLabel(spell, g.key), open: level == null || level >= g.minLevel }))
+    .sort((a, b) => a.minLevel - b.minLevel || a.label.localeCompare(b.label));
+}
+
 export interface LedgerLine {
   family: 1 | 2 | 3 | 4;
   label: string;
@@ -1224,12 +1355,17 @@ export interface Evaluation {
  * `player` absent (fiche du wiki, sans personnage) : la condition
  * d'investissement du 4ter ne peut pas être jugée, elle est rappelée en
  * avertissement au lieu d'invalider le build.
+ *
+ * `spellLevel` absent : les seuils de niveau ne s'appliquent pas — on évalue
+ * alors un build hors progression, sans savoir de quel niveau il parle. Les
+ * deux entrées normales (`assess`, `assessAtLevel`) le passent toujours.
  */
 export function evaluate(
   spell: CustomizableSpell,
   rawBuild: Partial<Build> | null | undefined,
   player: CustomizingPlayer | null,
   ctx: BuilderContext,
+  spellLevel?: number | null,
 ): Evaluation {
   const rules = ctx.rules;
   const build = normalizeBuild(rawBuild);
@@ -1244,11 +1380,22 @@ export function evaluate(
   let shapeLine: LedgerLine | undefined;
   const add = (family: LedgerLine['family'], label: string, cost: number, detail = '') =>
     ledger.push({ family, label, cost, detail });
+  /**
+   * Un seuil ferme-t-il cette option ? Le refus est écrit ici même, pour que
+   * chaque site d'application n'ait qu'à s'écarter (`else if (shut(…)) {}`).
+   */
+  const shut = (key: string, what: string): boolean => {
+    const gate = gateAt(spell, key, spellLevel);
+    if (gate) errors.push(`${what} : ${gateText(gate)}.`);
+    return !!gate;
+  };
 
   // ── Famille 4 — substitutions (coût plat) ──
   const sw = build.swaps;
   // Chaque ratio échangé coûte son forfait ; son réglage change d'unité (`factors`).
-  const scalingSwaps = applyScalingSwaps(stats, sw.scalings, opts.scalingSwap);
+  // Un ratio encore sous seuil est écarté avant d'être appliqué.
+  const openSwaps = sw.scalings.filter((x) => !shut(`scalingSwap:${x.path}`, `Swap de scaling (${x.path})`));
+  const scalingSwaps = applyScalingSwaps(stats, openSwaps, opts.scalingSwap);
   const factors = scalingSwaps.factors;
   errors.push(...scalingSwaps.errors);
   /** Swaps posés sur la durée : sans objet si le sort passe en mode continu. */
@@ -1262,7 +1409,9 @@ export function evaluate(
     const current = AREA_SHAPES.find((s) => (stats.area ?? '').startsWith(s));
     if (!opts.areaShapeSwap || !current) errors.push("Ce sort n'a pas de forme de zone échangeable.");
     else if (!opts.areaShapeSwap.shapes.includes(sw.areaShape)) errors.push(`Forme ${sw.areaShape} non permise.`);
-    else if (sw.areaShape !== current) {
+    else if (shut(`areaShapeSwap:${sw.areaShape}`, `Forme ${sw.areaShape}`)) {
+      // Le seuil a déjà dit pourquoi.
+    } else if (sw.areaShape !== current) {
       stats.area = swapAreaShape(stats.area!, current, sw.areaShape);
       add(4, `Swap forme de zone ${current} → ${sw.areaShape}`, rules.costs.areaShapeSwap);
       shapeLine = ledger[ledger.length - 1];
@@ -1271,7 +1420,9 @@ export function evaluate(
   if (sw.defaultTarget) {
     const def = opts.defaultTargetSwap;
     if (!def) errors.push('Ce sort ne déclare pas de swap de cible par défaut.');
-    else {
+    else if (shut('defaultTargetSwap', 'Swap de cible par défaut')) {
+      // Le seuil a déjà dit pourquoi.
+    } else {
       const [a, b] = def.pair;
       stats.targets = (stats.targets ?? []).map((t) => (t === a ? b : t === b ? a : t));
       add(4, `Swap cible ${TARGET_LABELS[a]} ↔ ${TARGET_LABELS[b]}`, rules.costs.defaultTargetSwap);
@@ -1286,6 +1437,9 @@ export function evaluate(
         : 'Ce sort ne déclare pas de swap de type de statut.');
     } else if (!entry) errors.push('Swap de statut : entrée introuvable.');
     else if (!def.eligible.includes(sw.statusType.to)) errors.push(`Swap de statut : ${sw.statusType.to} n'est pas éligible.`);
+    else if (shut(`statusTypeSwap:${sw.statusType.to}`, `Swap vers ${sw.statusType.to}`)) {
+      // Le seuil a déjà dit pourquoi.
+    }
     else if (stats.inflicts!.some((i) => i.status === sw.statusType!.to)) errors.push(`Swap de statut : ${sw.statusType.to} est déjà infligé.`);
     else {
       add(4, `Swap statut ${entry.status} → ${sw.statusType.to}`, rules.costs.statusTypeSwap);
@@ -1302,6 +1456,8 @@ export function evaluate(
         : 'Ce sort ne déclare pas de substitution de type de dégâts.');
     } else if (!def.eligible.includes(sw.damageType)) {
       errors.push(`Substitution de type : ${damageTypeLabel(sw.damageType)} n'est pas permis.`);
+    } else if (shut(`damageTypeSwap:${sw.damageType}`, `Type ${damageTypeLabel(sw.damageType)}`)) {
+      // Le seuil a déjà dit pourquoi.
     } else if (sw.damageType !== base) {
       // Substitution franche : tout le pool change de nature, rien ne se partage.
       stats.damageType = sw.damageType;
@@ -1314,6 +1470,7 @@ export function evaluate(
   for (const p of opts.params) {
     const units = build.params[p.id] ?? 0;
     if (!units) continue;
+    if (shut(`param:${p.id}`, p.label)) continue;
     if (build.continuous && p.kind === 'duration') {
       warnings.push(`${p.label} : ignorée en mode continu (la durée n'a plus de sens).`);
       continue;
@@ -1361,7 +1518,9 @@ export function evaluate(
         ? 'Les statuts de ce sort sont gouvernés par une mécanique de domaine : hors budget.'
         : 'Ce sort ne déclare aucun statut débloquable.');
     } else if (!def.eligible.includes(status)) errors.push(`Statut ${status} non éligible pour ce sort.`);
-    else if ((stats.inflicts ?? []).some((i) => i.status === status)) errors.push(`Le sort inflige déjà ${status}.`);
+    else if (shut(`statusUnlock:${status}`, `Statut ${status}`)) {
+      // Le seuil a déjà dit pourquoi.
+    } else if ((stats.inflicts ?? []).some((i) => i.status === status)) errors.push(`Le sort inflige déjà ${status}.`);
     else {
       const pdef = unlockParams.statusChance(opts);
       const res = priceParam(rules.paramKinds.chance, rules.unlockedStatusBaseChance, steps, pdef.cap, pdef);
@@ -1375,7 +1534,9 @@ export function evaluate(
     const def = opts.knockbackUnlock;
     const steps = build.knockback.steps ?? 0;
     if (!def) errors.push('Ce sort ne déclare pas de repoussement débloquable.');
-    else if (stats.knockback) errors.push('Le sort repousse déjà.');
+    else if (shut('knockbackUnlock', 'Repoussement')) {
+      // Le seuil a déjà dit pourquoi.
+    } else if (stats.knockback) errors.push('Le sort repousse déjà.');
     else {
       const pdef = unlockParams.knockbackCells(opts);
       const base = rules.unlockedKnockbackCells;
@@ -1389,10 +1550,12 @@ export function evaluate(
   for (const t of build.targetUnlocks) {
     const def = opts.targetUnlock;
     if (!def || !def.eligible.includes(t)) errors.push(`Cible ${t} non éligible pour ce sort.`);
-    else if ((stats.targets ?? []).includes(t)) errors.push(`La cible ${t} est déjà permise.`);
+    else if (shut(`targetUnlock:${t}`, `Cible ${TARGET_LABELS[t]}`)) {
+      // Le seuil a déjà dit pourquoi.
+    } else if ((stats.targets ?? []).includes(t)) errors.push(`La cible ${t} est déjà permise.`);
     else {
       stats.targets = [...(stats.targets ?? []), t];
-      add(2, `Déblocage cible ${TARGET_LABELS[t]}`, rules.costs.targetUnlock);
+      add(2, `Déblocage cible ${targetLabelFor(t, stats.targetKind)}`, rules.costs.targetUnlock);
     }
   }
   for (const [source, steps] of Object.entries(build.scalingUnlocks)) {
@@ -1400,7 +1563,9 @@ export function evaluate(
     const field = def?.field ?? 'scaling';
     const list: SpellScaling[] = stats[field] ?? [];
     if (!def || !def.eligible.includes(source as SpellScalingSource)) errors.push(`Scaling ${source} non éligible pour ce sort.`);
-    else if (list.some((s) => s.source === source)) errors.push(`${source} est déjà une source de scaling.`);
+    else if (shut(`scalingUnlock:${source}`, `Scaling ${sourceLabel(source)}`)) {
+      // Le seuil a déjà dit pourquoi.
+    } else if (list.some((s) => s.source === source)) errors.push(`${source} est déjà une source de scaling.`);
     else {
       const pdef = unlockParams.scalingRatio(opts);
       const res = priceParam(rules.paramKinds.ratio, rules.unlockedScalingRatio, steps, pdef.cap, pdef);
@@ -1413,7 +1578,9 @@ export function evaluate(
   if (build.continuous) {
     const def = opts.continuousMode;
     if (!def) errors.push('Ce sort ne peut pas passer en mode continu.');
-    else if (!((spell.baseStats.duration ?? 0) > 0)) errors.push('Le mode continu exige un sort à durée fixe.');
+    else if (shut('continuousMode', 'Mode continu')) {
+      // Le seuil a déjà dit pourquoi.
+    } else if (!((spell.baseStats.duration ?? 0) > 0)) errors.push('Le mode continu exige un sort à durée fixe.');
     else {
       const pdef = unlockParams.upkeep(opts);
       const base = spell.baseStats.mana;
@@ -1441,7 +1608,12 @@ export function evaluate(
   // ── Famille 3 — paliers à saut structurel (plafond absolu) ──
   if (build.extraTargets) {
     const def = opts.extraTargets;
+    // Chaque palier a le sien : « la troisième cible au niveau 4 » vise le
+    // TOTAL atteint, `extraTargets:3`, et non le cran acheté.
+    const climbed = def ? Array.from({ length: Math.max(0, build.extraTargets) }, (_, i) => def.base + i + 1) : [];
+    const closed = climbed.map((n) => gateAt(spell, `extraTargets:${n}`, spellLevel)).find((g) => !!g);
     if (!def) errors.push('Ce sort ne déclare pas de cibles simultanées.');
+    else if (closed) errors.push(`${def.label ?? 'Cibles simultanées'} : ${gateText(closed)}.`);
     else {
       const total = def.base + build.extraTargets;
       if (build.extraTargets < 0) errors.push('Cibles simultanées : on ne descend pas sous la base.');
@@ -1462,7 +1634,9 @@ export function evaluate(
   for (const key of build.extraEffects) {
     const eff = opts.extraEffects?.eligible.find((e) => e.stat === key);
     if (!eff) errors.push(`Effet ${key} non éligible pour ce sort.`);
-    else if ((stats.effects ?? []).some((e) => e.stat === key)) errors.push(`L'effet ${key} est déjà actif.`);
+    else if (shut(`extraEffects:${key}`, `Effet ${sourceLabel(key)}`)) {
+      // Le seuil a déjà dit pourquoi.
+    } else if ((stats.effects ?? []).some((e) => e.stat === key)) errors.push(`L'effet ${key} est déjà actif.`);
     else {
       stats.effects = [...(stats.effects ?? []), clone(eff)];
       add(3, `+1 effet simultané : ${sourceLabel(key)}`, rules.costs.extraEffect);
@@ -1478,6 +1652,7 @@ export function evaluate(
       errors.push(`Effet propre « ${id} » non éligible pour ce sort.`);
       continue;
     }
+    if (shut(`ownEffects:${id}`, own.label)) continue;
     const already = (own.grants.inflicts ?? []).filter((i) => (stats.inflicts ?? []).some((x) => x.status === i.status));
     if (already.length) {
       errors.push(`${own.label} : le sort inflige déjà ${already.map((i) => i.status).join(', ')}.`);
@@ -1510,6 +1685,8 @@ export function evaluate(
         : 'Ce sort ne déclare aucun domaine cross-éligible.');
     } else if (!def.eligible.includes(build.crossDomain)) {
       errors.push(`${build.crossDomain} n'est pas déclaré dans crossDomainEligible.`);
+    } else if (shut(`crossDomain:${build.crossDomain}`, `Domaine ${domainLabel(build.crossDomain)}`)) {
+      // Le seuil a déjà dit pourquoi.
     } else {
       const needed = [...spellDomains(spell), build.crossDomain];
       if (player) {
@@ -1532,7 +1709,9 @@ export function evaluate(
     const start = defaultMix(spell);
     const steps = mixSteps(spell, build.mix);
     if (tenths < 0 || tenths > 10) errors.push('Mixage : entre 0 % et 100 %.');
-    else if (!tenths) {
+    else if (steps && shut(`mix:${type}`, `Répartition vers ${damageTypeLabel(type)}`)) {
+      // Le seuil a déjà dit pourquoi : la répartition reste celle de la fiche.
+    } else if (!tenths) {
       if (steps) add(4, `Mixage ramené à 100 % ${damageTypeLabel(baseDamageType(spell))}`, steps * rules.costs.mixPerTenth,
         `départ ${start ? start.tenths * 10 : 0} %`);
     } else if (stats.damageMin == null || stats.damageMax == null) errors.push("Mixage : ce sort n'a pas de pool de dégâts.");
@@ -1579,7 +1758,8 @@ function withBudget(ev: Evaluation, progress: SpellProgress): Assessment {
 /** Bilan complet d'un sort pour un personnage : progression + build + solde. */
 export function assess(spell: CustomizableSpell, player: CustomizingPlayer, ctx: BuilderContext, build?: Partial<Build> | null): Assessment {
   const st = player.spellState[spell.key];
-  return withBudget(evaluate(spell, build ?? st?.build, player, ctx), spellProgress(st?.xp ?? 0, ctx.rules));
+  const progress = spellProgress(st?.xp ?? 0, ctx.rules);
+  return withBudget(evaluate(spell, build ?? st?.build, player, ctx, progress.level), progress);
 }
 
 /**
@@ -1589,7 +1769,7 @@ export function assess(spell: CustomizableSpell, player: CustomizingPlayer, ctx:
  */
 export function assessAtLevel(spell: CustomizableSpell, build: Partial<Build> | null, spellLevel: number, ctx: BuilderContext): Assessment {
   const level = Math.max(0, Math.min(spellLevel, ctx.rules.maxSpellLevel));
-  return withBudget(evaluate(spell, build, null, ctx), spellProgress(xpThreshold(level, ctx.rules), ctx.rules));
+  return withBudget(evaluate(spell, build, null, ctx, level), spellProgress(xpThreshold(level, ctx.rules), ctx.rules));
 }
 
 // ── Lecture humaine des stats ───────────────────────────────────────────────
@@ -1618,7 +1798,7 @@ export function describeStats(stats: BuilderStats, statusNames: Record<string, s
   if (stats.upkeep != null) push('upkeep', 'Entretien', `${fmt(stats.upkeep)} / tour`);
   if (stats.range != null) push('range', 'Portée', stats.range);
   if (stats.area != null) push('area', 'Zone', stats.area);
-  if (stats.targets) push('targets', 'Cibles', stats.targets.map((t) => TARGET_LABELS[t] ?? t).join(', '));
+  if (stats.targets) push('targets', 'Cibles', stats.targets.map((t) => targetLabelFor(t, stats.targetKind)).join(', '));
   if (stats.maxTargets != null) push('maxTargets', 'Cibles simultanées', fmt(stats.maxTargets));
   if (stats.maxPuppets != null) push('maxPuppets', 'Pantins simultanés', fmt(stats.maxPuppets));
   if (stats.duration != null) push('duration', 'Durée', stats.duration < 0 ? 'Continu (tant que le mana paie)' : `${fmt(stats.duration)} tour(s)`);
@@ -1779,6 +1959,47 @@ export function lintSpell(
       }
     }
   }
+  /* ── Seuils de niveau ──
+     Un seuil ne CRÉE rien : il retarde une option que le sort ouvre déjà. Une
+     clé qui ne vise rien est donc une faute de frappe, pas une déclaration —
+     et elle serait muette à l'écran, ce qui est le pire des cas. */
+  const gateEntries: Record<string, string[] | null> = {
+    param: (c.params ?? []).map((p) => p.id),
+    statusUnlock: c.statusUnlock?.eligible ?? null,
+    knockbackUnlock: c.knockbackUnlock ? [] : null,
+    targetUnlock: c.targetUnlock?.eligible ?? null,
+    scalingUnlock: c.scalingUnlock?.eligible ?? null,
+    continuousMode: c.continuousMode ? [] : null,
+    extraTargets: c.extraTargets
+      ? Array.from({ length: Math.max(0, extraTargetsCeiling(c.extraTargets, rules) - c.extraTargets.base) },
+          (_, i) => String(c.extraTargets!.base + i + 1))
+      : null,
+    extraEffects: c.extraEffects?.eligible.map((e) => e.stat) ?? null,
+    ownEffects: c.ownEffects?.map((e) => e.id) ?? null,
+    scalingSwap: scalingEntries(stats).length ? scalingEntries(stats).map((e) => e.path) : null,
+    areaShapeSwap: c.areaShapeSwap?.shapes ?? null,
+    defaultTargetSwap: c.defaultTargetSwap ? [] : null,
+    statusTypeSwap: c.statusTypeSwap?.eligible ?? null,
+    damageTypeSwap: c.damageTypeSwap?.eligible ?? null,
+    crossDomain: spell.crossDomain?.eligible ?? null,
+    mix: spell.swapOptions?.damageTypes ?? null,
+  };
+  for (const [key, decl] of Object.entries(c.gates ?? {})) {
+    const family = gateFamily(key);
+    const entry = key.slice(family.length + 1);
+    const level = typeof decl === 'number' ? decl : decl?.minLevel;
+    if (!GATE_FAMILIES[family]) {
+      issues.push(`gates : « ${key} » ne vise aucune option connue`);
+      continue;
+    }
+    if (!Number.isInteger(level) || level < 1 || level > rules.maxSpellLevel) {
+      issues.push(`gates : « ${key} » — un seuil va de 1 à ${rules.maxSpellLevel}`);
+    }
+    const known = gateEntries[family];
+    if (known == null) issues.push(`gates : « ${key} » retarde une option que ce sort n'ouvre pas`);
+    else if (entry && !known.includes(entry)) issues.push(`gates : « ${key} » — entrée « ${entry} » absente de ${family}`);
+  }
+
   if (c.extraTargets && c.extraTargets.base > rules.family3Cap) issues.push('extraTargets.base au-delà du plafond absolu');
   if (c.extraTargets?.field && stats[c.extraTargets.field] !== c.extraTargets.base) {
     issues.push(`extraTargets.base (${c.extraTargets.base}) ≠ ${c.extraTargets.field} du socle (${stats[c.extraTargets.field]})`);

@@ -1,0 +1,105 @@
+@if (note()) { <p class="da-note">{{ note() }}</p> }
+
+@if (kind() === 'undead') {
+  <div class="da-toolbar">
+    <label class="da-level">
+      Niveau du nécromancien
+      <select [value]="level()" (change)="setLevel($event)">
+        @for (n of levels; track n) { <option [value]="n">{{ n }}</option> }
+      </select>
+    </label>
+    <span class="da-hint">Stats calculées sans dé : base + niveau × moyenne du dé. Contrôle : {{ controlRange }}.</span>
+  </div>
+
+  <div class="da-grid">
+    @for (u of undead(); track u.key) {
+      <article class="da-card">
+        <header class="da-card__head">
+          <h3>{{ u.name }}</h3>
+          <span class="da-badge">{{ u.stageName }} · {{ u.window }}</span>
+        </header>
+        <p class="da-summary">{{ u.summary }}</p>
+
+        <dl class="da-stats">
+          <div><dt>PV</dt><dd>{{ u.stats.hp }}</dd></div>
+          <div><dt>Attaque</dt><dd>{{ u.stats.atk }}</dd></div>
+          <div><dt>Défense</dt><dd>{{ u.stats.def }}</dd></div>
+          <div><dt>Vitesse</dt><dd>{{ u.stats.speed }}</dd></div>
+          <div><dt>Mana / action</dt><dd>{{ u.manaPerAction }}</dd></div>
+        </dl>
+
+        <ul class="da-list">
+          @for (t of u.traits; track t) { <li>{{ t }}</li> }
+          @if (u.contact) {
+            <li>Au contact : {{ statusName(u.contact.status) }} ({{ u.contact.chance }} %).</li>
+          }
+          @if (u.onDestroyed) {
+            <li>À sa destruction : {{ u.onDestroyed.effect }}, {{ statusName(u.onDestroyed.status) }} — {{ u.onDestroyed.area }}.</li>
+          }
+          @if (u.immunities.length) { <li>Immunisé : {{ u.immunities.join(', ') }}.</li> }
+          @for (a of u.affinities; track a.label) { <li>{{ a.label }} : {{ a.types.join(', ') }}.</li> }
+        </ul>
+      </article>
+    }
+  </div>
+} @else {
+  <div class="da-toolbar">
+    <label class="da-level">
+      Niveau du médium
+      <select [value]="level()" (change)="setLevel($event)">
+        @for (n of levels; track n) { <option [value]="n">{{ n }}</option> }
+      </select>
+    </label>
+    <span class="da-hint">Stats calculées sans dé, comme les morts-vivants. Attaque et défense magiques : les coups physiques traversent la forme.</span>
+  </div>
+
+  <div class="da-grid">
+    @for (g of ghosts(); track g.key) {
+      <article class="da-card" [attr.data-danger]="g.danger">
+        <header class="da-card__head">
+          <h3>{{ g.name }}</h3>
+          <span class="da-badge">
+            {{ g.dangerName }}
+            @if (veil()) { · {{ g.chance }} % }
+          </span>
+        </header>
+        <p class="da-summary"><em>{{ g.soulProfile }}</em></p>
+
+        <dl class="da-stats">
+          <div><dt>PV</dt><dd>{{ g.stats.hp }}</dd></div>
+          <div><dt>Att. mag.</dt><dd>{{ g.stats.atk ?? '—' }}</dd></div>
+          <div><dt>Déf. mag.</dt><dd>{{ g.stats.def }}</dd></div>
+          <div><dt>Vitesse</dt><dd>{{ g.stats.speed }}</dd></div>
+          <div>
+            <dt>Existence</dt>
+            <dd>{{ g.upkeep === null ? "drainée sur l'hôte" : g.upkeep + ' mana / tour' }}</dd>
+          </div>
+        </dl>
+
+        @if (g.abilities.length) {
+          <ul class="da-abilities">
+            @for (a of g.abilities; track a.name) {
+              <li>
+                <strong>{{ a.name }}</strong>
+                <span class="da-kind">{{ a.kind === 'active' ? 'actif' : 'passif' }}</span>
+                — {{ a.description }}
+              </li>
+            }
+          </ul>
+        }
+
+        <ul class="da-list">
+          @for (t of g.traits; track t) { <li>{{ t }}</li> }
+          @if (g.self.length) { <li>Subit en permanence : {{ g.self.join(', ') }}.</li> }
+          @for (a of g.affinities; track a.label) { <li>{{ a.label }} : {{ a.types.join(', ') }}.</li> }
+        </ul>
+
+        <dl class="da-ranges">
+          @for (r of g.ranges; track r.label) {
+            <div><dt>{{ r.label }}</dt><dd>{{ r.value }}</dd></div>
+          }
+        </dl>
+      </article>
+    }
+  </div>
+}

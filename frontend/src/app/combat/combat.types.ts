@@ -500,6 +500,72 @@ export interface CombatAbility {
    * l'enchantement qui vient d'être posé.
    */
   freeStrike?: CombatEnchant['target'];
+  /**
+   * Ce que l'objet POSE au sol plutôt que sur quelqu'un : des chausse-trappes
+   * répandues, un piège armé. La case visée est le centre de la zone.
+   */
+  placesHazard?: { radiusMeters: number; spec: HazardSpec };
+  /**
+   * Empreinte maximale d'une cible sur laquelle l'objet a prise : un filet
+   * n'enveloppe pas une bête de taille G, des entraves ne ferment pas sur ses
+   * pattes.
+   */
+  maxTargetFootprint?: number;
+  /**
+   * La cible doit être hors d'état de se défendre : à terre, endormie,
+   * paralysée, étourdie. On n'entrave pas quelqu'un qui se débat.
+   */
+  requiresHelpless?: boolean;
+  /**
+   * L'objet lancé retombe sur la case visée au lieu de disparaître : un filet
+   * se ramasse, une fiole brisée non.
+   */
+  dropsOnTarget?: boolean;
+  /**
+   * Le geste prend trop longtemps pour un round : une minute pour armer un
+   * piège. Il se fait hors combat — en préparant une embuscade, pas au milieu.
+   */
+  outOfCombatOnly?: boolean;
+}
+
+/**
+ * Ce qu'un piège fait à qui y met le pied (cf. `hazards.ts`).
+ *
+ * Même grammaire qu'une capacité — dégâts, statuts — parce que c'en est une,
+ * simplement différée : elle part quand quelqu'un marche dessus.
+ */
+export interface HazardSpec {
+  damages?: { min: number; max: number; type: string }[];
+  inflicts?: AbilityStatus[];
+  /**
+   * En plus, sur une créature du bestiaire : des pattes nues ne se protègent
+   * pas des pointes comme une botte ferrée.
+   */
+  creatureInflicts?: AbilityStatus[];
+  /** Arrête net la marche (des mâchoires) ; sinon on traverse en le subissant. */
+  stops?: boolean;
+  /**
+   * Se referme une fois, puis retombe au sol comme un objet qu'on ramasse (le
+   * piège à mâchoires). Sinon, la zone reste dangereuse (les pointes).
+   */
+  springs?: boolean;
+  /** Au-delà de cette empreinte, le piège n'a pas prise (une bête TG l'arrache). */
+  maxFootprint?: number;
+}
+
+/** Un piège posé sur le plateau. */
+export interface Hazard {
+  id: string;
+  /** Nom de l'objet posé : c'est lui qu'on ramasse en relevant le piège. */
+  name: string;
+  cells: GridPos[];
+  /**
+   * Le camp de qui l'a posé. Ses alliés savent où sont les pointes et avancent
+   * prudemment : le piège ne vise que les autres.
+   */
+  team: Team;
+  ownerId?: string;
+  spec: HazardSpec;
 }
 
 /* ── États temporaires portés par un combattant ───────────────────────────── */
@@ -601,6 +667,26 @@ export interface SuspendedAction {
 /* ── Sac ──────────────────────────────────────────────────────────────────── */
 
 /** Une ligne du sac d'un combattant, avec ce qu'il en reste. */
+/** Un piège posé autour du camp. */
+export interface CampTrap {
+  id: string;
+  /** Objet du sac qu'il a coûté, et qu'on récupère en le relevant. */
+  item: string;
+  /** Qui l'a posé : c'est dans son sac qu'il retourne. */
+  ownerId?: string;
+  /** Déclenché : il ne garde plus rien jusqu'à ce qu'on le réarme. */
+  sprung?: boolean;
+}
+
+/** Un piège à mâchoires posé en forêt. */
+export interface Snare {
+  id: string;
+  /** Qui l'a posé : c'est dans son sac qu'il retourne. */
+  ownerId?: string;
+  /** Instant où il a été (ré)armé, en secondes depuis le début de la campagne. */
+  setAt: number;
+}
+
 export interface CarriedItem {
   name: string;
   qty: number;
@@ -608,6 +694,18 @@ export interface CarriedItem {
   slug?: string;
   /** Munition, fiole à boire, venin à étaler, matériel de soin, ou simple bagage. */
   kind: 'ammunition' | 'consumable' | 'venom' | 'care' | 'other';
+  /**
+   * Usages par exemplaire : 7 jours pour un lot de rations, 3 doses pour un
+   * flacon de sels. Absent, un exemplaire sert une fois (cf. `charges.ts`).
+   */
+  usesPer?: number;
+  /** Usages restants de l'exemplaire ENTAMÉ ; absent, il est intact. */
+  usesLeft?: number;
+  /**
+   * Statuts de météo dont l'objet garde son porteur : une vareuse huilée au sac
+   * est une vareuse sur le dos, et la pluie ne trempe plus.
+   */
+  weatherWards?: string[];
   /**
    * Un aimant a-t-il prise dessus ? DÉRIVÉ de `material` par la fabrique — fer
    * et acier seulement. Une chevalière d'or et un astrolabe de bronze sont en
@@ -698,6 +796,11 @@ export interface Combatant {
   name: string;
   team: Team;
   origin: CombatantOrigin;
+  /**
+   * Le joueur qui tient ce pion, à une table partagée. Absent : c'est le MJ qui
+   * le joue (créature, PNJ, ou personnage sans joueur connecté).
+   */
+  owner?: { userId: string; username: string };
   /** Vignette (data URL de la fiche, ou icône du bestiaire). */
   portrait?: string;
   /**
@@ -831,8 +934,8 @@ export interface Combatant {
   /* ── Hors combat ──────────────────────────────────────────────────────── */
 
   /**
-   * Faim, soif, sommeil — en secondes écoulées depuis le dernier plein (cf.
-   * `survival.ts`). Absent pour une créature : une bête ne tient pas de jauges,
+   * Faim, soif, fatigue — en points manquants, plus une éventuelle perte de
+   * connaissance en cours (cf. `survival.ts`). Absent pour une créature : une bête ne tient pas de jauges,
    * elle est ce qu'elle est le jour où on la rencontre.
    */
   survival?: SurvivalState;
@@ -982,6 +1085,12 @@ export interface Encounter {
    * façonné dans le sol — se décompose tout seul.
    */
   walls?: ConjuredWall[];
+  /** Pièges posés au sol : chausse-trappes, mâchoires (cf. `hazards.ts`). */
+  hazards?: Hazard[];
+  /** Pièges qui ceinturent le camp pour la nuit (cf. `camp-traps.ts`). */
+  campTraps?: CampTrap[];
+  /** Pièges à mâchoires posés en forêt, en attente d'une prise. */
+  snares?: Snare[];
   combatants: Combatant[];
 
   /** Le combat a-t-il commencé (initiative tirée) ? */
@@ -1197,7 +1306,20 @@ export type CombatAction =
    * durée coûte aux jauges : huit heures de marche et huit heures de sommeil
    * n'usent pas le groupe de la même façon.
    */
-  | { type: 'passTime'; seconds: number; activity: string; note?: string }
+  | {
+      type: 'passTime';
+      seconds: number;
+      /** Ce que fait le groupe. */
+      activity: string;
+      note?: string;
+      /**
+       * Ce que font certains, À PART du groupe : l'un veille pendant que les
+       * autres dorment, l'un dort pendant que les autres restent éveillés. Clé =
+       * id du combattant, valeur = clé d'activité. C'est ce qui fait les tours
+       * de garde.
+       */
+      individual?: Record<string, string>;
+    }
   /** Règle l'horloge à une heure précise (arrivée quelque part, ellipse). */
   | { type: 'setClock'; day: number; seconds: number }
   /** Fouille une dépouille : jette sa table de butin, une seule fois. */
@@ -1215,7 +1337,8 @@ export type CombatAction =
   | {
       type: 'restore';
       gauge: SurvivalKey;
-      notches: number;
+      /** Points rendus ; absent = la jauge entière. */
+      points?: number;
       actorId?: string;
       team?: Team;
       source?: string;
@@ -1244,7 +1367,50 @@ export type CombatAction =
    * porte, et son poids qu'elle grève.
    */
   | { type: 'hunt'; actorId: string }
+  /**
+   * Une cueillette. Même principe que la battue (cf. `FORAGE_TABLE`) : le temps
+   * passe, le cueilleur revient, et ce qu'il rapporte — une petite ration ou
+   * une herbe de la flore — va dans son sac.
+   */
+  | { type: 'forage'; actorId: string }
+  /**
+   * Une séance de travail sur un sort, au camp. Elle coûte la mana du sort —
+   * on le lance pour de vrai, sans cible. `delta: -1` retire une séance comptée
+   * par erreur et rend sa mana.
+   */
+  | { type: 'trainSpell'; actorId: string; ref: string; delta: 1 | -1 }
+  /**
+   * Les pièges du camp : en poser un (`set`, pris au sac de `actorId`), le
+   * relever (`lift`, rendu au sac), tout relever (`liftAll`), le déclarer
+   * déclenché par un intrus (`spring`) ou le réarmer (`rearm`).
+   */
+  | {
+      type: 'campTrap';
+      act: 'set' | 'lift' | 'liftAll' | 'spring' | 'rearm';
+      actorId?: string;
+      item?: string;
+      trapId?: string;
+    }
+  /**
+   * Se servir d'un objet du sac au camp : boire une fiole, bander une plaie,
+   * enduire une lame. Pas de tour ni d'action à dépenser, et tout le monde est
+   * à portée de main autour du feu. `targetId` absent = sur soi.
+   */
+  | { type: 'campUse'; actorId: string; abilityId: string; targetId?: string }
+  /**
+   * Le piège à mâchoires en forêt : le poser (`set`), aller voir ce qu'il a
+   * pris et le laisser armé (`check`), ou le rapporter au camp (`lift`). Chaque
+   * geste est une sortie : le temps passe pour tout le groupe.
+   */
+  | { type: 'snare'; act: 'set' | 'check' | 'lift'; actorId: string; snareId?: string }
   /** Consomme une ligne nourrissante précise du sac. */
   | { type: 'eat'; actorId: string; item: string }
-  /** Correction manuelle d'une jauge par le MJ, en crans restants. */
-  | { type: 'setSurvival'; actorId: string; gauge: SurvivalKey; notches: number };
+  /**
+   * Pose un piège hors combat, à ses pieds ou sur une case voisine : le temps
+   * d'armer des mâchoires n'existe pas dans un round.
+   */
+  | { type: 'setHazard'; actorId: string; item: string; at?: GridPos }
+  /** Relève les pièges de son camp à portée de bras (hors combat). */
+  | { type: 'recoverHazards'; actorId: string }
+  /** Correction manuelle d'une jauge par le MJ, en points restants. */
+  | { type: 'setSurvival'; actorId: string; gauge: SurvivalKey; points: number };

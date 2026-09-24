@@ -3,6 +3,7 @@ import cors from 'cors';
 import { authRouter } from './auth/routes.js';
 import { encountersRouter } from './encounters/routes.js';
 import { sheetsRouter } from './sheets/routes.js';
+import { sessionsRouter } from './sessions/routes.js';
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
@@ -50,6 +51,9 @@ app.use('/api/sheets', sheetsRouter);
 
 // Rencontres de combat : une partie sauvegardée par le MJ qui l'a montée.
 app.use('/api/encounters', encountersRouter);
+
+// Tables de jeu : le MJ, ses joueurs, et le relais en direct de la partie.
+app.use('/api/sessions', sessionsRouter);
 
 app.listen(PORT, () => {
   console.log(`[backend] API à l'écoute sur http://localhost:${PORT}`);

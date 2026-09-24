@@ -532,6 +532,62 @@
             "defaultDuration": -1,
             "stackable": false,
             "ends": "Ne s'estompe pas d'elle-même (durée infinie) : il faut une magie qui refasse la chair — Régénération de la chair — ou des semaines d'immobilisation."
+        },
+        {
+            "id": 29,
+            "key": "evanouissement",
+            "name": "Évanouissement",
+            "icon": "",
+            "category": "control",
+            "description": "Le corps lâche : faim, soif ou Réserve de mana vidée jusqu'au bout. Jamais une mort sèche, une perte de connaissance.",
+            "effect": "Sans connaissance : ne peut ni agir, ni se déplacer, ni lancer de sort.",
+            "tick": null,
+            "statEffects": [],
+            "preventsAction": true,
+            "preventsMovement": true,
+            "preventsCasting": true,
+            "defaultDuration": -1,
+            "stackable": false,
+            "ends": "Se réveille au bout de 3 segments − mod. CON (minimum 1), toujours à vide : il faut manger, boire ou laisser la Réserve remonter."
+        },
+        {
+            "id": 30,
+            "key": "huile",
+            "name": "Huilé",
+            "icon": "",
+            "category": "debuff",
+            "description": "La créature est enduite d'huile : ses vêtements, son poil ou sa peau n'attendent qu'une étincelle.",
+            "effect": "Le premier dégât de feu subi applique Brûlure automatiquement, puis l'huile est consumée.",
+            "tick": null,
+            "statEffects": [],
+            "primes": {
+                "damageType": "fire",
+                "status": "brulure"
+            },
+            "preventsAction": false,
+            "preventsMovement": false,
+            "preventsCasting": false,
+            "defaultDuration": 10,
+            "stackable": false,
+            "ends": "Consumé au premier dégât de feu ; sinon s'essuie avec le temps."
+        },
+        {
+            "id": 31,
+            "key": "entrave",
+            "name": "Entravé",
+            "icon": "",
+            "category": "control",
+            "description": "Des entraves de fer tiennent les poignets de la créature.",
+            "effect": "Ne peut ni se déplacer, ni manier une arme, ni accomplir de geste précis. Peut encore parler, donc lancer un sort à composante verbale.",
+            "tick": null,
+            "statEffects": [],
+            "preventsAction": false,
+            "preventsMovement": true,
+            "preventsCasting": false,
+            "preventsWeapons": true,
+            "defaultDuration": -1,
+            "stackable": false,
+            "ends": "Tient tant que les entraves tiennent : jet de Force très difficile, 15 dégâts contondants sur la chaîne, ou outils de crocheteur."
         }
     ]
 }

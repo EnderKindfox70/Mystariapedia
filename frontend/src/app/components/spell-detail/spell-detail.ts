@@ -7,6 +7,7 @@ import {
   getAt,
   measureLines,
   readNum,
+  targetLabelFor,
 } from '../../combat/spell-customization';
 import {
   MaterialFamilyKey,
@@ -323,7 +324,8 @@ export class SpellDetail {
 
   readonly domainLabel = (slug: string): string => labelOf(slug);
   readonly sourceLabel = (s: SpellScalingSource): string => SOURCE_LABELS[s] ?? s;
-  readonly targetLabel = (t: SpellTarget): string => TARGET_LABELS[t] ?? t;
+  readonly targetLabel = (t: SpellTarget): string =>
+    this.node().stats.targetKind === 'corpse' ? targetLabelFor(t, 'corpse') : (TARGET_LABELS[t] ?? t);
 
   /** Nom français d'une compétence, sa clé à défaut. */
   readonly skillLabel = (key: string): string => SKILLS.find((sk) => sk.key === key)?.label ?? key;
@@ -518,6 +520,14 @@ export class SpellDetail {
     const areaSuffix = area && area !== 'Cible unique' ? ` (${area.toLowerCase()})` : '';
     const has = (x: SpellTarget) => t.includes(x);
     let who = '';
+    if (node.stats.targetKind === 'corpse') {
+      // La cible est un corps, pas une créature : le dire, sans quoi « à un
+      // allié » laisse croire que le sort soigne les vivants.
+      if (has('everyone') || (has('ally') && has('enemy'))) who = "à n'importe quel cadavre";
+      else if (has('enemy')) who = 'à un cadavre ennemi';
+      else if (has('ally')) who = 'à un cadavre allié';
+      return who ? ` ${who}${areaSuffix}` : areaSuffix;
+    }
     if (has('everyone')) who = 'à toutes les créatures';
     else if (has('enemy')) who = 'à un ennemi';
     else if (has('ally') && has('self')) who = 'à un allié ou à soi-même';

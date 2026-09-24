@@ -1,0 +1,532 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="camp">
+    <!-- ══ Bandeau : l'heure, et le chemin du retour au plateau ══ -->
+    <header class="camp-head">
+      <div class="camp-head__title">
+        <h1>Le camp</h1>
+        <span class="camp-clock">{{ clockLabel() }}</span>
+        <span class="camp-moment">{{ daytimeName() }}</span>
+      </div>
+      <div class="camp-head__actions">
+        @if (roles.isGm()) {
+          <button type="button" class="camp-btn" [disabled]="!canUndo()" (click)="undo()">Annuler</button>
+        }
+        <a class="camp-btn" routerLink="/combat" queryParamsHandling="preserve">{{ roles.isGm() ? 'Lever le camp' : 'Retour au plateau' }}</a>
+      </div>
+    </header>
+
+    @if (session.table(); as table) {
+      <p class="camp-table">
+        Table « {{ table.name }} »
+        @if (table.role === 'joueur') {
+          — @if (actor(); as moi) { tu joues <strong>{{ moi.name }}</strong> } @else { ton personnage n’est pas encore au camp }
+        }
+        @if (!session.connected()) { <em>· reconnexion…</em> }
+      </p>
+    }
+    @if (session.notice(); as mot) {
+      <p class="camp-alert">{{ mot }} <button type="button" class="camp-chip" (click)="session.notice.set(null)">×</button></p>
+    }
+
+    @if (!party().length) {
+      <!-- Pas de groupe en mémoire : la rencontre se monte sur le plateau. -->
+      <div class="camp-gate">
+        <p>Personne au camp. Le groupe se forme sur le plateau, à partir des fiches.</p>
+        <a class="camp-btn camp-btn--primary" routerLink="/combat">Aller au plateau</a>
+      </div>
+    } @else if (fighting()) {
+      <div class="camp-gate">
+        <p>Un combat est en cours : on ne dresse pas les tentes sous les flèches.</p>
+        <a class="camp-btn camp-btn--primary" routerLink="/combat">Retourner au combat</a>
+      </div>
+    } @else if (phase() !== 'exploration') {
+      <div class="camp-gate">
+        <p>La table n’est pas encore hors combat.</p>
+        @if (roles.isGm()) {
+          <button type="button" class="camp-btn camp-btn--primary" (click)="enterCamp()">Monter le camp</button>
+        } @else {
+          <p class="camp-note">Le MJ montera le camp quand le moment sera venu.</p>
+        }
+      </div>
+    } @else {
+      <div class="camp-body">
+        <!-- ══ La scène ══
+             Des lieux posés en pourcentage : une image de fond viendra
+             dessous, et les lieux se caleront dessus sans rien recoder. -->
+        <section class="camp-scene" aria-label="Le camp">
+          @for (spot of spots; track spot.key) {
+            <button
+              type="button"
+              class="camp-spot"
+              [class.is-open]="openSpot() === spot.key"
+              [class.is-alert]="spotAlert(spot.key)"
+              [style.--x]="spot.x"
+              [style.--y]="spot.y"
+              [style.--mx]="spot.mx"
+              [style.--my]="spot.my"
+              [attr.aria-expanded]="openSpot() === spot.key"
+              (click)="toggleSpot(spot.key)"
+            >
+              <span class="camp-spot__glyph" aria-hidden="true">{{ spot.glyph }}</span>
+              <span class="camp-spot__label">{{ spot.label }}</span>
+              <span class="camp-spot__hint">{{ spot.hint }}</span>
+            </button>
+          }
+        </section>
+
+        <!-- ══ Le menu du lieu ══
+             À côté de la scène sur grand écran, en tiroir sur téléphone. -->
+        <aside class="camp-menu" [class.is-open]="!!openedSpot()">
+          @if (openedSpot(); as spot) {
+            <div class="camp-menu__head">
+              <h2><span aria-hidden="true">{{ spot.glyph }}</span> {{ spot.label }}</h2>
+              <button type="button" class="camp-close" aria-label="Fermer" (click)="openSpot.set(null)">×</button>
+            </div>
+
+            @switch (spot.key) {
+              @case ('feu') {
+                <h3>Manger et boire</h3>
+                <p class="camp-note">Chacun puise dans son propre sac, qui se vide pour de vrai.</p>
+                @if (roles.isGm()) {
+                <div class="camp-row">
+                  <span class="camp-who">Tout le groupe</span>
+                  <button type="button" class="camp-btn" (click)="meal('hunger')">Partager un repas</button>
+                  <button type="button" class="camp-btn" (click)="meal('thirst')">Boire aux outres</button>
+                </div>
+                }
+                <div class="camp-row">
+                  <span class="camp-who">{{ actor()?.name }}</span>
+                  <button type="button" class="camp-btn" [disabled]="!actorAble()" (click)="meal('hunger', true)">Manger</button>
+                  <button type="button" class="camp-btn" [disabled]="!actorAble()" (click)="meal('thirst', true)">Boire à son outre</button>
+                </div>
+
+                @if (actor(); as qui) {
+                  @if (edibles(qui).length) {
+                    <h3>Ce que {{ qui.name }} peut prendre</h3>
+                    <div class="camp-row">
+                      @for (food of edibles(qui); track food.name) {
+                        <button type="button" class="camp-chip" [disabled]="!actorAble()" (click)="eat(qui, food)">
+                          {{ food.name }} ×{{ food.qty }}
+                          @if (usesLabel(food); as entame) { <em>({{ entame }})</em> }
+                          <em>{{ nourishmentPoints(food) }} pts</em>
+                        </button>
+                      }
+                    </div>
+                  }
+                }
+
+                @if (roles.can('time.pass')) {
+                  <h3>Rester au coin du feu</h3>
+                  <ng-container
+                    [ngTemplateOutlet]="durations"
+                    [ngTemplateOutletContext]="{ $implicit: 'repos', label: 'Tout le groupe se repose' }"
+                  />
+                }
+              }
+
+              @case ('couchage') {
+                <p class="camp-note">{{ activities.get('sommeil')?.description }}</p>
+                @if (roles.can('time.pass')) {
+                  <h3>Tout le groupe</h3>
+                  <div class="camp-row">
+                    <button type="button" class="camp-btn camp-btn--primary" (click)="sleep()">Nuit complète, sans garde</button>
+                    @if (watchers().length > 1) {
+                      <button
+                        type="button"
+                        class="camp-btn camp-btn--primary"
+                        [title]="'La nuit est découpée en ' + watchers().length + ' quarts : chacun veille le sien pendant que les autres dorment.'"
+                        (click)="sleepWithWatches()"
+                      >Nuit avec tours de garde ({{ watchers().length }} quarts)</button>
+                    }
+                  </div>
+                  @if (campTraps().length) {
+                    <p class="camp-note">
+                      Le camp est ceinturé de {{ campTraps().length }} piège{{ campTraps().length > 1 ? 's' : '' }}.
+                      <button type="button" class="camp-link" (click)="openSpot.set('pourtour')">Voir le pourtour</button>
+                    </p>
+                  }
+                  <ng-container
+                    [ngTemplateOutlet]="durations"
+                    [ngTemplateOutletContext]="{ $implicit: 'sommeil', label: 'Tout le groupe dort' }"
+                  />
+
+                  @if (actor(); as qui) {
+                    <h3>{{ qui.name }} seul</h3>
+                    <ng-container
+                      [ngTemplateOutlet]="durations"
+                      [ngTemplateOutletContext]="{ $implicit: 'sommeil', individual: alone('veille'), label: qui.name + ' monte la garde, les autres dorment', disabled: !actorAble() }"
+                    />
+                    <ng-container
+                      [ngTemplateOutlet]="durations"
+                      [ngTemplateOutletContext]="{ $implicit: 'repos', individual: alone('sommeil'), label: qui.name + ' dort, les autres restent éveillés', disabled: !actorAble() }"
+                    />
+                  }
+                }
+              }
+
+              @case ('riviere') {
+                <p class="camp-note">De l’eau libre : boire ici ne coûte rien au sac.</p>
+                @if (roles.can('scene.decree')) {
+                  <div class="camp-row">
+                    <span class="camp-who">Tout le groupe</span>
+                    <button type="button" class="camp-btn" (click)="drinkAtSource()">Boire à la source</button>
+                  </div>
+                  <div class="camp-row">
+                    <span class="camp-who">{{ actor()?.name }}</span>
+                    <button type="button" class="camp-btn" [disabled]="!actorAble()" (click)="drinkAtSource(true)">Boire à la source</button>
+                  </div>
+                }
+                @if (roles.isGm()) {
+                  <div class="camp-row">
+                    <button type="button" class="camp-btn" (click)="refill()">Remplir les outres du groupe</button>
+                  </div>
+                } @else {
+                  <p class="camp-note">Boire ici ou remplir les outres : demande au MJ, c’est lui qui dit s’il y a de l’eau.</p>
+                }
+              }
+
+              @case ('foret') {
+                <p class="camp-note">
+                  Sortir prend du temps, et le groupe attend au repos. On revient
+                  toujours, bredouille ou non. La prise va dans le sac de
+                  <strong>{{ actor()?.name ?? 'personne' }}</strong>@if (huntBonus()) { — Nature +{{ huntBonus() }} ajouté au d100 }.
+                </p>
+
+                <h3>Chasser <span class="camp-dur">{{ huntDuration }}</span></h3>
+                <ul class="camp-odds">
+                  @for (issue of huntTable; track issue.key) {
+                    <li [title]="issue.flavour">
+                      <b>{{ issue.chance }} %</b> {{ issue.label.toLowerCase() }}
+                      @if (issue.nourishment) { <em>{{ issue.nourishment.points }} pts</em> }
+                    </li>
+                  }
+                </ul>
+                <button type="button" class="camp-btn camp-btn--primary" [disabled]="!actorAble()" (click)="goOut('hunt')">
+                  {{ actor()?.name ?? 'Personne' }} part chasser
+                </button>
+
+                <h3>Cueillir <span class="camp-dur">{{ forageDuration }}</span></h3>
+                <ul class="camp-odds">
+                  @for (issue of forageTable; track issue.key) {
+                    <li [title]="issue.flavour">
+                      <b>{{ issue.chance }} %</b> {{ issue.label.toLowerCase() }}
+                      @if (issue.nourishment) { <em>{{ issue.nourishment.points }} pts</em> }
+                      @else if (issue.resource) { <em>ressource</em> }
+                    </li>
+                  }
+                </ul>
+                <button type="button" class="camp-btn camp-btn--primary" [disabled]="!actorAble()" (click)="goOut('forage')">
+                  {{ actor()?.name ?? 'Personne' }} part cueillir
+                </button>
+
+                <h3>Piège à mâchoires <span class="camp-dur">à poser, puis à relever</span></h3>
+                <p class="camp-note">
+                  Le poser prend {{ snareSetDuration }} ; aller voir, {{ snareCheckDuration }}.
+                  Rien n’y passe avant {{ snareWaitDuration }}. Relevé à temps, il reste
+                  armé pour la prise suivante.
+                </p>
+                <ul class="camp-odds">
+                  @for (issue of snareTable; track issue.key) {
+                    <li [title]="issue.flavour">
+                      <b>{{ issue.chance }} %</b> {{ issue.label.toLowerCase() }}
+                      @if (issue.nourishment) { <em>{{ issue.nourishment.points }} pts</em> }
+                    </li>
+                  }
+                </ul>
+
+                @if (snares().length) {
+                  <ul class="camp-traps">
+                    @for (snare of snares(); track snare.id; let n = $index) {
+                      @let etat = snareState(snare);
+                      <li class="camp-trap" [class.is-ready]="etat.ready">
+                        <span class="camp-trap__name">Piège n° {{ n + 1 }}</span>
+                        <span class="camp-trap__role">{{ etat.ready ? 'à relever' : 'en attente' }}</span>
+                        <button type="button" class="camp-chip" [disabled]="!actorAble()" (click)="snareAct('check', snare)">Aller voir</button>
+                        <button type="button" class="camp-chip" [disabled]="!actorAble()" (click)="snareAct('lift', snare)">Rapporter</button>
+                        <span class="camp-trap__meta">
+                          Armé depuis {{ etat.since }}
+                          @if (!etat.ready) { · encore {{ etat.left }} avant d’espérer quelque chose }
+                          · posé par {{ ownerName(snare) }}
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                }
+
+                <button
+                  type="button"
+                  class="camp-btn"
+                  [disabled]="!actorAble() || !hasSnare()"
+                  [title]="hasSnare() ? '' : (actor()?.name ?? 'Personne') + ' n’a pas de ' + snareItem.toLowerCase() + ' dans son sac'"
+                  (click)="setSnare()"
+                >{{ actor()?.name ?? 'Personne' }} pose un piège en forêt</button>
+              }
+
+              @case ('paquetage') {
+                @if (actor(); as qui) {
+                  <h3>Le sac de {{ qui.name }}</h3>
+                  <!-- Comme le sac de la fiche : une ligne par objet, six par
+                       page. Une ligne à zéro reste visible pour dire qu'il faut
+                       refaire le plein. -->
+                  <!-- Sur qui portent les objets : soi-même, ou un compagnon —
+                       autour du feu, tout le monde est à portée de main. -->
+                  <div class="camp-row camp-target">
+                    <span class="camp-who">Sur</span>
+                    @for (unit of party(); track unit.id) {
+                      <button
+                        type="button"
+                        class="camp-chip"
+                        [class.is-on]="useTarget()?.id === unit.id"
+                        (click)="useTargetId.set(unit.id)"
+                      >{{ unit.id === qui.id ? 'soi-même' : unit.name }}</button>
+                    }
+                  </div>
+                  <div class="camp-bag">
+                    @for (item of bagPageItems(); track item.name) {
+                      <div class="camp-item" [class.is-empty]="item.qty === 0" [attr.data-kind]="item.kind">
+                        <span class="camp-item__name">{{ item.name }}</span>
+                        <span class="camp-item__qty">×{{ item.qty }}</span>
+                        <span class="camp-item__weight">{{ item.weightKg != null ? item.weightKg + ' kg' : '—' }}</span>
+                        <span class="camp-item__acts">
+                          @for (geste of itemUses(item); track geste.id) {
+                            <button
+                              type="button"
+                              class="camp-chip"
+                              [disabled]="!actorAble() || !canUseOn(geste)"
+                              [title]="canUseOn(geste) ? (geste.description ?? geste.name) : 'Ne se porte pas sur ' + useTarget()?.name"
+                              (click)="useItem(geste)"
+                            >{{ geste.name }}</button>
+                          }
+                          @if (item.qty > 0 && nourishmentPoints(item) && useTarget()?.id === qui.id) {
+                            <button type="button" class="camp-chip" [disabled]="!actorAble()" (click)="eat(qui, item)">Consommer</button>
+                          }
+                          @if (item.qty > 0 && campTrapKind(item.name)) {
+                            <button type="button" class="camp-chip" [disabled]="!actorAble()" (click)="setTrap(item.name)">Poser</button>
+                          }
+                        </span>
+                      </div>
+                      @if (usesLabel(item); as entame) {
+                        <p class="camp-item__uses">Exemplaire entamé : {{ entame }}</p>
+                      }
+                    } @empty {
+                      <p class="camp-note">Sac vide.</p>
+                    }
+                  </div>
+                  <div class="camp-bag__foot">
+                    <span class="camp-total">
+                      Poids : {{ bagWeight().kg }} kg@if (bagWeight().partial) { <em title="Certains objets n’ont pas de poids connu"> au moins</em> }
+                      @if (qui.purse) { · Bourse : {{ qui.purse }} po }
+                    </span>
+                    <pager [total]="qui.inventory.length" [perPage]="bagPerPage" [(page)]="bagPage" unit="objets" />
+                  </div>
+                }
+
+                @if (roles.can('supplies.grant')) {
+                  <h3>Ravitailler</h3>
+                  <p class="camp-note">Un achat à l’étape, un don : sans jet, dans le sac de {{ actor()?.name }}.</p>
+                  <div class="camp-row">
+                    @for (vivre of supplies; track vivre.name) {
+                      <button type="button" class="camp-chip" [disabled]="!actor()" (click)="provision(vivre.name)">
+                        + {{ vivre.name }} <em>{{ vivre.points }} pts</em>
+                      </button>
+                    }
+                  </div>
+                }
+              }
+
+              @case ('pourtour') {
+                <p class="camp-note">
+                  Chaque piège a son rôle contre qui s’approche du camp. Quand un intrus
+                  le déclenche, le MJ le dit : son effet s’inscrit au journal, et il faut
+                  le réarmer pour qu’il serve de nouveau.
+                </p>
+
+                @if (campTraps().length) {
+                  <h3>Posés</h3>
+                  <ul class="camp-traps">
+                    @for (trap of campTraps(); track trap.id) {
+                      <li class="camp-trap" [class.is-sprung]="trap.sprung">
+                        <span class="camp-trap__name">{{ trap.item }}</span>
+                        <span class="camp-trap__role">{{ campTrapKind(trap.item)?.role }}</span>
+                        @if (trap.sprung) {
+                          <button type="button" class="camp-chip" [disabled]="!roles.isGm() && trap.ownerId !== actor()?.id" (click)="trapAct('rearm', trap)">Réarmer</button>
+                        } @else if (roles.can('scene.decree')) {
+                          <button type="button" class="camp-chip" title="Un intrus l’a déclenché : le MJ le décide" (click)="trapAct('spring', trap)">Déclenché</button>
+                        }
+                        @if (roles.isGm() || trap.ownerId === actor()?.id) {
+                          <button type="button" class="camp-chip" (click)="trapAct('lift', trap)">Relever</button>
+                        }
+                        <span class="camp-trap__meta">
+                          {{ trap.sprung ? 'Déclenché — à réarmer' : campTrapKind(trap.item)?.effect }}
+                          · posé par {{ ownerName(trap) }}
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                  @if (roles.isGm()) {
+                    <button type="button" class="camp-btn" (click)="liftAllTraps()">Tout relever avant de partir</button>
+                  }
+                }
+
+                <h3>Poser un piège</h3>
+                @if (trapsInBag().length) {
+                  <div class="camp-row">
+                    @for (item of trapsInBag(); track item.name) {
+                      <button type="button" class="camp-chip" [disabled]="!actorAble()" (click)="setTrap(item.name)">
+                        {{ item.name }} ×{{ item.qty }}
+                        <em>{{ campTrapKind(item.name)!.role.toLowerCase() }}</em>
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <p class="camp-note">{{ actor()?.name ?? 'Personne' }} n’a aucun piège dans son sac.</p>
+                }
+
+                <ul class="camp-odds">
+                  @for (kind of trapKinds; track kind.item) {
+                    <li><b>{{ kind.item }}</b> — {{ kind.role.toLowerCase() }}. <em>{{ kind.effect }}</em></li>
+                  }
+                </ul>
+              }
+
+              @case ('clairiere') {
+                <p class="camp-note">
+                  Une séance coûte la mana du sort et rapporte {{ trainingXp }} XP au
+                  report ; un lancer en situation n’en vaut que {{ combatXp }}.
+                </p>
+                @if (actor(); as qui) {
+                  <p class="camp-note">{{ qui.name }} : {{ qui.mana }} mana</p>
+                }
+                @if (trainableSpells().length) {
+                  <ul class="camp-train">
+                    @for (sp of trainableSpells(); track sp.ref) {
+                      <li>
+                        <span>{{ sp.name }}</span>
+                        @if (sp.seances) { <b>×{{ sp.seances }}</b> }
+                        <button
+                          type="button"
+                          class="camp-chip"
+                          [disabled]="!sp.affordable || !actorAble()"
+                          [title]="sp.affordable ? 'Une séance : −' + sp.cost + ' mana' : 'Pas assez de mana (' + sp.cost + ' requis)'"
+                          (click)="trainSpell(sp.ref)"
+                        >+ séance <em>{{ sp.cost }} mana</em></button>
+                        @if (sp.seances) {
+                          <button type="button" class="camp-chip" aria-label="Retirer une séance" (click)="trainSpell(sp.ref, -1)">−</button>
+                        }
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="camp-note">{{ actor()?.name ?? 'Personne' }} n’a aucun sort équipé à travailler.</p>
+                }
+              }
+            }
+          } @else {
+            <p class="camp-note camp-menu__idle">
+              Choisissez un lieu du camp. Ce que vous y faites vaut pour
+              <strong>{{ actor()?.name ?? 'le groupe' }}</strong>, ou pour tout le groupe
+              quand il s’agit du temps qui passe.
+            </p>
+          }
+
+        </aside>
+      </div>
+
+      <div class="camp-foot">
+      <!-- ══ Le groupe ══
+           Une carte par personnage. Cliquer la désigne comme celui qui agit. -->
+      <section class="camp-party" aria-label="Le groupe">
+        @for (unit of party(); track unit.id) {
+          <article
+            class="camp-member"
+            [class.is-actor]="actor()?.id === unit.id"
+            [class.is-down]="unit.down || !!unit.survival?.out"
+          >
+            <button type="button" class="camp-member__id" (click)="select(unit)">
+              @if (unit.portrait) {
+                <img [src]="unit.portrait" alt="">
+              } @else {
+                <span class="camp-member__glyph">{{ unit.name.charAt(0) }}</span>
+              }
+              <span>
+                <strong>{{ unit.name }}</strong>
+                <small>{{ unit.hp }} / {{ unit.base.hp }} PV</small>
+              </span>
+            </button>
+
+            <div class="camp-gauges">
+              @for (row of survivalRows(unit); track row.gauge.key) {
+                <div class="camp-gauge" [attr.data-tier]="row.tier" [title]="row.gauge.label + ' : ' + row.stage">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="row.gauge.icon" /></svg>
+                  <span class="camp-gauge__track">
+                    <span class="camp-gauge__fill" [class]="'is-' + row.gauge.key" [style.width.%]="row.pct"></span>
+                  </span>
+                  <span class="camp-gauge__value">{{ row.current }}/{{ row.max }}</span>
+                  @if (roles.can('survival.adjust', unit)) {
+                    <button type="button" class="camp-step" [disabled]="row.current <= 0"
+                            [attr.aria-label]="row.gauge.label + ' −1'"
+                            (click)="adjustSurvival(unit, row.gauge.key, -1)">−</button>
+                    <button type="button" class="camp-step" [disabled]="row.current >= row.max"
+                            [attr.aria-label]="row.gauge.label + ' +1'"
+                            (click)="adjustSurvival(unit, row.gauge.key, 1)">+</button>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (outLabel(unit); as out) { <p class="camp-malus camp-malus--out">{{ out }}</p> }
+            @if (survivalPenalties(unit); as malus) { <p class="camp-malus">{{ malus }}</p> }
+          </article>
+        }
+      </section>
+
+      <!-- ══ Le journal ══
+           Sa propre fenêtre, à part du menu du lieu : on y lit ce que la
+           chasse a rendu sans perdre le menu qu'on avait ouvert. -->
+      <section class="camp-journal" aria-label="Journal du camp">
+        <h2>Journal</h2>
+        @if (recentLog().length) {
+          <ol class="camp-log">
+            @for (entry of recentLog(); track entry.id) {
+              <li [attr.data-kind]="entry.kind">
+                {{ entry.text }}
+                @if (entry.details?.length) {
+                  <ul class="camp-log__details">
+                    @for (detail of entry.details; track $index) { <li>{{ detail }}</li> }
+                  </ul>
+                }
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="camp-note">Rien encore.</p>
+        }
+      </section>
+      </div>
+    }
+  </main>
+</div>
+
+<!-- Une rangée de durées pour une activité : les tranches toutes faites, plus
+     une durée sur mesure. `individual` dit qui fait autre chose que le groupe
+     (le veilleur, le dormeur seul). Partagée par le feu et le couchage. -->
+<ng-template #durations let-activity let-label="label" let-individual="individual" let-disabled="disabled">
+  <div class="camp-row camp-durations" [title]="activities.get(activity)?.description ?? ''">
+    <span class="camp-durations__label">{{ label }}</span>
+    @for (step of timeSteps; track step.label) {
+      <button type="button" class="camp-chip" [disabled]="disabled" (click)="passTime(activity, step.seconds, individual)">{{ step.label }}</button>
+    }
+    <span class="camp-durations__custom">
+      <input
+        type="number" min="1" max="2880" step="5"
+        aria-label="Durée sur mesure, en minutes"
+        [value]="customMinutes()"
+        (input)="customMinutes.set(+$any($event.target).value)"
+      >
+      min
+      <button type="button" class="camp-chip" [disabled]="disabled" (click)="passCustom(activity, individual)">OK</button>
+    </span>
+  </div>
+</ng-template>

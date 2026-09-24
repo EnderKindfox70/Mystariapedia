@@ -334,6 +334,19 @@ export interface SpellNodeStats {
   area?: string;
   /** Cibles que le sort peut affecter. */
   targets?: SpellTarget[];
+  /**
+   * Nature de ce qui est ciblé, quand ce n'est pas une créature vivante.
+   * `corpse` : les cibles sont des CADAVRES — « allié » veut dire un cadavre
+   * relevé par le lanceur, « ennemi » n'importe quel autre.
+   */
+  targetKind?: 'corpse';
+  /** Chiffres d'un sort rituel que le budget peut régler (cf. `SpellRitual`). */
+  rite?: {
+    /** Durée du rite, en jours. */
+    days?: number;
+    /** Perte de stats infligée à la cible, en pourcentage. */
+    statLoss?: number;
+  };
   /** Météo invoquée par le sort (cf. weathers.json : storm, blizzard, rain…). */
   weather?: string;
   /** Ce palier REND le ciel neutre : il chasse la météo en cours. */
@@ -694,6 +707,16 @@ export interface StatusEffect {
   preventsAction: boolean;
   preventsMovement: boolean;
   preventsCasting: boolean;
+  /**
+   * Plus d'arme ni de geste précis (des entraves aux poignets) : le porteur
+   * peut encore parler, donc encore lancer un sort.
+   */
+  preventsWeapons?: boolean;
+  /**
+   * Le prochain coup de ce type pose ce statut, puis le statut s'efface : une
+   * cible enduite d'huile prend feu au premier dégât de feu.
+   */
+  primes?: { damageType: string; status: string };
   /** Durée par défaut, en tours. */
   defaultDuration: number;
   stackable: boolean;
@@ -879,6 +902,26 @@ export interface DomainSpellEntry {
    * contre-coup, ou en danger pour ses propres alliés.
    */
   power?: 'standard' | 'majeur' | 'signature';
+  /**
+   * Catégorie du sort. Absente = sort ordinaire, qui ne demande que de la mana.
+   * `ritual` : sort qui s'appuie sur un support matériel — composants, Pierre
+   * d'âme — et dont le détail vit dans `ritual`. Seul un rituel peut remplir
+   * ou puiser dans une Pierre d'âme.
+   */
+  category?: 'ritual';
+  /** Déroulé d'un sort rituel (cf. `category`). */
+  ritual?: SpellRitual;
+  /**
+   * Les formes que ce sort relève ou invoque (undead.json), à montrer sur sa
+   * fiche : les morts-vivants de la Nécromancie ou les fantômes de la Médiumnité.
+   */
+  archetypes?: {
+    kind: 'undead' | 'ghosts';
+    /** Comment le sort choisit l'archétype, en une phrase. */
+    note?: string;
+    /** Affiche la chance de chaque fantôme (Aide depuis le voile). */
+    veil?: boolean;
+  };
   /** Icône du sort (généralement celle de son sous-domaine). */
   icon?: string;
   /** Sous-domaines auxquels le sort appartient. */
@@ -939,6 +982,88 @@ export interface DomainSpellEntry {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
+   SORTS RITUELS — ce qu'un rituel exige en plus de la mana.
+─────────────────────────────────────────────────────────────────────────── */
+
+/** Un composant d'un rituel : ce qu'il faut avoir sous la main pour le lancer. */
+export interface RitualComponent {
+  label: string;
+  /** Fiche liée (slug) et sa collection, pour le lien. */
+  ref?: string;
+  collection?: WikiCollection;
+  quantity?: string;
+  /** Détruit par le rituel, ou seulement employé. */
+  consumed: boolean;
+  note?: string;
+}
+
+/** Degré de réussite d'un jet de rituel, du pire au meilleur. */
+export type RitualDegreeKey = 'echec-total' | 'echec' | 'partiel' | 'reussite' | 'critique';
+
+/** Ce que produit un degré de réussite. */
+export interface RitualOutcome {
+  degree: RitualDegreeKey;
+  effect: string;
+}
+
+/** Un jet que le rituel demande à son lanceur. */
+export interface RitualCheck {
+  label: string;
+  attribute: StatusSaveAttribute;
+  /** Contre quoi le jet se mesure (la sévérité de la mort, par exemple). */
+  against: string;
+  /** À quel moment du rituel, et à quelle condition, le jet a lieu. */
+  when?: string;
+  /**
+   * Table de difficulté à afficher avec le jet. `death-severity` : les
+   * sévérités de la mort (undead.json), lues par le barème des sauvegardes.
+   */
+  difficulty?: 'death-severity';
+  /** Ce que donne chaque degré, dans l'ordre du pire au meilleur. */
+  outcomes?: RitualOutcome[];
+}
+
+/**
+ * Une étape de la procédure. Le texte accepte les `{chemin}` d'un texte vivant
+ * (cf. `DomainSpellEntry.liveText`) : il suit le sort tel qu'il est construit.
+ */
+export interface RitualStep {
+  title: string;
+  text: string;
+}
+
+/**
+ * Ce que le rituel fait d'une Pierre d'âme.
+ *
+ * - `fills` : une pierre VIDE reçoit une âme (Capture d'âme).
+ * - `draws` : une pierre PLEINE prête son âme au sort, qui y retourne ou non.
+ */
+export interface RitualSoulStone {
+  role: 'fills' | 'draws';
+  note: string;
+}
+
+export interface SpellRitual {
+  /** Ce qu'est le rite, en un paragraphe : l'idée avant la procédure. */
+  summary?: string;
+  /** Temps d'incantation, en clair (« 1 action », « 10 minutes », « plusieurs jours »). */
+  castingTime: string;
+  /** Le déroulé, étape par étape. */
+  procedure?: RitualStep[];
+  /** Ce qui se passe si le rite est interrompu. */
+  interruption?: string;
+  /** Règles qui ne sont pas des étapes : limites, risques, suites. */
+  notes?: string[];
+  /** Jouable en combat. Faux : le rituel ne figure pas dans la barre d'actions. */
+  inCombat: boolean;
+  components: RitualComponent[];
+  soulStone?: RitualSoulStone;
+  checks?: RitualCheck[];
+  /** Ce qui reste indisponible pendant le rituel. */
+  immobilization?: string;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
    PERSONNALISATION PAR BUDGET — le format de données.
    Les règles (coûts, plafonds, ordre d'application) vivent dans
    `combat/spell-customization.ts` ; ici, seulement ce qu'une fiche déclare.
@@ -959,7 +1084,7 @@ export interface Cap {
 
 export type ParamKindKey =
   | 'damage' | 'heal' | 'effect' | 'range' | 'duration' | 'radius'
-  | 'mana' | 'upkeep' | 'ratio' | 'precision' | 'dc' | 'chance' | 'recoil' | 'percentDamage' | 'knockback' | 'grade' | 'volume' | 'weight' | 'risk' | 'drain';
+  | 'mana' | 'upkeep' | 'ratio' | 'precision' | 'dc' | 'chance' | 'recoil' | 'percentDamage' | 'knockback' | 'grade' | 'volume' | 'weight' | 'risk' | 'drain' | 'ritualTime' | 'statLoss';
 
 /**
  * Loi de progression d'un curseur. Absente : chaque cran AJOUTE le pas.
@@ -1069,6 +1194,21 @@ export interface SwapOptions {
   defaultMix?: { type: string; tenths: number };
 }
 
+/**
+ * Seuil de niveau posé sur UNE option de personnalisation (cf.
+ * `SpellCustomization.gates`). Un nombre nu suffit ; la forme longue permet de
+ * dire POURQUOI, et la fiche l'affiche telle quelle.
+ */
+export interface LevelGate {
+  /** Niveau de sort à partir duquel l'option s'ouvre (1 au minimum). */
+  minLevel: number;
+  /** Ce que le seuil raconte : « la braise ne mord qu'une fois le geste sûr ». */
+  reason?: string;
+}
+
+/** Un seuil, en court (`3`) ou en long (`{ minLevel: 3, reason: … }`). */
+export type GateDecl = number | LevelGate;
+
 /** Ce vers quoi UN ratio peut basculer. `path` absent : la règle vaut pour tous. */
 export interface ScalingSwapRule {
   /** Ratio visé : `scaling.0`, `effects.1.scaling.0`, `retaliate.scaling.0`… */
@@ -1077,6 +1217,38 @@ export interface ScalingSwapRule {
 }
 
 export interface SpellCustomization {
+  /**
+   * Seuils de niveau : ce que le sort garde fermé tant qu'il n'a pas grandi.
+   *
+   * Le budget dit COMBIEN on peut dépenser ; les seuils disent À PARTIR DE
+   * QUAND une option existe. Un statut qu'on n'inflige qu'au niveau 3 n'est
+   * pas une affaire de points : même riche, un sort jeune ne l'a pas encore.
+   *
+   * Chaque clé désigne une option, en deux niveaux de précision : la FAMILLE
+   * (`statusUnlock`) ferme tout le bloc, l'ENTRÉE (`statusUnlock:paralysie`)
+   * ne ferme qu'elle. La clé la plus précise l'emporte — une entrée peut donc
+   * aussi bien devancer que retarder sa famille.
+   *
+   * Clés reconnues (cf. `GATE_FAMILIES` dans `combat/spell-customization.ts`) :
+   * `param:<id>`, `statusUnlock[:<statut>]`, `knockbackUnlock`,
+   * `targetUnlock[:<cible>]`, `scalingUnlock[:<source>]`, `continuousMode`,
+   * `extraTargets[:<total>]`, `extraEffects[:<stat>]`, `ownEffects[:<id>]`,
+   * `scalingSwap[:<chemin>]`, `areaShapeSwap[:<forme>]`, `defaultTargetSwap`,
+   * `statusTypeSwap[:<statut>]`, `damageTypeSwap[:<type>]`,
+   * `crossDomain[:<domaine>]`, `mix[:<type>]`.
+   *
+   * ```json
+   * "gates": {
+   *   "statusUnlock:paralysie": 3,
+   *   "param:radius": { "minLevel": 2, "reason": "Le souffle ne s'élargit qu'une fois maîtrisé." },
+   *   "extraTargets:3": 4
+   * }
+   * ```
+   *
+   * Un `extraTargets:<n>` vise le TOTAL atteint, pas le cran acheté : « la
+   * troisième cible au niveau 4 » s'écrit `"extraTargets:3": 4`.
+   */
+  gates?: Record<string, GateDecl>;
   params?: ParamDef[];
   statusUnlock?: { eligible: string[]; chanceCap?: Cap };
   /**
@@ -1651,6 +1823,16 @@ export interface ResourceIndexEntry {
    */
   statEffects?: { key: string; value: number }[];
   /**
+   * Usages par exemplaire, quand l'objet en compte plusieurs : un lot de
+   * rations de voyage vaut sept jours, un flacon de sels trois doses.
+   */
+  uses?: number;
+  /**
+   * Statuts de météo dont l'objet protège son porteur (clés de
+   * `status_effects.json`) : une vareuse huilée garde au sec sous l'averse.
+   */
+  weatherWards?: string[];
+  /**
    * Matière dont l'objet est fait (clé de `materials.json`).
    *
    * C'est elle qui décide si un champ magnétique a prise dessus : seuls le fer
@@ -2215,4 +2397,155 @@ export interface PeopleEntry {
   notes?: string[];
   /** Références croisées (lieux d'origine, factions liées…). */
   references?: ResourceRefGroup[];
+}
+/* ──────────────────────────────────────────
+   MORTS-VIVANTS ET FANTÔMES (undead.json)
+   Ce que la Nécromancie relève et ce que la Médiumnité invoque.
+─────────────────────────────────────────── */
+
+export type DecayStageKey = 'frais' | 'rigidite' | 'ballonnement' | 'squelettisation' | 'momification';
+
+export type UndeadArchetypeKey = 'revenant' | 'goule' | 'bouffi' | 'squelette' | 'momie';
+
+export type GhostArchetypeKey =
+  | 'banshee'
+  | 'poltergeist'
+  | 'spectre'
+  | 'ombre-gardienne'
+  | 'errant'
+  | 'onryo'
+  | 'zashiki-warashi'
+  | 'preta'
+  | 'dybbuk'
+  | 'feu-follet'
+  | 'cauchemar';
+
+export type GhostDangerKey = 'leger' | 'modere' | 'eleve' | 'extreme';
+
+/** Une portée qui grandit avec le Charisme : `base + CHA_mod × perCha` mètres. */
+export interface ChaRange {
+  base: number;
+  perCha: number;
+}
+
+/** Une portée chiffrée, ou l'une des deux qui ne se mesurent pas. */
+export type GhostReach = ChaRange | 'regional' | 'unlimited';
+
+/** Un stade réel de décomposition, et l'archétype qu'il donne. */
+export interface DecayStage {
+  key: DecayStageKey;
+  name: string;
+  reality: string;
+  /** Âge du cadavre, en jours, à partir duquel ce stade commence. */
+  fromDay: number;
+  archetype: UndeadArchetypeKey;
+  /** Stade final : l'horloge de décomposition ne le fait plus changer. */
+  terminal?: boolean;
+  /** Seulement sous climat sec ou préservé (sinon, le stade voisin). */
+  requiresDryClimate?: boolean;
+}
+
+/**
+ * Un archétype de mort-vivant — le profil mécanique d'un STADE, commun à
+ * toutes les espèces : un Squelette-loup et un Squelette-humain se jouent
+ * pareil, seul le flavor change.
+ */
+export interface UndeadArchetype {
+  key: UndeadArchetypeKey;
+  name: string;
+  stage: DecayStageKey;
+  summary: string;
+  traits: string[];
+  /** Faces du dé de PV et d'attaque, dont la moyenne nourrit la croissance. */
+  hpDie: number;
+  atkDie: number;
+  hpBase: number;
+  atkBase: number;
+  defBase: number;
+  defPerLevel: number;
+  /** Vitesse au niveau 0, et le dé dont la moyenne la fait grandir. */
+  speedBase: number;
+  speedDie: number;
+  /** Modèle golem : la mana ne sert qu'à agir. */
+  manaPerAction: number;
+  contact?: { status: string; chance: number };
+  onDestroyed?: { effect: string; status: string; chance: number; area: string };
+  statusImmunities?: string[];
+  affinities?: BestiaryAffinityGroup[];
+}
+
+export interface GhostAbility {
+  name: string;
+  kind: 'active' | 'passive';
+  description: string;
+  inflicts?: string[];
+  saveSeverity?: number;
+  usesPerLongRest?: number;
+}
+
+/** Les portées d'un fantôme — chaque nature a sa propre logique de distance. */
+export interface GhostRange {
+  /** Distance maximale entre le médium et le fantôme (ou son hôte). */
+  control: GhostReach;
+  /** Distance au fantôme de son hôte, pour ceux qui s'y accrochent. */
+  host?: number;
+  /** Rayon de liberté autour du point gardé (Ombre gardienne). */
+  guardZone?: ChaRange;
+  /** Portée au-delà de laquelle sa puissance s'essouffle (Onryō). */
+  fullPower?: ChaRange;
+  falloff?: { perMeters: number; loss: number; floor: number };
+  /** Portées une fois un hôte infecté (Cauchemar). */
+  infected?: { host: number; control: GhostReach };
+}
+
+/** Un archétype de fantôme, fixé par le profil animique de l'âme. */
+export interface GhostArchetype {
+  key: GhostArchetypeKey;
+  name: string;
+  soulProfile: string;
+  danger: GhostDangerKey;
+  /** `host-drain` : c'est l'hôte, pas le médium, qui paie son maintien. */
+  manaModel?: 'reserve' | 'host-drain';
+  traits: string[];
+  abilities: GhostAbility[];
+  selfStatuses?: string[];
+  range: GhostRange;
+  rangeLogic: string;
+  /** Variations propres, en plus du socle commun. */
+  affinities?: BestiaryAffinityGroup[];
+  /** Barre de vie et combat, dérivés du niveau du médium (cf. `ghostStats`). */
+  stats: GhostStatProfile;
+}
+
+/**
+ * Profil de stats d'un fantôme : la même formule que les morts-vivants, mais
+ * l'attaque et la défense sont MAGIQUES — une forme immatérielle ne frappe pas
+ * du poing et ne pare pas l'acier, elle le laisse passer.
+ */
+export interface GhostStatProfile {
+  hpDie: number;
+  hpBase: number;
+  /** `null` : le fantôme ne se bat jamais (Zashiki-warashi). */
+  atkDie: number | null;
+  atkBase: number;
+  defBase: number;
+  defPerLevel: number;
+  speedBase: number;
+  speedDie: number;
+}
+
+export interface GhostDangerTier {
+  key: GhostDangerKey;
+  name: string;
+  /** Poids de chaque archétype du palier dans la table d'Aide depuis le voile. */
+  veilWeight: number;
+  /** Coût d'existence passif, en mana par tour. */
+  upkeep: number;
+}
+
+/** Palier de résistance de l'âme à sa propre mort, pour le jet de capture. */
+export interface DeathSeverity {
+  key: string;
+  name: string;
+  severity: number;
 }

@@ -83,6 +83,11 @@ function toIndexEntry(slug, data) {
   // Tags de la fiche (`venom`…) : le simulateur et les traits s'en servent pour
   // repérer un objet jouable sans charger toutes les fiches d'une collection.
   if (data.tags?.length) entry.tags = data.tags;
+  // Usages par exemplaire (un lot de rations : 7 jours) : le simulateur entame
+  // l'exemplaire au lieu de le jeter à la première utilisation.
+  if (data.uses > 1) entry.uses = data.uses;
+  // Statuts de météo dont l'objet protège son porteur (vareuse huilée : Trempé).
+  if (data.weatherWards?.length) entry.weatherWards = data.weatherWards;
   // Poids unitaire pour l'inventaire des fiches de personnage (0 si non défini).
   entry.weight = parseWeight(data);
   // Règles de portage des sacs à dos, lues dans la bande d'identité de la fiche

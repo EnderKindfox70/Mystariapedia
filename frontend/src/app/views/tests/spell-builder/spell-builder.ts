@@ -139,6 +139,24 @@ export class SpellBuilder {
     return span > 0 ? Math.max(0, Math.min(100, ((p.xp - p.prevThreshold) / span) * 100)) : 0;
   });
   readonly opts = computed(() => E.spellOptions(this.spell()));
+
+  /* ── Seuils de niveau ──
+     Le niveau vient de l'XP du sort chez CE joueur : le banc ferme donc ce que
+     le moteur refuserait, au lieu de laisser cocher puis lire l'erreur. */
+
+  /** Le seuil qui ferme cette option au niveau atteint, ou `null`. */
+  gate(key: string): E.Gate | null {
+    return E.gateAt(this.spell(), key, this.progress().level);
+  }
+
+  /** Le jeton accolé à un libellé fermé (« · niv. 3 »). */
+  gateTag(key: string): string {
+    const g = this.gate(key);
+    return g ? ` · niv. ${g.minLevel}` : '';
+  }
+
+  /** Tous les seuils du sort, franchis ou non. */
+  readonly gates = computed(() => E.gateSummary(this.spell(), this.progress().level));
   readonly base = computed(() => E.baseStatsOf(this.spell()));
   readonly assessment = computed(() => E.assess(this.spell(), this.player(), this.ctx(), this.build()));
   readonly governedStatus = computed(() => E.governedFields(this.spell()).has('statusType'));
@@ -150,7 +168,8 @@ export class SpellBuilder {
     // Un ratio échangé se règle dans l'unité de sa nouvelle source.
     const { stats, factors } = E.scalingSwapPreview(this.spell(), b);
     return this.opts().params.map((p) => {
-      const off = b.continuous && p.kind === 'duration';
+      const gate = this.gate(`param:${p.id}`);
+      const off = (b.continuous && p.kind === 'duration') || !!gate;
       const { kind, cap } = E.convertedParam(p, E.kindOf(p, rules), factors);
       return this.paramVM({
         key: p.id,
@@ -162,7 +181,9 @@ export class SpellBuilder {
         limits: p,
         action: { type: 'param', id: p.id },
         off,
-        note: off ? 'Sans objet en mode continu.' : '',
+        note: gate
+          ? `Seuil : ${E.gateText(gate)}.`
+          : off ? 'Sans objet en mode continu.' : '',
       });
     });
   });

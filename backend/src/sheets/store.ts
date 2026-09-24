@@ -25,7 +25,7 @@ export type SheetSummary = {
   name: string;
   race: string;
   updatedAt: string;
-  /** Image du personnage (corps entier, ou portrait à défaut) pour le catalogue. */
+  /** Tête du personnage (portrait recadré, ou corps entier à défaut) pour le catalogue. */
   image: string;
 };
 
@@ -51,7 +51,7 @@ export function toSummary(sheet: StoredSheet): SheetSummary {
     name: asString(identity['name']) || 'Personnage sans nom',
     race: asString(identity['subrace']) || asString(identity['race']),
     updatedAt: sheet.updatedAt,
-    image: asString(identity['fullImage']) || asString(identity['portrait']),
+    image: asString(identity['portrait']) || asString(identity['fullImage']),
   };
 }
 

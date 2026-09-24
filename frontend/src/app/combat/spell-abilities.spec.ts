@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SpellsService } from '../services/spells.service';
 import { catalogFrom } from './spell-catalog';
 import classCatalog from '../../../public/resources/json/characters/classes.json';
-import { spellAbilities, builtSpellNode } from './abilities';
+import { spellAbilities, builtSpellNode, playableInCombat } from './abilities';
 import { BuilderContext, DEFAULT_RULES, SpellState, emptyBuild } from './spell-customization';
 
 /* Un sort équipé doit redevenir une action jouable, maintenant qu'il se lit par
@@ -17,8 +17,18 @@ const ctx: BuilderContext = {
 
 describe('un sort équipé devient une capacité', () => {
   it('chaque sort du wiki produit au moins une action', () => {
-    const muets = spells.all().filter((p) => spellAbilities(p, ctx).length === 0);
+    // Un rituel hors combat (Capture d'âme, Embaumement) n'en produit aucune, et c'est voulu.
+    const muets = spells
+      .all()
+      .filter((p) => playableInCombat(p.spell))
+      .filter((p) => spellAbilities(p, ctx).length === 0);
     expect(muets.map((p) => p.spell.key)).toEqual([]);
+  });
+
+  it('ne met aucun rituel hors combat dans la barre d’actions', () => {
+    const rituels = spells.all().filter((p) => !playableInCombat(p.spell));
+    expect(rituels.length).toBeGreaterThan(0);
+    for (const p of rituels) expect(spellAbilities(p, ctx), p.spell.key).toEqual([]);
   });
 
   it('au socle, le sort porte les chiffres de sa fiche', () => {

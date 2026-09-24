@@ -101,9 +101,19 @@ import {
   MAGIC_DOMAINS,
   SURVIVAL_GAUGES,
   clampSurvival,
-  fullSurvival,
-  survivalStage,
+  describeNeedEffect,
+  hungerPerSegment,
+  MANA_NEED,
+  manaEffect,
+  manaTier,
+  needEffect,
+  noSurvivalLoss,
+  sheetSurvivalLoss,
+  survivalMaxima,
+  survivalPoints,
+  survivalTier,
   type SurvivalGauge,
+  type SurvivalTier,
   POOL_GAUGES,
   clampPoolLoss,
   noPoolLoss,
@@ -141,6 +151,7 @@ import {
   NONPOLAR_MAGICS,
   ORIGINS,
   RELIGIONS,
+  MANUAL_NONPOLAR_VIA,
   nonPolarAccess,
   openNonPolarBranches,
   catalogTrait,
@@ -264,6 +275,20 @@ export interface PoolRow {
   /** Remplissage de la barre, en pourcentage. */
   pct: number;
   stage: string;
+}
+
+/** Une jauge de survie prête à afficher : points, palier, et ce qu'il coûte. */
+export interface SurvivalRow {
+  gauge: SurvivalGauge;
+  /** Taille du réservoir (dépend de la Constitution). */
+  max: number;
+  /** Points restants, maximum moins le creux stocké. */
+  current: number;
+  pct: number;
+  tier: SurvivalTier;
+  stage: string;
+  /** Malus du palier, en toutes lettres (vide tant qu'il n'y en a pas). */
+  effects: string;
 }
 
 /** Détail de combat d'une arme équipée, prêt à afficher sur la fiche. */
@@ -390,6 +415,11 @@ export class CharacterSheetEditor {
   readonly classes = signal<ClassDef[]>([]);
   /** Objets d'inventaire proposés (nom + poids) issus du wiki. */
   readonly itemCatalog = signal<{ name: string; weight: number }[]>([]);
+  /**
+   * Usages par exemplaire des objets qui en comptent plusieurs (un lot de
+   * rations : 7 jours). Le simulateur entame l'exemplaire ; la fiche le montre.
+   */
+  private readonly itemUses = new Map<string, number>();
   private readonly itemWeights = new Map<string, number>();
   /** Suggestions d'équipement par emplacement (datalists), issues du wiki. */
   readonly equipmentOptions = signal<Record<string, string[]>>({});
@@ -582,8 +612,10 @@ export class CharacterSheetEditor {
     ).subscribe((lists) => {
       const byName = new Map<string, number>();
       const bySlug = new Map<string, { name: string; weight: number }>();
+      this.itemUses.clear();
       for (const entry of lists.flat()) {
         if (entry?.name && !byName.has(entry.name)) byName.set(entry.name, entry.weight ?? 0);
+        if (entry?.name && (entry.uses ?? 1) > 1) this.itemUses.set(entry.name, entry.uses!);
         // Slug → objet : sert à résoudre le matériel de départ d'un background.
         if (entry?.slug && !bySlug.has(entry.slug)) {
           bySlug.set(entry.slug, { name: entry.name, weight: entry.weight ?? 0 });
@@ -1697,37 +1729,83 @@ export class CharacterSheetEditor {
     this.model.statSeed = randomSeed();
   }
 
-  // ── Survie : faim & soif ───────────────────────────────────────────────────
+  // ── Survie : faim, soif, fatigue ──────────────────────────────────────────
 
-  /** Crans restants d'une jauge (jauge pleine si la fiche ignore le champ). */
-  survivalValue(gauge: SurvivalGauge): number {
-    const stored = this.model.survival?.[gauge.key];
-    return stored === undefined ? gauge.segments : clampSurvival(gauge, stored);
-  }
-
-  /** Crans de la jauge, du premier au dernier (indices 1..segments). */
-  survivalSegments(gauge: SurvivalGauge): number[] {
-    return Array.from({ length: gauge.segments }, (_, i) => i + 1);
-  }
-
-  /** Verdict affiché à côté de la jauge (« Affamé », « Désaltéré »…). */
-  survivalStage(gauge: SurvivalGauge): string {
-    return survivalStage(gauge, this.survivalValue(gauge));
+  /**
+   * Les trois jauges prêtes à afficher. Comme les réserves, la fiche n'en
+   * garde que le CREUX : le maximum dépend de la Constitution (Faim 48 + CON×6,
+   * Soif 16 + CON×2, Repos 15) et se recalcule à chaque lecture.
+   */
+  get survivalRows(): SurvivalRow[] {
+    const attributes = this.finalAttributes;
+    const maxima = survivalMaxima(attributes);
+    const loss = sheetSurvivalLoss(this.model, attributes);
+    const con = abilityModifier(attributes.constitution);
+    return SURVIVAL_GAUGES.map((gauge) => {
+      const max = maxima[gauge.key];
+      const current = survivalPoints(max, loss[gauge.key]);
+      const tier = survivalTier(gauge.key, current, max);
+      return {
+        gauge,
+        max,
+        current,
+        pct: max > 0 ? (current / max) * 100 : 0,
+        tier,
+        stage: gauge.stages[tier],
+        effects: describeNeedEffect(needEffect(gauge.key, tier, con)).join(' · '),
+      };
+    });
   }
 
   /**
-   * Coche les crans jusqu'à celui cliqué. Recliquer le dernier cran plein le
-   * vide : sans ça, une jauge tombée à 1 ne pourrait plus revenir à 0.
+   * Le Manque de mana, lu sur la Réserve : il n'a pas de jauge à lui, mais il
+   * pèse comme les trois autres (cf. section 18 du document de survie).
+   * Rien pour un personnage sans Réserve.
    */
-  setSurvival(gauge: SurvivalGauge, segment: number): void {
-    const survival = (this.model.survival ??= fullSurvival());
-    const current = this.survivalValue(gauge);
-    survival[gauge.key] = clampSurvival(gauge, segment === current ? segment - 1 : segment);
+  get manaNeed(): { tier: SurvivalTier; stage: string; effects: string } | null {
+    const mana = this.poolRows.find((row) => row.gauge.key === 'mana');
+    const tier = mana ? manaTier(mana.current, mana.max) : undefined;
+    if (!tier) return null;
+    const con = abilityModifier(this.finalAttributes.constitution);
+    return {
+      tier,
+      stage: MANA_NEED.stages[tier],
+      effects: describeNeedEffect(manaEffect(tier, con)).join(' · '),
+    };
+  }
+
+  /** Points de Faim consommés par segment (FOR élevée : plus d'un). */
+  get hungerRate(): number {
+    return hungerPerSegment(this.finalAttributes);
+  }
+
+  /** Une jauge au moins est entamée : le bouton « tout au plein » a un sens. */
+  get survivalDrained(): boolean {
+    return this.survivalRows.some((row) => row.current < row.max);
+  }
+
+  /**
+   * Fixe les points restants d'une jauge. On stocke le creux ; une fiche
+   * d'avant la refonte est convertie au premier geste.
+   */
+  setSurvival(row: SurvivalRow, current: number | null): void {
+    // Champ vidé le temps de retaper un nombre : ce n'est pas un zéro.
+    if (current === null || current === undefined || Number.isNaN(Number(current))) return;
+    const loss = sheetSurvivalLoss(this.model, this.finalAttributes);
+    loss[row.gauge.key] = row.max - Math.round(clampSurvival(row.max, current));
+    this.model.survivalLoss = loss;
+    delete this.model.survival;
+  }
+
+  /** Un segment passe, un repas tombe : la jauge bouge d'un pas. */
+  adjustSurvival(row: SurvivalRow, delta: number): void {
+    this.setSurvival(row, row.current + delta);
   }
 
   /** Remet toutes les jauges au plein (repas chaud, gourde remplie, nuit entière). */
   refillSurvival(): void {
-    this.model.survival = fullSurvival();
+    this.model.survivalLoss = noSurvivalLoss();
+    delete this.model.survival;
   }
 
   // ── Réserves : points de vie, endurance, mana ─────────────────────────────
@@ -1966,15 +2044,15 @@ export class CharacterSheetEditor {
       attributePointBuy: { ...base.attributePointBuy!, ...data.attributePointBuy },
       attributeRolls: Array.isArray(data.attributeRolls) ? data.attributeRolls : [],
       attributeAssign: { ...base.attributeAssign!, ...data.attributeAssign },
-      // Jauges de survie : une fiche antérieure au champ repart au plein.
-      survival: Object.fromEntries(
-        SURVIVAL_GAUGES.map((g) => [
-          g.key,
-          data.survival?.[g.key] === undefined
-            ? g.segments
-            : clampSurvival(g, data.survival[g.key]),
-        ]),
-      ) as CharacterSheet['survival'],
+      // Jauges de survie : on garde le creux. Une fiche d'avant la refonte en
+      // points garde ses anciens crans, convertis à la lecture (cf.
+      // `sheetSurvivalLoss`) ; une fiche d'avant les jauges repart au plein.
+      survival: data.survivalLoss ? undefined : data.survival,
+      survivalLoss: data.survivalLoss
+        ? (Object.fromEntries(
+            SURVIVAL_GAUGES.map((g) => [g.key, Math.max(0, Number(data.survivalLoss?.[g.key]) || 0)]),
+          ) as CharacterSheet['survivalLoss'])
+        : undefined,
       // Réserves : on ne borne pas le creux ici (le maximum dépend de stats que
       // la fiche n'a pas encore assemblées), seulement à l'affichage.
       poolLoss: Object.fromEntries(
@@ -1985,6 +2063,10 @@ export class CharacterSheetEditor {
       statSeed: typeof data.statSeed === 'number' ? data.statSeed : 1,
       proficiencyBonus: data.proficiencyBonus ?? base.proficiencyBonus,
       skills: Array.isArray(data.skills) ? data.skills : [],
+      // Ouvertures manuelles : seulement des branches qui existent.
+      nonPolarUnlocks: Array.isArray(data.nonPolarUnlocks)
+        ? [...new Set(data.nonPolarUnlocks.filter((k): k is string => NONPOLAR_MAGICS.some((m) => m.key === k)))]
+        : [],
       creationTraits: this.normalizeCreationTraits(data.creationTraits),
       raceAttributePicks: Array.isArray(data.raceAttributePicks)
         ? (data.raceAttributePicks.filter(
@@ -2767,13 +2849,39 @@ export class CharacterSheetEditor {
    * aussi à la création ou sur un slot de feat (section 21), et ouvrent alors
    * la branche exactement pareil.
    */
-  get nonPolarMagics(): { key: string; name: string; sigil: string; open: boolean; via: string }[] {
+  get nonPolarMagics(): {
+    key: string;
+    name: string;
+    sigil: string;
+    open: boolean;
+    /** Ouverte à la main, et par rien d'autre : la seule qu'on puisse refermer. */
+    byHand: boolean;
+    via: string;
+  }[] {
     const open = new Map(nonPolarAccess(this.model, this.traits).map((b) => [b.key, b.via]));
     return NONPOLAR_MAGICS.map((m) => ({
       ...m,
       open: open.has(m.key),
+      byHand: open.get(m.key) === MANUAL_NONPOLAR_VIA,
       via: open.get(m.key) ?? NONPOLAR_HINT[m.key] ?? '',
     }));
+  }
+
+  /**
+   * Ouvre ou referme une branche à la main.
+   *
+   * Sans effet sur une branche qu'un vécu ouvre déjà : la case n'aurait rien à
+   * refermer. Refermer, en revanche, retire ses sorts du pool — comme un
+   * changement de background le ferait.
+   */
+  toggleNonPolar(key: string): void {
+    const opened = this.nonPolarMagics.find((m) => m.key === key);
+    if (opened?.open && !opened.byHand) return;
+    const current = this.model.nonPolarUnlocks ?? [];
+    this.model.nonPolarUnlocks = current.includes(key)
+      ? current.filter((k) => k !== key)
+      : [...current, key];
+    this.onMagicAccessChange();
   }
 
   /** Clés des branches réellement ouvertes. */
@@ -3400,9 +3508,21 @@ export class CharacterSheetEditor {
   }
 
   /** Quand l'objet correspond à une entrée du wiki, on auto-remplit son poids. */
-  onItemNameChange(item: { name: string; weight: number }): void {
+  onItemNameChange(item: InventoryItem): void {
     const w = this.itemWeights.get(item.name);
     if (w !== undefined) item.weight = w;
+    // Un autre objet n'hérite pas de l'entame du précédent.
+    delete item.usesLeft;
+  }
+
+  /** Usages par exemplaire d'un objet du catalogue (1 s'il n'en compte qu'un). */
+  usesPer(name: string): number {
+    return this.itemUses.get(name) ?? 1;
+  }
+
+  /** Remet l'exemplaire entamé à neuf : le MJ tranche un réassort. */
+  refillUses(item: InventoryItem): void {
+    delete item.usesLeft;
   }
 
   trackByIndex(index: number): number {
@@ -3523,12 +3643,12 @@ export class CharacterSheetEditor {
         value: stats[st.key],
         pct: this.barPct(stats[st.key], maxBar),
       })),
-      survival: this.survivalGauges.map((g) => ({
-        label: g.label,
-        icon: g.icon,
-        filled: this.survivalValue(g),
-        segments: g.segments,
-        stage: this.survivalStage(g),
+      survival: this.survivalRows.map((row) => ({
+        label: row.gauge.label,
+        icon: row.gauge.icon,
+        filled: row.current,
+        segments: row.max,
+        stage: row.stage,
       })),
       pools: this.poolRows.map((row) => ({
         label: row.gauge.label,

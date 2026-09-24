@@ -82,6 +82,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/chausse_trappes.png",
     "material": "fer",
+    "tags": [
+      "use"
+    ],
     "weight": 1.5
   },
   {
@@ -122,6 +125,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/entrave.png",
     "material": "fer",
+    "tags": [
+      "use"
+    ],
     "weight": 3
   },
   {
@@ -152,6 +158,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/filet_leste.png",
     "material": "chanvre",
+    "tags": [
+      "use"
+    ],
     "weight": 1.5
   },
   {
@@ -162,6 +171,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/cartouche_huile.png",
     "material": "verre",
+    "tags": [
+      "use"
+    ],
     "weight": 0.5
   },
   {
@@ -226,6 +238,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/houlette_berger.png",
     "material": "bois",
+    "tags": [
+      "use"
+    ],
     "weight": 1.5
   },
   {
@@ -345,6 +360,9 @@
     "rarity": "Peu commun",
     "image": "/resources/media/pictures/equipment/bear_trap.png",
     "material": "acier",
+    "tags": [
+      "use"
+    ],
     "weight": 4
   },
   {
@@ -365,6 +383,7 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/ration_de_voyage.png",
     "material": "toile",
+    "uses": 7,
     "weight": 3.5
   },
   {
@@ -418,6 +437,7 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/sel_conservation.png",
     "material": "toile",
+    "uses": 5,
     "weight": 0.5
   },
   {
@@ -431,6 +451,7 @@
     "tags": [
       "care"
     ],
+    "uses": 3,
     "weight": 0.2
   },
   {
@@ -451,6 +472,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/torche.png",
     "material": "bois",
+    "tags": [
+      "use"
+    ],
     "weight": 0.5
   },
   {
@@ -474,6 +498,9 @@
     "rarity": "Commune",
     "image": "/resources/media/pictures/equipment/vareuse_huilee.png",
     "material": "toile",
+    "weatherWards": [
+      "wet"
+    ],
     "weight": 1.5
   }
 ]

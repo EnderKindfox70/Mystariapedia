@@ -1,0 +1,181 @@
+<div class="layout">
+  <navbar></navbar>
+
+  <main class="tb">
+    <header class="tb-head">
+      <h1>Tables de jeu</h1>
+      <p class="tb-lead">
+        Le MJ ouvre une table et y invite ses joueurs. Chaque joueur s’y assoit avec
+        l’un de ses personnages, et joue son pion pendant que le MJ mène la partie.
+      </p>
+    </header>
+
+    @if (error()) { <p class="tb-alert">{{ error() }}</p> }
+    @if (flash()) { <p class="tb-flash">{{ flash() }}</p> }
+
+    <div class="tb-grid">
+      <!-- ══ Rejoindre ══ -->
+      <section class="tb-card">
+        <h2>Rejoindre une table</h2>
+        @if (!sheets().length) {
+          <p class="tb-note">Il te faut un personnage. <a routerLink="/characters">Crée ta fiche</a> d’abord.</p>
+        } @else {
+          <label class="tb-field">
+            <span>Code de la table</span>
+            <input
+              type="text"
+              placeholder="ABC-123"
+              autocomplete="off"
+              [value]="joinCode()"
+              (input)="joinCode.set($any($event.target).value)"
+              (keydown.enter)="join()"
+            >
+          </label>
+          <label class="tb-field">
+            <span>Avec</span>
+            <select (change)="pickSheet('join', $any($event.target).value)">
+              @for (sheet of sheets(); track sheet.id) {
+                <option [value]="sheet.id" [selected]="sheet.id === sheetFor('join')">{{ sheet.name }}</option>
+              }
+            </select>
+          </label>
+          <button type="button" class="tb-btn tb-btn--primary" [disabled]="!joinCode().trim()" (click)="join()">Rejoindre</button>
+        }
+      </section>
+
+      <!-- ══ Ouvrir ══ -->
+      <section class="tb-card">
+        <h2>Mener une table</h2>
+        <label class="tb-field">
+          <span>Nom de la table</span>
+          <input
+            type="text"
+            placeholder="La compagnie du Col Gris"
+            [value]="newTableName()"
+            (input)="newTableName.set($any($event.target).value)"
+            (keydown.enter)="create()"
+          >
+        </label>
+        <button type="button" class="tb-btn tb-btn--primary" [disabled]="!newTableName().trim()" (click)="create()">Ouvrir la table</button>
+      </section>
+    </div>
+
+    <!-- ══ Invitations en attente ══ -->
+    @if (invitations().length) {
+      <section class="tb-section">
+        <h2>Invitations</h2>
+        @for (inv of invitations(); track inv.id) {
+          <article class="tb-card tb-card--row">
+            <div class="tb-card__id">
+              <strong>{{ inv.name }}</strong>
+              <small>MJ : {{ inv.gmName }}</small>
+            </div>
+            @if (sheets().length) {
+              <select (change)="pickSheet(inv.id, $any($event.target).value)" aria-label="Personnage">
+                @for (sheet of sheets(); track sheet.id) {
+                  <option [value]="sheet.id" [selected]="sheet.id === sheetFor(inv.id)">{{ sheet.name }}</option>
+                }
+              </select>
+              <button type="button" class="tb-btn tb-btn--primary" (click)="accept(inv)">Accepter</button>
+            } @else {
+              <a class="tb-btn" routerLink="/characters">Créer un personnage</a>
+            }
+            <button type="button" class="tb-btn" (click)="decline(inv)">Refuser</button>
+          </article>
+        }
+      </section>
+    }
+
+    @if (loading()) {
+      <p class="tb-note">Chargement des tables…</p>
+    }
+
+    <!-- ══ Les tables que je mène ══ -->
+    @if (led().length) {
+      <section class="tb-section">
+        <h2>Les tables que tu mènes</h2>
+        @for (table of led(); track table.id) {
+          <article class="tb-card">
+            <div class="tb-card__head">
+              <div class="tb-card__id">
+                <strong>{{ table.name }}</strong>
+                <small>{{ table.players.length }} joueur{{ table.players.length > 1 ? 's' : '' }}</small>
+              </div>
+              <button type="button" class="tb-btn tb-btn--primary" (click)="play(table)">Ouvrir la table</button>
+            </div>
+
+            <div class="tb-code">
+              <span>Code</span>
+              <b>{{ table.code }}</b>
+              <button type="button" class="tb-mini" (click)="copy(table.code!)">Copier</button>
+              <button type="button" class="tb-mini" (click)="copy(inviteLink(table))">Copier le lien</button>
+            </div>
+
+            <div class="tb-invite">
+              <input
+                type="text"
+                placeholder="Nom d’utilisateur du joueur"
+                [value]="inviteName()[table.id] || ''"
+                (input)="setInviteName(table.id, $any($event.target).value)"
+                (keydown.enter)="invite(table)"
+              >
+              <button type="button" class="tb-btn" (click)="invite(table)">Inviter</button>
+            </div>
+
+            @if (table.players.length) {
+              <ul class="tb-members">
+                @for (p of table.players; track p.userId) {
+                  <li>
+                    <span>{{ p.username }}</span>
+                    <button type="button" class="tb-mini tb-mini--danger" (click)="removePlayer(table, p.userId)">Retirer</button>
+                  </li>
+                }
+              </ul>
+            }
+            @if (table.invites.length) {
+              <ul class="tb-members tb-members--pending">
+                @for (i of table.invites; track i.userId) {
+                  <li>
+                    <span>{{ i.username }} <em>invité</em></span>
+                    <button type="button" class="tb-mini" (click)="cancelInvite(table, i.userId)">Annuler</button>
+                  </li>
+                }
+              </ul>
+            }
+
+            <button type="button" class="tb-mini tb-mini--danger tb-close" (click)="closeTable(table)">Fermer la table</button>
+          </article>
+        }
+      </section>
+    }
+
+    <!-- ══ Les tables où je joue ══ -->
+    @if (played().length) {
+      <section class="tb-section">
+        <h2>Les tables où tu joues</h2>
+        @for (table of played(); track table.id) {
+          <article class="tb-card tb-card--row">
+            <div class="tb-card__id">
+              <strong>{{ table.name }}</strong>
+              <small>MJ : {{ table.gmName }}</small>
+            </div>
+            <select
+              aria-label="Ton personnage à cette table"
+              (change)="switchSheet(table, $any($event.target).value)"
+            >
+              @for (sheet of sheets(); track sheet.id) {
+                <option [value]="sheet.id" [selected]="sheet.id === mySheet(table)">{{ sheet.name }}</option>
+              }
+            </select>
+            <button type="button" class="tb-btn tb-btn--primary" (click)="play(table)">Rejoindre la partie</button>
+            <button type="button" class="tb-mini tb-mini--danger" (click)="leaveTable(table)">Quitter</button>
+          </article>
+        }
+      </section>
+    }
+
+    @if (!loading() && !tables().length && !invitations().length) {
+      <p class="tb-note">Aucune table pour l’instant : ouvres-en une, ou rejoins celle d’un MJ avec son code.</p>
+    }
+  </main>
+</div>

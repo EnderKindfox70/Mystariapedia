@@ -115,57 +115,70 @@
             ]
         },
         {
-            "key": "death-releve-les-morts",
-            "name": "Relève les morts",
-            "description": "Réanime un cadavre proche en serviteur mort-vivant lié à la volonté du lanceur.",
-            "mana": 5,
-            "level": 3,
+            "key": "death-vision-spirituelle",
+            "name": "Vision spirituelle",
+            "description": "Le regard passe le voile : pendant quelques tours, le lanceur perçoit les esprits et les âmes qui s'attardent autour de lui.",
+            "usage": {
+                "combat": "Révèle les fantômes et les manifestations spectrales alentour, même dissimulés.",
+                "outOfCombat": "Repère une âme qui s'attarde près d'un corps ou d'un lieu — le préalable de toute capture."
+            },
+            "mana": 2,
+            "level": 1,
             "subdomains": [
-                "Nécromancie"
-            ],
-            "requires": [
-                "death-toucher-necrotique"
+                "Âme"
             ],
             "baseStats": {
-                "mana": 6,
-                "range": "8 m",
-                "area": "Cible unique",
+                "mana": 2,
+                "range": "Personnel",
+                "area": "Rayon 10 m",
                 "targets": [
-                    "ally"
+                    "self"
                 ],
                 "duration": 3,
                 "grades": {
-                    "servant": 0
+                    "sight": 0
                 }
             },
             "customization": {
                 "params": [
                     {
-                        "id": "servant",
+                        "id": "sight",
                         "kind": "grade",
-                        "label": "Vigueur du serviteur",
-                        "path": "grades.servant",
+                        "label": "Acuité de la vision",
+                        "path": "grades.sight",
                         "min": 0,
                         "max": 2,
                         "ladder": [
                             {
-                                "label": "Carcasse",
-                                "action": "de relever une carcasse",
-                                "description": "le mort se traîne, lent et fragile, et obéit à des ordres simples."
+                                "label": "Présences",
+                                "action": "de percevoir les présences",
+                                "description": "les esprits manifestés et les âmes qui s'attardent, sans pouvoir les distinguer."
                             },
                             {
-                                "label": "Serviteur",
-                                "action": "de relever un serviteur",
-                                "description": "le mort tient debout, frappe et obéit sans faillir."
+                                "label": "Traque",
+                                "action": "de débusquer les esprits cachés",
+                                "description": "aussi les esprits qui tentent de se cacher — un Spectre tapi dans l'ombre, une âme qui se terre."
                             },
                             {
-                                "label": "Revenant",
-                                "action": "de relever un revenant",
-                                "description": "le mort retrouve la force de son vivant, et une obstination qu'il n'avait pas."
+                                "label": "Lecture",
+                                "action": "de lire la nature des esprits",
+                                "description": "chaque esprit, même caché, et ce qu'il est : sa dangerosité et ce qui le retient au monde."
                             }
                         ],
                         "cap": {
                             "value": 2
+                        }
+                    },
+                    {
+                        "id": "radius",
+                        "kind": "radius",
+                        "label": "Étendue du regard",
+                        "path": "area",
+                        "min": 5,
+                        "growth": "1-2-5",
+                        "cap": {
+                            "value": 50,
+                            "anchor": "tier3"
                         }
                     },
                     {
@@ -175,10 +188,331 @@
                         "path": "duration",
                         "min": 1,
                         "cap": {
-                            "value": 8,
+                            "value": 10,
                             "anchor": "tier3"
                         }
                     },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "continuousMode": {
+                    "upkeepCap": {
+                        "value": 1,
+                        "anchor": "assumption"
+                    }
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ],
+            "liveText": {
+                "combat": "Le lanceur perçoit {grades.sight:description}",
+                "outOfCombat": "Le lanceur perçoit {grades.sight:description} Le préalable de toute capture : on ne saisit pas une âme qu'on ne voit pas."
+            }
+        },
+        {
+            "key": "death-capture-d-ame",
+            "requires": [
+                "death-vision-spirituelle"
+            ],
+            "name": "Capture d'âme",
+            "category": "ritual",
+            "description": "Arrache au seuil l'âme d'un mort, au moment de sa mort ou peu après, et l'enferme dans une Pierre d'âme.",
+            "usage": {
+                "outOfCombat": "Deux jets distincts : le Charisme soumet l'âme, l'Intelligence la lit. Un échec la laisse se dissiper et la pierre est perdue ; un résultat partiel la capture, mais elle doit se stabiliser plusieurs jours avant la première invocation."
+            },
+            "mana": 4,
+            "level": 2,
+            "subdomains": [
+                "Âme"
+            ],
+            "archetypes": {
+                "kind": "ghosts",
+                "note": "Le profil animique de l'âme capturée décide du fantôme qu'elle deviendra — c'est ce que le jet de Lecture cherche à savoir."
+            },
+            "ritual": {
+                "summary": "Le rite se joue dans la courte fenêtre où l'âme hésite encore au seuil. Il faut la voir, la retenir contre une pierre, la faire céder, puis comprendre ce qu'on a pris. Deux gestes distincts : soumettre n'est pas comprendre.",
+                "castingTime": "1 minute",
+                "inCombat": false,
+                "procedure": [
+                    {
+                        "title": "Repérer l'âme",
+                        "text": "L'âme doit être perçue : Vision spirituelle active, ou une mort survenue sous les yeux du praticien. Une âme qu'on ne voit pas ne se capture pas, et le rite ne peut pas commencer."
+                    },
+                    {
+                        "title": "Poser la pierre",
+                        "text": "La Pierre d'âme, vide, se pose à même la chair du mort — sur la poitrine, dans la main, entre les lèvres. Elle doit toucher le corps : à distance, elle ne retient rien."
+                    },
+                    {
+                        "title": "Ouvrir le seuil",
+                        "text": "Le praticien paie {mana} mana et incante une minute, la main sur la pierre. Fenêtre de capture : {grades.window:description} Passé ce délai, l'âme est partie et le rite ne prend plus."
+                    },
+                    {
+                        "title": "Soumettre l'âme — jet de Capture",
+                        "text": "Le praticien impose sa volonté à l'âme pour la faire céder : jet de Charisme contre la sévérité de sa mort (tableau ci-dessous). Une mort apaisée cède vite ; une âme morte dans la rage ou l'agonie se débat."
+                    },
+                    {
+                        "title": "Lire l'âme — jet de Lecture",
+                        "text": "Seulement si l'âme a été capturée : jet d'Intelligence contre la même sévérité, pour savoir ce qu'on tient — son espèce, et la forme qu'elle prendra si on l'invoque."
+                    },
+                    {
+                        "title": "Sceller",
+                        "text": "La pierre se referme et refroidit. Sur une capture partielle, elle reste tiède tant que l'âme se débat encore : trois jours de stabilisation avant la première invocation."
+                    }
+                ],
+                "checks": [
+                    {
+                        "label": "Capture",
+                        "attribute": "charisme",
+                        "against": "la sévérité de la mort",
+                        "when": "Au terme de la minute d'incantation, tant que la fenêtre de capture est ouverte.",
+                        "difficulty": "death-severity",
+                        "outcomes": [
+                            {
+                                "degree": "echec-total",
+                                "effect": "L'âme s'arrache et se dissipe ; la pierre se fend et est perdue."
+                            },
+                            {
+                                "degree": "echec",
+                                "effect": "L'âme se dissipe ; la pierre est perdue."
+                            },
+                            {
+                                "degree": "partiel",
+                                "effect": "L'âme est prise, mais instable : 3 jours de stabilisation avant la première invocation."
+                            },
+                            {
+                                "degree": "reussite",
+                                "effect": "L'âme est prise et utilisable immédiatement."
+                            },
+                            {
+                                "degree": "critique",
+                                "effect": "L'âme est prise, utilisable immédiatement, et la pierre est plus stable en stock."
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Lecture",
+                        "attribute": "intelligence",
+                        "against": "la sévérité de la mort",
+                        "when": "Juste après une capture réussie (partielle ou mieux). Pas de lecture sans capture.",
+                        "difficulty": "death-severity",
+                        "outcomes": [
+                            {
+                                "degree": "echec-total",
+                                "effect": "Rien : le profil reste inconnu jusqu'à la première invocation."
+                            },
+                            {
+                                "degree": "echec",
+                                "effect": "Rien : le profil reste inconnu jusqu'à la première invocation."
+                            },
+                            {
+                                "degree": "partiel",
+                                "effect": "Une impression : l'espèce et la dangerosité de la forme à venir, sans l'archétype exact."
+                            },
+                            {
+                                "degree": "reussite",
+                                "effect": "Le profil complet : on sait quel fantôme l'âme deviendra."
+                            },
+                            {
+                                "degree": "critique",
+                                "effect": "Le profil complet, et la pierre est encore plus stable."
+                            }
+                        ]
+                    }
+                ],
+                "components": [
+                    {
+                        "label": "Pierre d'âme",
+                        "ref": "pierre-d-ame",
+                        "collection": "resources/minerals",
+                        "quantity": "1, vide",
+                        "consumed": false,
+                        "note": "Perdue si l'âme se dissipe."
+                    }
+                ],
+                "soulStone": {
+                    "role": "fills",
+                    "note": "Une pierre vide reçoit l'âme, avec le profil animique que sa vie et sa mort lui ont donné."
+                },
+                "interruption": "Interrompu avant le jet de Capture, le rite laisse l'âme passer : la mana est perdue, la pierre reste vide et intacte.",
+                "notes": [
+                    "La sévérité se lit sur la façon dont l'âme est morte, pas sur ce qu'elle était : un tyran mort dans son lit cède plus vite qu'un enfant mort dans l'incendie.",
+                    "Une âme que le praticien a tuée lui-même, ou qui était son ennemie de son vivant, lui reste hostile une fois captive.",
+                    "Les deux jets peuvent diverger : un praticien charismatique mais peu perspicace capture bien et ignore ce qu'il a capturé."
+                ]
+            },
+            "baseStats": {
+                "mana": 4,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "enemy"
+                ],
+                "grades": {
+                    "window": 0
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "window",
+                        "kind": "grade",
+                        "label": "Fenêtre de capture",
+                        "path": "grades.window",
+                        "min": 0,
+                        "max": 2,
+                        "ladder": [
+                            {
+                                "label": "Dernier souffle",
+                                "action": "de saisir l'âme au dernier souffle",
+                                "description": "le rite doit être prêt à l'instant de la mort."
+                            },
+                            {
+                                "label": "Seuil",
+                                "action": "de rattraper une âme au seuil",
+                                "description": "l'âme se saisit encore quelques minutes après la mort."
+                            },
+                            {
+                                "label": "Attardée",
+                                "action": "de rappeler une âme attardée",
+                                "description": "l'âme se saisit jusqu'à une heure après la mort."
+                            }
+                        ],
+                        "cap": {
+                            "value": 2
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "assumption"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "checks",
+                    "reason": "Les jets de capture et de lecture suivent la mécanique de la Pierre d'âme, pas le budget."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "death-releve-les-morts",
+            "requires": [
+                "death-capture-d-ame"
+            ],
+            "name": "Relève les morts",
+            "category": "ritual",
+            "description": "Incarne dans un cadavre l'âme d'une Pierre d'âme. Le corps n'a besoin de mana que pour agir ; son archétype se lit sur son stade de décomposition.",
+            "usage": {
+                "combat": "Le mort-vivant agit sous les ordres du lanceur, au prix de mana à chaque action. À 0 mana, il s'arrête sans être détruit ; hors de portée de contrôle (20 m + 5 m par CHA), aussi.",
+                "outOfCombat": "Le corps continue de se décomposer avec les jours : un Revenant devient Goule, puis Bouffi, puis Squelette ou Momie — sans nouveau rituel."
+            },
+            "mana": 5,
+            "level": 3,
+            "subdomains": [
+                "Nécromancie"
+            ],
+            "archetypes": {
+                "kind": "undead",
+                "note": "Le nécromancien ne choisit pas la forme : elle se lit sur le stade de décomposition du corps, et change d'elle-même quand le corps franchit un seuil."
+            },
+            "ritual": {
+                "summary": "Le rite rend une âme à la chair. La soumission a déjà eu lieu à la capture : il n'y a plus rien à vaincre, seulement un passage à ouvrir de la pierre vers le corps. C'est le corps, pas l'âme, qui décide de ce que le mort devient.",
+                "castingTime": "1 action",
+                "inCombat": true,
+                "procedure": [
+                    {
+                        "title": "Choisir le corps",
+                        "text": "Un cadavre à {range}, entier ou presque. Son âge décide de l'archétype : Revenant jusqu'à 2 jours, Goule de 2 à 7 jours, Bouffi de 7 à 21 jours, puis Squelette — ou Momie si le corps a séché sous un climat sec."
+                    },
+                    {
+                        "title": "Poser la pierre",
+                        "text": "La Pierre d'âme habitée se pose sur le cadavre — le front, la poitrine ou la bouche. Une âme d'une autre espèce que le corps reste possible, mais le corps lutte contre des réflexes qu'il ne sait pas suivre : −2 crans de précision, attaques signature de l'espèce d'origine à moitié, vitesse réduite d'un quart."
+                    },
+                    {
+                        "title": "Transférer",
+                        "text": "Le praticien paie {mana} mana et prononce le passage (1 action). L'âme quitte la pierre et prend le corps. Aucun jet : l'âme a déjà cédé à la capture."
+                    },
+                    {
+                        "title": "Tenir le lien",
+                        "text": "Le mort-vivant n'a besoin de mana que pour agir : Revenant 3 par action, Goule et Momie 2, Bouffi et Squelette 1. À 0 mana, il s'immobilise sans être détruit, et reprend dès qu'on le recharge (repos ou Transfusion de mana)."
+                    }
+                ],
+                "components": [
+                    {
+                        "label": "Pierre d'âme",
+                        "ref": "pierre-d-ame",
+                        "collection": "resources/minerals",
+                        "quantity": "1, habitée",
+                        "consumed": false,
+                        "note": "L'âme quitte la pierre pour le corps."
+                    },
+                    {
+                        "label": "Cadavre",
+                        "quantity": "1",
+                        "consumed": false,
+                        "note": "Son stade de décomposition donne l'archétype ; une âme d'une autre espèce le fait lutter contre lui-même."
+                    }
+                ],
+                "soulStone": {
+                    "role": "draws",
+                    "note": "L'âme s'incarne dans le cadavre ; son espèce compte si elle diffère de celle du corps."
+                },
+                "notes": [
+                    "Portée de contrôle : 20 m + 5 m par point de modificateur de Charisme. Au-delà, le corps s'arrête sur place et reprend son comportement dès que le nécromancien revient à portée.",
+                    "Corps relevés et fantômes actifs en même temps : 1 + modificateur de Charisme (au moins 1).",
+                    "Le corps continue de pourrir : en franchissant un seuil, il change d'archétype tout seul, sans nouveau rituel. Squelette et Momie ne changent plus.",
+                    "Un corps fourni au mauvais stade donne un mort-vivant instable : effets à moitié, −2 crans, et une décomposition deux fois plus rapide."
+                ]
+            },
+            "baseStats": {
+                "mana": 6,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ]
+            },
+            "customization": {
+                "params": [
                     {
                         "id": "range",
                         "kind": "range",
@@ -205,13 +539,256 @@
                 "extraTargets": {
                     "base": 1,
                     "label": "cadavre(s) relevé(s)"
-                },
-                "continuousMode": {
-                    "upkeepCap": {
-                        "value": 1,
-                        "anchor": "assumption"
-                    }
                 }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "archetype",
+                    "reason": "Lu sur le stade de décomposition du corps, jamais choisi."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "death-reconstruction-funebre",
+            "requires": [
+                "death-releve-les-morts"
+            ],
+            "name": "Reconstruction funèbre",
+            "description": "Recoud, ressoude et bourre de nouveau un cadavre relevé. Répare le corps, jamais son horloge : la décomposition, elle, continue.",
+            "usage": {
+                "combat": "Rend des PV à un cadavre relevé par le lanceur. Débloqué, il répare n'importe quel cadavre relevé — celui d'un nécromancien adverse compris.",
+                "outOfCombat": "Remet en état un serviteur abîmé entre deux combats."
+            },
+            "mana": 2,
+            "level": 4,
+            "subdomains": [
+                "Nécromancie"
+            ],
+            "archetypes": {
+                "kind": "undead",
+                "note": "La réparation vaut pour tous les archétypes, mais ne ramène jamais un corps à un stade plus frais."
+            },
+            "baseStats": {
+                "heal": 5,
+                "mana": 2,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ],
+                "scaling": [
+                    {
+                        "source": "intelligence",
+                        "ratio": 0.3,
+                        "affects": "heal"
+                    }
+                ],
+                "targetKind": "corpse"
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "heal",
+                        "kind": "heal",
+                        "label": "Réparation",
+                        "path": "heal",
+                        "min": 1,
+                        "cap": {
+                            "value": 24,
+                            "anchor": "assumption"
+                        }
+                    },
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 0,
+                        "cap": {
+                            "value": 6,
+                            "anchor": "assumption"
+                        }
+                    },
+                    {
+                        "id": "intRatio",
+                        "kind": "ratio",
+                        "label": "Ratio Intelligence (réparation)",
+                        "path": "scaling.0.ratio",
+                        "min": 0,
+                        "cap": {
+                            "value": 0.8,
+                            "anchor": "assumption"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 1,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ],
+                "extraTargets": {
+                    "base": 1,
+                    "label": "mort(s)-vivant(s) réparé(s)"
+                },
+                "scalingSwap": [
+                    {
+                        "path": "scaling.0",
+                        "eligible": [
+                            "intelligence",
+                            "charisme"
+                        ]
+                    }
+                ],
+                "targetUnlock": {
+                    "eligible": [
+                        "enemy"
+                    ]
+                }
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "decay",
+                    "reason": "Ne remet jamais l'horloge de décomposition à zéro : c'est le rôle de l'Embaumement rituel."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "death-embaumement-rituel",
+            "requires": [
+                "death-releve-les-morts"
+            ],
+            "name": "Embaumement rituel",
+            "category": "ritual",
+            "description": "Fige pour de bon la décomposition d'un cadavre relevé à son stade actuel. La préservation n'est jamais gratuite : le corps y perd une part de ses forces, jamais moins d'un dixième.",
+            "usage": {
+                "outOfCombat": "Le corps reste indisponible toute la durée du rite, le temps que la préservation prenne. Ensuite, son archétype ne change plus jamais, sans entretien — au prix d'une perte permanente sur ses stats."
+            },
+            "mana": 8,
+            "level": 5,
+            "subdomains": [
+                "Nécromancie"
+            ],
+            "archetypes": {
+                "kind": "undead",
+                "note": "L'embaumement fige l'archétype du moment : un Revenant embaumé reste Revenant, au prix de la perte de stats réglée sur le sort."
+            },
+            "ritual": {
+                "summary": "Un travail de mains autant que de magie : le sel arrête la chair, l'éclat fixe le stade, et le temps fait le reste. Ce qui sort du rite ne pourrira plus jamais — mais n'aura plus tout à fait la force qu'il avait.",
+                "castingTime": "Plusieurs jours (cf. Durée du rite)",
+                "inCombat": false,
+                "procedure": [
+                    {
+                        "title": "Préparer le corps",
+                        "text": "Un mort-vivant relevé par le praticien, au stade qu'on veut garder. On l'immobilise, on le vide de ce qui pourrit le plus vite, on le lave et on le couche."
+                    },
+                    {
+                        "title": "Saler",
+                        "text": "Le sel de conservation se frotte sur toute la peau et bourre les cavités, en couches serrées. C'est lui qui arrête la chair."
+                    },
+                    {
+                        "title": "Sceller par l'éclat",
+                        "text": "L'Éclat funeste — ou une Obsidienne de larme, un Jais, un Os fossilisé minéralisé — se broie et se mêle aux dernières couches de sel. C'est lui qui fige le stade. Le praticien paie alors {mana} mana."
+                    },
+                    {
+                        "title": "Veiller",
+                        "text": "Le corps repose {rite.days}, sous le sel. Il est indisponible jusqu'au bout : ni combat, ni ordre, ni déplacement."
+                    },
+                    {
+                        "title": "Réveiller",
+                        "text": "On brise la croûte de sel. Le stade est figé pour toujours, sans entretien, et le corps a perdu {rite.statLoss} de ses PV, de son attaque et de sa défense."
+                    }
+                ],
+                "components": [
+                    {
+                        "label": "Sel de conservation",
+                        "ref": "sel-de-conservation",
+                        "collection": "equipment",
+                        "quantity": "1",
+                        "consumed": true
+                    },
+                    {
+                        "label": "Éclat funeste",
+                        "ref": "eclat-funeste",
+                        "collection": "resources/minerals",
+                        "quantity": "1",
+                        "consumed": true,
+                        "note": "Ou l'un des trois minéraux de la Mort : Obsidienne de larme, Jais, Os fossilisé minéralisé."
+                    }
+                ],
+                "immobilization": "Le corps est indisponible pendant toute la durée du rituel.",
+                "interruption": "Réveiller le corps avant la fin du rite : la préservation n'a pas pris, le sel et l'éclat sont perdus, et la décomposition reprend où elle en était.",
+                "notes": [
+                    "Aucun jet : le rite réussit s'il va à son terme.",
+                    "Un corps embaumé se répare encore avec Reconstruction funèbre, mais son archétype ne change plus jamais."
+                ]
+            },
+            "baseStats": {
+                "mana": 8,
+                "range": "Contact",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ],
+                "targetKind": "corpse",
+                "rite": {
+                    "days": 5,
+                    "statLoss": 20
+                }
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "riteDays",
+                        "kind": "ritualTime",
+                        "label": "Durée du rite",
+                        "path": "rite.days",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "assumption"
+                        }
+                    },
+                    {
+                        "id": "statLoss",
+                        "kind": "statLoss",
+                        "label": "Perte de stats",
+                        "path": "rite.statLoss",
+                        "min": 10,
+                        "cap": {
+                            "value": 10,
+                            "anchor": "assumption"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 5,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
             },
             "crossDomain": null,
             "domainGoverned": [],
@@ -220,19 +797,25 @@
                     "field": "classBonuses",
                     "reason": "Propre à l'identité de la classe — hors budget."
                 }
-            ]
+            ],
+            "liveText": {
+                "outOfCombat": "Le corps reste indisponible {rite.days}, le temps que la préservation prenne. Ensuite, son archétype ne change plus jamais, sans entretien — au prix de −{rite.statLoss} sur ses stats, pour toujours."
+            }
         },
         {
             "key": "death-contact-spectral",
+            "requires": [
+                "death-vision-spirituelle"
+            ],
             "name": "Contact spectral",
             "description": "Ouvre un bref canal vers l'au-delà pour interroger une âme ou percevoir les esprits alentour.",
+            "usage": {
+                "outOfCombat": "Interroge une âme encore présente dans le monde des vivants. Jet de Sagesse contre une sévérité de 4, +1 par semaine écoulée depuis la mort (plafond 16). Une âme retenue par une rancune ou un devoir non résolu reste contactable sans jet, indéfiniment."
+            },
             "mana": 4,
             "level": 2,
             "subdomains": [
                 "Mediumnité"
-            ],
-            "requires": [
-                "death-toucher-necrotique"
             ],
             "baseStats": {
                 "mana": 5,
@@ -328,16 +911,203 @@
             ]
         },
         {
+            "key": "death-aide-depuis-le-voile",
+            "requires": [
+                "death-contact-spectral"
+            ],
+            "name": "Aide depuis le voile",
+            "description": "Lance un appel au-delà du seuil, sans pierre pour accueillir qui répond : un fantôme au hasard vient prêter main-forte quelques tours, puis se dissipe pour de bon.",
+            "usage": {
+                "combat": "Un fantôme tiré au sort répond — le plus souvent un esprit léger, rarement un Onryō. Il reste 3 tours + modificateur de CHA (au moins 1), sans réserve de mana à entretenir, puis se dissipe définitivement.",
+                "outOfCombat": "Un appel à l'aide, jamais une relation : l'esprit repart une fois fatigué et ne revient pas."
+            },
+            "mana": 5,
+            "level": 3,
+            "subdomains": [
+                "Mediumnité"
+            ],
+            "archetypes": {
+                "kind": "ghosts",
+                "veil": true,
+                "note": "Sans pierre, c'est le hasard qui répond, pondéré par la dangerosité : le plus souvent un esprit léger, rarement un Onryō."
+            },
+            "baseStats": {
+                "mana": 5,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 3,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "duration",
+                    "reason": "Fixée par le Charisme (3 + CHA) : l'esprit repart quand il est fatigué."
+                },
+                {
+                    "field": "archetype",
+                    "reason": "Tiré sur la table pondérée par dangerosité."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
+            "key": "death-manifestation-spectrale",
+            "requires": [
+                "death-capture-d-ame",
+                "death-contact-spectral"
+            ],
+            "name": "Manifestation spectrale",
+            "category": "ritual",
+            "description": "Donne forme à l'âme d'une Pierre d'âme. Le médium ne choisit pas la forme : il découvre ce que l'âme est devenue.",
+            "usage": {
+                "combat": "Invoque le fantôme en lui transmettant une réserve de mana choisie à chaque invocation. Il en brûle une part à chaque tour pour rester manifesté, et ses capacités y puisent aussi. À sec, la forme se dissipe et l'âme retourne dans la pierre.",
+                "outOfCombat": "Le même fantôme sert d'éclaireur, de gardien ou de confident selon son archétype. Seule la destruction de la pierre le perd pour de bon."
+            },
+            "mana": 4,
+            "level": 4,
+            "subdomains": [
+                "Mediumnité"
+            ],
+            "archetypes": {
+                "kind": "ghosts",
+                "note": "Le médium ne choisit pas la forme : il invoque l'âme et découvre ce qu'elle est devenue, selon son profil animique."
+            },
+            "ritual": {
+                "summary": "Le médium ne crée pas le fantôme : il lui prête de quoi exister. La forme est tout entière faite de mana, et elle s'éteint quand la mana s'épuise — mais l'âme, elle, rentre dans sa pierre et attend le prochain appel.",
+                "castingTime": "1 action",
+                "inCombat": true,
+                "procedure": [
+                    {
+                        "title": "Tenir la pierre",
+                        "text": "La Pierre d'âme habitée doit être en main ou portée à même la peau, et l'âme stabilisée : une pierre encore tiède (capture partielle de moins de trois jours) ne répond pas."
+                    },
+                    {
+                        "title": "Transmettre la réserve",
+                        "text": "En plus des {mana} mana du sort, le médium verse dans la forme une réserve de mana de son choix, fixée à chaque invocation. C'est cette réserve, et elle seule, qui fait vivre le fantôme."
+                    },
+                    {
+                        "title": "Découvrir la forme",
+                        "text": "Le fantôme apparaît à {range}, sous l'archétype que dicte son profil animique. Si la lecture avait échoué à la capture, c'est maintenant qu'on découvre ce qu'on portait."
+                    },
+                    {
+                        "title": "Entretenir",
+                        "text": "À chaque tour, la forme brûle son coût d'existence : 1 mana pour un fantôme léger, 2 modéré, 3 élevé, 4 extrême. Chaque capacité spéciale puise en plus dans la réserve. Exemple : une réserve de 20 et une existence à 2 par tour tiennent 10 tours sans capacité."
+                    },
+                    {
+                        "title": "Laisser rentrer l'âme",
+                        "text": "À 0 mana, la forme se dissipe et l'âme retourne d'elle-même dans la pierre. On peut la rappeler aussitôt, même en plein combat, en retransmettant une réserve. Une Transfusion de mana en cours d'invocation prolonge la forme présente."
+                    }
+                ],
+                "components": [
+                    {
+                        "label": "Pierre d'âme",
+                        "ref": "pierre-d-ame",
+                        "collection": "resources/minerals",
+                        "quantity": "1, habitée",
+                        "consumed": false,
+                        "note": "Réutilisable indéfiniment : l'âme y retourne quand la forme se dissipe."
+                    }
+                ],
+                "soulStone": {
+                    "role": "draws",
+                    "note": "L'âme de la pierre se manifeste selon son profil animique, puis y retourne à 0 mana. Invocable à nouveau à tout moment, même en plein combat."
+                },
+                "notes": [
+                    "Chaque archétype a sa propre portée de contrôle (de 10 m + 5 m × CHA pour un Dybbuk à une ville entière pour un Spectre) : cf. le catalogue des fantômes.",
+                    "Seule la destruction de la pierre perd l'âme pour de bon, qu'elle soit dedans ou manifestée au moment du coup. C'est la pierre, pas le fantôme, qu'un adversaire avisé vise.",
+                    "Corps relevés et fantômes actifs en même temps : 1 + modificateur de Charisme (au moins 1)."
+                ]
+            },
+            "baseStats": {
+                "mana": 4,
+                "range": "8 m",
+                "area": "Cible unique",
+                "targets": [
+                    "ally"
+                ]
+            },
+            "customization": {
+                "params": [
+                    {
+                        "id": "range",
+                        "kind": "range",
+                        "label": "Portée",
+                        "path": "range",
+                        "min": 1,
+                        "cap": {
+                            "value": 14,
+                            "anchor": "tier3"
+                        }
+                    },
+                    {
+                        "id": "mana",
+                        "kind": "mana",
+                        "label": "Mana",
+                        "path": "mana",
+                        "min": 1,
+                        "cap": {
+                            "value": 2,
+                            "anchor": "treeMin"
+                        }
+                    }
+                ]
+            },
+            "crossDomain": null,
+            "domainGoverned": [],
+            "lockedFields": [
+                {
+                    "field": "archetype",
+                    "reason": "Fixé par le profil animique de l'âme, jamais par le médium."
+                },
+                {
+                    "field": "classBonuses",
+                    "reason": "Propre à l'identité de la classe — hors budget."
+                }
+            ]
+        },
+        {
             "key": "death-emprise-sur-l-ame",
+            "requires": [
+                "death-releve-les-morts"
+            ],
             "name": "Emprise sur l'âme",
             "description": "Saisit l'âme d'une créature affaiblie pour la lier, l'entraver ou la marchander.",
             "mana": 6,
             "level": 5,
             "subdomains": [
                 "Âme"
-            ],
-            "requires": [
-                "death-releve-les-morts"
             ],
             "baseStats": {
                 "damageMin": 1,
@@ -875,9 +1645,7 @@
             ]
         }
     ],
-    "feats": [
-
-    ],
+    "feats": [],
     "magic-items-and-artifacts": [],
     "fauna": [],
     "flora": []

@@ -5,6 +5,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Navbar } from '../../components/navbar/navbar';
 import { SpellWorkshop } from '../../components/spell-workshop/spell-workshop';
 import { SpellDetail } from '../../components/spell-detail/spell-detail';
+import { WikiLinkPipe } from '../../pipes/wiki-link-pipe';
+import { DeathArchetypes } from '../../components/death-archetypes/death-archetypes';
 import {
   BuilderContext,
   DEFAULT_RULES,
@@ -43,6 +45,7 @@ import {
 } from '../../combat/materials';
 import { applyPlantToStats, bindPlant, plantTier, variantsOf } from '../../combat/plants';
 import { enchantTargetOf } from '../../combat/abilities';
+import { DEATH_SEVERITIES, RITUAL_DEGREE_BANDS, RITUAL_DEGREE_LABELS, ritualThreshold } from '../../combat/soul-stone';
 import { ENCHANT_SHARE, WALL_THICKNESS } from '../../combat/rules';
 import { SKILLS } from '../../character/universe-data';
 import {
@@ -140,7 +143,7 @@ const STAT_NOUN: Record<SpellScalingSource, string> = {
  */
 @Component({
   selector: 'spell-entry',
-  imports: [RouterLink, Navbar, NgTemplateOutlet, SpellWorkshop, SpellDetail],
+  imports: [RouterLink, Navbar, NgTemplateOutlet, SpellWorkshop, SpellDetail, WikiLinkPipe, DeathArchetypes],
   templateUrl: './spells-entries.html',
   styleUrl: './spells-entries.css',
 })
@@ -158,6 +161,55 @@ export class SpellEntryComponent {
 
   /** Données de la page (sort + origine), ou `undefined` si le slug est inconnu. */
   page = computed(() => this.spells.bySlug(this.slug()));
+
+  /** Déroulé du rituel, pour un sort de la catégorie `ritual` (sinon `null`). */
+  ritual = computed(() => {
+    const spell = this.page()?.spell;
+    return spell?.category === 'ritual' ? (spell.ritual ?? null) : null;
+  });
+
+  /** Ce qu'un rituel fait d'une Pierre d'âme, en clair. */
+  readonly soulStoneRoles = { fills: 'Remplit une pierre vide', draws: 'Puise dans une pierre habitée' } as const;
+
+  /** Libellés FR des attributs des jets de rituel. */
+  readonly checkAttributes: Record<string, string> = SOURCE_LABELS;
+
+  readonly degreeLabels = RITUAL_DEGREE_LABELS;
+  readonly degreeBands = RITUAL_DEGREE_BANDS;
+
+  /** Maîtrise supposée pour lire la table des seuils (2 : celle d'un débutant). */
+  readonly ritualMastery = linkedSignal({ source: this.slug, computation: () => 2 });
+  readonly masteryChoices = [0, 1, 2, 3, 4, 5, 6];
+  /** Modificateurs d'attribut en colonnes de la table des seuils. */
+  readonly ritualMods = [-1, 0, 1, 2, 3, 4, 5];
+
+  /**
+   * Seuils du d20 par sévérité de mort (lignes) et modificateur (colonnes),
+   * à la maîtrise choisie : le jet de Capture comme celui de Lecture.
+   */
+  readonly severityTable = computed(() =>
+    DEATH_SEVERITIES.map((s) => ({
+      ...s,
+      thresholds: this.ritualMods.map((m) => ritualThreshold(m, s.severity, this.ritualMastery())),
+    })),
+  );
+
+  /** Signe explicite d'un modificateur (« +2 », « −1 »). */
+  readonly signed = (n: number): string => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');
+
+  /** Le rituel a-t-il un jet mesuré contre la sévérité d'une mort ? */
+  readonly usesSeverityTable = computed(() =>
+    (this.ritual()?.checks ?? []).some((c) => c.difficulty === 'death-severity'),
+  );
+
+  setRitualMastery(event: Event): void {
+    this.ritualMastery.set(Number((event.target as HTMLSelectElement).value));
+  }
+
+  /** Une étape de rituel, remplie avec le sort tel qu'il est construit. */
+  ritualText(text: string): string {
+    return this.live(text) ?? text;
+  }
 
   /** Domaine principal (premier composant) — pilote le thème et la navigation. */
   primaryDomain = computed(() => this.page()?.domains[0] ?? '');

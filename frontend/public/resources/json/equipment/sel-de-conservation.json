@@ -54,6 +54,7 @@
     "Saler d'abord, discuter du partage ensuite. Beaucoup de groupes font l'inverse et rentrent les mains vides.",
     "Le venin se conserve en fiole, pas au sel : le saler le neutralise. Emporter les deux."
   ],
+  "uses": 5,
   "references": [
     {
       "label": "Dépouilles concernées",

@@ -1,15 +1,15 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, effect, inject, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, concatMap, forkJoin, from, of, toArray } from 'rxjs';
 import weatherCatalog from '../../../../public/resources/json/weathers.json';
 import { CharacterSheet, CharacterSheetSummary, SurvivalKey } from '../../character/character.types';
-import { STATS, SURVIVAL_GAUGES, SurvivalGauge } from '../../character/universe-data';
+import { SURVIVAL_GAUGES } from '../../character/universe-data';
 import { Navbar } from '../../components/navbar/navbar';
 import { visibleGroup, WEAPON_CATEGORY_BY_KEY } from '../../combat/abilities';
 import { CombatantFactory } from '../../combat/combatant-factory';
-import { formatClock, formatDuration, HOUR, MINUTE, TIME_STEPS } from '../../combat/clock';
+import { formatClock, formatDuration, MINUTE, TIME_STEPS } from '../../combat/clock';
 import {
   ActiveStatus,
   CarriedItem,
@@ -32,7 +32,9 @@ import {
   shapingOptions,
 } from '../../combat/materials';
 import { LootItem, pileSize } from '../../combat/loot';
-import { reachableGround } from '../../combat/ground';
+import { cellsWithinReach, reachableGround } from '../../combat/ground';
+import { hazardCellKeys } from '../../combat/hazards';
+import { usesLabel } from '../../combat/charges';
 import {
   wallAt,
   wallColor,
@@ -41,18 +43,8 @@ import {
 } from '../../combat/walls';
 import { metalCarriedBy } from '../../combat/metal';
 import { applyReport, diffAgainstSheet, SheetReport, summarize } from '../../combat/sheet-report';
-import { xpForCast } from '../../combat/spell-customization';
-import {
-  ACTIVITIES,
-  DEFAULT_ACTIVITY,
-  HUNGER_SUPPLIES,
-  HUNT_TABLE,
-  huntBonus,
-  notchesLeft,
-  nourishmentOf,
-  stageOf,
-  survivalMods,
-} from '../../combat/survival';
+import { ACTIVITIES, DEFAULT_ACTIVITY, pointsLeft, profileOf, SEGMENT_SECONDS } from '../../combat/survival';
+import { edibles, survivalOut, survivalPenalties, survivalRows } from '../../combat/survival-display';
 import { freeSpot, TEAM_LABELS } from '../../combat/encounter';
 import { AutoplayHalt, nextStep, progressFingerprint } from '../../combat/autoplay';
 import { TERRAIN_LAYOUTS, TerrainLayout, layoutToTerrain } from '../../combat/layouts';
@@ -101,10 +93,13 @@ import {
   terrainFor,
   applyMaterial,
   forcedMaterialSurcharge,
+  allegianceOf,
 } from '../../combat/rules';
 import { DamageTypesService } from '../../services/damage-types.service';
 import { CharacterSheetService } from '../../services/character-sheet.service';
 import { EncounterService } from '../../services/encounter.service';
+import { SessionService, TableMember } from '../../services/session.service';
+import { TableRoleService } from '../../services/table-role.service';
 import { StatusEffectsService } from '../../services/status-effects.service';
 import { WikiLoaderService } from '../../services/wiki-loader-service';
 import { BestiaryEntry, BestiaryIndexEntry, ResourceIndexEntry, Weather } from '../../wiki.types';
@@ -159,6 +154,65 @@ export class CombatView implements OnDestroy {
   private readonly sheets = inject(CharacterSheetService);
   private readonly wiki = inject(WikiLoaderService);
   private readonly damageTypes = inject(DamageTypesService);
+  private readonly router = inject(Router);
+
+  /* ── Table partagée ───────────────────────────────────────────────────────
+     Assis à la table d'un MJ, on est joueur : on voit la partie qu'il publie
+     et l'on ne joue que son pion. Mené par soi, on est MJ : on voit en plus
+     les joueurs de la table et l'on peut poser leur personnage sur le plateau.
+  ─────────────────────────────────────────────────────────────────────────── */
+
+  readonly session = inject(SessionService);
+  readonly roles = inject(TableRoleService);
+
+  /** Le joueur connecté peut-il jouer ce pion ? Toujours vrai pour le MJ. */
+  canPlay(unit: Combatant | undefined): boolean {
+    return !!unit && this.roles.can('unit.play', unit);
+  }
+
+  /** Le pion du joueur connecté, s'il en a un sur le plateau. */
+  readonly myUnit = computed(() =>
+    this.roles.isGm() ? undefined : this.encounter().combatants.find((c) => this.roles.owns(c)),
+  );
+
+  /** Les joueurs de la table que je mène. */
+  readonly tablePlayers = computed<TableMember[]>(() => {
+    const table = this.session.table();
+    return table?.role === 'mj' ? table.players : [];
+  });
+
+  isOnline(userId: string): boolean {
+    return this.session.online().includes(userId);
+  }
+
+  /** Le personnage de ce joueur est-il déjà sur le plateau ? */
+  onBoard(player: TableMember): boolean {
+    return this.encounter().combatants.some((c) => c.owner?.userId === player.userId);
+  }
+
+  /**
+   * Pose le personnage d'un joueur sur le plateau, dans le groupe. Le pion lui
+   * appartient : c'est lui qui le jouera depuis son écran.
+   */
+  addPlayer(player: TableMember): void {
+    this.sheets.get(player.sheetId).subscribe({
+      next: (stored) => {
+        this.encounters.edit((draft) => {
+          const pion = this.factory.fromSheet(stored.data, 'allies', freeSpot(draft, 'allies'), stored.id);
+          pion.owner = { userId: player.userId, username: player.username };
+          draft.combatants.push(pion);
+        });
+      },
+      error: () => this.rosterError.set(`La fiche de ${player.username} n’a pas pu être chargée.`),
+    });
+  }
+
+  /** Se lever de la table : la partie redevient locale. */
+  leaveTable(): void {
+    this.session.leave();
+    this.router.navigate(['/tables']);
+  }
+
 
   /* ── État partagé avec le service ─────────────────────────────────────── */
 
@@ -261,6 +315,15 @@ export class CombatView implements OnDestroy {
   }
 
   constructor() {
+    // Le lien d'une table porte son id : on s'y assoit en arrivant.
+    const table = inject(ActivatedRoute).snapshot.queryParamMap.get('table');
+    if (table) this.session.enter(table);
+
+    // Un joueur n'a pas de rencontre à monter : il n'a que le journal à droite.
+    effect(() => {
+      if (this.session.isPlayer()) this.panel.set('log');
+    });
+
     this.factory.load().subscribe({
       next: () => this.loadingRoster.set(false),
       error: () => {
@@ -331,9 +394,9 @@ export class CombatView implements OnDestroy {
     });
 
     // Poids de ce qui peut entrer dans un sac en cours de séance : les
-    // dépouilles ramassées sur les corps, et les vivres rapportés de la chasse.
+    // dépouilles ramassées sur les corps, les vivres de la chasse et les herbes de la cueillette.
     // Sans eux, l'encombrement du personnage mentirait au report sur sa fiche.
-    for (const collection of ['natural-resources/remains', 'equipment']) {
+    for (const collection of ['natural-resources/remains', 'natural-resources/flora', 'equipment']) {
       this.wiki
         .loadAll<ResourceIndexEntry>(collection)
         .pipe(catchError(() => of([] as ResourceIndexEntry[])))
@@ -801,6 +864,11 @@ export class CombatView implements OnDestroy {
 
   /** Frappe gratuite en attente de cible, s'il y en a une. */
   readonly pending = computed(() => this.encounter().pendingStrike);
+  /** Le combattant à qui la frappe gratuite revient. */
+  readonly pendingActor = computed(() => {
+    const strike = this.pending();
+    return strike ? findUnit(this.encounter(), strike.actorId) : undefined;
+  });
 
   /** Combattants que la frappe gratuite peut atteindre. */
   readonly pendingTargets = computed(() => pendingStrikeTargets(this.encounter()));
@@ -927,6 +995,7 @@ export class CombatView implements OnDestroy {
 
     // Une réaction en attente prime sur tout le reste.
     if (this.reaction()) {
+      if (!this.canPlay(this.reactor())) return;
       const teleport = this.teleporting();
       if (teleport && this.teleportCells().has(key)) {
         this.encounters.dispatch({ type: 'react', abilityId: teleport.id, at: pos });
@@ -938,6 +1007,7 @@ export class CombatView implements OnDestroy {
     // Une frappe gratuite en attente prime ensuite : tant qu'elle n'est pas
     // tranchée, le plateau ne sert qu'à désigner sa cible.
     if (this.pending()) {
+      if (!this.canPlay(this.pendingActor())) return;
       const target = this.unitAt(key);
       if (target && this.pendingCells().has(key)) {
         this.encounters.dispatch({ type: 'freeStrike', targetId: target.id });
@@ -948,6 +1018,9 @@ export class CombatView implements OnDestroy {
     // Peinture du décor : AU MONTAGE uniquement. Une rencontre en cours ne
     // voit pas les murs pousser sous les pieds des combattants, et le camp n'a
     // pas à porter une palette dont personne ne se sert.
+    // Le montage est l'affaire du MJ : un joueur regarde la scène se dresser.
+    if (this.phase() === 'setup' && !this.roles.isGm()) return;
+
     if (this.phase() === 'setup' && this.mode() === 'terrain') {
       const pinceau = this.brush();
       this.encounters.edit((draft) => {
@@ -996,7 +1069,7 @@ export class CombatView implements OnDestroy {
 
     const ability = this.armed();
     const unit = this.active();
-    if (!unit) return;
+    if (!unit || !this.canPlay(unit)) return;
 
     if (ability) {
       // Capacité à cibles désignées : on accumule les clics jusqu'au compte.
@@ -1291,6 +1364,49 @@ export class CombatView implements OnDestroy {
 
   /* ── Ce qui traîne par terre ──────────────────────────────────────────── */
 
+  /** Les pièges d'une case, en une ligne d'infobulle (ou rien). */
+  hazardLabel(key: string): string {
+    const pieges = this.hazardCells().get(key) ?? [];
+    return pieges
+      .map((h) => `${h.name} — posé par le camp « ${TEAM_LABELS[h.team] ?? h.team} »`)
+      .join(', ');
+  }
+
+  /** Cases piégées, recalculées quand la rencontre change. */
+  private readonly hazardCells = computed(() => hazardCellKeys(this.encounter()));
+
+  /** Ce qu'il reste d'un exemplaire entamé (« 5/7 »), ou rien. */
+  usesLabel(item: CarriedItem): string {
+    return usesLabel(item);
+  }
+
+  /** Les pièges du sac qu'on peut armer hors combat. */
+  trapItems(unit: Combatant): CarriedItem[] {
+    if (this.phase() === 'combat') return [];
+    const poses = new Set(
+      unit.abilities.filter((a) => a.placesHazard && a.consumes).map((a) => a.consumes!.item),
+    );
+    return unit.inventory.filter((i) => i.qty > 0 && poses.has(i.name));
+  }
+
+  /** Reste-t-il un piège de son camp à portée de bras ? */
+  hasOwnTrapsNearby(unit: Combatant): boolean {
+    if (this.phase() === 'combat') return false;
+    const bras = cellsWithinReach(unit);
+    const camp = allegianceOf(this.encounter(), unit);
+    return (this.encounter().hazards ?? []).some(
+      (h) => h.team === camp && h.cells.some((c) => bras.some((b) => b.x === c.x && b.y === c.y)),
+    );
+  }
+
+  setTrap(unit: Combatant, item: string): void {
+    this.encounters.dispatch({ type: 'setHazard', actorId: unit.id, item });
+  }
+
+  recoverTraps(unit: Combatant): void {
+    this.encounters.dispatch({ type: 'recoverHazards', actorId: unit.id });
+  }
+
   /** Ce qui est posé sur une case, en une ligne d'infobulle (ou rien). */
   groundLabel(key: string): string {
     const items = this.encounter().ground?.[key] ?? [];
@@ -1408,6 +1524,18 @@ export class CombatView implements OnDestroy {
     }
     if (ability.raisesWall) {
       chips.push(`mur ${ability.raisesWall.length} cases · ${ability.raisesWall.hp} PV`);
+    }
+    // Un piège n'agit pas au lancer : il annonce ce qu'il fera à qui marche dessus.
+    const piege = ability.placesHazard?.spec;
+    if (piege) {
+      for (const d of piege.damages ?? []) chips.push(`${d.min}–${d.max} ${this.damageTypes.resolve(d.type)?.label ?? d.type} au passage`);
+      for (const i of piege.inflicts ?? []) chips.push(`${statusByKey(i.status)?.name ?? i.status} au passage`);
+      if (piege.stops) chips.push('arrête la marche');
+    }
+    // Ce qu'il reste au sac, pour les objets : une munition a déjà son compteur.
+    if (ability.kind === 'item' && ability.consumes) {
+      const ligne = unit.inventory.find((l) => l.name === ability.consumes!.item);
+      if (ligne) chips.push(`reste ${ligne.qty}${usesLabel(ligne) ? ` (entamé ${usesLabel(ligne)})` : ''}`);
     }
     return chips;
   }
@@ -1600,11 +1728,10 @@ export class CombatView implements OnDestroy {
   /** Qui ramasse ce qu'on trouve sur les corps. */
   readonly looterId = signal<string | null>(null);
 
-  readonly activities = ACTIVITIES;
+  /** Au plateau, le groupe marche ou force l'allure : le reste se vit au camp. */
+  readonly travelActivities = ACTIVITIES.filter((a) => a.key === 'route' || a.key === 'effort');
   readonly timeSteps = TIME_STEPS;
   readonly survivalGauges = SURVIVAL_GAUGES;
-  readonly notchesLeft = notchesLeft;
-  readonly survivalStage = stageOf;
   readonly formatDuration = formatDuration;
   readonly pileSize = pileSize;
 
@@ -1641,98 +1768,22 @@ export class CombatView implements OnDestroy {
     this.passTime(Math.round(this.customMinutes() * MINUTE));
   }
 
-  /**
-   * Une nuit complète : huit heures de sommeil d'un bloc. Le raccourci le plus
-   * utilisé d'une séance, et celui qu'on ne veut pas composer à la main.
-   */
-  sleep(): void {
-    this.encounters.dispatch({ type: 'passTime', seconds: 8 * HOUR, activity: 'sommeil' });
+  /** Corrige une jauge à la main, d'un pas de points. */
+  adjustSurvival(unit: Combatant, gauge: SurvivalKey, delta: number): void {
+    const points = pointsLeft(gauge, unit.survival, profileOf(unit.attributes)) + delta;
+    this.encounters.dispatch({ type: 'setSurvival', actorId: unit.id, gauge, points });
   }
 
-  /**
-   * Comble une jauge pour le groupe SANS rien prendre au sac : l'eau d'une
-   * rivière, le gibier d'une chasse. C'est au MJ de dire qu'il y en avait.
-   */
-  restoreAll(gauge: SurvivalKey, source: string): void {
-    const def = SURVIVAL_GAUGES.find((g) => g.key === gauge);
-    this.encounters.dispatch({
-      type: 'restore',
-      gauge,
-      notches: def?.segments ?? 1,
-      source,
-      team: 'allies',
-    });
+  readonly survivalRows = survivalRows;
+  readonly survivalPenalties = survivalPenalties;
+  readonly edibles = edibles;
+
+  survivalOut(unit: Combatant): string {
+    return survivalOut(unit, this.encounter());
   }
 
-  /** Le repas pris sur les vivres : chacun entame son sac, qui se vide. */
-  meal(gauge: SurvivalKey): void {
-    this.encounters.dispatch({ type: 'meal', gauge, team: 'allies' });
-  }
-
-  /** Remplit les outres vides du groupe à une source. */
-  refill(): void {
-    this.encounters.dispatch({ type: 'refill', team: 'allies' });
-  }
-
-  /** La table de chasse, affichée en clair pour que le joueur voie ses chances. */
-  readonly huntTable = HUNT_TABLE;
-
-  /** Bonus de Nature du chasseur désigné, ajouté à son jet de chasse. */
-  readonly huntBonus = computed(() => huntBonus(this.looter()?.skills));
-  /** Les vivres qu'on peut ajouter à la main (achat au village, don). */
-  readonly supplies = HUNGER_SUPPLIES;
-
-  /**
-   * Lance une battue. **Le moteur jette les dés** — une fois sur quatre on
-   * rentre bredouille — et la prise revient à celui qui a lancé la chasse.
-   */
-  hunt(): void {
-    const chasseur = this.looter();
-    if (!chasseur) return;
-    this.encounters.dispatch({ type: 'hunt', actorId: chasseur.id });
-  }
-
-  /** Ajoute des vivres à la main : un achat, un don, une correction du MJ. */
-  provision(item: string): void {
-    this.encounters.dispatch({
-      type: 'provision',
-      item,
-      qty: 1,
-      actorId: this.looter()?.id,
-      source: 'ravitaillement',
-    });
-  }
-
-  /** Corrige une jauge à la main, en cliquant un cran. */
-  setSurvival(unit: Combatant, gauge: SurvivalKey, notches: number): void {
-    const current = notchesLeft(gauge, unit.survival);
-    // Recliquer le cran courant l'efface — même geste que sur la fiche.
-    const value = notches === current ? notches - 1 : notches;
-    this.encounters.dispatch({ type: 'setSurvival', actorId: unit.id, gauge, notches: value });
-  }
-
-  /** Crans d'une jauge, pour le rendu des segments cliquables. */
-  gaugeSegments(gauge: SurvivalGauge): number[] {
-    return Array.from({ length: gauge.segments }, (_, i) => i + 1);
-  }
-
-  /** Ce que la faim, la soif et le sommeil coûtent à ce combattant, en clair. */
-  survivalPenalties(unit: Combatant): string {
-    const mods = survivalMods(unit.survival);
-    if (!mods.length) return '';
-    // Un même stat peut être touché par deux besoins : on additionne avant
-    // d'afficher, sinon on lirait « Endurance −3, Endurance −4 ».
-    const total = new Map<string, number>();
-    for (const mod of mods) total.set(mod.stat, (total.get(mod.stat) ?? 0) + mod.value);
-    return [...total]
-      .map(([stat, value]) => `${STATS.find((s) => s.key === stat)?.label ?? stat} ${value}`)
-      .join(' · ');
-  }
-
-  /** Ce qui nourrit, dans le sac de ce combattant. */
-  edibles(unit: Combatant): CarriedItem[] {
-    return unit.inventory.filter((i) => i.qty > 0 && !!nourishmentOf(i));
-  }
+  /** Un segment de journée, en toutes lettres, pour les bulles d'aide. */
+  readonly segmentLabel = formatDuration(SEGMENT_SECONDS);
 
   eat(unit: Combatant, item: CarriedItem): void {
     this.encounters.dispatch({ type: 'eat', actorId: unit.id, item: item.name });
@@ -1753,6 +1804,10 @@ export class CombatView implements OnDestroy {
    * tient debout et porte un sac.
    */
   readonly looters = computed<Combatant[]>(() => {
+    if (!this.roles.isGm()) {
+      const mine = this.myUnit();
+      return mine && !mine.down ? [mine] : [];
+    }
     const standing = this.encounter().combatants.filter((c) => !c.down);
     const groupe = standing.filter((c) => c.team === 'allies');
     return groupe.length ? groupe : standing;
@@ -1760,49 +1815,6 @@ export class CombatView implements OnDestroy {
 
   /** Le cadavre ouvert dans le panneau de fouille (désigné sur la grille). */
   readonly lootTargetId = signal<string | null>(null);
-  /* ── Entraîner un sort, au camp ────────────────────────────────────────
-     Un sort progresse en étant LANCÉ. Hors combat, on peut aussi le TRAVAILLER :
-     plus lent à la table, mais plein tarif, là où un lancer en situation ne
-     rend que la moitié. Les séances se comptent sur le pion et redescendent
-     sur la fiche au report, comme tout le reste.
-  ─────────────────────────────────────────────────────────────────────────── */
-
-  /** Le pion sélectionné, s'il en est un. */
-  readonly selectedUnit = computed<Combatant | undefined>(() => {
-    const id = this.selectedId();
-    return id ? this.encounter().combatants.find((c) => c.id === id) : undefined;
-  });
-
-  /** Les sorts qu'un pion peut travailler : ceux qu'il a équipés. */
-  readonly trainableSpells = computed(() => {
-    const unit = this.selectedUnit();
-    if (!unit || unit.origin.kind !== 'sheet') return [];
-    const vus = new Set<string>();
-    return unit.abilities
-      .filter((a) => a.kind === 'spell' && !!a.ref)
-      .filter((a) => !vus.has(a.ref!) && vus.add(a.ref!))
-      .map((a) => ({
-        ref: a.ref!,
-        name: a.name,
-        seances: unit.spellTraining?.[a.ref!] ?? 0,
-        lancers: unit.spellCasts?.[a.ref!] ?? 0,
-      }));
-  });
-
-  readonly trainingXp = xpForCast('training');
-  readonly combatXp = xpForCast('combat');
-
-  /** Une séance de travail sur un sort. Rien n'est écrit avant le report. */
-  trainSpell(ref: string, delta: 1 | -1 = 1): void {
-    const unit = this.selectedUnit();
-    if (!unit) return;
-    const seances = { ...(unit.spellTraining ?? {}) };
-    const n = Math.max(0, (seances[ref] ?? 0) + delta);
-    if (n) seances[ref] = n;
-    else delete seances[ref];
-    unit.spellTraining = seances;
-  }
-
   readonly lootTarget = computed<Combatant | undefined>(() => {
     const id = this.lootTargetId();
     return id ? this.encounter().combatants.find((c) => c.id === id) : undefined;
@@ -2221,6 +2233,9 @@ export class CombatView implements OnDestroy {
   readonly menu = signal<{ unit: Combatant; x: number; y: number } | null>(null);
 
   openMenu(event: MouseEvent, unit: Combatant): void {
+    // Changer de camp, retirer un pion : la main du MJ. Le joueur garde le menu
+    // du navigateur.
+    if (!this.roles.isGm()) return;
     if (!this.canEditRoster()) return;
     event.preventDefault();
     // Le clic droit n'émet pas de `click` : le menu ne se referme donc pas sur
@@ -2283,7 +2298,7 @@ export class CombatView implements OnDestroy {
    */
   private walkSelected(pos: GridPos): void {
     const id = this.selectedId();
-    if (!id) return;
+    if (!id || !this.canPlay(findUnit(this.encounter(), id))) return;
     this.encounters.dispatch({ type: 'walk', actorId: id, to: pos });
   }
 

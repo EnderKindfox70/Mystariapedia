@@ -54,6 +54,7 @@
     "Répartir les rations entre tous les sacs du groupe. Un seul sac perdu ne doit jamais être la fin de l'expédition.",
     "Le sel des rations n'est pas du sel de conservation : ne pas puiser dans l'un pour économiser l'autre."
   ],
+  "uses": 7,
   "references": [
     {
       "label": "Matériel associé",

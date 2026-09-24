@@ -167,11 +167,11 @@ export interface SheetPdfData {
   domains: PdfDomain[];
   attributes: { label: string; score: number; mod: string }[];
   bars: { label: string; icon: string; value: number; pct: number }[];
-  /** Jauges de survie : des crans cochés, pas un pourcentage. */
+  /** Jauges de survie : des points à rayer, pas un pourcentage. */
   survival: {
     label: string;
     icon: string;
-    /** Crans cochés / crans totaux. */
+    /** Points restants / taille du réservoir (dépend de la CON). */
     filled: number;
     segments: number;
     /** Verdict en toutes lettres (« Affamé », « Désaltéré »…). */
@@ -1080,14 +1080,13 @@ function statsBlock(p: Painter, d: SheetPdfData, w: number): Block {
 }
 
 /**
- * Jauges de survie. Elles se dessinent en crans séparés — c'est ce qui les
- * distingue des barres de réserves posées juste à côté : ici on coche des
- * jours de réserve, on n'affiche pas une proportion.
+ * Jauges de survie. Elles se dessinent en cases séparées — c'est ce qui les
+ * distingue des barres de réserves posées juste à côté : sur papier, on raye
+ * un point par segment de journée, on n'estime pas une proportion.
  */
 function survivalBlock(p: Painter, d: SheetPdfData, w: number): Block {
   const inner = w - PAD * 2;
   const rowH = 9.5;
-  const gap = 1;
 
   return {
     title: 'Survie',
@@ -1101,6 +1100,9 @@ function survivalBlock(p: Painter, d: SheetPdfData, w: number): Block {
         p.font('Spectral', 'normal', PT.micro, MUTED);
         p.text(`${g.stage} (${g.filled}/${g.segments})`, x + inner, y + 1, 'right');
 
+        // Une case par point : la Faim en compte une cinquantaine, d'où un
+        // interstice resserré au-delà de vingt cases.
+        const gap = g.segments > 20 ? 0.25 : 1;
         const segW = (inner - gap * (g.segments - 1)) / g.segments;
         const trackY = y + 5.4;
         const trackH = 3;

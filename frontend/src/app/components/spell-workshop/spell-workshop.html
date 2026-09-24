@@ -2,7 +2,13 @@
   <div class="ws-row" [class.is-changed]="row.changed">
     <div class="ws-row__name">
       <span class="ws-row__label">{{ row.label }}@if (row.assumption) {<sup title="Coût provisoire : la règle ne le chiffre pas encore">*</sup>}</span>
-      <small [title]="row.costText">{{ row.capText }}</small>
+      @if (row.gate) {
+        <small class="ws-gate" title="Ce réglage n'existe pas encore : il s'ouvre à ce niveau de sort.">
+          <span aria-hidden="true">🔒</span> niveau {{ row.gate.minLevel }}@if (row.gate.reason) { — {{ row.gate.reason }}}
+        </small>
+      } @else {
+        <small [title]="row.costText">{{ row.capText }}</small>
+      }
     </div>
     <button type="button" class="ws-nudge" [disabled]="row.lower.disabled" [title]="row.lower.title"
             aria-label="Diminuer" (click)="step(row.action, row.lower.delta)">
@@ -113,10 +119,12 @@
         @if (opts().statusUnlock; as su) {
           <div class="ws-opt">
             <span class="ws-opt__label">Statut <small>{{ rules.costs.statusUnlock }} pts · {{ rules.unlockedStatusBaseChance }} % de base</small></span>
-            <select aria-label="Statut débloqué" (change)="setStatusUnlock(valueOf($event))">
+            <select aria-label="Statut débloqué" [disabled]="!!gate('statusUnlock')" [title]="gateTitle('statusUnlock')"
+                    (change)="setStatusUnlock(valueOf($event))">
               <option value="" [selected]="!shown().statusUnlock">— aucun —</option>
               @for (s of su.eligible; track s) {
-                <option [value]="s" [selected]="shown().statusUnlock?.status === s" [disabled]="baseStatuses().has(s)">{{ statusName(s) }}</option>
+                <option [value]="s" [selected]="shown().statusUnlock?.status === s"
+                        [disabled]="baseStatuses().has(s) || !!gate('statusUnlock:' + s)">{{ statusName(s) }}{{ gateTag('statusUnlock:' + s) }}</option>
               }
             </select>
           </div>
@@ -126,8 +134,9 @@
           <div class="ws-opt">
             <span class="ws-opt__label" title="Chaque cible touchée recule dans l'axe du lanceur vers elle">
               Repoussement <small>{{ rules.costs.knockbackUnlock }} pts · {{ rules.unlockedKnockbackCells }} case, puis {{ rules.paramKinds.knockback.cost }} pts la case</small></span>
-            <label class="ws-chip" [class.is-on]="!!shown().knockback">
-              <input type="checkbox" [checked]="!!shown().knockback" (change)="toggleKnockback(checkedOf($event))" /> Débloquer
+            <label class="ws-chip" [class.is-on]="!!shown().knockback" [title]="gateTitle('knockbackUnlock')">
+              <input type="checkbox" [checked]="!!shown().knockback" [disabled]="!!gate('knockbackUnlock')"
+                     (change)="toggleKnockback(checkedOf($event))" /> Débloquer{{ gateTag('knockbackUnlock') }}
             </label>
           </div>
           @if (knockbackRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
@@ -136,9 +145,10 @@
           <div class="ws-opt">
             <span class="ws-opt__label">Cible <small>{{ rules.costs.targetUnlock }} pts chacune</small></span>
             @for (t of tu.eligible; track t) {
-              <label class="ws-chip" [class.is-on]="shown().targetUnlocks.includes(t)">
-                <input type="checkbox" [checked]="shown().targetUnlocks.includes(t)" [disabled]="(base().targets ?? []).includes(t)"
-                       (change)="toggleTarget(t, checkedOf($event))" /> {{ targetLabel(t) }}
+              <label class="ws-chip" [class.is-on]="shown().targetUnlocks.includes(t)" [title]="gateTitle('targetUnlock:' + t)">
+                <input type="checkbox" [checked]="shown().targetUnlocks.includes(t)"
+                       [disabled]="(base().targets ?? []).includes(t) || !!gate('targetUnlock:' + t)"
+                       (change)="toggleTarget(t, checkedOf($event))" /> {{ targetLabel(t) }}{{ gateTag('targetUnlock:' + t) }}
               </label>
             }
           </div>
@@ -148,8 +158,9 @@
             <span class="ws-opt__label">{{ scalingField() === 'durationScaling' ? 'Scaling de la durée' : 'Scaling' }}
               <small>{{ durationMoot() ? 'sans objet en mode continu' : rules.costs.scalingUnlock + ' pts · ratio ' + fmt(rules.unlockedScalingRatio) }}</small></span>
             @for (c of scalingChoices(); track c.src) {
-              <label class="ws-chip" [class.is-on]="c.on">
-                <input type="checkbox" [checked]="c.on" [disabled]="c.already || durationMoot()" (change)="toggleScaling(c.src, checkedOf($event))" /> {{ sourceLabel(c.src) }}
+              <label class="ws-chip" [class.is-on]="c.on" [title]="gateTitle('scalingUnlock:' + c.src)">
+                <input type="checkbox" [checked]="c.on" [disabled]="c.already || durationMoot() || !!gate('scalingUnlock:' + c.src)"
+                       (change)="toggleScaling(c.src, checkedOf($event))" /> {{ sourceLabel(c.src) }}{{ gateTag('scalingUnlock:' + c.src) }}
               </label>
             }
           </div>
@@ -158,8 +169,9 @@
         @if (opts().continuousMode) {
           <div class="ws-opt">
             <span class="ws-opt__label">Entretien continu <small>{{ rules.costs.continuousMode }} pts · actif tant que le mana paie</small></span>
-            <label class="ws-chip" [class.is-on]="shown().continuous">
-              <input type="checkbox" [checked]="shown().continuous" (change)="setContinuous(checkedOf($event))" /> Activer
+            <label class="ws-chip" [class.is-on]="shown().continuous" [title]="gateTitle('continuousMode')">
+              <input type="checkbox" [checked]="shown().continuous" [disabled]="!!gate('continuousMode')"
+                     (change)="setContinuous(checkedOf($event))" /> Activer{{ gateTag('continuousMode') }}
             </label>
           </div>
           @if (upkeepRow(); as row) { <ng-container *ngTemplateOutlet="paramRow; context: { $implicit: row }" /> }
@@ -180,8 +192,11 @@
               <span aria-hidden="true">−</span><small>{{ shown().extraTargets > 0 ? '+' + rules.costs.extraTarget : 'min' }}</small>
             </button>
             <span class="ws-row__value"><b>{{ extraTargetsTotal() }}</b></span>
-            <button type="button" class="ws-nudge" [disabled]="extraTargetsTotal() >= targetsCeiling()" aria-label="Augmenter" (click)="extraTargets(1)">
-              <span aria-hidden="true">+</span><small>{{ extraTargetsTotal() < targetsCeiling() ? '−' + rules.costs.extraTarget : 'max' }}</small>
+            <button type="button" class="ws-nudge" [disabled]="extraTargetsTotal() >= targetsCeiling() || !!nextTargetGate()"
+                    [title]="nextTargetGate() ? gateTitle('extraTargets:' + (extraTargetsTotal() + 1)) : 'Une cible de plus'"
+                    aria-label="Augmenter" (click)="extraTargets(1)">
+              <span aria-hidden="true">+</span>
+              <small>@if (nextTargetGate(); as g) { niv. {{ g.minLevel }} } @else { {{ extraTargetsTotal() < targetsCeiling() ? '−' + rules.costs.extraTarget : 'max' }} }</small>
             </button>
             <span class="ws-cost" [class.is-zero]="!shown().extraTargets">{{ signedPts(shown().extraTargets * rules.costs.extraTarget) }}</span>
           </div>
@@ -190,10 +205,10 @@
           <div class="ws-opt">
             <span class="ws-opt__label">Effet simultané <small>{{ rules.costs.extraEffect }} pts · {{ effectsCount() }}/{{ rules.family3Cap }}</small></span>
             @for (e of ee.eligible; track e.stat) {
-              <label class="ws-chip" [class.is-on]="shown().extraEffects.includes(e.stat)">
+              <label class="ws-chip" [class.is-on]="shown().extraEffects.includes(e.stat)" [title]="gateTitle('extraEffects:' + e.stat)">
                 <input type="checkbox" [checked]="shown().extraEffects.includes(e.stat)"
-                       [disabled]="!shown().extraEffects.includes(e.stat) && effectsCount() >= rules.family3Cap"
-                       (change)="toggleEffect(e.stat, checkedOf($event))" /> {{ sourceLabel(e.stat) }} +{{ fmt(e.value) }}
+                       [disabled]="!!gate('extraEffects:' + e.stat) || (!shown().extraEffects.includes(e.stat) && effectsCount() >= rules.family3Cap)"
+                       (change)="toggleEffect(e.stat, checkedOf($event))" /> {{ sourceLabel(e.stat) }} +{{ fmt(e.value) }}{{ gateTag('extraEffects:' + e.stat) }}
               </label>
             }
           </div>
@@ -202,10 +217,11 @@
           <div class="ws-opt">
             <span class="ws-opt__label">Effet propre au sort <small>ce que lui seul sait faire</small></span>
             @for (e of own; track e.id) {
-              <label class="ws-chip" [class.is-on]="shown().ownEffects.includes(e.id)" [title]="e.description ?? ''">
-                <input type="checkbox" [checked]="shown().ownEffects.includes(e.id)"
+              <label class="ws-chip" [class.is-on]="shown().ownEffects.includes(e.id)"
+                     [title]="gateTitle('ownEffects:' + e.id) || (e.description ?? '')">
+                <input type="checkbox" [checked]="shown().ownEffects.includes(e.id)" [disabled]="!!gate('ownEffects:' + e.id)"
                        (change)="toggleOwnEffect(e.id, checkedOf($event))" />
-                {{ e.label }} <small>{{ e.cost ?? rules.costs.extraEffect }} pts</small>
+                {{ e.label }} <small>{{ e.cost ?? rules.costs.extraEffect }} pts{{ gateTag('ownEffects:' + e.id) }}</small>
               </label>
             }
           </div>
@@ -223,7 +239,8 @@
           @for (r of scalingSwapRows(); track r.path) {
             <div class="ws-opt">
               <span class="ws-opt__label">{{ r.label }} <small>{{ r.current }}</small></span>
-              <select [attr.aria-label]="'Source du ratio : ' + r.label" (change)="swapScaling(r.path, valueOf($event))">
+              <select [attr.aria-label]="'Source du ratio : ' + r.label" [disabled]="!!gate('scalingSwap:' + r.path)"
+                      [title]="gateTitle('scalingSwap:' + r.path)" (change)="swapScaling(r.path, valueOf($event))">
                 <option value="" [selected]="!r.value">— garder —</option>
                 @for (c of r.choices; track c.value) { <option [value]="c.value" [selected]="c.value === r.value">{{ c.label }}</option> }
               </select>
@@ -233,27 +250,32 @@
         @if (opts().areaShapeSwap) {
           <div class="ws-opt">
             <span class="ws-opt__label">Forme de zone <small>{{ rules.costs.areaShapeSwap }} pts</small></span>
-            <select (change)="swapArea(valueOf($event))">
+            <select [disabled]="!!gate('areaShapeSwap')" [title]="gateTitle('areaShapeSwap')" (change)="swapArea(valueOf($event))">
               <option value="" [selected]="!shown().swaps.areaShape">{{ currentShape() }}</option>
-              @for (s of shapeChoices(); track s) { <option [value]="s" [selected]="shown().swaps.areaShape === s">{{ s }}</option> }
+              @for (s of shapeChoices(); track s) {
+                <option [value]="s" [selected]="shown().swaps.areaShape === s" [disabled]="!!gate('areaShapeSwap:' + s)">{{ s }}{{ gateTag('areaShapeSwap:' + s) }}</option>
+              }
             </select>
           </div>
         }
         @if (opts().defaultTargetSwap; as dt) {
           <div class="ws-opt">
             <span class="ws-opt__label">Cible par défaut <small>{{ rules.costs.defaultTargetSwap }} pts</small></span>
-            <label class="ws-chip" [class.is-on]="shown().swaps.defaultTarget">
-              <input type="checkbox" [checked]="shown().swaps.defaultTarget" (change)="swapTarget(checkedOf($event))" />
-              {{ targetLabel(dt.pair[0]) }} ↔ {{ targetLabel(dt.pair[1]) }}
+            <label class="ws-chip" [class.is-on]="shown().swaps.defaultTarget" [title]="gateTitle('defaultTargetSwap')">
+              <input type="checkbox" [checked]="shown().swaps.defaultTarget" [disabled]="!!gate('defaultTargetSwap')"
+                     (change)="swapTarget(checkedOf($event))" />
+              {{ targetLabel(dt.pair[0]) }} ↔ {{ targetLabel(dt.pair[1]) }}{{ gateTag('defaultTargetSwap') }}
             </label>
           </div>
         }
         @if (opts().statusTypeSwap) {
           <div class="ws-opt">
             <span class="ws-opt__label">Statut infligé <small>{{ rules.costs.statusTypeSwap }} pts</small></span>
-            <select (change)="swapStatus(valueOf($event))">
+            <select [disabled]="!!gate('statusTypeSwap')" [title]="gateTitle('statusTypeSwap')" (change)="swapStatus(valueOf($event))">
               <option value="" [selected]="!statusSwapValue()">— garder —</option>
-              @for (c of statusSwapChoices(); track c.value) { <option [value]="c.value" [selected]="c.value === statusSwapValue()">{{ c.label }}</option> }
+              @for (c of statusSwapChoices(); track c.value) {
+                <option [value]="c.value" [selected]="c.value === statusSwapValue()" [disabled]="!!gate('statusTypeSwap:' + c.to)">{{ c.label }}{{ gateTag('statusTypeSwap:' + c.to) }}</option>
+              }
             </select>
           </div>
         }
@@ -261,10 +283,10 @@
           <div class="ws-opt">
             <span class="ws-opt__label" title="Substitution entière : le coup change de nature, les dégâts ne bougent pas">
               Type de dégâts <small>{{ rules.costs.damageTypeSwap }} pts</small></span>
-            <select (change)="swapDamageType(valueOf($event))">
+            <select [disabled]="!!gate('damageTypeSwap')" [title]="gateTitle('damageTypeSwap')" (change)="swapDamageType(valueOf($event))">
               <option value="" [selected]="!shown().swaps.damageType">— {{ damageTypeLabel(baseDamageType()) }} —</option>
               @for (t of damageTypeSwapChoices(); track t) {
-                <option [value]="t" [selected]="t === shown().swaps.damageType">{{ damageTypeLabel(t) }}</option>
+                <option [value]="t" [selected]="t === shown().swaps.damageType" [disabled]="!!gate('damageTypeSwap:' + t)">{{ damageTypeLabel(t) }}{{ gateTag('damageTypeSwap:' + t) }}</option>
               }
             </select>
           </div>
@@ -275,10 +297,11 @@
           <div class="ws-opt" [class.is-off]="!!crossDomainNote()">
             <span class="ws-opt__label" title="Ouvre la répartition vers un domaine que le lanceur a aussi investi ; n'ajoute aucun dégât">
               Domaine non natif <small>{{ rules.costs.crossDomainUnlock }} pts · aucun dégât ajouté</small></span>
-            <select [disabled]="!!crossDomainNote()" (change)="setCrossDomain(valueOf($event))">
+            <select [disabled]="!!crossDomainNote() || !!gate('crossDomain')" [title]="gateTitle('crossDomain')" (change)="setCrossDomain(valueOf($event))">
               <option value="" [selected]="!shown().crossDomain">— aucun —</option>
               @for (d of crossDomainChoices(); track d.key) {
-                <option [value]="d.key" [selected]="shown().crossDomain === d.key" [disabled]="!d.reachable">{{ d.label }}</option>
+                <option [value]="d.key" [selected]="shown().crossDomain === d.key"
+                        [disabled]="!d.reachable || !!gate('crossDomain:' + d.key)">{{ d.label }}{{ gateTag('crossDomain:' + d.key) }}</option>
               }
             </select>
             @if (crossDomainNote(); as note) {
@@ -299,8 +322,10 @@
               <span aria-hidden="true">−</span><small>{{ mix().tenths > 0 ? mixHint(-1) : 'min' }}</small>
             </button>
             <span class="ws-row__value"><b>{{ mix().tenths * 10 }} %</b></span>
-            <button type="button" class="ws-nudge" [disabled]="mix().tenths >= 10" aria-label="Plus de 10 %" (click)="mixStep(1)">
-              <span aria-hidden="true">+</span><small>{{ mix().tenths < 10 ? mixHint(1) : 'max' }}</small>
+            <button type="button" class="ws-nudge" [disabled]="mix().tenths >= 10 || !!gate('mix:' + type)"
+                    [title]="gateTitle('mix:' + type)" aria-label="Plus de 10 %" (click)="mixStep(1)">
+              <span aria-hidden="true">+</span>
+              <small>@if (gate('mix:' + type); as g) { niv. {{ g.minLevel }} } @else { {{ mix().tenths < 10 ? mixHint(1) : 'max' }} }</small>
             </button>
             <span class="ws-cost" [class.is-zero]="!mix().steps">{{ signedPts(mix().steps * rules.costs.mixPerTenth) }}</span>
           </div>
@@ -308,11 +333,31 @@
             <div class="ws-opt">
               <span class="ws-opt__label">Type secondaire</span>
               <select (change)="setMixType(valueOf($event))">
-                @for (t of mixTargets(); track t) { <option [value]="t" [selected]="t === type">{{ damageTypeLabel(t) }}</option> }
+                @for (t of mixTargets(); track t) {
+                  <option [value]="t" [selected]="t === type" [disabled]="!!gate('mix:' + t)">{{ damageTypeLabel(t) }}{{ gateTag('mix:' + t) }}</option>
+                }
               </select>
             </div>
           }
         }
+      </section>
+    }
+
+    <!-- Ce que le sort garde en réserve : les seuils ne s'achètent pas, ils
+         s'attendent. Les montrer tous, franchis compris, évite d'avoir à
+         parcourir les réglages pour deviner ce qui viendra plus haut. -->
+    @if (gates().length) {
+      <section class="ws-fam ws-fam--6">
+        <h3>Seuils de niveau <small>hors budget — ça ne s’achète pas, ça se pratique</small></h3>
+        <ul class="ws-gates">
+          @for (g of gates(); track g.key) {
+            <li [class.is-open]="g.open">
+              <span aria-hidden="true">{{ g.open ? '✓' : '🔒' }}</span>
+              <b>Niveau {{ g.minLevel }}</b>
+              <span class="ws-gates__what">{{ g.label }}@if (g.reason) { <small>{{ g.reason }}</small> }</span>
+            </li>
+          }
+        </ul>
       </section>
     }
 

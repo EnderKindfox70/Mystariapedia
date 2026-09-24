@@ -14,6 +14,8 @@ import {
   fromSpellEntry,
   formatVolume,
   formatWeight,
+  gateOf,
+  gateSummary,
   lintSpell,
   measureLines,
   paramView,
@@ -547,5 +549,108 @@ describe('Règles du moteur, sur le sort d’essai', () => {
     // Un verrou narratif (hors stats) compte toujours.
     const narrative = sample({ lockedFields: [{ field: 'narrativeResistance', reason: 'seul un 20 naturel' }] });
     expect(relevantLocks(narrative)).toHaveLength(1);
+  });
+});
+
+/* ──────────────────────────────────────────────────────────────────────────
+   SEUILS DE NIVEAU — ce qui ne s'achète pas, ce qui s'attend.
+
+   Deux limites de nature différente cohabitent : le BUDGET (combien on peut
+   dépenser) et le SEUIL (à partir de quand une option existe). Les tests
+   ci-dessous éprouvent la seconde sur le sort d'essai, jamais sur une fiche
+   publiée — aucune n'en déclare pour l'instant, et c'est voulu.
+─────────────────────────────────────────────────────────────────────────── */
+
+describe('Seuils de niveau', () => {
+  /** Le sort d'essai, doté d'un statut débloquable et de deux seuils. */
+  const gated = (gates: Record<string, number | { minLevel: number; reason?: string }>) => {
+    const base = sample();
+    return sample({
+      customization: {
+        ...base.customization,
+        gates,
+        statusUnlock: { eligible: ['brulure', 'paralysie'] },
+        ownEffects: [{ id: 'embrase', label: 'Embrasement', grants: { cleanses: ['gel'] } }],
+      },
+    });
+  };
+
+  it('ferme une option sous le seuil, et l’ouvre au niveau dit', () => {
+    const spell = gated({ 'statusUnlock:paralysie': 3 });
+    const build = { ...emptyBuild(), statusUnlock: { status: 'paralysie', steps: 0 } };
+
+    const tot = assessAtLevel(spell, build, 2, ctx);
+    expect(tot.valid).toBe(false);
+    expect(tot.errors.join(' ')).toContain('niveau 3');
+    // Fermée veut dire ABSENTE : le statut n'est pas infligé, et rien n'est facturé.
+    expect((tot.stats.inflicts ?? []).some((i) => i.status === 'paralysie')).toBe(false);
+    expect(tot.net).toBe(0);
+
+    const ouvert = assessAtLevel(spell, build, 3, ctx);
+    expect(ouvert.valid).toBe(true);
+    expect((ouvert.stats.inflicts ?? []).some((i) => i.status === 'paralysie')).toBe(true);
+    expect(ouvert.net).toBe(DEFAULT_RULES.costs.statusUnlock);
+  });
+
+  it('ne ferme que l’entrée visée : le reste de la famille passe', () => {
+    const spell = gated({ 'statusUnlock:paralysie': 4 });
+    const brulure = assessAtLevel(spell, { ...emptyBuild(), statusUnlock: { status: 'brulure', steps: 0 } }, 1, ctx);
+    expect(brulure.valid).toBe(true);
+  });
+
+  it('un seuil de famille ferme tout le bloc, une entrée peut le devancer', () => {
+    const spell = gated({ statusUnlock: 4, 'statusUnlock:brulure': 2 });
+    // La famille tient pour ce qu'elle n'a pas nommé…
+    expect(assessAtLevel(spell, { ...emptyBuild(), statusUnlock: { status: 'paralysie', steps: 0 } }, 3, ctx).valid).toBe(false);
+    // … et la clé précise l'emporte, même pour OUVRIR plus tôt.
+    expect(assessAtLevel(spell, { ...emptyBuild(), statusUnlock: { status: 'brulure', steps: 0 } }, 2, ctx).valid).toBe(true);
+    expect(gateOf(spell, 'statusUnlock:brulure')?.minLevel).toBe(2);
+    expect(gateOf(spell, 'statusUnlock:paralysie')?.minLevel).toBe(4);
+  });
+
+  it('vaut pour un paramètre, un effet propre et un palier de cibles', () => {
+    const spell = gated({ 'param:damage': 2, 'ownEffects:embrase': 5 });
+    expect(assessAtLevel(spell, { params: { damage: 1 } }, 1, ctx).valid).toBe(false);
+    // Le cran refusé ne s'applique pas : le socle reste intact.
+    expect(assessAtLevel(spell, { params: { damage: 1 } }, 1, ctx).stats.damageMax).toBe(4);
+    expect(assessAtLevel(spell, { params: { damage: 1 } }, 2, ctx).valid).toBe(true);
+    expect(assessAtLevel(spell, { ...emptyBuild(), ownEffects: ['embrase'] }, 4, ctx).valid).toBe(false);
+    expect(assessAtLevel(spell, { ...emptyBuild(), ownEffects: ['embrase'] }, 5, ctx).valid).toBe(true);
+
+    // Les cibles simultanées se comptent en TOTAL atteint, pas en crans achetés.
+    const base = sample();
+    const cibles = sample({
+      customization: { ...base.customization, gates: { 'extraTargets:3': 4 }, extraTargets: { base: 1 } },
+    });
+    expect(assessAtLevel(cibles, { ...emptyBuild(), extraTargets: 1 }, 2, ctx).valid).toBe(true);
+    expect(assessAtLevel(cibles, { ...emptyBuild(), extraTargets: 2 }, 2, ctx).valid).toBe(false);
+    expect(assessAtLevel(cibles, { ...emptyBuild(), extraTargets: 2 }, 4, ctx).valid).toBe(true);
+  });
+
+  it('un sort sans seuil ne change pas d’un iota', () => {
+    const spell = sample();
+    for (let lvl = 0; lvl <= DEFAULT_RULES.maxSpellLevel; lvl++) {
+      expect(assessAtLevel(spell, emptyBuild(), lvl, ctx).valid).toBe(true);
+    }
+    expect(gateSummary(spell, 5)).toEqual([]);
+  });
+
+  it('le récapitulatif dit ce qui est franchi et ce qui attend', () => {
+    const spell = gated({ 'statusUnlock:paralysie': { minLevel: 3, reason: 'la poigne vient avec la pratique' } });
+    const [seuil] = gateSummary(spell, 2);
+    expect(seuil.minLevel).toBe(3);
+    expect(seuil.open).toBe(false);
+    expect(seuil.label).toContain('paralysie');
+    expect(seuil.reason).toContain('pratique');
+    expect(gateSummary(spell, 3)[0].open).toBe(true);
+  });
+
+  it('le lint refuse une clé qui ne vise rien', () => {
+    expect(lintSpell(gated({ 'statusUnlock:paralysie': 3 }), DEFAULT_RULES, refSets)).toEqual([]);
+    // Famille inconnue, entrée inconnue, option non ouverte, niveau hors bornes.
+    expect(lintSpell(gated({ inventé: 2 })).some((i) => i.includes('aucune option connue'))).toBe(true);
+    expect(lintSpell(gated({ 'statusUnlock:sommeil': 2 })).some((i) => i.includes('absente'))).toBe(true);
+    expect(lintSpell(gated({ continuousMode: 2 })).some((i) => i.includes("n'ouvre pas"))).toBe(true);
+    expect(lintSpell(gated({ 'param:damage': 9 })).some((i) => i.includes('seuil va de 1'))).toBe(true);
   });
 });

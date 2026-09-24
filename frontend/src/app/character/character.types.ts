@@ -54,6 +54,11 @@ export interface InventoryItem {
   name: string;
   qty: number;
   weight: number;
+  /**
+   * Usages restants de l'exemplaire entamé, pour un objet qui en compte
+   * plusieurs (un lot de rations : 7 jours). Absent, l'exemplaire est intact.
+   */
+  usesLeft?: number;
 }
 
 /** Identité du personnage. race/background sont la catégorie affichée entre
@@ -334,6 +339,20 @@ export interface CharacterSheet {
   raceAttributePicks?: AttributeKey[];
   /** Jusqu'à 3 clés de domaine de magie. */
   domains: string[];
+  /**
+   * Branches non polarisées ouvertes À LA MAIN (`renforcement`, `emission`).
+   *
+   * Un vécu les ouvre d'ordinaire — le trait d'un background, une enfance dans
+   * l'Archipel, un slot de feat. Mais la table tranche plus souvent que le
+   * catalogue ne prévoit : un maître croisé sur la route, une campagne qui
+   * commence après coup. La fiche enregistre alors l'ouverture telle quelle,
+   * sans lui inventer une justification.
+   *
+   * Ce champ n'est qu'un AJOUT : ce que le vécu ouvre reste ouvert même sans
+   * y figurer, et le retirer d'ici ne referme rien de ce que la race, le
+   * background ou l'origine accordent.
+   */
+  nonPolarUnlocks?: string[];
   attributes: Record<AttributeKey, number>;
   /** Mode de génération des attributs : achat de points ou lancer de dés. */
   attributeMode?: 'pointbuy' | 'roll';
@@ -344,12 +363,18 @@ export interface CharacterSheet {
   /** Affectation mode 'roll' : attribut → index dans `attributeRolls` (-1 = non affecté). */
   attributeAssign?: Record<AttributeKey, number>;
   /**
-   * Crans restants des jauges de survie (faim, soif). Contrairement aux
-   * statistiques, ces valeurs ne se recalculent pas : elles suivent le voyage,
-   * donc la fiche les stocke. Optionnel — une fiche antérieure à ce champ
-   * repart d'une jauge pleine (cf. SURVIVAL_GAUGES).
+   * ANCIEN format des jauges de survie : des crans restants (6 / 4 / 5). Plus
+   * écrit ; seulement relu pour convertir une fiche d'avant la refonte en
+   * points (cf. `sheetSurvivalLoss`).
    */
   survival?: Record<SurvivalKey, number>;
+  /**
+   * Creux des jauges de survie — faim, soif, fatigue — en points : ce qui
+   * MANQUE au réservoir. 0 partout = plein. Comme pour les réserves, on garde
+   * le creux et non le niveau : le maximum dépend de la Constitution et se
+   * recalcule (cf. `survivalMax`). Absent = jauges pleines.
+   */
+  survivalLoss?: Record<SurvivalKey, number>;
   /**
    * Creux des réserves : ce qui MANQUE aux points de vie, à l'endurance et au
    * mana, en points. 0 partout = à plein.

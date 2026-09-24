@@ -219,8 +219,7 @@ li
     margin-inline: auto;
 }
 
-.pie-chart__base,
-.pie-chart__slice
+.pie-chart__base
 {
     fill: none;
     stroke-width: 22;
@@ -231,11 +230,10 @@ li
     stroke: rgba(34, 23, 19, .16);
 }
 
+/* Parts dessinées en secteurs pleins (cf. ringSector) : ni trait ni rotation. */
 .pie-chart__slice
 {
     cursor: pointer;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
     transition: filter .2s ease, opacity .2s ease;
 }
 
@@ -336,6 +334,14 @@ li
     border-color: color-mix(in srgb, var(--chart-color) 64%, #221713);
 }
 
+.domain-pie__icon
+{
+    width: 1.15rem;
+    height: 1.15rem;
+    object-fit: contain;
+    justify-self: center;
+}
+
 .pie-chart__item.is-dimmed,
 .domain-pie__item.is-dimmed
 {
@@ -368,17 +374,19 @@ li
     font-size: .9rem;
 }
 
+/* Deux colonnes tant qu'elles tiennent « Électricité 10% » + icône ; sinon une
+   seule, plutôt que de faire chevaucher libellé et pourcentage. */
 .domain-pie__legend
 {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
     gap: .32rem;
 }
 
 .domain-pie__item
 {
     display: grid;
-    grid-template-columns: .55rem minmax(0, 1fr) auto;
+    grid-template-columns: 1.15rem minmax(0, 1fr) auto;
     gap: .38rem;
     align-items: center;
     min-height: 1.95rem;
@@ -389,6 +397,14 @@ li
     border: 1px solid rgba(34, 23, 19, .14);
     transition: background .2s ease, border-color .2s ease, opacity .2s ease;
     cursor: pointer;
+}
+
+.domain-pie__item > span:not(.pie-chart__mark)
+{
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .domain-pie__item strong

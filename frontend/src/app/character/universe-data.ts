@@ -420,30 +420,47 @@ export const BAR_STATS = STATS.filter((s) => s.key !== 'def_phy' && s.key !== 'd
 /** Les deux défenses, affichées en deux icônes empilées (pas de barre). */
 export const DEFENSE_STATS = STATS.filter((s) => s.key === 'def_phy' || s.key === 'def_mag');
 
-/* ── Survie : faim & soif ─────────────────────────────────────────────────── */
+/* ── Survie : faim, soif, fatigue ─────────────────────────────────────────── */
 
 /**
  * Une jauge de survie.
  *
- * Faim et soif ne se calculent pas comme les statistiques : ce sont des
- * compteurs que la table coche au fil des jours de voyage. D'où l'affichage en
- * CRANS (un cran = un jour de réserve) et non en barre continue — personne
- * n'estime « 43 % de soif », on raye un cran le soir venu.
+ * Faim, soif et fatigue ne se calculent pas comme les statistiques : ce sont
+ * des réserves que le voyage use et que les repas, l'eau et le sommeil
+ * comblent. Leur TAILLE, elle, se calcule (cf. `survivalMax`) : la
+ * Constitution fait varier le réservoir, pas la vitesse à laquelle il se vide.
+ *
+ * Cf. `mystaria_gameplay_survie.md`, section 2 (chiffrage) et section 18
+ * (« Manque », les paliers unifiés).
  */
 export interface SurvivalGauge {
   key: SurvivalKey;
   label: string;
   icon: string;
-  /** Nombre de crans, soit la réserve maximale en jours. */
-  segments: number;
-  /** Verdicts du plus vide au plus plein ; le dernier vaut « jauge pleine ». */
-  stages: string[];
+  /** Verdict de chaque palier, du plein au critique (cf. `SURVIVAL_TIERS`). */
+  stages: Record<SurvivalTier, string>;
 }
 
 /**
- * Les trois jauges, de la plus longue laisse à la plus courte. On tient bien
- * plus longtemps le ventre vide que les yeux ouverts, et les yeux ouverts plus
- * longtemps que la gorge sèche : c'est ce que disent leurs nombres de crans.
+ * Les cinq paliers d'une jauge. Un seul actif à la fois : le plus sévère
+ * atteint, jamais cumulé avec ses propres paliers inférieurs.
+ */
+export type SurvivalTier = 'plein' | 'leger' | 'modere' | 'severe' | 'critique';
+
+/** Du moins grave au plus grave. */
+export const SURVIVAL_TIERS: SurvivalTier[] = ['plein', 'leger', 'modere', 'severe', 'critique'];
+
+export const SURVIVAL_TIER_LABELS: Record<SurvivalTier, string> = {
+  plein: 'Plein',
+  leger: 'Léger',
+  modere: 'Modéré',
+  severe: 'Sévère',
+  critique: 'Critique',
+};
+
+/**
+ * Les trois jauges, de la plus longue laisse à la plus courte : on tient bien
+ * plus longtemps le ventre vide que la gorge sèche.
  */
 export const SURVIVAL_GAUGES: SurvivalGauge[] = [
   {
@@ -451,50 +468,327 @@ export const SURVIVAL_GAUGES: SurvivalGauge[] = [
     label: 'Faim',
     // Écuelle fumante.
     icon: 'M3 12h18a9 9 0 0 1-18 0zM9 3v2M12 2v3M15 3v2',
-    segments: 6,
-    stages: ['Affamé', 'Le ventre creux', 'Sur sa faim', 'Rassasié'],
-  },
-  {
-    key: 'rest',
-    label: 'Sommeil',
-    // Croissant de lune.
-    icon: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',
-    segments: 5,
-    stages: ['Épuisé', 'Harassé', 'Fatigué', 'Frais et dispos'],
+    stages: {
+      plein: 'Rassasié',
+      leger: 'Sur sa faim',
+      modere: 'Le ventre creux',
+      severe: 'Affamé',
+      critique: 'Inanition',
+    },
   },
   {
     key: 'thirst',
     label: 'Soif',
     // Gobelet et son niveau d'eau.
     icon: 'M6 4h12l-1.2 15.1A2 2 0 0 1 14.8 21H9.2a2 2 0 0 1-2-1.9zM6.6 9h10.8',
-    segments: 4,
-    stages: ['Déshydraté', 'Assoiffé', 'La gorge sèche', 'Désaltéré'],
+    stages: {
+      plein: 'Désaltéré',
+      leger: 'La gorge sèche',
+      modere: 'Assoiffé',
+      severe: 'Déshydraté',
+      critique: 'Déshydratation',
+    },
+  },
+  {
+    key: 'rest',
+    label: 'Fatigue',
+    // Croissant de lune.
+    icon: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',
+    stages: {
+      plein: 'Reposé',
+      leger: 'Fatigué',
+      modere: 'Harassé',
+      severe: 'Épuisé',
+      critique: 'Effondré',
+    },
   },
 ];
 
-/** Ramène une valeur reçue dans les bornes de la jauge (entier, 0 → segments). */
-export const clampSurvival = (gauge: SurvivalGauge, value: unknown): number =>
-  Math.max(0, Math.min(gauge.segments, Math.round(Number(value) || 0)));
+/** La jauge portant cette clé (les trois sont toujours définies). */
+export const survivalGauge = (key: SurvivalKey): SurvivalGauge =>
+  SURVIVAL_GAUGES.find((g) => g.key === key)!;
 
-/** Jauges pleines — état de départ d'une fiche neuve. */
-export const fullSurvival = (): Record<SurvivalKey, number> =>
-  Object.fromEntries(SURVIVAL_GAUGES.map((g) => [g.key, g.segments])) as Record<
-    SurvivalKey,
-    number
-  >;
+/** Segments d'une journée : l'unité dans laquelle Faim et Soif se comptent. */
+export const SEGMENTS_PER_DAY = 4;
+
+/** Jauge de Repos : identique pour tous, le besoin de sommeil ne varie pas avec la CON. */
+export const REST_MAX = 15;
+
+/** Points de Repos perdus par phase passée éveillée en dette de sommeil. */
+export const REST_PER_PHASE = 3;
 
 /**
- * Verdict correspondant au nombre de crans restants. Les crans intermédiaires
- * se répartissent sur les verdicts situés entre « vide » et « plein », pour que
- * la même liste serve des jauges de longueurs différentes.
+ * Taille d'une jauge pour ces attributs.
+ *
+ * ```
+ * Faim (max)  = 48 + mod. CON × 6   (~12 jours d'autonomie)
+ * Soif (max)  = 16 + mod. CON × 2   (~4 jours, ratio 3:1 avec la Faim)
+ * Repos (max) = 15                  (pour tout le monde)
+ * ```
+ *
+ * Plancher à 1 : même un corps très frêle a de quoi tenir un segment.
  */
-export function survivalStage(gauge: SurvivalGauge, value: number): string {
-  const filled = clampSurvival(gauge, value);
-  if (filled <= 0) return gauge.stages[0];
-  if (filled >= gauge.segments) return gauge.stages[gauge.stages.length - 1];
-  const inner = gauge.stages.length - 2; // verdicts disponibles entre les deux extrêmes
-  const ratio = (filled - 1) / Math.max(1, gauge.segments - 1);
-  return gauge.stages[Math.min(inner, 1 + Math.floor(ratio * inner))];
+export function survivalMax(key: SurvivalKey, attributes: Record<AttributeKey, number>): number {
+  const con = abilityModifier(attributes.constitution);
+  if (key === 'hunger') return Math.max(1, 48 + con * 6);
+  if (key === 'thirst') return Math.max(1, 16 + con * 2);
+  return REST_MAX;
+}
+
+/** Les trois maxima d'un coup. */
+export const survivalMaxima = (
+  attributes: Record<AttributeKey, number>,
+): Record<SurvivalKey, number> => ({
+  hunger: survivalMax('hunger', attributes),
+  thirst: survivalMax('thirst', attributes),
+  rest: survivalMax('rest', attributes),
+});
+
+/**
+ * Points de Faim consommés par segment.
+ *
+ * Un seul tick de base (−1/segment) pour Faim et Soif ; la masse musculaire
+ * coûte en plus un point par tranche de 2 de mod. FOR au-dessus de +2 (+3 et
+ * +4 → 2/segment, +5 et +6 → 3/segment). La Soif n'est pas touchée : l'eau
+ * suit la corpulence et le climat, pas le muscle.
+ */
+export function hungerPerSegment(attributes: Record<AttributeKey, number>): number {
+  const force = abilityModifier(attributes.force);
+  return 1 + Math.max(0, Math.floor((force - 1) / 2));
+}
+
+/** Une valeur ramenée dans [0, max]. */
+export const clampSurvival = (max: number, value: unknown): number =>
+  Math.max(0, Math.min(max, Number(value) || 0));
+
+/**
+ * Points restants, tels qu'on les annonce à la table.
+ *
+ * L'usure court en continu, mais un point ne se raye qu'une fois le segment
+ * entièrement écoulé : on arrondit donc à l'entier SUPÉRIEUR. Une jauge à 47,5
+ * se lit 48 — le point n'est pas encore perdu.
+ */
+export const survivalPoints = (max: number, loss: number | undefined): number =>
+  Math.max(0, Math.min(max, Math.ceil(max - Math.max(0, loss ?? 0) - 1e-9)));
+
+/**
+ * Palier atteint pour ces points restants.
+ *
+ * Faim et Soif : en POURCENTAGE du max (75 / 50 / 25 %) — la CON allonge la
+ * durée de chaque palier sans en changer les bornes. Fatigue : bandes fixes de
+ * 5 points (15 → 10 → 5 → 0), les mêmes pour tout le monde.
+ */
+export function survivalTier(key: SurvivalKey, points: number, max: number): SurvivalTier {
+  if (points <= 0) return 'critique';
+  if (key === 'rest') {
+    if (points <= 5) return 'severe';
+    if (points <= 10) return 'modere';
+    return points < max ? 'leger' : 'plein';
+  }
+  const ratio = points / Math.max(1, max);
+  if (ratio <= 0.25) return 'severe';
+  if (ratio <= 0.5) return 'modere';
+  if (ratio <= 0.75) return 'leger';
+  return 'plein';
+}
+
+/** Verdict affiché (« Le ventre creux », « Épuisé »). */
+export const survivalStage = (key: SurvivalKey, points: number, max: number): string =>
+  survivalGauge(key).stages[survivalTier(key, points, max)];
+
+/**
+ * Ce qu'un palier coûte. Tout se lit en CRANS de dé (1 cran = 5 points de
+ * précision, cf. section 13) et en part d'Endurance maximum retirée : aucune
+ * mécanique séparée, les malus passent par le seuil et par le pool qui paie
+ * les compétences de classe.
+ */
+export interface NeedEffect {
+  /** Crans perdus sur les jets PHYSIQUES (armes, capacités hors sorts). */
+  physicalSteps: number;
+  /** Crans de gêne d'incantation : perdus sur les jets de SORTS. */
+  castingSteps: number;
+  /** Part de l'Endurance maximum retirée (0,25 = −25 %). */
+  enduranceShare: number;
+  /** Perte de connaissance (ou endormissement) quand le palier est critique. */
+  knockout?: {
+    segments: number;
+    /** Endormissement involontaire (Fatigue) plutôt qu'évanouissement. */
+    sleep: boolean;
+  };
+  /**
+   * Faim et Soif s'usent au double du rythme ce jour-là (Manque de mana
+   * sévère) : c'est la réciprocité de la section 2, enfin chiffrée.
+   */
+  strain?: boolean;
+}
+
+const NO_EFFECT: NeedEffect = { physicalSteps: 0, castingSteps: 0, enduranceShare: 0 };
+
+/**
+ * Durée d'une perte de connaissance : `base − mod. CON` segments, minimum 1.
+ * Base 3 pour la Faim, la Soif et le vide de mana ; 2 pour l'endormissement.
+ */
+export const knockoutSegments = (base: number, con: number): number => Math.max(1, base - con);
+
+/**
+ * La Fatigue pèse moins sur un corps robuste : chaque tranche de +2 en mod.
+ * CON retire un cran de précision, sans jamais descendre sous −1 cran tant que
+ * le palier s'applique.
+ */
+const fatigueSteps = (steps: number, con: number): number =>
+  Math.max(1, steps - Math.floor(Math.max(0, con) / 2));
+
+/**
+ * Coût d'un palier de jauge corporelle.
+ *
+ * - **Faim** → précision PHYSIQUE : un corps affamé frappe mal.
+ * - **Soif** → gêne d'INCANTATION : un corps déshydraté ne tient plus son flux.
+ * - **Fatigue** → le corps d'abord (précision physique, Endurance), la magie
+ *   ensuite (−1 cran d'incantation au palier sévère seulement).
+ *
+ * Le palier critique garde les malus du sévère : on se réveille toujours à
+ * vide tant qu'on n'a pas mangé, bu ou dormi.
+ */
+export function needEffect(key: SurvivalKey, tier: SurvivalTier, con: number): NeedEffect {
+  if (tier === 'plein' || tier === 'leger') return NO_EFFECT;
+  const grave = tier === 'severe' || tier === 'critique';
+
+  if (key === 'rest') {
+    return {
+      physicalSteps: fatigueSteps(grave ? 2 : 1, con),
+      castingSteps: grave ? 1 : 0,
+      // −30 % de base, −2 % par point de mod. CON, plancher à −15 %.
+      enduranceShare: grave ? Math.min(0.9, Math.max(0.15, 0.3 - 0.02 * con)) : 0,
+      knockout:
+        tier === 'critique' ? { segments: knockoutSegments(2, con), sleep: true } : undefined,
+    };
+  }
+
+  const steps = grave ? 2 : 1;
+  return {
+    physicalSteps: key === 'hunger' ? steps : 0,
+    castingSteps: key === 'thirst' ? steps : 0,
+    enduranceShare: grave ? 0.25 : 0,
+    knockout:
+      tier === 'critique' ? { segments: knockoutSegments(3, con), sleep: false } : undefined,
+  };
+}
+
+/* ── Manque de mana ──────────────────────────────────────────────────────── */
+
+/**
+ * Le Manque de mana, construit en écho de la Faim : l'épuisement magique donne
+ * des « symptômes type manque : sueurs froides, nausées, confusion, faim ».
+ * Il se lit sur la Réserve elle-même (pas de jauge à tenir) et se réévalue à
+ * chaque sort lancé.
+ */
+export const MANA_NEED = {
+  label: 'Manque de mana',
+  stages: {
+    plein: 'Réserve saine',
+    leger: 'Réserve entamée',
+    modere: 'Manque',
+    severe: 'Manque sévère',
+    critique: 'Vide magique',
+  } as Record<SurvivalTier, string>,
+};
+
+/**
+ * Palier de Manque pour une Réserve donnée : 50 / 25 / 10 % puis 0.
+ * Rien pour qui n'a pas de Réserve — un guerrier sans mana n'est pas « vide ».
+ */
+export function manaTier(current: number, max: number): SurvivalTier | undefined {
+  if (max <= 0) return undefined;
+  if (current <= 0) return 'critique';
+  const ratio = current / max;
+  if (ratio <= 0.1) return 'severe';
+  if (ratio <= 0.25) return 'modere';
+  if (ratio <= 0.5) return 'leger';
+  return 'plein';
+}
+
+/**
+ * Coût d'un palier de Manque de mana.
+ *
+ * Modéré : −1 cran d'incantation. Sévère : −2 crans d'incantation, −1 cran
+ * physique, et Faim/Soif s'usent deux fois plus vite ce jour-là. Critique :
+ * perte de connaissance, `3 − mod. CON` segments.
+ */
+export function manaEffect(tier: SurvivalTier | undefined, con: number): NeedEffect {
+  if (!tier || tier === 'plein' || tier === 'leger') return NO_EFFECT;
+  if (tier === 'modere') return { ...NO_EFFECT, castingSteps: 1 };
+  return {
+    physicalSteps: 1,
+    castingSteps: 2,
+    enduranceShare: 0,
+    strain: true,
+    knockout:
+      tier === 'critique' ? { segments: knockoutSegments(3, con), sleep: false } : undefined,
+  };
+}
+
+/** Ce qu'un effet coûte, en toutes lettres (« précision physique −2 crans »…). */
+export function describeNeedEffect(effect: NeedEffect): string[] {
+  const crans = (n: number) => `${n} cran${n > 1 ? 's' : ''}`;
+  const out: string[] = [];
+  if (effect.physicalSteps) out.push(`précision physique −${crans(effect.physicalSteps)}`);
+  if (effect.castingSteps) out.push(`incantation −${crans(effect.castingSteps)}`);
+  if (effect.enduranceShare) out.push(`Endurance max −${Math.round(effect.enduranceShare * 100)} %`);
+  if (effect.strain) out.push('faim et soif ×2 aujourd’hui');
+  if (effect.knockout) {
+    const s = effect.knockout.segments;
+    out.push(
+      `${effect.knockout.sleep ? 'endormissement' : 'perte de connaissance'} ${s} segment${s > 1 ? 's' : ''}`,
+    );
+  }
+  return out;
+}
+
+/**
+ * Nombre de crans des anciennes jauges (avant la refonte en points). Sert
+ * uniquement à relire une fiche ou une partie sauvegardée avant elle : on en
+ * garde la PROPORTION restante, pas le nombre.
+ */
+export const LEGACY_SURVIVAL_SEGMENTS: Record<SurvivalKey, number> = {
+  hunger: 6,
+  thirst: 4,
+  rest: 5,
+};
+
+/** Aucun manque : jauges pleines, état de départ d'une fiche neuve. */
+export const noSurvivalLoss = (): Record<SurvivalKey, number> => ({
+  hunger: 0,
+  thirst: 0,
+  rest: 0,
+});
+
+/**
+ * Creux des jauges d'une fiche, anciennes fiches comprises.
+ *
+ * La fiche stocke ce qui MANQUE (`survivalLoss`), comme pour les réserves : un
+ * changement de CON redimensionne le réservoir sans rien fausser. Une fiche
+ * d'avant la refonte portait des crans restants (`survival`) : on en garde la
+ * proportion.
+ */
+export function sheetSurvivalLoss(
+  sheet: Pick<CharacterSheet, 'survival' | 'survivalLoss'>,
+  attributes: Record<AttributeKey, number>,
+): Record<SurvivalKey, number> {
+  const out = noSurvivalLoss();
+  for (const gauge of SURVIVAL_GAUGES) {
+    const max = survivalMax(gauge.key, attributes);
+    const stored = sheet.survivalLoss?.[gauge.key];
+    if (stored !== undefined) {
+      out[gauge.key] = clampSurvival(max, stored);
+      continue;
+    }
+    const legacy = sheet.survival?.[gauge.key];
+    if (legacy === undefined) continue;
+    const segments = LEGACY_SURVIVAL_SEGMENTS[gauge.key];
+    const left = Math.max(0, Math.min(segments, Number(legacy) || 0)) / segments;
+    out[gauge.key] = Math.round(max * (1 - left));
+  }
+  return out;
 }
 
 /* ── Réserves : points de vie, endurance, mana ────────────────────────────── */
@@ -566,8 +860,8 @@ export const poolCurrent = (max: number, loss: unknown): number =>
   Math.max(0, Math.round(max)) - clampPoolLoss(max, loss);
 
 /**
- * Verdict correspondant au niveau courant. Même répartition que
- * `survivalStage` : les verdicts intermédiaires se partagent tout ce qui n'est
+ * Verdict correspondant au niveau courant. Les verdicts intermédiaires se
+ * partagent tout ce qui n'est
  * ni le plein ni le zéro, pour que la liste serve des réserves de toutes
  * tailles.
  */
@@ -807,12 +1101,13 @@ export function emptySheet(): CharacterSheet {
       sagesse: -1,
       charisme: -1,
     },
-    survival: fullSurvival(),
+    survivalLoss: noSurvivalLoss(),
     poolLoss: noPoolLoss(),
     statMode: 'random',
     statSeed: randomSeed(),
     proficiencyBonus: 2,
     skills: [],
+    nonPolarUnlocks: [],
     creationTraits: [],
     raceAttributePicks: [],
     languages: [],
@@ -1273,6 +1568,9 @@ const NONPOLAR_ACCESS: Record<string, string> = {
   emission: 'etudes-magiques',
 };
 
+/** Ce qu'affiche une branche ouverte par la table plutôt que par un vécu. */
+export const MANUAL_NONPOLAR_VIA = 'Ouverte à la table';
+
 /** Feats déclarés par une fiche de domaine. */
 export const domainFeats = (domainKey: string): DomainFeatDef[] =>
   DOMAIN_FILES[domainKey]?.feats ?? [];
@@ -1300,14 +1598,30 @@ export const nonPolarAccess = (
   const owned = new Map(traits.map((t) => [t.key, t.name]));
   const origin = originByKey(sheet.identity.origin);
   const fromOrigin = new Set(origin?.nonPolarBranches ?? []);
+  // Ce que la table a ouvert de sa main : un ajout, jamais un retrait. Une
+  // branche que le vécu accorde reste ouverte, qu'elle y figure ou non.
+  const byHand = new Set(sheet.nonPolarUnlocks ?? []);
   const out: { key: string; via: string }[] = [];
   for (const branch of NONPOLAR_MAGICS) {
     const traitName = owned.get(NONPOLAR_ACCESS[branch.key]);
     if (traitName) out.push({ key: branch.key, via: traitName });
     else if (fromOrigin.has(branch.key)) out.push({ key: branch.key, via: `Origine ${origin!.name}` });
+    else if (byHand.has(branch.key)) out.push({ key: branch.key, via: MANUAL_NONPOLAR_VIA });
   }
   return out;
 };
+
+/**
+ * Une branche ouverte à la main est-elle SEULEMENT ouverte à la main ?
+ *
+ * La case ne se décoche pas quand un vécu ouvre déjà la branche : elle
+ * n'aurait rien à refermer, et le laisser croire serait mentir à l'écran.
+ */
+export const nonPolarOpenedByHand = (
+  sheet: CharacterSheet,
+  traits: TraitDef[],
+  branch: string,
+): boolean => nonPolarAccess(sheet, traits).some((b) => b.key === branch && b.via === MANUAL_NONPOLAR_VIA);
 
 /** Les seules clés des branches ouvertes. */
 export const openNonPolarBranches = (sheet: CharacterSheet, traits: TraitDef[]): string[] =>

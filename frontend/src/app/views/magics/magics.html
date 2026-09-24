@@ -42,23 +42,18 @@
             <div class="affinity-chart pie-chart" [attr.aria-label]="affinityChart.title">
                 <svg class="pie-chart__wheel" viewBox="0 0 100 100" role="img" [attr.aria-label]="affinityChart.title">
                     <circle class="pie-chart__base" cx="50" cy="50" r="45"></circle>
-                    <circle
+                    <path
                         *ngFor="let slice of affinityChart.slices"
                         class="pie-chart__slice"
                         [class.is-highlighted]="isSliceHighlighted(affinityChart.key, slice.key)"
                         [class.is-dimmed]="isChartDimmed(affinityChart.key) && !isSliceHighlighted(affinityChart.key, slice.key)"
-                        cx="50"
-                        cy="50"
-                        r="45"
-                        pathLength="100"
-                        [attr.stroke]="slice.color"
-                        [attr.stroke-dasharray]="slice.value + ' ' + (100 - slice.value)"
-                        [attr.stroke-dashoffset]="-slice.start"
+                        [attr.d]="slice.path"
+                        [style.fill]="slice.color"
                         (mouseenter)="setHoveredSlice(affinityChart.key, slice.key)"
                         (mouseleave)="clearHoveredSlice()"
                     >
                         <title>{{ slice.label }} : {{ slice.value }}%</title>
-                    </circle>
+                    </path>
                     <circle class="pie-chart__core" cx="50" cy="50" r="26"></circle>
                     <text class="pie-chart__center" x="50" y="44" text-anchor="middle">
                         <tspan x="50">Affinités</tspan>
@@ -155,23 +150,18 @@
                     <h5>{{ chart.title }}</h5>
                     <svg class="pie-chart__wheel pie-chart__wheel--compact" viewBox="0 0 100 100" role="img" [attr.aria-label]="'Répartition des domaines - ' + chart.title">
                         <circle class="pie-chart__base" cx="50" cy="50" r="45"></circle>
-                        <circle
+                        <path
                             *ngFor="let slice of chart.slices"
                             class="pie-chart__slice"
                             [class.is-highlighted]="isSliceHighlighted(chart.key, slice.key)"
                             [class.is-dimmed]="isChartDimmed(chart.key) && !isSliceHighlighted(chart.key, slice.key)"
-                            cx="50"
-                            cy="50"
-                            r="45"
-                            pathLength="100"
-                            [attr.stroke]="slice.color"
-                            [attr.stroke-dasharray]="slice.value + ' ' + (100 - slice.value)"
-                            [attr.stroke-dashoffset]="-slice.start"
+                            [attr.d]="slice.path"
+                            [style.fill]="slice.color"
                             (mouseenter)="setHoveredSlice(chart.key, slice.key)"
                             (mouseleave)="clearHoveredSlice()"
                         >
                             <title>{{ slice.label }} : {{ slice.value }}%</title>
-                        </circle>
+                        </path>
                         <circle class="pie-chart__core" cx="50" cy="50" r="26"></circle>
                         <text class="pie-chart__center" x="50" y="47" text-anchor="middle">{{ chart.center }}</text>
                     </svg>
@@ -186,7 +176,8 @@
                             (mouseenter)="setHoveredSlice(chart.key, slice.key)"
                             (mouseleave)="clearHoveredSlice()"
                         >
-                            <span class="pie-chart__mark" aria-hidden="true"></span>
+                            <img *ngIf="slice.icon; else sliceMark" class="domain-pie__icon" [src]="slice.icon" alt="" aria-hidden="true" />
+                            <ng-template #sliceMark><span class="pie-chart__mark" aria-hidden="true"></span></ng-template>
                             <span>{{ slice.label }}</span>
                             <strong>{{ slice.value }}%</strong>
                         </div>

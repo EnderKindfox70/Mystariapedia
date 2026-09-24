@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { requireAuth } from '../auth/routes.js';
+import { gmHasSheet } from '../sessions/store.js';
 import {
   create,
   findById,
@@ -45,10 +46,20 @@ sheetsRouter.post('/', async (req: Request, res: Response) => {
   return res.status(201).json({ sheet });
 });
 
-// Détail d'une fiche (réservé au propriétaire).
+/**
+ * Qui peut ouvrir une fiche : son propriétaire, et le MJ d'une table où ce
+ * propriétaire l'a amenée — il doit la poser sur le plateau et y reporter la
+ * séance.
+ */
+async function mayAccess(sheet: { id: string; userId: string } | undefined, userId: string): Promise<boolean> {
+  if (!sheet) return false;
+  return sheet.userId === userId || (await gmHasSheet(userId, sheet.id));
+}
+
+// Détail d'une fiche (propriétaire, ou MJ de la table où elle joue).
 sheetsRouter.get('/:id', async (req: Request, res: Response) => {
   const sheet = await findById(idOf(req));
-  if (!sheet || sheet.userId !== userOf(req)) {
+  if (!(await mayAccess(sheet, userOf(req)))) {
     return res.status(404).json({ error: 'Fiche introuvable.' });
   }
   return res.json({ sheet });
@@ -58,7 +69,12 @@ sheetsRouter.get('/:id', async (req: Request, res: Response) => {
 sheetsRouter.put('/:id', async (req: Request, res: Response) => {
   const data = readData(req);
   if (!data) return res.status(400).json({ error: 'Le nom du personnage est requis.' });
-  const sheet = await update(idOf(req), userOf(req), data);
+  // Le MJ d'une table écrit sur la fiche au nom de son propriétaire (report).
+  const existing = await findById(idOf(req));
+  if (!existing || !(await mayAccess(existing, userOf(req)))) {
+    return res.status(404).json({ error: 'Fiche introuvable.' });
+  }
+  const sheet = await update(existing.id, existing.userId, data);
   if (!sheet) return res.status(404).json({ error: 'Fiche introuvable.' });
   return res.json({ sheet });
 });

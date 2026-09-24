@@ -13,7 +13,9 @@ import {
   featDomainsFor,
   findDomainSpell,
   grantedTraits,
+  MANUAL_NONPOLAR_VIA,
   nonPolarAccess,
+  nonPolarOpenedByHand,
   openNonPolarBranches,
   originByKey,
 } from './universe-data';
@@ -62,6 +64,31 @@ describe('magie non polarisée', () => {
     const aLaCreation = sheet();
     aLaCreation.creationTraits = ['etudes-magiques'];
     expect(openNonPolarBranches(aLaCreation, chosenTraits(aLaCreation))).toEqual(['emission']);
+  });
+
+  it("s'ouvre à la main quand la table en décide, sans vécu pour la justifier", () => {
+    // Le cas qui manquait : une branche ouverte en partie, hors de tout
+    // background — la fiche l'enregistre telle quelle.
+    const ouverte = sheet();
+    ouverte.nonPolarUnlocks = ['emission'];
+    expect(openNonPolarBranches(ouverte, [])).toEqual(['emission']);
+    expect(nonPolarAccess(ouverte, [])[0].via).toBe(MANUAL_NONPOLAR_VIA);
+    expect(nonPolarOpenedByHand(ouverte, [], 'emission')).toBe(true);
+    // Et ses sorts rejoignent le pool, exactement comme par un vécu.
+    expect(availableSpellsFor(openNonPolarBranches(ouverte, [])).map((s) => s.key)).toContain('emission-voile');
+  });
+
+  it("n'efface pas ce qu'un vécu ouvre déjà, et ne se referme pas à sa place", () => {
+    const soldat = sheet();
+    // Ouverte par le trait ET cochée à la main : c'est le vécu qu'on lit.
+    soldat.nonPolarUnlocks = ['renforcement'];
+    expect(nonPolarAccess(soldat, SOLDAT)).toEqual([
+      { key: 'renforcement', via: 'Entraînement martial' },
+    ]);
+    expect(nonPolarOpenedByHand(soldat, SOLDAT, 'renforcement')).toBe(false);
+    // Décocher ne referme donc rien : le trait tient toujours la branche.
+    soldat.nonPolarUnlocks = [];
+    expect(openNonPolarBranches(soldat, SOLDAT)).toEqual(['renforcement']);
   });
 
   it("s'ouvre aussi par une enfance dans l'Archipel, sans feat ni background", () => {

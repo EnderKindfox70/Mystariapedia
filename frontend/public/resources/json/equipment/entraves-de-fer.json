@@ -55,6 +55,26 @@
     "Entraver quelqu'un est un acte réglementé dans la plupart des cités : hors mandat, la milice y voit un enlèvement.",
     "Les chasseurs de prime expérimentés entravent aussi les chevilles. Un prisonnier aux seuls poignets court encore."
   ],
+  "tags": [
+    "use"
+  ],
+  "use": {
+    "label": "Poser les entraves",
+    "targets": [
+      "enemy",
+      "ally"
+    ],
+    "inflicts": [
+      {
+        "status": "entrave",
+        "chance": 100
+      }
+    ],
+    "maxTargetFootprint": 1,
+    "requiresHelpless": true,
+    "consumed": true,
+    "note": "S'en libérer : jet de Force très difficile, 15 dégâts contondants sur la chaîne, ou outils de crocheteur."
+  },
   "references": [
     {
       "label": "Matériel associé",

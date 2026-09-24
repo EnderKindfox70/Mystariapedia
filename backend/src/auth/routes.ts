@@ -59,19 +59,26 @@ authRouter.post('/login', async (req: Request, res: Response) => {
   return res.json({ token: signToken(user.id), user: toPublicUser(user) });
 });
 
+/** L'utilisateur d'un jeton, ou `null` s'il est absent, faux ou expiré. */
+export function verifyToken(token: string): string | null {
+  if (!token) return null;
+  try {
+    return (jwt.verify(token, JWT_SECRET) as { sub: string }).sub;
+  } catch {
+    return null;
+  }
+}
+
 // Middleware : exige un jeton Bearer valide et attache l'id utilisateur.
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization ?? '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   if (!token) return res.status(401).json({ error: 'Jeton manquant.' });
 
-  try {
-    const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
-    (req as Request & { userId?: string }).userId = payload.sub;
-    next();
-  } catch {
-    return res.status(401).json({ error: 'Jeton invalide ou expiré.' });
-  }
+  const userId = verifyToken(token);
+  if (!userId) return res.status(401).json({ error: 'Jeton invalide ou expiré.' });
+  (req as Request & { userId?: string }).userId = userId;
+  next();
 }
 
 // Profil de l'utilisateur courant.

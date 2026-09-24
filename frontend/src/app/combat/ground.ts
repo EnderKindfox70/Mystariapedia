@@ -1,4 +1,5 @@
 import { CarriedItem, Combatant, Encounter, GridPos } from './combat.types';
+import { absorbUses } from './charges';
 import { Rng } from './dice';
 import { cellKey, inBounds, occupiedCells, samePos, traceLine } from './grid';
 import { blocksMovement, TerrainMap } from './terrain';
@@ -46,7 +47,7 @@ export function dropOnGround(enc: Encounter, pos: GridPos, item: CarriedItem, qt
   const pile = (piles[cellKey(pos)] ??= []);
   const existing = pile.find((i) => i.name === item.name);
   if (existing) {
-    existing.qty += qty;
+    absorbUses(existing, qty, item.usesLeft, item.usesPer);
     existing.metallic ??= item.metallic;
     existing.weightKg ??= item.weightKg;
     return;

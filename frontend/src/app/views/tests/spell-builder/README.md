@@ -57,3 +57,38 @@ Toutes réglables dans le panneau « Règles » du banc sauf mention contraire.
     déblocage de statut ; la *chance* reste achetable.
 12. **Ordre d'application** : swaps (F4) → magnitudes (F1) → déblocages (F2) →
     paliers (F3) → mixage, qui répartit le pool final.
+
+## Seuils de niveau — `customization.gates`
+
+Le budget dit **combien** on peut dépenser ; un seuil dit **à partir de quand**
+une option existe. Un sort riche mais jeune reste devant une porte fermée : le
+seuil ne s'achète pas, il se pratique. Rien n'est codé dans le moteur — tout se
+déclare dans le JSON du sort, et aucune fiche publiée n'en porte pour l'instant.
+
+```json
+"customization": {
+  "gates": {
+    "statusUnlock:paralysie": 3,
+    "param:radius": { "minLevel": 2, "reason": "Le souffle ne s'élargit qu'une fois le geste sûr." },
+    "extraTargets:3": 4
+  },
+  "statusUnlock": { "eligible": ["brulure", "paralysie"] }
+}
+```
+
+- Une clé désigne une **famille** (`statusUnlock` ferme tout le bloc) ou une
+  **entrée** (`statusUnlock:paralysie` ne ferme qu'elle). La clé la plus précise
+  l'emporte : une entrée peut donc devancer sa famille autant que la retarder.
+- Un seuil **retarde** une option que le sort ouvre déjà ; il n'en crée aucune.
+  `lintSpell` refuse une clé qui ne vise rien (famille inconnue, entrée absente,
+  option non déclarée, niveau hors de 1…`maxSpellLevel`).
+- Familles reconnues : `param:<id>`, `statusUnlock[:<statut>]`,
+  `knockbackUnlock`, `targetUnlock[:<cible>]`, `scalingUnlock[:<source>]`,
+  `continuousMode`, `extraTargets[:<total>]`, `extraEffects[:<stat>]`,
+  `ownEffects[:<id>]`, `scalingSwap[:<chemin>]`, `areaShapeSwap[:<forme>]`,
+  `defaultTargetSwap`, `statusTypeSwap[:<statut>]`, `damageTypeSwap[:<type>]`,
+  `crossDomain[:<domaine>]`, `mix[:<type>]`.
+- `extraTargets:<n>` vise le **total atteint**, pas le cran acheté : « la
+  troisième cible au niveau 4 » s'écrit `"extraTargets:3": 4`.
+- Sous le seuil, l'option est **absente** : le moteur ne l'applique pas et ne la
+  facture pas, l'atelier l'éteint et affiche le niveau qui l'ouvrira.

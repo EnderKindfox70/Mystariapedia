@@ -72,21 +72,75 @@
 .characters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.1rem;
+  /* Écart élargi : la tranche des pages déborde de la case (box-shadow). */
+  gap: 1.8rem 1.6rem;
   margin: 0;
-  padding: 0;
+  padding: 0 0.5rem 0.5rem 0;
   list-style: none;
 }
 
+/* Chaque fiche est un livre fermé : couverture d'encre, dos relié à gauche,
+   tranche des pages visible à droite et en bas. */
 .character-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1.1rem 1.2rem;
-  background: linear-gradient(180deg, rgba(255, 248, 220, 0.32), rgba(94, 70, 50, 0.12));
-  border: 1px solid color-mix(in srgb, var(--ancient-gold) 55%, transparent);
-  border-radius: 9px;
-  box-shadow: inset 0 0 24px rgba(132, 112, 89, 0.25);
+  padding: 1.2rem 1.2rem 1.1rem 2.1rem;
+  background: linear-gradient(135deg, var(--dead-ink), var(--ink) 55%, var(--abyss));
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 70%, transparent);
+  border-radius: 4px 10px 10px 4px;
+  /* Pages empilées (ivoire / papier brûlé en alternance), puis l'ombre portée. */
+  box-shadow:
+    inset 0 0 24px color-mix(in srgb, var(--dust-brown) 35%, transparent),
+    2px 2px 0 var(--old-paper),
+    3px 3px 0 var(--burned-paper),
+    4px 4px 0 var(--old-paper),
+    5px 5px 0 var(--burned-paper),
+    6px 6px 0 var(--old-paper),
+    7px 7px 0 var(--dust-brown),
+    10px 12px 18px color-mix(in srgb, var(--abyss) 55%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Le dos : cuir plus sombre, deux nervures dorées et le pli de la reliure. */
+.character-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1.2rem;
+  border-radius: 3px 0 0 3px;
+  background:
+    linear-gradient(180deg,
+      transparent 9%, var(--ancient-gold) 9%, var(--ancient-gold) 11%, transparent 11%,
+      transparent 89%, var(--ancient-gold) 89%, var(--ancient-gold) 91%, transparent 91%),
+    linear-gradient(90deg, var(--abyss), var(--dust-brown) 45%, var(--dead-ink) 85%, var(--abyss));
+  pointer-events: none;
+}
+
+/* Filet doré de la couverture, en retrait du dos. */
+.character-card::after {
+  content: '';
+  position: absolute;
+  inset: 6px 6px 6px calc(1.2rem + 6px);
+  border: 1px solid color-mix(in srgb, var(--ancient-gold) 35%, transparent);
+  border-radius: 2px 6px 6px 2px;
+  pointer-events: none;
+}
+
+.character-card:hover {
+  transform: translate(-2px, -3px);
+  box-shadow:
+    inset 0 0 24px color-mix(in srgb, var(--dust-brown) 35%, transparent),
+    2px 2px 0 var(--old-paper),
+    3px 3px 0 var(--burned-paper),
+    4px 4px 0 var(--old-paper),
+    5px 5px 0 var(--burned-paper),
+    6px 6px 0 var(--old-paper),
+    7px 7px 0 var(--dust-brown),
+    14px 18px 24px color-mix(in srgb, var(--abyss) 60%, transparent);
 }
 
 .character-card__link {
@@ -94,17 +148,20 @@
   cursor: pointer;
 }
 
+/* Même ratio que le portrait cuit par la fiche (240x296) : l'image n'est plus
+   recadrée une seconde fois, le focus choisi dans l'éditeur est conservé. */
 .character-card__portrait {
   width: 100%;
-  height: 180px;
-  margin-bottom: 0.7rem;
+  max-width: 200px;
+  aspect-ratio: 240 / 296;
+  margin: 0 auto 0.7rem;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--ancient-gold) 45%, transparent);
   border-radius: 7px;
-  background: rgba(94, 70, 50, 0.15);
+  background: var(--abyss);
 }
 .character-card__portrait img { width: 100%; height: 100%; object-fit: cover; }
 .character-card__portrait.is-empty {
@@ -114,20 +171,20 @@
 
 .character-card__name {
   font-size: 1.25rem;
-  color: #2a1c14;
+  color: var(--faded-ivory);
   text-transform: none;
 }
 
 .character-card__race {
   margin-top: 0.2rem;
   font-style: italic;
-  color: #5e4632;
+  color: var(--burned-paper);
 }
 
 .character-card__date {
   margin-top: 0.6rem;
   font-size: 0.78rem;
-  color: #6b5340;
+  color: color-mix(in srgb, var(--burned-paper) 70%, transparent);
 }
 
 .character-card__actions {
@@ -151,21 +208,25 @@
 }
 
 .character-card__edit {
-  color: #3a2a1c;
-  border: 1px solid var(--dust-brown);
+  color: var(--old-paper);
+  border: 1px solid var(--ancient-gold);
 }
 
 .character-card__edit:hover {
-  background: rgba(94, 70, 50, 0.18);
+  background: color-mix(in srgb, var(--ancient-gold) 22%, transparent);
 }
 
+/* Bouton plein : un simple contour rouge se perdait sur l'encre. */
 .character-card__delete {
-  color: var(--ritual-red);
-  border: 1px solid color-mix(in srgb, var(--ritual-red) 60%, transparent);
+  color: var(--faded-ivory);
+  background: linear-gradient(180deg, var(--domain-fire), var(--ritual-red));
+  border: 1px solid var(--ritual-red);
+  font-weight: 700;
 }
 
 .character-card__delete:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ritual-red) 16%, transparent);
+  filter: brightness(1.15);
+  box-shadow: 0 0 10px var(--domain-fire-glow);
 }
 
 .character-card__delete:disabled {

@@ -54,6 +54,23 @@
     "Une seule fiole n'a jamais gagné un combat. Trois fioles et un couloir étroit, si.",
     "Les compagnies réglementées interdisent l'usage offensif de l'huile en ville. Les incendies ne font pas la différence entre l'ennemi et le quartier."
   ],
+  "tags": [
+    "use"
+  ],
+  "use": {
+    "label": "Jeter la fiole d'huile",
+    "rangeMeters": 6,
+    "attackAttribute": "dexterite",
+    "requiresHit": true,
+    "inflicts": [
+      {
+        "status": "huile",
+        "chance": 100
+      }
+    ],
+    "consumed": true,
+    "note": "Jetée au sol, la nappe (3 m) s'enflamme au contact d'un feu : 1d4 dégâts de feu par tour pendant 2 tours et Brûlure — à arbitrer par le MJ."
+  },
   "references": [
     {
       "label": "Matériel associé",

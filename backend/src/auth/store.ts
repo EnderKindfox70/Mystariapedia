@@ -44,6 +44,13 @@ export async function findByEmail(email: string): Promise<StoredUser | undefined
   return (await readAll()).find((user) => user.email === target);
 }
 
+/** Retrouve un compte par son nom d'utilisateur, sans tenir compte de la casse. */
+export async function findByUsername(username: string): Promise<StoredUser | undefined> {
+  const target = username.trim().toLowerCase();
+  if (!target) return undefined;
+  return (await readAll()).find((user) => user.username.toLowerCase() === target);
+}
+
 export async function findById(id: string): Promise<StoredUser | undefined> {
   return (await readAll()).find((user) => user.id === id);
 }

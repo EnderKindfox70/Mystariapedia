@@ -34,6 +34,7 @@ export class Navbar {
       children: [
         { key: 'fiches', label: 'Mes fiches', path: '/characters' },
         { key: 'combat', label: 'Table de combat', path: '/combat' },
+        { key: 'tables', label: 'Tables de jeu', path: '/tables' },
       ],
     },
     {

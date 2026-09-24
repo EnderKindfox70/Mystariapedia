@@ -680,3 +680,97 @@
    Son intérieur lui appartient (cf. components/spell-detail) : la page ne lui
    donne que sa place. */
 .se-detail-slot { display: block; min-width: 0; }
+
+/* ═══════════════════════════════════════════
+   RITUEL
+═══════════════════════════════════════════ */
+.se-ritual__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem 1.6rem;
+  margin: 0 0 1rem;
+}
+.se-ritual__facts dt {
+  font: 600 .7rem var(--font-title);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(43, 26, 18, .65);
+}
+.se-ritual__facts dd { margin: .15rem 0 0; color: #2b1a12; }
+
+.se-ritual__stone {
+  margin-bottom: 1rem;
+  padding: .7rem .9rem;
+  border-left: 3px solid var(--domain-color, var(--ancient-gold));
+  background: rgba(237, 230, 214, .4);
+}
+.se-ritual__stone-role {
+  font: 600 .8rem var(--font-title);
+  letter-spacing: .05em;
+  color: #2b1a12;
+}
+.se-ritual__stone p { margin: .3rem 0 0; }
+
+.se-ritual__subtitle {
+  margin: .8rem 0 .4rem;
+  font: 600 .85rem var(--font-title);
+  letter-spacing: .05em;
+}
+.se-ritual__list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.se-ritual__list li { margin-bottom: .45rem; }
+.se-ritual__list .se-tag { margin-left: .4rem; padding: .1rem .5rem; font-size: .66rem; }
+.se-ritual__qty { margin-left: .3rem; color: rgba(43, 26, 18, .7); }
+.se-ritual__note { margin: .2rem 0 0; font-size: .85rem; color: rgba(43, 26, 18, .75); }
+
+.se-ritual__summary { margin: 0 0 1rem; font-style: italic; }
+
+.se-ritual__steps {
+  margin: 0;
+  padding-left: 1.3rem;
+}
+.se-ritual__steps li { margin-bottom: .7rem; }
+.se-ritual__steps p { margin: .15rem 0 0; }
+.se-ritual__step-title { font-family: var(--font-title); letter-spacing: .03em; }
+
+.se-ritual__check { margin-bottom: 1.1rem; }
+.se-ritual__check-head { margin: 0 0 .3rem; }
+
+.se-ritual__table-wrap { overflow-x: auto; }
+.se-ritual__table {
+  width: 100%;
+  margin-top: .4rem;
+  border-collapse: collapse;
+  font-size: .88rem;
+}
+.se-ritual__table th,
+.se-ritual__table td {
+  padding: .35rem .5rem;
+  border-bottom: 1px solid rgba(43, 26, 18, .15);
+  text-align: left;
+  vertical-align: top;
+}
+.se-ritual__table thead th {
+  font: 600 .7rem var(--font-title);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: rgba(43, 26, 18, .65);
+}
+.se-ritual__band { white-space: nowrap; color: rgba(43, 26, 18, .75); }
+.se-ritual__table tr[data-degree='echec-total'] th,
+.se-ritual__table tr[data-degree='echec'] th { color: #8a3a20; }
+.se-ritual__table tr[data-degree='critique'] th,
+.se-ritual__table tr[data-degree='reussite'] th { color: #3d6a3a; }
+.se-ritual__table--grid td,
+.se-ritual__table--grid thead th { text-align: center; }
+.se-ritual__table--grid tbody th small { color: rgba(43, 26, 18, .6); }
+
+.se-ritual__mastery {
+  display: inline-flex;
+  gap: .4rem;
+  align-items: center;
+  margin: .3rem 0;
+  font: 600 .78rem var(--font-title);
+}

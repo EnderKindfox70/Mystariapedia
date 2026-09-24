@@ -137,6 +137,8 @@ une déduite (`started` et le nombre de camps encore debout). Elle reste jouable
 ## 3. L'horloge
 
 `clock` porte `{ day, seconds }` — le jour de campagne et l'heure dans ce jour.
+**Une journée de Mystaria dure 26 h** (`HOURS_PER_DAY`, `DAY`) : l'horloge
+affiche donc « 24h30 » ou « 25h59 » avant de passer au jour suivant.
 Tout est compté en **secondes entières** : un round de six secondes ne peut pas
 se perdre dans l'arrondi d'une minute, et cent rounds ne dérivent pas d'un
 cheveu.
@@ -153,12 +155,17 @@ une seule source de vérité, donc pas deux valeurs à tenir en accord.
 
 | Moment | De |
 |---|---|
-| Nuit | 21 h → 5 h |
+| Nuit | 21 h → 5 h (via 24 h et 25 h : **dix heures**) |
 | Aube | 5 h |
 | Matinée | 7 h |
 | Midi | 11 h |
 | Après-midi | 14 h |
 | Soirée | 18 h |
+
+Les deux heures de plus qu'un jour terrestre vont toutes à la **nuit**
+(`mystaria_gameplay_survie.md`, section 3) : les phases éveillées gardent leurs
+longueurs (16 h), la nuit passe de 8 à 10 h. C'est aussi la durée d'une « Nuit
+complète », celle qui rembourse toute la dette de sommeil.
 
 Choisir un moment à la main **règle l'horloge** sur son entrée (« Nuit » pose
 21 h, l'heure où elle tombe, pas minuit où elle est à moitié passée).
@@ -168,48 +175,53 @@ la journée : l'horloge continue de tourner, mais ne le change plus. Le lever le
 raccroche aussitôt à l'heure. C'est le seul endroit où les deux se découplent, et
 il faut le demander.
 
-## 4. Faim, soif, sommeil
+## 4. Faim, soif, fatigue
 
-La fiche tenait déjà ces trois jauges, mais personne ne les cochait : rien ne les
-faisait descendre, et rien ne se passait quand elles étaient vides. Elles ont
-maintenant leurs deux moitiés — **le temps les use**, et **le vide se paie**.
+Les règles viennent de [`mystaria_gameplay_survie.md`](../frontend/mystaria_gameplay_survie.md),
+sections 2 (chiffrage) et 18 (« Manque », les paliers unifiés). Trois jauges
+corporelles, séparées de la Réserve de mana mais qui **communiquent** avec elle.
 
-Une jauge n'est pas stockée en crans dans la rencontre, mais en **secondes
-écoulées depuis le dernier plein** ; les crans en sont déduits. C'est ce qui
-permet d'avancer par tranches de dix minutes sans perdre un reste dans un
-arrondi : deux heures d'affilée coûtent exactement ce que coûtent douze fois dix
-minutes. La fiche, elle, continue de stocker des crans — la conversion se fait
-aux deux bouts.
+**La Constitution fait la taille du réservoir, pas sa vitesse.**
 
-| Jauge | Crans | Un cran tous les | Soit une laisse de |
+| Jauge | Maximum | Usure |
+|---|---|---|
+| Faim | 48 + mod. CON × 6 (~12 jours) | −1 par segment, +1 par tranche de 2 de mod. FOR au-delà de +2 |
+| Soif | 16 + mod. CON × 2 (~4 jours) | −1 par segment |
+| Fatigue (Repos) | 15, pour tout le monde | une **dette** : voir plus bas |
+
+Un **segment** est un quart de journée (`SEGMENT_SECONDS`, soit 6 h 30 sur une
+journée de 26 h). Le ratio 3:1 entre Faim et Soif vient uniquement de la taille
+des réservoirs. La Force ne touche que la Faim : un personnage à FOR +3/+4 perd
+2 points par segment, +5/+6 en perd 3.
+
+La rencontre stocke les **points manquants**, en flottants : l'usure court en
+continu, et deux heures d'affilée coûtent exactement ce que coûtent douze fois
+dix minutes. Un point ne se raye qu'une fois son segment écoulé (on annonce
+`⌈max − manque⌉`). La fiche garde elle aussi le creux (`survivalLoss`), comme pour
+les réserves : un changement de CON redimensionne le réservoir sans rien fausser.
+Une fiche ou une partie d'avant la refonte (crans restants, secondes écoulées)
+est relue en gardant sa **proportion**.
+
+**La Fatigue est une dette de sommeil, pas une pression constante.** Une journée
+normale ne coûte rien. Rester éveillé pendant la nuit ouvre la dette (−3 pour la
+nuit sautée) ; tant qu'elle est ouverte, chaque phase éveillée (aube, matinée,
+midi, après-midi, soirée) coûte 3 points, au prorata du temps passé dans la
+phase. Le sommeil rembourse au prorata du temps dormi : une nuit complète (10 h)
+remet la jauge à 15, cinq heures en rendent la moitié. Une nuit blanche mène
+donc à l'effondrement vers 18 h le lendemain.
+
+**L'activité module la Faim et la Soif** (le tick de base est ×1) :
+
+| Activité | Faim | Soif | Fatigue |
 |---|---|---|---|
-| Faim | 6 | 8 h | 2 jours |
-| Sommeil | 5 | 4 h | 20 h debout |
-| Soif | 4 | 4 h | 16 h |
+| Marche | ×1 | ×1 | éveillé |
+| Effort soutenu | ×1,5 | ×2 | éveillé |
+| Repos au camp | ×1 | ×1 | éveillé — on ne récupère qu'en dormant |
+| Veille | ×1 | ×1 | éveillé |
+| Sommeil | ×1 | ×1 | **rembourse** |
+| Combat *(appliqué seul)* | ×2 | ×3 | éveillé |
 
-La soif est la plus courte parce qu'elle est celle qui tue le plus vite : c'est
-elle qui décide où l'on campe.
-
-**L'activité module l'usure.** Un facteur multiplie le rythme ordinaire ; un
-facteur négatif **comble** la jauge au lieu de la vider. Dormir est donc une
-action comme une autre pour le moteur — on avance le temps, et le sommeil remonte
-pendant que les deux autres descendent doucement.
-
-| Activité | Faim | Soif | Sommeil |
-|---|---|---|---|
-| Marche | ×1 | ×1 | ×1 |
-| Effort soutenu | ×1,5 | ×2 | ×1,5 |
-| Repos au camp | ×0,5 | ×0,5 | **−0,5** |
-| Veille | ×0,5 | ×0,5 | ×1 |
-| Sommeil | ×0,4 | ×0,4 | **−2,5** |
-| Combat *(appliqué seul)* | ×2 | ×3 | ×2 |
-
-Le −2,5 du sommeil n'est pas arbitraire : il fait qu'une **nuit de huit heures
-comble exactement les vingt heures d'éveil qui la précèdent**. Une nuit complète
-suffit ; une nuit écourtée ne suffit pas.
-
-Une jauge ne s'enfonce pas sous zéro : trois jours de jeûne se rattrapent en un
-repas, pas en trois jours de repas.
+Une jauge ne s'enfonce pas sous zéro et ne déborde pas au-dessus du plein.
 
 **Un corps à terre fige ses jauges.** Les faire courir pendant qu'il saigne au sol
 le punirait deux fois.
@@ -217,29 +229,82 @@ le punirait deux fois.
 **Les créatures n'en tiennent aucune.** Une bête est ce qu'elle est le jour où on
 la rencontre.
 
-## 5. Ce que le vide coûte
+## 5. Ce que le manque coûte
 
-Le suivi ne vaut que s'il pèse. Chaque palier pose des **malus de stat réels**,
-lus par `effectiveStat` comme n'importe quel statut. Les brancher là plutôt qu'au
-cas par cas garantit qu'un personnage assoiffé encaisse mal *partout* — au jet de
-toucher, au calcul de la défense, au budget de déplacement — sans que le MJ ait à
-s'en souvenir.
+Un seul palier actif par jauge — le plus sévère atteint —, mais les jauges se
+cumulent entre elles. Tout se paie en **crans de dé** (un cran = 5 points de
+précision, cf. [`combat.md`](combat.md)) et en **Endurance maximum**, le pool qui
+paie les compétences de classe.
 
-| Jauge | Crans restants | Malus |
+| Palier | Faim / Soif (% du max) | Fatigue (points) |
 |---|---|---|
-| **Faim** | 1 | Att. phys. −1, Endurance −1 |
-| | 0 | Att. phys. −3, Att. mag. −2, Endurance −3 |
-| **Soif** | 1 | Déf. phys. −1, Déf. mag. −1, Endurance −2 |
-| | 0 | Déf. phys. −3, Déf. mag. −3, Endurance −4, Vitesse −2 |
-| **Sommeil** | 1 | Vitesse −2, Att. mag. −1 |
-| | 0 | Vitesse −4, Att. phys. −2, Att. mag. −2, Endurance −2 |
+| Léger | ≤ 75 % — aucun effet | < 15 — aucun effet |
+| Modéré | ≤ 50 % — −1 cran | ≤ 10 — −1 cran physique |
+| Sévère | ≤ 25 % — −2 crans, Endurance max −25 % | ≤ 5 — −2 crans physiques, −1 cran d'incantation, Endurance max −30 % |
+| Critique | 0 — perte de connaissance | 0 — endormissement forcé |
 
-Chaque besoin frappe où il fait mal : la faim prend la force du coup, la soif
-prend la garde et le souffle, le manque de sommeil prend la Vitesse — donc le
-déplacement, l'initiative **et** l'esquive naturelle d'un seul geste.
+**Chaque besoin frappe où il fait mal :**
 
-Les trois se cumulent. Un groupe qui a marché trois jours sans camper est un
-groupe qu'on peut battre.
+- la **Faim** gêne la précision **physique** (armes, capacités hors sorts) ;
+- la **Soif** gêne l'**incantation** (les jets de sorts) ;
+- la **Fatigue** prend le corps d'abord, la magie ensuite. Une CON robuste
+  l'adoucit : −1 cran par tranche de +2 en mod. CON (jamais sous −1 cran), et
+  l'Endurance ne perd que 30 % − 2 % par point de mod. CON (plancher −15 %).
+
+Les crans entrent dans le seuil par `precisionOf`, et s'annoncent dans ses
+causes (« manque », « gêne d'incantation »). La part d'Endurance passe par
+`effectiveStat` ; les parts s'additionnent, plafonnées à −90 %.
+
+**Le palier critique ne tue jamais.** Une jauge qui *tombe* à zéro fait perdre
+connaissance (statut « Évanouissement », ou « Sommeil » pour la Fatigue) pendant
+`3 − mod. CON` segments (`2 − mod. CON` pour l'endormissement), minimum 1 —
+**sauf sauvegarde de Vigueur**. Pendant l'endormissement forcé, la dette de
+sommeil se rembourse. Un coup (ou des sels) qui lève le statut réveille aussi le
+moteur.
+
+**La sauvegarde de Vigueur** (section 13 du document de survie) se jette
+automatiquement, au dé de la rencontre, à l'instant exact où la jauge touche
+zéro. C'est le jet de toucher, rôles inversés :
+
+```
+résistance = mod. CON × 4 − sévérité
+seuil      = 8 − (résistance / 5, arrondi une fois) − maîtrise     borné 3 à 18
+```
+
+La maîtrise compte en crans au-dessus du socle (maîtrise − 2), comme au toucher.
+
+| Manque | Sévérité | Seuil à CON 10, niveau 1 |
+|---|---|---|
+| Faim, Fatigue | 8 (intermédiaire) | 10+ |
+| Soif, vide de mana | 12 (majeure) | 10+ |
+
+| Degré | Effet |
+|---|---|
+| Réussite (≥ seuil, ou 20) | reste conscient **un segment** de plus |
+| Résistance partielle (seuil − 5 à seuil − 1) | tombe, mais **moitié moins longtemps** (arrondi au-dessus, 1 segment minimum) |
+| Échec (ou 1) | tombe pour la durée pleine |
+
+Tant que la jauge reste à zéro, **on rejoue à chaque segment** : on peut tenir,
+pas indéfiniment. Au réveil (toujours à vide), un segment de répit précède le
+jet suivant. Pour le vide de mana, le jet a lieu au sort qui vide la Réserve.
+Les sévérités sont dans `VIGOR_SEVERITY` ([`rules.ts`](../frontend/src/app/combat/rules.ts)).
+
+### Le lien avec la mana : la réciprocité
+
+Le **Manque de mana** se lit sur la Réserve elle-même et se réévalue à chaque
+sort lancé. Il ne concerne que les personnages tirés d'une fiche et dotés d'une
+Réserve.
+
+| Palier | Réserve | Effet |
+|---|---|---|
+| Léger | ≤ 50 % | aucun |
+| Modéré | ≤ 25 % | −1 cran d'incantation |
+| Sévère | ≤ 10 % | −2 crans d'incantation, −1 cran physique, **Faim et Soif ×2 jusqu'à la fin du jour** |
+| Critique | 0 | perte de connaissance, `3 − mod. CON` segments |
+
+C'est la réciprocité de la section 2, enfin chiffrée : pousser sa magie à bout se
+paie dans le corps (la faim et la soif s'emballent), et un corps assoiffé tient
+mal son flux (la Soif gêne l'incantation).
 
 ## 6. Remplir les jauges
 
@@ -255,16 +320,16 @@ cuissot avant de grignoter les restes.
 
 | Vivre | Comble | Vaut | Devient |
 |---|---|---|---|
-| Petite ration | 1 cran | ⅓ de journée | *(disparaît)* |
-| Rations de voyage | 3 crans | **1 journée** | *(disparaît)* |
-| Grande ration | 6 crans | 2 journées — la jauge entière | *(disparaît)* |
-| Outre en peau | Soif, à plein | — | **Outre vide** |
+| Petite ration | 2 points | ½ journée | *(disparaît)* |
+| Rations de voyage | 4 points | **1 journée** | *(disparaît)* |
+| Grande ration | 8 points | 2 journées | *(disparaît)* |
+| Outre en peau | Soif, 4 points | 1 journée d'eau | **Outre vide** |
 
 **Le barème suit les fiches du wiki, pas l'inverse.** « Une ration par jour » y est
-écrit noir sur blanc, et la jauge de faim vaut deux jours en six crans : une
-ration de voyage rend donc une journée — trois crans — et non la jauge entière
-comme au premier jet. Les deux autres tailles en découlent : le tiers de journée
-qu'on tire d'un collet, les deux jours qu'on tire d'un cuissot.
+écrit noir sur blanc, et une journée vaut quatre segments, donc quatre points de
+Faim : une ration de voyage rend une journée. Les deux autres tailles en
+découlent : la demi-journée qu'on tire d'un collet, les deux jours qu'on tire
+d'un cuissot.
 
 L'outre n'est pas mangée : elle se **vide**. La faire disparaître ferait perdre le
 récipient à qui boit ; la garder pleine donnerait de l'eau à l'infini. Elle
@@ -278,8 +343,8 @@ son poids qu'elle grève.
 | Résultat | Issue | Rapporte |
 |---|---|---|
 | 1–25 | Bredouille — 25 % | rien |
-| 26–80 | Petit gibier — 55 % | Petite ration (1 cran) |
-| 81 et + | Gibier médian — 20 % | Rations de voyage (3 crans) |
+| 26–80 | Petit gibier — 55 % | Petite ration (2 points) |
+| 81 et + | Gibier médian — 20 % | Rations de voyage (4 points) |
 
 **C'est la Nature qui décide, pas la Survie.** Lire une empreinte, reconnaître une
 coulée, savoir quel buisson porte des baies comestibles : c'est du savoir sur le
@@ -315,7 +380,7 @@ marchand.
 Les gestes de groupe ne servent **que le camp désigné** : le repas du soir ne
 nourrit pas les adversaires assis en face.
 
-Enfin, **à la main** : cliquer un cran le raye, exactement comme sur la fiche.
+Enfin, **à la main** : les boutons − / + de chaque jauge corrigent d'un point, comme sur la fiche.
 
 Le moteur ne devine pas ce qui se mange à partir d'un nom — la liste des vivres
 reconnus tient dans [`NOURISHMENTS`](../frontend/src/app/combat/survival.ts).

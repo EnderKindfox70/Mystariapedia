@@ -7,6 +7,7 @@ import {
   SpellNode,
   SpellNodeStats,
   SpellPageData,
+  SpellTarget,
 } from '../wiki.types';
 import {
   AbilityDamage,
@@ -15,6 +16,7 @@ import {
   AbilityStatus,
   CombatAbility,
   CombatEnchant,
+  HazardSpec,
 } from './combat.types';
 import {
   BuilderContext,
@@ -694,6 +696,13 @@ export function spellAbility(
   };
 }
 
+/** Le sort est-il un rituel (cf. `DomainSpellEntry.category`) ? */
+export const isRitual = (spell: Pick<DomainSpellEntry, 'category'>): boolean => spell.category === 'ritual';
+
+/** Un sort ordinaire se joue toujours en combat ; un rituel, seulement s'il le déclare. */
+export const playableInCombat = (spell: Pick<DomainSpellEntry, 'category' | 'ritual'>): boolean =>
+  !isRitual(spell) || !!spell.ritual?.inCombat;
+
 /**
  * Toutes les capacités qu'un sort équipé procure, paliers et options compris.
  * `classKey` sert aux bonus de classe : le même sort ne vaut pas la même chose
@@ -705,6 +714,9 @@ export function spellAbilities(
   state?: SpellState,
   classKey?: string,
 ): CombatAbility[] {
+  // Un rituel qui ne se joue pas en combat (Capture d'âme, Embaumement) n'a
+  // rien à faire dans la barre d'actions, même équipé.
+  if (!playableInCombat(page.spell)) return [];
   const node = builtSpellNode(page.spell, page.domains, state, ctx);
   if (!node) return [];
   const choices = node.stats.choices;
@@ -1094,6 +1106,92 @@ export function careAbility(
     autoHit: true,
     // Poser un bandage occupe le tour : la fiche l'écrit noir sur blanc.
     bonusAction: false,
+  };
+}
+
+/**
+ * Un objet du sac qui se JOUE, tel que le wiki le déclare (bloc `use` d'une
+ * fiche d'équipement taguée `use`) : une torche qui frappe, un filet qu'on
+ * lance, des chausse-trappes qu'on répand, des entraves qu'on pose.
+ *
+ * La fiche dit en français ce que l'objet fait ; ce bloc en est la traduction
+ * chiffrée, à côté du texte, pour que les deux ne divergent pas.
+ */
+export interface GearUseSource {
+  name: string;
+  slug?: string;
+  /** Nom du geste (« Lancer le filet ») ; par défaut, celui de l'objet. */
+  label?: string;
+  /** Portée en mètres ; par défaut, le contact. */
+  rangeMeters?: number;
+  targets?: SpellTarget[];
+  damages?: { min: number; max: number; type: string }[];
+  inflicts?: AbilityStatus[];
+  /** Attribut du jet de précision : Force pour frapper, Dextérité pour lancer. */
+  attackAttribute?: AttributeKey;
+  /** Le geste se jette même sans dégâts, contre qui n'en veut pas (un filet). */
+  requiresHit?: boolean;
+  /** L'objet quitte le sac à l'usage ; une torche qui frappe, non. */
+  consumed?: boolean;
+  dropsOnTarget?: boolean;
+  maxTargetFootprint?: number;
+  requiresHelpless?: boolean;
+  outOfCombatOnly?: boolean;
+  bonusAction?: boolean;
+  /** Ce que l'objet pose au sol, s'il pose quelque chose. */
+  hazard?: HazardSpec & { radiusMeters?: number };
+  note?: string;
+}
+
+/**
+ * Un objet d'équipement devient une action.
+ *
+ * Trois familles se partagent le même bloc, et c'est le contenu qui les
+ * distingue — pas un champ « type » à tenir à jour :
+ *  - des dégâts sans jet imposé : une arme improvisée, jouée à la Force ;
+ *  - des statuts à imposer (`requiresHit`) : un objet qu'on lance, à la
+ *    Dextérité ;
+ *  - un `hazard` : l'objet ne vise personne, il se pose au sol.
+ */
+export function gearAbility(item: GearUseSource): CombatAbility {
+  const hazard = item.hazard;
+  const damages: AbilityDamage[] = (item.damages ?? []).map((d) => ({ ...d }));
+  const manual = item.note ? [item.note] : [];
+  const offensive = damages.length > 0 || !!item.requiresHit;
+  const { radiusMeters, ...spec } = hazard ?? {};
+
+  return {
+    id: `gear:${item.slug ?? item.name}`,
+    name: item.label ?? item.name,
+    kind: 'item',
+    subtitle: item.consumed ? `Objet · ${item.name}` : `Arme improvisée · ${item.name}`,
+    description: item.note,
+    ref: item.slug,
+    rangeMeters: item.rangeMeters ?? CELL_METERS,
+    // Un piège se pose sur une zone ; tout le reste vise quelqu'un.
+    shape:
+      hazard && (radiusMeters ?? 0) > 0
+        ? { kind: 'radius', meters: radiusMeters! }
+        : { kind: 'single' },
+    // Une zone de pointes ne cible personne : c'est le sol qu'on vise.
+    targets: hazard ? [] : (item.targets ?? (offensive ? ['enemy'] : ['self', 'ally'])),
+    manaCost: 0,
+    enduranceCost: 0,
+    consumes: item.consumed ? { item: item.name, qty: 1 } : undefined,
+    damages,
+    inflicts: item.inflicts?.length ? item.inflicts : undefined,
+    attackAttribute: item.attackAttribute ?? (damages.length ? 'force' : 'dexterite'),
+    requiresHit: item.requiresHit,
+    // Ce qui ne blesse pas et ne s'impose pas ne se rate pas : poser des
+    // entraves sur un corps inerte, c'est un geste, pas une attaque.
+    autoHit: !offensive || undefined,
+    placesHazard: hazard ? { radiusMeters: radiusMeters ?? 0, spec } : undefined,
+    maxTargetFootprint: item.maxTargetFootprint,
+    requiresHelpless: item.requiresHelpless,
+    dropsOnTarget: item.dropsOnTarget,
+    outOfCombatOnly: item.outOfCombatOnly,
+    manualEffects: manual.length ? manual : undefined,
+    bonusAction: item.bonusAction ?? false,
   };
 }
 

@@ -2,6 +2,7 @@ import { daytimeAt, startingClock } from './clock';
 import { Encounter, EncounterPhase, GridPos, Team } from './combat.types';
 import { normalizeTerrain } from './terrain';
 import { newSeed } from './dice';
+import { migrateSurvival } from './survival';
 
 /** Dimensions par défaut d'un champ de bataille (20 × 15 cases ≈ 30 × 22 m). */
 export const DEFAULT_GRID = { width: 20, height: 15 };
@@ -41,6 +42,11 @@ export function migrateEncounter(encounter: Encounter): Encounter {
   return {
     ...encounter,
     terrain: normalizeTerrain(encounter.terrain),
+    // Les jauges d'avant la refonte en points (secondes écoulées par jauge)
+    // sont relues en gardant la proportion restante.
+    combatants: encounter.combatants.map((c) =>
+      c.survival ? { ...c, survival: migrateSurvival(c.survival, c.attributes) } : c,
+    ),
     clock,
     phase: encounter.phase ?? phaseFor(encounter),
     // Une rencontre d'avant l'horloge portait un moment de la journée choisi à

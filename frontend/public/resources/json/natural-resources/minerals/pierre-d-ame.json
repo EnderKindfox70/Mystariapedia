@@ -1,0 +1,49 @@
+{
+    "name": "Pierre d'âme",
+    "subtitle": "Contenant d'âme",
+    "image": "",
+    "icon": "",
+    "description": [
+        "Une pierre ne retient rien d'elle-même. Celle-ci ne vaut que par ce qu'on y a enfermé : une âme arrachée au seuil au moment de la mort, ou peu après, avant qu'elle ne passe.",
+        "L'âme y garde ce qu'elle était de son vivant et la façon dont elle est morte. Le praticien ne choisit rien de cela : il capture, puis il découvre ce qu'il tient — s'il sait le lire."
+    ],
+    "info": [
+        {
+            "key": "type",
+            "label": "Type",
+            "value": "Contenant d'âme"
+        },
+        {
+            "key": "rarity",
+            "label": "Rareté",
+            "value": "Rare"
+        },
+        {
+            "key": "weight",
+            "label": "Poids",
+            "value": "0.3 kg"
+        }
+    ],
+    "properties": [
+        "Capture — rite au moment de la mort ou peu après. Jet de Charisme contre la résistance de l'âme à sa propre mort : une mort apaisée cède facilement, la rage et l'agonie résistent. Un échec laisse l'âme se dissiper et la pierre est perdue ; un résultat partiel capture l'âme, qui doit se stabiliser plusieurs jours avant la première invocation ; un critique donne une pierre plus stable.",
+        "Lecture — si la capture a pris, jet d'Intelligence séparé pour identifier l'âme. Échec : profil inconnu jusqu'à l'invocation. Partiel : une impression vague (l'espèce, la dangerosité) sans l'archétype exact. Réussite : profil complet. Critique : profil complet et pierre encore plus stable.",
+        "Nécromancie — l'âme s'incarne dans un cadavre avec Relève les morts ; son espèce compte si elle diffère de celle du corps.",
+        "Médiumnité — Manifestation spectrale donne forme à l'âme selon son profil animique. À court de mana, la forme se dissipe mais l'âme retourne dans la pierre : le contenant est réutilisable indéfiniment.",
+        "Seule la destruction de la pierre elle-même, que l'âme soit dedans ou manifestée, la perd pour de bon. C'est la pierre, pas le fantôme, qui est la vraie cible."
+    ],
+    "notes": [
+        "Le Charisme gouverne la capture, l'Intelligence la lecture : un praticien peut très bien capturer ce qu'il est incapable de comprendre, et inversement."
+    ],
+    "references": [
+        {
+            "label": "Domaines liés",
+            "items": [
+                {
+                    "ref": "death",
+                    "collection": "domains",
+                    "label": "Mort"
+                }
+            ]
+        }
+    ]
+}

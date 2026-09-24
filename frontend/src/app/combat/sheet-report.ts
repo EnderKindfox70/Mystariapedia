@@ -10,10 +10,13 @@ import {
   clampPoolLoss,
   poolCurrent,
   poolStage,
+  sheetSurvivalLoss,
+  survivalPoints,
 } from '../character/universe-data';
+import { remainingUses, usesPerOf } from './charges';
 import { Combatant } from './combat.types';
 import { DEFAULT_RULES, Rules, xpForCast } from './spell-customization';
-import { stageOf, survivalToNotches } from './survival';
+import { profileOf, stageOf, survivalToLoss } from './survival';
 
 /* ──────────────────────────────────────────────────────────────────────────
    REPORTER LA SÉANCE SUR LES FICHES
@@ -42,12 +45,14 @@ import { stageOf, survivalToNotches } from './survival';
    effectivement joué.
 ─────────────────────────────────────────────────────────────────────────── */
 
-/** Un cran de jauge qui a bougé pendant la séance. */
+/** Une jauge de survie qui a bougé pendant la séance (en points restants). */
 export interface GaugeChange {
   key: SurvivalKey;
   label: string;
   from: number;
   to: number;
+  /** Taille du réservoir (dépend de la CON du pion). */
+  max: number;
   /** Verdict d'arrivée (« Le ventre creux »), pour l'aperçu. */
   stage: string;
 }
@@ -69,9 +74,16 @@ export interface PoolChange {
 /** Une ligne de sac qui a bougé (positive = ramassée, négative = dépensée). */
 export interface ItemChange {
   name: string;
+  /**
+   * Écart en exemplaires — ou en USAGES pour un objet qui en compte plusieurs
+   * (cf. `uses`) : manger une journée de rations ne change pas le nombre de
+   * lots, mais doit quand même se reporter.
+   */
   delta: number;
   /** Quantité finale, celle qui sera écrite. */
   to: number;
+  /** L'écart se compte en usages (jours de rations, doses), pas en exemplaires. */
+  uses?: boolean;
 }
 
 /** Ce qu'une séance a changé pour un personnage, avant écriture. */
@@ -113,22 +125,28 @@ export function diffAgainstSheet(
   rules: Rules = DEFAULT_RULES,
 ): SheetReport {
   const gauges: GaugeChange[] = [];
-  const after = survivalToNotches(unit.survival);
   // Un pion qui ne tient pas de jauges n'a rien à en dire : sans état, la
   // conversion rendrait « tout au plein » et le report REMPLIRAIT la fiche.
-  for (const gauge of unit.survival ? SURVIVAL_GAUGES : []) {
-    // Une fiche d'avant les jauges part d'une réserve pleine, comme partout
-    // ailleurs : sans ce repli, la première séance annoncerait un écart faux.
-    const from = sheet.survival?.[gauge.key] ?? gauge.segments;
-    const to = after[gauge.key];
-    if (from === to) continue;
-    gauges.push({
-      key: gauge.key,
-      label: gauge.label,
-      from,
-      to,
-      stage: stageOf(gauge.key, unit.survival),
-    });
+  if (unit.survival) {
+    const profile = profileOf(unit.attributes);
+    const after = survivalToLoss(unit.survival, profile);
+    // Une fiche d'avant les jauges part d'une réserve pleine, et une fiche
+    // d'avant la refonte en points garde sa proportion (cf. `sheetSurvivalLoss`).
+    const onSheet = sheetSurvivalLoss(sheet, unit.attributes);
+    for (const gauge of SURVIVAL_GAUGES) {
+      const max = profile.max[gauge.key];
+      const from = survivalPoints(max, onSheet[gauge.key]);
+      const to = survivalPoints(max, after[gauge.key]);
+      if (from === to) continue;
+      gauges.push({
+        key: gauge.key,
+        label: gauge.label,
+        from,
+        to,
+        max,
+        stage: stageOf(gauge.key, unit.survival, profile),
+      });
+    }
   }
 
   const pools: PoolChange[] = [];
@@ -151,14 +169,24 @@ export function diffAgainstSheet(
     });
   }
 
-  const before = new Map((sheet.inventory ?? []).map((l) => [l.name, Math.max(0, Math.round(l.qty ?? 0))]));
-  const now = new Map(unit.inventory.map((l) => [l.name, Math.max(0, Math.round(l.qty))]));
+  // Un objet à plusieurs usages se compare en usages : c'est le pion qui sait
+  // combien un exemplaire en contient, la fiche n'écrit que l'entame.
+  const per = new Map(unit.inventory.map((l) => [l.name, usesPerOf(l)]));
+  const count = (name: string, qty: number | undefined, usesLeft: number | undefined): number => {
+    const n = Math.max(0, Math.round(qty ?? 0));
+    const usesPer = per.get(name) ?? usesPerOf({ name });
+    return usesPer > 1 ? remainingUses({ name, qty: n, usesPer, usesLeft }) : n;
+  };
+  const before = new Map((sheet.inventory ?? []).map((l) => [l.name, count(l.name, l.qty, l.usesLeft)]));
+  const now = new Map(unit.inventory.map((l) => [l.name, count(l.name, l.qty, l.usesLeft)]));
+  const finalQty = new Map(unit.inventory.map((l) => [l.name, Math.max(0, Math.round(l.qty))]));
 
   const items: ItemChange[] = [];
   for (const name of new Set([...before.keys(), ...now.keys()])) {
     const from = before.get(name) ?? 0;
     const to = now.get(name) ?? 0;
-    if (from !== to) items.push({ name, delta: to - from, to });
+    const uses = (per.get(name) ?? usesPerOf({ name })) > 1;
+    if (from !== to) items.push({ name, delta: to - from, to: finalQty.get(name) ?? 0, ...(uses ? { uses } : {}) });
   }
   items.sort((a, b) => b.delta - a.delta || a.name.localeCompare(b.name));
 
@@ -211,7 +239,7 @@ function maxOf(unit: Combatant, key: PoolKey): number {
 
 /**
  * Creux des trois réserves à écrire sur la fiche, à partir de l'état du pion.
- * Pendant de `survivalToNotches` : le moteur compte en points courants, la
+ * Pendant de `survivalToLoss` : le moteur compte en points courants, la
  * fiche garde ce qui manque.
  */
 function poolLossOf(unit: Combatant): Record<PoolKey, number> {
@@ -253,10 +281,9 @@ export function applyReport(
   const next: CharacterSheet = structuredClone(sheet);
 
   if (report.gauges.length) {
-    next.survival = { ...(next.survival ?? {}), ...survivalToNotches(unit.survival) } as Record<
-      SurvivalKey,
-      number
-    >;
+    next.survivalLoss = survivalToLoss(unit.survival, profileOf(unit.attributes));
+    // L'ancien format n'a plus lieu d'être une fois le nouveau écrit.
+    delete next.survival;
   }
 
   // Les trois réserves partent ensemble, même si une seule a bougé : elles
@@ -275,6 +302,9 @@ export function applyReport(
         name: l.name,
         qty: Math.round(l.qty),
         weight: weights.get(l.name) ?? weightOf(l.name),
+        // L'exemplaire entamé suit : sans lui, un lot de rations mangé à moitié
+        // redeviendrait intact à la séance suivante.
+        ...(l.usesLeft !== undefined ? { usesLeft: l.usesLeft } : {}),
       }));
   }
 
@@ -307,7 +337,8 @@ export function summarize(report: SheetReport): string {
     parts.push(`${gauge.label.toLowerCase()} ${gauge.from} → ${gauge.to}`);
   }
   for (const item of report.items) {
-    parts.push(`${item.delta > 0 ? '+' : ''}${item.delta} ${item.name}`);
+    const unite = item.uses ? ` usage${Math.abs(item.delta) > 1 ? 's' : ''} de` : '';
+    parts.push(`${item.delta > 0 ? '+' : ''}${item.delta}${unite} ${item.name}`);
   }
   if (report.gold) parts.push(`${report.gold > 0 ? '+' : ''}${report.gold} po`);
   for (const gain of report.spellXp) {

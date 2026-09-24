@@ -1,0 +1,749 @@
+{
+    "_note": "Catalogue des formes que prend un mort ramené par le domaine de la Mort. Deux familles qui ne se recouvrent pas : les MORTS-VIVANTS de la Nécromancie (un corps réel, animé — modèle golem : la mana sert à agir, pas à exister) et les FANTÔMES de la Médiumnité (une forme entièrement magique — modèle esquisse : la mana sert à exister). Le praticien ne choisit jamais l'archétype : le nécromancien le lit sur le stade de décomposition du corps, le médium le découvre dans le profil animique de l'âme.",
+    "_calibration_note": "Les champs marqués `provisional` dans `_provisional` ne viennent pas de la fiche de domaine : ils ont été posés pour rendre la mécanique jouable et restent à recalibrer en jeu.",
+    "_provisional": [
+        "undead.*.manaPerAction",
+        "undead.goule.contact.chance",
+        "undead.bouffi.onDestroyed.area",
+        "decayRules.stageMismatch.decayRate",
+        "dangerTiers.*.upkeep",
+        "deathSeverities (répartition des morts sur les quatre paliers)",
+        "soulStone.stabilizationDays",
+        "soulStone.reading (même formule que la capture, sur INT)",
+        "ghosts.*.stats (profils de stats des fantômes, hypothétiques)",
+        "undead.*.speedDie, ghosts.*.stats.speedDie (croissance de la vitesse)"
+    ],
+    "decayStages": [
+        {
+            "key": "frais",
+            "name": "Frais",
+            "reality": "Rigor mortis, corps quasi intact.",
+            "fromDay": 0,
+            "archetype": "revenant"
+        },
+        {
+            "key": "rigidite",
+            "name": "Rigidité",
+            "reality": "Débuts de décomposition.",
+            "fromDay": 2,
+            "archetype": "goule"
+        },
+        {
+            "key": "ballonnement",
+            "name": "Ballonnement",
+            "reality": "Gaz de décomposition.",
+            "fromDay": 7,
+            "archetype": "bouffi"
+        },
+        {
+            "key": "squelettisation",
+            "name": "Squelettisation",
+            "reality": "Os secs.",
+            "fromDay": 21,
+            "archetype": "squelette",
+            "terminal": true
+        },
+        {
+            "key": "momification",
+            "name": "Momification",
+            "reality": "Desséché, préservé — seulement sous climat sec ou par préservation.",
+            "fromDay": 21,
+            "archetype": "momie",
+            "terminal": true,
+            "requiresDryClimate": true
+        }
+    ],
+    "decayRules": {
+        "_note": "Chaque cadavre réanimé porte une horloge de décomposition qui avance en jours de jeu, sans rien demander au nécromancien. Au franchissement d'un seuil, l'archétype change et les stats se recalculent sur le même corps, sans nouveau rituel. Squelette et Momie sont terminaux.",
+        "speciesMismatch": {
+            "_note": "Âme d'une espèce dans le corps d'une autre : possible, mais le corps lutte contre des réflexes qu'il ne peut pas suivre.",
+            "precisionSteps": -2,
+            "signatureAttackFactor": 0.5,
+            "speedFactor": 0.75
+        },
+        "stageMismatch": {
+            "_note": "Corps fourni au mauvais stade (improvisation) : mort-vivant instable, même logique que le Palier 3 des matériaux de Terre.",
+            "effectFactor": 0.5,
+            "precisionSteps": -2,
+            "decayRate": 2
+        },
+        "embalming": {
+            "_note": "Embaumement rituel : fige définitivement le stade actuel, au prix d'une préservation jamais gratuite. La perte se règle sur le sort (Perte de stats) ; ces valeurs sont celles du socle et le plancher.",
+            "defaultStatLoss": 20,
+            "minStatLoss": 10
+        },
+        "controlRange": {
+            "base": 20,
+            "perCha": 5
+        }
+    },
+    "undead": [
+        {
+            "key": "revenant",
+            "name": "Revenant",
+            "stage": "frais",
+            "summary": "Le plus équilibré, sans pic nulle part : sa vraie valeur est la fenêtre de temps où il est disponible.",
+            "traits": [
+                "Capacités proches du vivant.",
+                "Fenêtre d'usage courte : dégénère vite en Goule."
+            ],
+            "hpDie": 8,
+            "atkDie": 8,
+            "hpBase": 6,
+            "atkBase": 3,
+            "defBase": 2,
+            "defPerLevel": 0.5,
+            "speedBase": 6,
+            "speedDie": 6,
+            "manaPerAction": 3
+        },
+        {
+            "key": "goule",
+            "name": "Goule",
+            "stage": "rigidite",
+            "summary": "Bon compromis PV/Défense, attaque modeste, lente à se dégrader.",
+            "traits": [
+                "Forte et lente à se dégrader.",
+                "Contact contaminant : ses coups peuvent empoisonner."
+            ],
+            "hpDie": 10,
+            "atkDie": 6,
+            "hpBase": 7,
+            "atkBase": 3,
+            "defBase": 3,
+            "defPerLevel": 0.5,
+            "speedBase": 4,
+            "speedDie": 4,
+            "manaPerAction": 2,
+            "contact": {
+                "status": "poison",
+                "chance": 25
+            }
+        },
+        {
+            "key": "bouffi",
+            "name": "Bouffi",
+            "stage": "ballonnement",
+            "summary": "Délibérément faible en stats : sa vraie valeur est l'explosion à sa destruction.",
+            "traits": [
+                "Mobilité très faible.",
+                "Explose à sa destruction en une zone toxique."
+            ],
+            "hpDie": 6,
+            "atkDie": 4,
+            "hpBase": 5,
+            "atkBase": 2,
+            "defBase": 1,
+            "defPerLevel": 0.3,
+            "speedBase": 2,
+            "speedDie": 2,
+            "manaPerAction": 1,
+            "onDestroyed": {
+                "effect": "Explosion toxique",
+                "status": "poison",
+                "chance": 100,
+                "area": "Rayon 2 m"
+            }
+        },
+        {
+            "key": "squelette",
+            "name": "Squelette",
+            "stage": "squelettisation",
+            "summary": "Le glass cannon rapide du roster : PV les plus bas, Vitesse la plus haute.",
+            "traits": [
+                "Léger et rapide.",
+                "Immunisé au Poison et à la Nécrose.",
+                "Fragile aux dégâts contondants."
+            ],
+            "hpDie": 4,
+            "atkDie": 6,
+            "hpBase": 4,
+            "atkBase": 3,
+            "defBase": 1,
+            "defPerLevel": 0.3,
+            "speedBase": 7,
+            "speedDie": 8,
+            "manaPerAction": 1,
+            "statusImmunities": [
+                "poison",
+                "necrose"
+            ],
+            "affinities": [
+                {
+                    "kind": "weaknesses",
+                    "damageTypeIds": [
+                        1
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "momie",
+            "name": "Momie",
+            "stage": "momification",
+            "summary": "Le mur : PV et Défense les plus hauts, aussi lente qu'un Bouffi.",
+            "traits": [
+                "Très résistante.",
+                "Lente.",
+                "Vulnérable au Feu."
+            ],
+            "hpDie": 10,
+            "atkDie": 8,
+            "hpBase": 8,
+            "atkBase": 3,
+            "defBase": 4,
+            "defPerLevel": 0.7,
+            "speedBase": 2,
+            "speedDie": 2,
+            "manaPerAction": 2,
+            "affinities": [
+                {
+                    "kind": "weaknesses",
+                    "damageTypeIds": [
+                        4
+                    ]
+                }
+            ]
+        }
+    ],
+    "dangerTiers": [
+        {
+            "key": "leger",
+            "name": "Léger",
+            "veilWeight": 15,
+            "upkeep": 1
+        },
+        {
+            "key": "modere",
+            "name": "Modéré",
+            "veilWeight": 8,
+            "upkeep": 2
+        },
+        {
+            "key": "eleve",
+            "name": "Élevé",
+            "veilWeight": 3,
+            "upkeep": 3
+        },
+        {
+            "key": "extreme",
+            "name": "Extrême",
+            "veilWeight": 2,
+            "upkeep": 4
+        }
+    ],
+    "ghostCommon": {
+        "_note": "Socle commun à tous les fantômes, avant les variations propres. La faiblesse à la Vie suit le facteur générique des faiblesses (×1,5).",
+        "affinities": [
+            {
+                "kind": "immunities",
+                "damageTypeIds": [
+                    1,
+                    2,
+                    3
+                ]
+            },
+            {
+                "kind": "weaknesses",
+                "damageTypeIds": [
+                    13
+                ]
+            }
+        ],
+        "veilTurns": {
+            "base": 3,
+            "perCha": 1,
+            "min": 1
+        },
+        "_statsNote": "Stats dérivées du niveau du médium, même formule que les morts-vivants (PV = base + niveau × moyenne du dé × 0,7 ; Attaque = base + niveau × moyenne du dé × 0,6 ; Défense = base + niveau × facteur ; Vitesse = base + niveau × moyenne du dé × 0,6). Attaque et Défense sont magiques : les dégâts physiques traversent la forme."
+    },
+    "ghosts": [
+        {
+            "key": "banshee",
+            "name": "Banshee",
+            "soulProfile": "Rage, injustice non résolue, diffuse.",
+            "danger": "modere",
+            "traits": [
+            ],
+            "abilities": [
+                {
+                    "name": "Cri Terrifiant",
+                    "kind": "active",
+                    "description": "Inflige la Peur à toute la zone.",
+                    "inflicts": [
+                        "peur"
+                    ]
+                },
+                {
+                    "name": "Hurlement sonique",
+                    "kind": "active",
+                    "description": "Inflige des dégâts soniques à toute la zone."
+                }
+            ],
+            "range": {
+                "control": {
+                    "base": 40,
+                    "perCha": 5
+                }
+            },
+            "rangeLogic": "Un présage doit être entendu au loin.",
+            "stats": {
+                "hpDie": 4,
+                "hpBase": 3,
+                "atkDie": 8,
+                "atkBase": 3,
+                "defBase": 1,
+                "defPerLevel": 0.3,
+                "speedBase": 6,
+                "speedDie": 6
+            }
+        },
+        {
+            "key": "poltergeist",
+            "name": "Poltergeist",
+            "soulProfile": "Attachement à un lieu ou un objet précis.",
+            "danger": "leger",
+            "traits": [
+            ],
+            "abilities": [
+                {
+                    "name": "Télékinésie",
+                    "kind": "active",
+                    "description": "Manipule des objets à distance (écho d'Attire-métal)."
+                }
+            ],
+            "range": {
+                "control": {
+                    "base": 15,
+                    "perCha": 5
+                }
+            },
+            "rangeLogic": "Attaché à un lieu ou un objet précis.",
+            "stats": {
+                "hpDie": 4,
+                "hpBase": 4,
+                "atkDie": 6,
+                "atkBase": 2,
+                "defBase": 2,
+                "defPerLevel": 0.4,
+                "speedBase": 5,
+                "speedDie": 4
+            }
+        },
+        {
+            "key": "spectre",
+            "name": "Spectre",
+            "soulProfile": "Savoir ou secret jamais transmis, lié à l'ombre.",
+            "danger": "modere",
+            "traits": [],
+            "abilities": [
+                {
+                    "name": "Voile d'ombre",
+                    "kind": "passive",
+                    "description": "Accorde au médium un palier de Dissimulation (~45 %) tant qu'il est invoqué."
+                },
+                {
+                    "name": "Pas d'ombre",
+                    "kind": "active",
+                    "description": "Se déplace brièvement entre deux zones d'ombre pour repositionner le médium."
+                }
+            ],
+            "range": {
+                "control": "regional"
+            },
+            "rangeLogic": "Parfait pour traquer et surveiller : aucune formule ne le contraint.",
+            "affinities": [
+                {
+                    "kind": "resistances",
+                    "damageTypeIds": [
+                        11
+                    ]
+                },
+                {
+                    "kind": "weaknesses",
+                    "damageTypeIds": [
+                        12
+                    ]
+                }
+            ],
+            "stats": {
+                "hpDie": 6,
+                "hpBase": 4,
+                "atkDie": 6,
+                "atkBase": 3,
+                "defBase": 2,
+                "defPerLevel": 0.4,
+                "speedBase": 7,
+                "speedDie": 8
+            }
+        },
+        {
+            "key": "ombre-gardienne",
+            "name": "Ombre gardienne",
+            "soulProfile": "Serment ou devoir inachevé.",
+            "danger": "modere",
+            "traits": [
+                "Suit des ordres littéraux, comme un golem à Lien bas."
+            ],
+            "abilities": [
+                {
+                    "name": "Garde",
+                    "kind": "passive",
+                    "description": "Défend une cible ou une zone selon une règle fixe."
+                }
+            ],
+            "range": {
+                "control": {
+                    "base": 30,
+                    "perCha": 5
+                },
+                "guardZone": {
+                    "base": 10,
+                    "perCha": 2
+                }
+            },
+            "rangeLogic": "Deux portées : la distance au médium, et le rayon où elle se déplace librement autour du point qu'elle protège, tant que ce point reste à portée du médium.",
+            "stats": {
+                "hpDie": 10,
+                "hpBase": 8,
+                "atkDie": 6,
+                "atkBase": 3,
+                "defBase": 4,
+                "defPerLevel": 0.7,
+                "speedBase": 4,
+                "speedDie": 4
+            }
+        },
+        {
+            "key": "errant",
+            "name": "Errant",
+            "soulProfile": "Mort confuse, désorientée.",
+            "danger": "leger",
+            "traits": [
+                "Faible.",
+                "Sous Confusion en permanence (s'applique à lui-même)."
+            ],
+            "abilities": [],
+            "selfStatuses": [
+                "confusion"
+            ],
+            "range": {
+                "control": {
+                    "base": 20,
+                    "perCha": 5
+                }
+            },
+            "rangeLogic": "Erre sans but : portée standard, mais erratique.",
+            "stats": {
+                "hpDie": 6,
+                "hpBase": 3,
+                "atkDie": 4,
+                "atkBase": 1,
+                "defBase": 1,
+                "defPerLevel": 0.3,
+                "speedBase": 4,
+                "speedDie": 4
+            }
+        },
+        {
+            "key": "onryo",
+            "name": "Onryō",
+            "soulProfile": "Rage et injustice ciblées sur une personne précise.",
+            "danger": "extreme",
+            "traits": [
+                "Assigné à une cible à l'invocation, jamais réassignable sans nouveau rituel.",
+                "Aucune capacité contre quiconque d'autre que sa cible."
+            ],
+            "abilities": [
+                {
+                    "name": "Vengeance",
+                    "kind": "passive",
+                    "description": "Ignore la gêne de tir et la portée contre sa cible."
+                }
+            ],
+            "range": {
+                "control": "unlimited",
+                "fullPower": {
+                    "base": 20,
+                    "perCha": 5
+                },
+                "falloff": {
+                    "perMeters": 10,
+                    "loss": 0.1,
+                    "floor": 0.25
+                }
+            },
+            "rangeLogic": "Poursuite illimitée contre SA cible, mais la puissance s'essouffle avec la distance au médium, sans jamais s'éteindre.",
+            "stats": {
+                "hpDie": 8,
+                "hpBase": 6,
+                "atkDie": 10,
+                "atkBase": 4,
+                "defBase": 2,
+                "defPerLevel": 0.5,
+                "speedBase": 6,
+                "speedDie": 6
+            }
+        },
+        {
+            "key": "zashiki-warashi",
+            "name": "Zashiki-warashi",
+            "soulProfile": "Attachement bienveillant, protection d'un lieu ou d'un foyer.",
+            "danger": "leger",
+            "traits": [
+                "Ne combat jamais."
+            ],
+            "abilities": [
+                {
+                    "name": "Bonne fortune",
+                    "kind": "passive",
+                    "description": "+1 cran de précision pour son hôte tant qu'il reste logé."
+                },
+                {
+                    "name": "Coup de pouce",
+                    "kind": "active",
+                    "description": "Une fois par repos complet, transforme un jet raté de son hôte en réussite automatique.",
+                    "usesPerLongRest": 1
+                }
+            ],
+            "range": {
+                "host": 0,
+                "control": {
+                    "base": 30,
+                    "perCha": 5
+                }
+            },
+            "rangeLogic": "Toujours collé à son hôte ; la portée compte entre le médium et l'hôte (une pièce, un objet désigné), et le lien se coupe si le médium s'éloigne trop.",
+            "affinities": [
+                {
+                    "kind": "resistances",
+                    "damageTypeIds": [
+                        12
+                    ]
+                },
+                {
+                    "kind": "weaknesses",
+                    "damageTypeIds": [
+                        11
+                    ]
+                }
+            ],
+            "stats": {
+                "hpDie": 4,
+                "hpBase": 4,
+                "atkDie": null,
+                "atkBase": 0,
+                "defBase": 2,
+                "defPerLevel": 0.3,
+                "speedBase": 5,
+                "speedDie": 4
+            }
+        },
+        {
+            "key": "preta",
+            "name": "Preta",
+            "soulProfile": "Faim, manque, frustration insatiable.",
+            "danger": "modere",
+            "traits": [],
+            "abilities": [
+                {
+                    "name": "Faim insatiable",
+                    "kind": "active",
+                    "description": "Au contact, draine chaque tour une ressource de la cible (Mana, PV ou Endurance au choix) sans la transférer à personne."
+                }
+            ],
+            "range": {
+                "control": {
+                    "base": 15,
+                    "perCha": 5
+                }
+            },
+            "rangeLogic": "Doit rester proche pour se nourrir.",
+            "stats": {
+                "hpDie": 8,
+                "hpBase": 5,
+                "atkDie": 6,
+                "atkBase": 2,
+                "defBase": 2,
+                "defPerLevel": 0.4,
+                "speedBase": 4,
+                "speedDie": 4
+            }
+        },
+        {
+            "key": "dybbuk",
+            "name": "Dybbuk",
+            "soulProfile": "Volonté de possession, incapacité à lâcher prise.",
+            "danger": "eleve",
+            "traits": [],
+            "abilities": [
+                {
+                    "name": "Possession",
+                    "kind": "active",
+                    "description": "Applique Contrôle à une cible vivante (sauvegarde SAG DD 18, entretien en mana, concentration). Sur un allié consentant : aucune sauvegarde, et l'hôte reçoit ses compétences spectrales.",
+                    "inflicts": [
+                        "controle"
+                    ]
+                }
+            ],
+            "range": {
+                "control": {
+                    "base": 10,
+                    "perCha": 5
+                }
+            },
+            "rangeLogic": "La possession exige la proximité.",
+            "affinities": [
+                {
+                    "kind": "weaknesses",
+                    "damageTypeIds": [
+                        12
+                    ]
+                }
+            ],
+            "stats": {
+                "hpDie": 8,
+                "hpBase": 5,
+                "atkDie": null,
+                "atkBase": 0,
+                "defBase": 3,
+                "defPerLevel": 0.5,
+                "speedBase": 5,
+                "speedDie": 6
+            }
+        },
+        {
+            "key": "feu-follet",
+            "name": "Will-o'-the-wisp",
+            "soulProfile": "Mort douce, devenue lumière plutôt qu'ombre.",
+            "danger": "leger",
+            "traits": [],
+            "abilities": [
+                {
+                    "name": "Lueur",
+                    "kind": "passive",
+                    "description": "Source de lumière utilitaire."
+                },
+                {
+                    "name": "Éblouissement",
+                    "kind": "active",
+                    "description": "Aveuglement (−2 crans de précision) sur une cible.",
+                    "inflicts": [
+                        "aveuglement"
+                    ]
+                }
+            ],
+            "range": {
+                "control": {
+                    "base": 40,
+                    "perCha": 5
+                }
+            },
+            "rangeLogic": "Doit couvrir une zone pour attirer.",
+            "stats": {
+                "hpDie": 4,
+                "hpBase": 3,
+                "atkDie": 4,
+                "atkBase": 2,
+                "defBase": 1,
+                "defPerLevel": 0.3,
+                "speedBase": 8,
+                "speedDie": 8
+            }
+        },
+        {
+            "key": "cauchemar",
+            "name": "Cauchemar",
+            "soulProfile": "Terreur, oppression nocturne non résolue.",
+            "danger": "eleve",
+            "manaModel": "host-drain",
+            "traits": [
+                "Inverse malveillant de Zashiki-warashi.",
+                "Parasite : c'est l'hôte qui paie son maintien (Mana, sinon Endurance)."
+            ],
+            "abilities": [
+                {
+                    "name": "Oppression",
+                    "kind": "passive",
+                    "description": "En combat, l'hôte fait chaque tour une sauvegarde de Volonté (SAG, sévérité 8) ; en cas d'échec, il subit la Peur.",
+                    "inflicts": [
+                        "peur"
+                    ],
+                    "saveSeverity": 8
+                },
+                {
+                    "name": "Sommeil volé",
+                    "kind": "passive",
+                    "description": "Hors combat, réduit la récupération de la jauge Repos de l'hôte."
+                }
+            ],
+            "range": {
+                "control": {
+                    "base": 10,
+                    "perCha": 5
+                },
+                "infected": {
+                    "host": 0,
+                    "control": "regional"
+                }
+            },
+            "rangeLogic": "Sans victime, il doit s'approcher comme un prédateur ; accroché à un hôte, il n'a plus besoin d'être proche de qui le contrôle.",
+            "affinities": [
+                {
+                    "kind": "weaknesses",
+                    "damageTypeIds": [
+                        12
+                    ]
+                }
+            ],
+            "stats": {
+                "hpDie": 8,
+                "hpBase": 5,
+                "atkDie": 8,
+                "atkBase": 3,
+                "defBase": 3,
+                "defPerLevel": 0.5,
+                "speedBase": 5,
+                "speedDie": 8
+            }
+        }
+    ],
+    "deathSeverities": [
+        {
+            "key": "apaisee",
+            "name": "Mort apaisée",
+            "severity": 4
+        },
+        {
+            "key": "troublee",
+            "name": "Mort troublée",
+            "severity": 8
+        },
+        {
+            "key": "violente",
+            "name": "Mort violente",
+            "severity": 12
+        },
+        {
+            "key": "agonie",
+            "name": "Rage ou agonie",
+            "severity": 16
+        }
+    ],
+    "soulStone": {
+        "_note": "La pierre est neutre : c'est l'âme capturée qui porte l'information. Contenant réutilisable, jamais un sacrifice à usage unique. Deux jets distincts : la CAPTURE (CHA, soumettre) puis, seulement si elle réussit, la LECTURE (INT, comprendre).",
+        "stabilizationDays": 3,
+        "invocationLimit": {
+            "base": 1,
+            "perCha": 1,
+            "min": 1
+        },
+        "soulPrison": {
+            "base": 4,
+            "perSag": 1,
+            "min": 1,
+            "willStepsPerSoul": -1,
+            "willStepsPerHostileSoul": -2
+        }
+    }
+}

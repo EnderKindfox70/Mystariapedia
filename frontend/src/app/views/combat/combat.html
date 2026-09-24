@@ -27,6 +27,7 @@
       <!-- Où en est la table. Le combat s'y met et en sort tout seul (lancer
            l'initiative, la dernière chute) ; ces boutons servent à y revenir —
            une embuscade qui reprend, un montage à retoucher. -->
+      @if (roles.isGm()) {
       <nav class="cb-phases" aria-label="Phase de la table">
         <button
           type="button"
@@ -49,7 +50,18 @@
           (click)="setPhase('exploration')"
         >Hors combat</button>
       </nav>
+      }
 
+      @if (!roles.isGm()) {
+        <div class="cb-head__actions">
+          @if (phase() === 'combat' && canPlay(active())) {
+            <button type="button" class="cb-btn cb-btn--primary" [disabled]="finished()" (click)="endTurn()">
+              Fin du tour
+            </button>
+          }
+          <button type="button" class="cb-btn" (click)="leaveTable()">Quitter la table</button>
+        </div>
+      } @else {
       <div class="cb-head__actions">
         @if (phase() !== 'combat') {
           <button
@@ -104,12 +116,16 @@
           (click)="openReport()"
         >Reporter sur les fiches</button>
         <button type="button" class="cb-btn" (click)="fresh()">Nouvelle</button>
+        @if (session.table()) {
+          <button type="button" class="cb-btn" (click)="leaveTable()">Quitter la table</button>
+        }
       </div>
+      }
 
       <!-- Qui joue quoi. Un camp coché passe au tacticien ; les autres restent
            entre tes mains, et la résolution s'arrête dès qu'ils reprennent la
            main. Réservé au combat : il n'y a pas de tour à jouer ailleurs. -->
-      @if (phase() === 'combat') {
+      @if (phase() === 'combat' && roles.isGm()) {
       <div class="cb-auto">
         <span class="cb-auto__label">Joué par l’IA :</span>
         <button
@@ -153,6 +169,24 @@
       </div>
       }
     </header>
+
+    @if (session.table(); as table) {
+      <p class="cb-table">
+        <span class="cb-table__dot" [class.is-on]="session.connected()"></span>
+        Table « {{ table.name }} » —
+        @if (table.role === 'mj') {
+          tu mènes · {{ session.online().length - 1 }} / {{ table.players.length }} joueur{{ table.players.length > 1 ? 's' : '' }} en ligne
+        } @else {
+          MJ : {{ table.gmName }}
+          @if (myUnit(); as moi) { · tu joues <strong>{{ moi.name }}</strong> }
+          @else { · ton personnage n’est pas encore sur le plateau }
+        }
+        @if (!session.connected()) { <em>· reconnexion…</em> }
+      </p>
+    }
+    @if (session.notice(); as mot) {
+      <p class="cb-alert">{{ mot }} <button type="button" class="cb-mini" (click)="session.notice.set(null)">×</button></p>
+    }
 
     @if (saveError()) {
       <p class="cb-alert">{{ saveError() }}</p>
@@ -277,39 +311,46 @@
               }
             </div>
 
-              <!-- Faim, soif, sommeil — hors combat seulement, et seulement
-                   pour qui en tient : une bête n'a pas de jauges. Un cran se
-                   raye d'un clic, comme sur la fiche. -->
+              <!-- Faim, soif, fatigue — hors combat seulement, et seulement
+                   pour qui en tient : une bête n'a pas de jauges. Des points,
+                   pas des crans : le réservoir dépend de la Constitution. Les
+                   boutons ± sont la correction du MJ. -->
               @if (phase() === 'exploration' && unit.survival) {
                 <div class="cb-party__gauges">
-                  @for (g of survivalGauges; track g.key) {
+                  @for (row of survivalRows(unit); track row.gauge.key) {
                     <div
                       class="cb-gauge"
-                      [title]="g.label + ' : ' + survivalStage(g.key, unit.survival)"
+                      [attr.data-tier]="row.tier"
+                      [title]="row.gauge.label + ' : ' + row.stage + ' (' + row.current + '/' + row.max + ') — un point par segment de ' + segmentLabel"
                     >
                       <svg class="cb-gauge__icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path [attr.d]="g.icon" />
+                        <path [attr.d]="row.gauge.icon" />
                       </svg>
-                      <span class="cb-gauge__segments" role="group" [attr.aria-label]="g.label">
-                        @for (seg of gaugeSegments(g); track seg) {
-                          <button
-                            type="button"
-                            class="cb-gauge__seg"
-                            [class.is-filled]="seg <= notchesLeft(g.key, unit.survival)"
-                            [attr.aria-label]="g.label + ' : ' + seg"
-                            (click)="setSurvival(unit, g.key, seg)"
-                          ></button>
-                        }
+                      <span class="cb-gauge__track" [attr.aria-label]="row.gauge.label + ' : ' + row.current + ' sur ' + row.max">
+                        <span class="cb-gauge__fill" [class]="'is-' + row.gauge.key" [style.width.%]="row.pct"></span>
                       </span>
+                      <span class="cb-gauge__value">{{ row.current }}/{{ row.max }}</span>
+                      @if (roles.isGm()) {
+                      <button type="button" class="cb-gauge__step" [disabled]="row.current <= 0"
+                              [attr.aria-label]="row.gauge.label + ' −1'"
+                              (click)="adjustSurvival(unit, row.gauge.key, -1)">−</button>
+                      <button type="button" class="cb-gauge__step" [disabled]="row.current >= row.max"
+                              [attr.aria-label]="row.gauge.label + ' +1'"
+                              (click)="adjustSurvival(unit, row.gauge.key, 1)">+</button>
+                      }
                     </div>
                   }
                 </div>
+
+                @if (survivalOut(unit); as out) {
+                  <p class="cb-party__malus cb-party__out">{{ out }}</p>
+                }
 
                 @if (survivalPenalties(unit); as malus) {
                   <p class="cb-party__malus">{{ malus }}</p>
                 }
 
-                @if (edibles(unit).length) {
+                @if (edibles(unit).length && canPlay(unit)) {
                   <div class="cb-tags">
                     @for (food of edibles(unit); track food.name) {
                       <button
@@ -317,7 +358,31 @@
                         class="cb-mini"
                         [title]="'Consommer : ' + food.name"
                         (click)="eat(unit, food)"
-                      >{{ food.name }} ×{{ food.qty }}</button>
+                      >{{ food.name }} ×{{ food.qty }}@if (usesLabel(food); as entame) { <em>({{ entame }})</em> }</button>
+                    }
+                  </div>
+                }
+
+                <!-- Pièges : ils s'arment hors combat, à ses pieds, et se
+                     relèvent de même. En combat, les chausse-trappes restent
+                     une action ordinaire de l'onglet des objets. -->
+                @if (canPlay(unit) && (trapItems(unit).length || hasOwnTrapsNearby(unit))) {
+                  <div class="cb-tags">
+                    @for (piege of trapItems(unit); track piege.name) {
+                      <button
+                        type="button"
+                        class="cb-mini"
+                        [title]="'Poser ' + piege.name.toLowerCase() + ' sur la case de ' + unit.name + ' — ses alliés sauront où poser le pied'"
+                        (click)="setTrap(unit, piege.name)"
+                      >Poser : {{ piege.name }} ×{{ piege.qty }}</button>
+                    }
+                    @if (hasOwnTrapsNearby(unit)) {
+                      <button
+                        type="button"
+                        class="cb-mini"
+                        title="Relever les pièges de son camp à portée de bras : ils retournent au sac"
+                        (click)="recoverTraps(unit)"
+                      >Relever les pièges</button>
                     }
                   </div>
                 }
@@ -331,7 +396,7 @@
                       type="button"
                       class="cb-tag cb-tag--status"
                       [title]="statusTitle(unit, status)"
-                      (click)="removeStatus(unit, status.key)"
+                      (click)="roles.isGm() && removeStatus(unit, status.key)"
                     >
                       {{ statusByKey(status.key)?.name ?? status.key }}
                       @if (status.stacks > 1) { ×{{ status.stacks }} }
@@ -366,7 +431,7 @@
               }
 
               <!-- Interventions du MJ : correction de PV, pose de statut, retrait. -->
-              @if (selectedId() === unit.id) {
+              @if (selectedId() === unit.id && canPlay(unit)) {
                 <div class="cb-unit__tools">
                   <div class="cb-stats">
                     <span title="Attaque physique">ATK {{ effectiveStat(unit, 'atk_phy') }}</span>
@@ -381,6 +446,7 @@
                     </span>
                   </div>
 
+                  @if (roles.isGm()) {
                   <div class="cb-row">
                     <button type="button" class="cb-mini" (click)="adjustHp(unit, -5)">−5 PV</button>
                     <button type="button" class="cb-mini" (click)="adjustHp(unit, -1)">−1</button>
@@ -398,6 +464,7 @@
                       <option [value]="status.key">{{ status.name }}</option>
                     }
                   </select>
+                  }
 
                   <!-- Le sac : munitions et fioles, décomptées à l'usage. Une
                        ligne à zéro reste visible pour dire qu'il faut refaire
@@ -408,7 +475,7 @@
                       @for (item of unit.inventory; track item.name) {
                         <li [class.is-empty]="item.qty === 0" [attr.data-kind]="item.kind">
                           <span>{{ item.name }}</span>
-                          <em>×{{ item.qty }}</em>
+                          <em>×{{ item.qty }}@if (usesLabel(item); as entame) { · entamé {{ entame }} }</em>
                         </li>
                       }
                     </ul>
@@ -421,7 +488,7 @@
                   <!-- Changer de camp SUR PLACE. Retirer puis rajouter faisait
                        revenir le pion neuf : sans ses blessures, ses jauges, sa
                        bourse ni sa dépouille déjà fouillée. -->
-                  @if (canEditRoster()) {
+                  @if (canEditRoster() && roles.isGm()) {
                     <h4 class="cb-subhead">Camp</h4>
                     <div class="cb-teamswitch">
                       @for (team of teams; track team[0]) {
@@ -482,6 +549,7 @@
                  `[value]` est posé avant que `@for` n'ait créé les options, et
                  le champ retombait sur la première ligne — « Heure indéterminée »
                  alors que l'horloge disait matinée. -->
+            @if (roles.isGm()) {
             <select class="cb-select cb-select--slim" aria-label="Moment de la journée" (change)="setDaytime($any($event.target).value)">
               <option value="" [selected]="!encounter().daytime">Heure indéterminée</option>
               @for (moment of daytimes; track moment.key) {
@@ -514,10 +582,11 @@
               title="Géologie de la scène — ce qui peut être façonné sur place"
               (click)="geologyOpen.set(!geologyOpen())"
             >△ {{ geologyLabel() }}</button>
+            }
           </span>
         </div>
 
-        @if (geologyOpen()) {
+        @if (geologyOpen() && roles.isGm()) {
           <div class="cb-geology">
             <p class="cb-geology__intro">
               Ce que le sol offre se façonne <strong>sans rien avoir étudié</strong>, et
@@ -553,7 +622,7 @@
           </div>
         }
 
-        <!-- ══ Hors combat : l'horloge et le camp, au-dessus de la grille ══
+        <!-- ══ Hors combat : l'horloge et la route, au-dessus de la grille ══
              La grille NE DISPARAÎT PAS quand on sort du combat : les corps sont
              restés où ils sont tombés, et fouiller se fait sur le cadavre, à sa
              place. Seule la barre change. -->
@@ -573,11 +642,15 @@
                   : 'Le moment de la journée suit l’horloge. Cliquez pour le figer (souterrain, éclipse).'"
                 (click)="toggleDaytimeLock()"
               >{{ daytimeLocked() ? 'Figé' : 'Suit l’heure' }}</button>
+              <!-- Manger, dormir, chasser, s'entraîner : tout cela se fait au
+                   camp, dans sa propre vue. Le plateau garde la route. -->
+              <a class="cb-btn cb-btn--primary cb-campbar__camp" routerLink="/combat/camp" queryParamsHandling="preserve">{{ roles.isGm() ? 'Monter le camp' : 'Aller au camp' }}</a>
             </div>
 
+            @if (roles.can('time.pass')) {
             <div class="cb-campbar__row">
               <span class="cb-campbar__label">Le groupe</span>
-              @for (act of activities; track act.key) {
+              @for (act of travelActivities; track act.key) {
                 <button
                   type="button"
                   class="cb-act"
@@ -587,27 +660,6 @@
                 >{{ act.label }}</button>
               }
             </div>
-
-            @if (trainableSpells().length) {
-              <div class="cb-campbar__row cb-campbar__row--train">
-                <span class="cb-campbar__label">{{ selectedUnit()?.name }} travaille</span>
-                @for (sp of trainableSpells(); track sp.ref) {
-                  <span class="cb-train">
-                    <button type="button" class="cb-act"
-                            [class.is-on]="sp.seances > 0"
-                            [title]="'Une séance sur ' + sp.name + ' : +' + trainingXp + ' XP au report (un lancer en situation en vaut ' + combatXp + ')'"
-                            (click)="trainSpell(sp.ref)">
-                      {{ sp.name }}
-                      @if (sp.seances) { <b>×{{ sp.seances }}</b> }
-                    </button>
-                    @if (sp.seances) {
-                      <button type="button" class="cb-mini" title="Retirer une séance"
-                              (click)="trainSpell(sp.ref, -1)">−</button>
-                    }
-                  </span>
-                }
-              </div>
-            }
 
             <div class="cb-campbar__row">
               <span class="cb-campbar__label">pendant</span>
@@ -626,103 +678,12 @@
                 min
                 <button type="button" class="cb-mini" (click)="passCustom()">Avancer</button>
               </span>
-              <button
-                type="button"
-                class="cb-mini"
-                title="Huit heures de sommeil d’un bloc : de quoi effacer une journée debout."
-                (click)="sleep()"
-              >Nuit complète</button>
             </div>
-
-            <!-- Les gestes du camp. « Repas » et « Boire » PRENNENT SUR LES
-                 VIVRES : ce que chacun sort de son sac en disparaît, et qui n'a
-                 rien reste sur sa faim. « À la source » et « Chasse » ne coûtent
-                 rien — c'est au MJ de dire qu'il y en avait. -->
-            <div class="cb-campbar__row">
-              <span class="cb-campbar__label">Camp</span>
-              <button
-                type="button"
-                class="cb-mini"
-                title="Chacun entame ses rations. Le sac se vide pour de vrai."
-                (click)="meal('hunger')"
-              >Repas</button>
-              <button
-                type="button"
-                class="cb-mini"
-                title="Chacun boit son outre, qui se retrouve vide dans son sac."
-                (click)="meal('thirst')"
-              >Boire aux outres</button>
-              <button
-                type="button"
-                class="cb-mini"
-                title="Remplit les outres vides du groupe."
-                (click)="refill()"
-              >Remplir les outres</button>
-              <span class="cb-campbar__sep"></span>
-              <button
-                type="button"
-                class="cb-mini"
-                title="De l’eau libre : ne coûte rien au sac. À vous de dire qu’il y en avait."
-                (click)="restoreAll('thirst', 'la source')"
-              >À la source</button>
-            </div>
-
-            <!-- La chasse SE JETTE : une battue sur quatre ne rend rien. C'est
-                 ce qui empêche la chasse de remplacer purement et simplement
-                 les rations, et ce qui fait qu'un groupe compte sa besace au
-                 lieu de partir en se disant qu'on trouvera bien quelque chose.
-                 La prise revient à celui qui a lancé la battue. -->
-            <div class="cb-campbar__row">
-              <span class="cb-campbar__label">Chasse</span>
-              <button
-                type="button"
-                class="cb-btn cb-btn--primary"
-                [disabled]="!looter()"
-                title="Jette un d100 sur la table de chasse. La prise va au chasseur."
-                (click)="hunt()"
-              >Chasser</button>
-
-              <!-- Les chances sont affichées : on doit savoir ce qu'on risque
-                   AVANT de lancer les dés, pas le découvrir au journal. -->
-              <span class="cb-odds">
-                @for (issue of huntTable; track issue.key) {
-                  <span class="cb-odds__item" [title]="issue.flavour">
-                    {{ issue.chance }} % {{ issue.label.toLowerCase() }}
-                    @if (issue.nourishment) { <em>{{ issue.nourishment.notches }} cr.</em> }
-                  </span>
-                }
-              </span>
-
-              @if (looter(); as chasseur) {
-                <span class="cb-campbar__hint">
-                  chasseur : {{ chasseur.name }}
-                  @if (huntBonus()) {
-                    <b title="Bonus de Nature, ajouté au d100">Nature +{{ huntBonus() }}</b>
-                  }
-                </span>
-              }
-            </div>
-
-            <!-- Ce qui n'est pas chassé : un achat à l'étape, un don, une
-                 correction. Sans jet — il n'y a rien à hasarder. -->
-            <div class="cb-campbar__row">
-              <span class="cb-campbar__label">Ravitailler</span>
-              @for (vivre of supplies; track vivre.name) {
-                <button
-                  type="button"
-                  class="cb-mini"
-                  [disabled]="!looter()"
-                  [title]="'Ajoute ' + vivre.name + ' au sac (achat, don).'"
-                  (click)="provision(vivre.name)"
-                >
-                  + {{ vivre.name }}
-                  <em>{{ vivre.notches }} cr.</em>
-                </button>
-              }
-            </div>
+            }
 
             <div class="cb-campbar__row">
               <span class="cb-campbar__label">Ramasse</span>
+              @if (roles.isGm()) {
               <select
                 class="cb-select cb-select--slim"
                 aria-label="Qui ramasse le butin"
@@ -734,6 +695,9 @@
                   </option>
                 }
               </select>
+              } @else if (looter(); as moi) {
+                <span class="cb-campbar__hint">{{ moi.name }}</span>
+              }
               @if (!looters().length) {
                 <span class="cb-loot__empty">personne debout pour porter</span>
               }
@@ -866,6 +830,11 @@
               @if (groundLabel(cell.key); as posee) {
                 <span class="cb-ground" [title]="posee">◆</span>
               }
+              <!-- Un piège posé : la zone se voit de tous, le MJ tient la
+                   table. Ses alliés l'évitent d'eux-mêmes. -->
+              @if (hazardLabel(cell.key); as piege) {
+                <span class="cb-hazard" [title]="piege">✶</span>
+              }
             </button>
           }
 
@@ -905,7 +874,9 @@
             <p>
               <strong>{{ reactor()?.name }}</strong> peut réagir — {{ window.reason }}
             </p>
-            @if (teleporting(); as spell) {
+            @if (!canPlay(reactor())) {
+              <p class="cb-hint">En attente de sa décision.</p>
+            } @else if (teleporting(); as spell) {
               <p class="cb-hint">
                 @if (spell.swap) {
                   @if (teleportCells().size) {
@@ -953,6 +924,7 @@
               ({{ strike.slot === 'unarmed' ? 'à mains nues' : 'avec l’arme' }}).
               Désignez une cible sur le plateau, ou ci-dessous.
             </p>
+            @if (canPlay(pendingActor())) {
             <div class="cb-strike__choices">
               @for (candidate of pendingTargets(); track candidate.id) {
                 <button type="button" class="cb-mini" (click)="strikeAt(candidate)">
@@ -963,6 +935,9 @@
                 Passer
               </button>
             </div>
+            } @else {
+              <p class="cb-hint">En attente de sa décision.</p>
+            }
           </div>
         }
 
@@ -1028,7 +1003,7 @@
             </div>
 
             <!-- La main du MJ : poser l'état sans jet ni distance. -->
-            @if (!cible.door.broken) {
+            @if (!cible.door.broken && roles.isGm()) {
               <div class="cb-steps">
                 <span class="cb-campbar__label">MJ</span>
                 <button
@@ -1104,8 +1079,8 @@
                   Cliquez un corps sur la grille pour le fouiller. Cliquer un vivant
                   en fait le porteur.
                 } @else {
-                  Personne à terre. Le temps passe, les jauges descendent — la barre
-                  au-dessus de la grille mène le camp.
+                  Personne à terre. Le temps passe, les jauges descendent — le camp
+                  se monte depuis la barre au-dessus de la grille.
                 }
               </p>
             </div>
@@ -1114,6 +1089,14 @@
 
         @if (phase() !== 'exploration') {
         @if (active(); as unit) {
+          @if (!canPlay(unit)) {
+            <div class="cb-abilities">
+              <h3>Au tour de {{ unit.name }}</h3>
+              <p class="cb-hint">
+                @if (unit.owner) { {{ unit.owner.username }} joue. } @else { Le MJ joue. }
+              </p>
+            </div>
+          } @else {
           <div class="cb-abilities">
             <h3>Actions de {{ unit.name }}</h3>
             @if (armed(); as ability) {
@@ -1258,7 +1241,9 @@
                   Toute paroi se BRISE : le contondant compte double contre elle,
                   quelle qu'en soit la matière.
                 </p>
-                <button type="button" class="cb-mini cb-mini--danger" (click)="breakWall(mur)">Abattre</button>
+                @if (roles.isGm()) {
+                  <button type="button" class="cb-mini cb-mini--danger" (click)="breakWall(mur)">Abattre</button>
+                }
                 <button type="button" class="cb-mini" (click)="openWall.set(null)">Fermer</button>
               </div>
             }
@@ -1413,6 +1398,7 @@
               }
             </ul>
           </div>
+          }
         }
         }
       </section>
@@ -1420,13 +1406,37 @@
       <!-- ══ Colonne droite : montage / journal ══ -->
       <aside class="cb-side">
         <nav class="cb-tabs">
-          <button type="button" [class.is-on]="panel() === 'roster'" (click)="panel.set('roster')">Rencontre</button>
+          @if (roles.isGm()) {
+            <button type="button" [class.is-on]="panel() === 'roster'" (click)="panel.set('roster')">Rencontre</button>
+          }
           <button type="button" [class.is-on]="panel() === 'log'" (click)="panel.set('log')">Journal</button>
         </nav>
 
-        @if (panel() === 'roster') {
+        @if (panel() === 'roster' && roles.isGm()) {
           <div class="cb-panel">
             @if (rosterError()) { <p class="cb-alert">{{ rosterError() }}</p> }
+
+            <!-- Les joueurs de la table : leur personnage se pose d'un clic, et
+                 le pion leur appartient — ils le jouent depuis leur écran. -->
+            @if (session.table()?.role === 'mj') {
+              <h3>Joueurs de la table</h3>
+              @if (!tablePlayers().length) {
+                <p class="cb-empty">Personne n’a encore rejoint. Le code est sur la page <a routerLink="/tables">Tables de jeu</a>.</p>
+              }
+              <ul class="cb-players">
+                @for (p of tablePlayers(); track p.userId) {
+                  <li>
+                    <span class="cb-players__dot" [class.is-on]="isOnline(p.userId)"></span>
+                    <span class="cb-players__name">{{ p.username }}</span>
+                    @if (onBoard(p)) {
+                      <em>sur le plateau</em>
+                    } @else {
+                      <button type="button" class="cb-mini" [disabled]="loadingRoster()" (click)="addPlayer(p)">Poser son personnage</button>
+                    }
+                  </li>
+                }
+              </ul>
+            }
 
             <!-- Redimensionner rogne le plateau et rapatrie les pions qui en
                  sortent : c'est un geste de montage, pas de partie. -->

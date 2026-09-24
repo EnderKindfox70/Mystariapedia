@@ -3,7 +3,15 @@ import daytimeCatalog from '../../../public/resources/json/daytime.json';
 import statusCatalog from '../../../public/resources/json/status_effects.json';
 import weatherCatalog from '../../../public/resources/json/weathers.json';
 import { AttributeKey, StatKey, SurvivalKey } from '../character/character.types';
-import { abilityModifier, STATS, SURVIVAL_GAUGES } from '../character/universe-data';
+import {
+  abilityModifier,
+  describeNeedEffect,
+  manaEffect,
+  manaTier,
+  needEffect,
+  SURVIVAL_GAUGES,
+  SURVIVAL_TIERS,
+} from '../character/universe-data';
 import {
   Daytime,
   DomainFeatPassive,
@@ -13,6 +21,7 @@ import {
   StatusEffect,
   Weather,
 } from '../wiki.types';
+import { campTrapKind } from './camp-traps';
 import {
   cellsWithinReach,
   dropOnGround,
@@ -22,6 +31,7 @@ import {
   takeFromGround,
 } from './ground';
 import { weaponAbility } from './abilities';
+import { hazardsOnPath, placeHazard, removeHazard } from './hazards';
 import {
   ageWalls,
   damageWall,
@@ -62,6 +72,7 @@ import {
   Encounter,
   EncounterPhase,
   GridPos,
+  Hazard,
   LogEntry,
   LogKind,
   MetalItem,
@@ -80,23 +91,48 @@ import {
   TerrainMap,
 } from './terrain';
 import { Rng } from './dice';
-import { add as addLoot, carriedAsLoot, LootItem, pour, rollDrops, take } from './loot';
+import { add as addLoot, carriedAsLoot, LootItem, portionOf, pour, rollDrops, take } from './loot';
+import { absorbUses, remainingUses, spendUse, usesLabel, usesPerOf } from './charges';
 import {
+  absoluteSeconds,
+  Activity,
   activityByKey,
+  advanceSurvival,
   COMBAT_ACTIVITY,
   DEFAULT_ACTIVITY,
-  drain,
-  elapsedForNotches,
   EMPTY_WATERSKIN,
   gaugeOf,
+  halfKnockout,
   huntBonus,
   huntOutcome,
+  snareOutcome,
+  SNARE_CHECK_SECONDS,
+  SNARE_ITEM,
+  SNARE_SET_SECONDS,
+  SNARE_WAIT_SECONDS,
+  forageOutcome,
+  FORAGE_ACTIVITY,
+  FORAGE_SECONDS,
+  HUNT_ACTIVITY,
+  HUNT_SECONDS,
+  WAITING_ACTIVITY,
+  NeedKey,
+  NeedStatus,
+  needStatuses,
   nourishmentOf,
-  notchesLeft,
+  pointsLeft,
+  profileOf,
   restore as restoreGauge,
+  Reserves,
+  restRecovery,
+  SEGMENT_SECONDS,
   stageOf,
-  survivalMods,
+  SurvivalEvent,
+  tierOf,
+  totalNeedEffect,
+  VigorOutcome,
   WATERSKIN,
+  withPoints,
 } from './survival';
 import {
   CELL_METERS,
@@ -403,11 +439,6 @@ function modifiersFor(unit: Combatant, key: SpellScalingSource): number {
   for (const effect of unit.effects) {
     for (const mod of effect.mods) if (mod.stat === key) total += mod.value;
   }
-  // La faim, la soif et le manque de sommeil pèsent exactement comme un statut.
-  // Les brancher ICI plutôt qu'au cas par cas est ce qui garantit qu'un
-  // personnage assoiffé encaisse mal PARTOUT — au jet de toucher, au calcul de
-  // la défense, au budget de déplacement — sans qu'on ait à y penser.
-  for (const mod of survivalMods(unit.survival)) if (mod.stat === key) total += mod.value;
   for (const status of unit.statuses) {
     const def = STATUS_BY_KEY.get(status.key);
     for (const mod of def?.statEffects ?? []) {
@@ -429,7 +460,43 @@ export function effectiveStat(unit: Combatant, key: StatKey): number {
   // l'initiative ET l'esquive naturelle, la sanction se paie sur les trois à la
   // fois. C'est voulu : un combattant épuisé devient une proie.
   const winded = key === 'speed' && unit.winded ? WINDED_SPEED_SHARE : 1;
-  return Math.max(0, Math.round(value * winded));
+  // Faim, soif et fatigue sévères rognent l'Endurance MAXIMUM — le pool qui
+  // paie les compétences de classe —, pas l'endurance courante.
+  const manque = key === 'endurance' ? 1 - needEnduranceShare(unit) : 1;
+  return Math.max(0, Math.round(value * winded * manque));
+}
+
+/* ── Le manque : faim, soif, fatigue, Réserve de mana ──────────────────────
+   Chaque besoin pèse par paliers (cf. `needEffect`, `manaEffect`) : des CRANS
+   de dé sur les jets, et une part d'Endurance maximum. La faim gêne le bras,
+   la soif gêne l'incantation, la fatigue le corps d'abord ; un Manque de mana
+   sévère gêne les deux et affame. Seuls les combattants tirés d'une fiche
+   tiennent ces jauges : une bête est ce qu'elle est le jour où on la croise.
+─────────────────────────────────────────────────────────────────────────── */
+
+/** Les besoins qui pèsent sur ce combattant, Manque de mana compris. */
+export function needStatusesOf(unit: Combatant): NeedStatus[] {
+  if (!unit.survival) return [];
+  return needStatuses(unit.survival, profileOf(unit.attributes), {
+    current: unit.mana,
+    max: effectiveStat(unit, 'mana'),
+  });
+}
+
+/** Part d'Endurance maximum retirée par le manque (la mana n'y touche pas). */
+function needEnduranceShare(unit: Combatant): number {
+  if (!unit.survival) return 0;
+  return totalNeedEffect(needStatuses(unit.survival, profileOf(unit.attributes))).enduranceShare;
+}
+
+/**
+ * Crans de dé perdus par le manque sur CETTE capacité : la gêne
+ * d'incantation pour un sort, la précision physique pour tout le reste.
+ */
+export function needSteps(unit: Combatant, ability: CombatAbility): number {
+  if (!unit.survival) return 0;
+  const total = totalNeedEffect(needStatusesOf(unit));
+  return ability.kind === 'spell' ? total.castingSteps : total.physicalSteps;
 }
 
 /** Score courant d'un attribut (base + modificateurs), plancher à 1. */
@@ -660,7 +727,8 @@ export function precisionOf(unit: Combatant, ability: CombatAbility): number {
   const attribute = ability.attackAttribute ?? 'dexterite';
   const mod = abilityModifier(effectiveAttribute(unit, attribute));
   const essouffle = unit.winded ? WINDED_PRECISION_PENALTY : 0;
-  return mod * PRECISION_PER_MOD - essouffle;
+  const manque = needSteps(unit, ability) * PRECISION_PER_STEP;
+  return mod * PRECISION_PER_MOD - essouffle - manque;
 }
 
 /**
@@ -799,6 +867,9 @@ export function announcedBreakdown(
   if (maitrise) causes.push('maîtrise');
   if (precision) causes.push('précision');
   if (exigence) causes.push('sort exigeant');
+  if (needSteps(actor, ability)) {
+    causes.push(ability.kind === 'spell' ? 'gêne d’incantation' : 'manque');
+  }
 
   const points = precision - exigence;
   return { ...toThreshold(points, causes, maitrise), points };
@@ -1362,12 +1433,30 @@ function dealDamage(
     push(enc, 'death', `${target.name} tombe hors de combat.`, { targetId: target.id });
   }
 
+  // Un statut qui en AMORCE un autre part au premier coup de sa nature : une
+  // cible huilée prend feu à la première flamme, et l'huile est consumée.
+  if (outcome.applied > 0) ignitePrimed(enc, target, type);
+
   // Brut → réel, et le motif de l'écart. Quand rien n'a modifié le coup, on ne
   // dit pas deux fois le même nombre.
   const detail = notes.length
     ? `${raw} brut → ${outcome.applied} réels (${notes.join(', ')})`
     : `${outcome.applied} dégâts`;
   return { applied: outcome.applied, raw, detail };
+}
+
+/**
+ * Fait partir les statuts amorcés par ce type de dégâts (cf. `primes` du
+ * catalogue) : chacun s'efface en posant celui qu'il préparait.
+ */
+function ignitePrimed(enc: Encounter, target: Combatant, type: string): void {
+  const nature = normalizeDamageType(type);
+  for (const status of [...target.statuses]) {
+    const primes = STATUS_BY_KEY.get(status.key)?.primes;
+    if (!primes || normalizeDamageType(primes.damageType) !== nature) continue;
+    clearStatus(enc, target, status.key);
+    applyStatus(enc, target, primes.status, findUnit(enc, status.sourceId ?? ''));
+  }
 }
 
 /** Soigne une cible, anti-soin des statuts appliqué. Retourne le soin réel. */
@@ -1854,7 +1943,13 @@ function runWeather(enc: Encounter, rng: Rng): void {
   if (!weather) return;
 
   for (const unit of standing(enc)) {
-    for (const key of weather.appliesStatus ?? []) applyStatus(enc, unit, key, undefined);
+    for (const key of weather.appliesStatus ?? []) {
+      // Une vareuse huilée au sac est une vareuse sur le dos : la pluie coule
+      // dessus. Une immersion, elle, reste une immersion — seul le CIEL est
+      // arrêté ici, pas un sort qui trempe.
+      if (unit.inventory.some((l) => l.qty > 0 && l.weatherWards?.includes(key))) continue;
+      applyStatus(enc, unit, key, undefined);
+    }
 
     const rain = weather.randomDamage;
     if (rain && rng.chance(rain.chance)) {
@@ -2152,18 +2247,30 @@ function passTime(
   enc: Encounter,
   seconds: number,
   activityKey: string,
-  options: { silent?: boolean; note?: string } = {},
+  rng: Rng,
+  options: { silent?: boolean; note?: string; individual?: Record<string, string> } = {},
 ): void {
   const elapsed = Math.max(0, Math.round(seconds));
   const activity = activityByKey(activityKey) ?? activityByKey(DEFAULT_ACTIVITY)!;
+  // Ce que chacun fait à part du groupe : le tour de garde, le chasseur parti.
+  const aPart = (unit: Combatant): Activity | undefined => {
+    const key = options.individual?.[unit.id];
+    return key ? activityByKey(key) : undefined;
+  };
 
-  enc.clock = advanceClock(clockOf(enc), elapsed);
+  const from = clockOf(enc);
+  enc.clock = advanceClock(from, elapsed);
 
   if (!options.silent && elapsed > 0) {
+    const exceptions = living(enc)
+      .filter((u) => !u.down && aPart(u) && aPart(u) !== activity)
+      .map((u) => `${u.name} : ${aPart(u)!.label.toLowerCase()}`);
     push(
       enc,
       'time',
-      `${formatDuration(elapsed)} — ${activity.label.toLowerCase()}. ${formatClock(clockOf(enc))}.`,
+      `${formatDuration(elapsed)} — ${activity.label.toLowerCase()}` +
+        (exceptions.length ? ` (${exceptions.join(', ')})` : '') +
+        `. ${formatClock(clockOf(enc))}.`,
       { details: options.note ? [options.note, activity.description] : [activity.description] },
     );
   }
@@ -2173,82 +2280,274 @@ function passTime(
     // jauges se figent le temps qu'on le relève. Les faire courir pendant qu'il
     // saigne au sol reviendrait à le punir deux fois.
     if (unit.down) continue;
-    applyDrain(enc, unit, elapsed, activity.key);
+    applyDrain(enc, unit, from, elapsed, aPart(unit) ?? activity, rng);
+    recoverAtRest(enc, unit, elapsed, aPart(unit) ?? activity);
   }
 
   syncDaytime(enc);
 }
 
-/** Use les jauges d'un combattant et annonce les crans perdus ou regagnés. */
-function applyDrain(enc: Encounter, unit: Combatant, seconds: number, activityKey: string): void {
-  const activity = activityByKey(activityKey) ?? activityByKey(DEFAULT_ACTIVITY)!;
-  const before = unit.survival!;
-  const after = drain(before, seconds, activity);
-  unit.survival = after;
-
-  for (const gauge of SURVIVAL_GAUGES) {
-    const was = notchesLeft(gauge.key, before);
-    const now = notchesLeft(gauge.key, after);
-    if (was === now) continue;
-
-    const worse = now < was;
-    push(
-      enc,
-      'survival',
-      `${unit.name} — ${gauge.label.toLowerCase()} : ${stageOf(gauge.key, after)} (${now}/${gauge.segments}).`,
-      {
-        actorId: unit.id,
-        details: describePenalty(unit, gauge.key, worse),
-      },
-    );
-  }
-}
-
-/** Ce que le nouveau palier coûte, en toutes lettres, quand il coûte quelque chose. */
-function describePenalty(unit: Combatant, key: SurvivalKey, worse: boolean): string[] | undefined {
-  const mods = survivalMods(unit.survival).filter((m) =>
-    (SURVIVAL_PENALTY_STATS[key] ?? []).includes(m.stat),
-  );
-  if (!worse || !mods.length) return undefined;
-  return [mods.map((m) => `${statLabel(m.stat)} ${signed(m.value)}`).join(', ')];
+/**
+ * Peut-il quitter le camp ? Pas en plein combat, pas à terre, pas sans
+ * connaissance : on ne part pas chasser en dormant.
+ */
+function canGoOut(enc: Encounter, actor: Combatant, geste: string): boolean {
+  const refus =
+    phaseOf(enc) === 'combat'
+      ? `En plein combat, personne ne peut ${geste}.`
+      : actor.down || actor.survival?.out
+        ? `${actor.name} n’est pas en état de ${geste}.`
+        : null;
+  if (refus) push(enc, 'info', refus, { actorId: actor.id });
+  return !refus;
 }
 
 /**
- * Stats touchées par chaque jauge, pour n'attribuer au bon besoin que SES
- * malus dans le journal. Sans ce filtre, perdre un cran de faim afficherait
- * aussi la pénalité de soif déjà en cours, et l'on croirait que manger la
- * lèverait.
+ * Le temps d'une sortie hors du camp : celui qui part fait `activity`, le
+ * groupe l'attend au repos. Il revient toujours — la sortie ne se solde jamais
+ * par une disparition.
  */
-const SURVIVAL_PENALTY_STATS: Record<SurvivalKey, StatKey[]> = {
-  hunger: ['atk_phy', 'atk_mag', 'endurance'],
-  thirst: ['def_phy', 'def_mag', 'endurance', 'speed'],
-  rest: ['speed', 'atk_phy', 'atk_mag', 'endurance'],
+function goOut(enc: Encounter, actor: Combatant, seconds: number, activity: string, note: string, rng: Rng): void {
+  passTime(enc, seconds, WAITING_ACTIVITY, rng, { note, individual: { [actor.id]: activity } });
+}
+
+/**
+ * Ce que le repos et le sommeil rendent (cf. `restRecovery`). Appliqué APRÈS
+ * l'usure des jauges : c'est l'Endurance max du moment, fatigue comprise, qui
+ * plafonne ce qui revient.
+ */
+function recoverAtRest(enc: Encounter, unit: Combatant, seconds: number, activity: Activity): void {
+  const avant: Reserves = {
+    hp: unit.hp,
+    maxHp: unit.base.hp,
+    mana: unit.mana,
+    maxMana: effectiveStat(unit, 'mana'),
+    endurance: unit.endurance,
+    maxEndurance: effectiveStat(unit, 'endurance'),
+  };
+  const apres = restRecovery(activity, seconds, avant);
+  const gains = [
+    apres.hp > avant.hp ? `+${apres.hp - avant.hp} PV` : '',
+    apres.endurance > avant.endurance ? `+${apres.endurance - avant.endurance} endurance` : '',
+    apres.mana > avant.mana ? `+${apres.mana - avant.mana} mana` : '',
+  ].filter(Boolean);
+  if (!gains.length) return;
+
+  unit.hp = apres.hp;
+  unit.endurance = apres.endurance;
+  unit.mana = apres.mana;
+  push(enc, 'survival', `${unit.name} récupère : ${gains.join(', ')}.`, {
+    actorId: unit.id,
+    details: [`${unit.hp}/${avant.maxHp} PV · ${unit.endurance}/${avant.maxEndurance} endurance · ${unit.mana}/${avant.maxMana} mana`],
+  });
+}
+
+/** Statut porté pendant une perte de connaissance, selon qu'on dort ou non. */
+const outStatus = (sleep: boolean): string => (sleep ? 'sommeil' : 'evanouissement');
+
+/** Use les jauges d'un combattant et annonce les paliers franchis. */
+function applyDrain(
+  enc: Encounter,
+  unit: Combatant,
+  from: EncounterClock,
+  seconds: number,
+  activity: Activity,
+  rng: Rng,
+): void {
+  // Tiré de sa torpeur par un coup ou des sels : la perte de connaissance est
+  // levée, et le reste de la tranche se passe éveillé.
+  const out = unit.survival!.out;
+  if (out && !unit.statuses.some((s) => s.key === outStatus(out.sleep))) {
+    unit.survival = { ...unit.survival!, out: undefined };
+  }
+
+  const profile = profileOf(unit.attributes);
+  const before = unit.survival!;
+  const { state: after, events } = advanceSurvival(before, profile, from, seconds, activity, (cause) =>
+    vigorSave(enc, unit, cause, rng),
+  );
+  unit.survival = after;
+
+  // On annonce les PALIERS, pas les points : quarante-huit points de faim qui
+  // tombent un à un noieraient le journal, alors que c'est le palier qui coûte.
+  for (const gauge of SURVIVAL_GAUGES) {
+    const was = tierOf(gauge.key, before, profile);
+    const now = tierOf(gauge.key, after, profile);
+    if (was === now) continue;
+    const worse = SURVIVAL_TIERS.indexOf(now) > SURVIVAL_TIERS.indexOf(was);
+    const effect = describeNeedEffect(needEffect(gauge.key, now, profile.con));
+    push(
+      enc,
+      'survival',
+      `${unit.name} — ${gauge.label.toLowerCase()} : ${stageOf(gauge.key, after, profile)} (${pointsLeft(gauge.key, after, profile)}/${profile.max[gauge.key]}).`,
+      { actorId: unit.id, details: worse && effect.length ? [effect.join(', ')] : undefined },
+    );
+  }
+
+  for (const event of events) announceSurvivalEvent(enc, unit, event);
+  unit.endurance = Math.min(unit.endurance, effectiveStat(unit, 'endurance'));
+}
+
+/** Ce qui fait tomber, en toutes lettres. */
+const KNOCKOUT_CAUSE: Record<string, string> = {
+  hunger: 's’effondre, vaincu par la faim',
+  thirst: 's’effondre, déshydraté',
+  rest: 's’endort malgré lui, à bout de forces',
+  mana: 's’effondre, la Réserve vidée jusqu’au fond',
 };
 
-/** Nom lisible d'une stat, repris du catalogue de la fiche. */
-const statLabel = (key: StatKey): string => STATS.find((s) => s.key === key)?.label ?? key;
+/** Pose ou lève la perte de connaissance, et le dit. */
+function announceSurvivalEvent(enc: Encounter, unit: Combatant, event: SurvivalEvent): void {
+  const status = outStatus(event.sleep);
+  if (event.kind === 'knockout') {
+    const segments = event.segments ?? 1;
+    push(enc, 'survival', `${unit.name} ${KNOCKOUT_CAUSE[event.cause]}.`, {
+      actorId: unit.id,
+      details: [
+        `${event.sleep ? 'Endormissement' : 'Perte de connaissance'} : ${segments} segment${segments > 1 ? 's' : ''} (${formatDuration(segments * SEGMENT_SECONDS)}).`,
+      ],
+    });
+    applyStatus(enc, unit, status, undefined, { duration: -1 });
+    return;
+  }
+  if (unit.statuses.some((s) => s.key === status)) clearStatus(enc, unit, status);
+  push(enc, 'survival', `${unit.name} reprend connaissance.`, { actorId: unit.id });
+}
 
-/** Comble une jauge et l'annonce. Rend `true` si quelque chose a bougé. */
+/**
+ * Sévérité de chaque manque pour la sauvegarde de Vigueur, sur l'échelle de la
+ * section 13 (mineure 4, intermédiaire 8, majeure 12, extrême 16). La soif et
+ * le vide de mana sont les plus durs à tenir : ils abattent plus vite.
+ */
+export const VIGOR_SEVERITY: Record<NeedKey, number> = {
+  hunger: 8,
+  rest: 8,
+  thirst: 12,
+  mana: 12,
+};
+
+/** Degrés d'une sauvegarde, lus du côté de celui qui résiste. */
+const SAVE_LABELS: Record<HitOutcome, string> = {
+  critical: 'résistance critique',
+  hit: 'résiste',
+  graze: 'résistance partielle',
+  miss: 'échec',
+};
+
+/** Ce que le corps réclame, pour le journal. */
+const VIGOR_LABEL: Record<NeedKey, string> = {
+  hunger: 'la faim',
+  thirst: 'la soif',
+  rest: 'le sommeil',
+  mana: 'le vide magique',
+};
+
+/**
+ * Seuil de la sauvegarde de Vigueur : le jet de toucher, rôles inversés.
+ *
+ * ```
+ * résistance = mod. CON × 4 − sévérité
+ * seuil = 8 − (résistance / 5, arrondi une fois) − maîtrise    borné 3 à 18
+ * ```
+ *
+ * La maîtrise compte en crans au-dessus du socle, comme au toucher.
+ */
+export function vigorThreshold(unit: Combatant, cause: NeedKey): number {
+  const mod = abilityModifier(effectiveAttribute(unit, 'constitution'));
+  const resistance = mod * PRECISION_PER_MOD - VIGOR_SEVERITY[cause];
+  const mastery = Math.max(0, unit.proficiency - BASE_PROFICIENCY);
+  const seuil = HIT_TARGET_BASE - Math.round(resistance / PRECISION_PER_STEP) - mastery;
+  return Math.max(THRESHOLD_MIN, Math.min(THRESHOLD_MAX, seuil));
+}
+
+/**
+ * Sauvegarde de Vigueur face au palier critique : rester conscient de force.
+ *
+ * Même table de degrés que le toucher, lue du côté de celui qui résiste :
+ * réussite (ou 20) = il tient un segment de plus ; partielle = il tombe, mais
+ * moitié moins longtemps ; échec (ou 1) = il tombe pour la durée pleine.
+ */
+function vigorSave(enc: Encounter, unit: Combatant, cause: NeedKey, rng: Rng): VigorOutcome {
+  const threshold = vigorThreshold(unit, cause);
+  const roll = rng.d20();
+  const degree = outcomeOf(roll, threshold);
+  const outcome: VigorOutcome =
+    degree === 'hit' || degree === 'critical' ? 'tient' : degree === 'graze' ? 'demi' : 'tombe';
+  const verdict = {
+    tient: `${unit.name} serre les dents : il tient debout malgré ${VIGOR_LABEL[cause]}.`,
+    demi: `${unit.name} vacille sous ${VIGOR_LABEL[cause]} — il ne tombe qu’à moitié.`,
+    tombe: `${unit.name} ne résiste pas à ${VIGOR_LABEL[cause]}.`,
+  }[outcome];
+  push(enc, 'save', verdict, {
+    actorId: unit.id,
+    details: [
+      `Vigueur : dé ${roll} brut contre seuil ${threshold}+ (sévérité ${VIGOR_SEVERITY[cause]}) → ${SAVE_LABELS[degree]}` +
+        (outcome === 'tient' ? ' — conscient pour un segment encore' : ''),
+    ],
+  });
+  return outcome;
+}
+
+/**
+ * Réévalue le Manque de mana après un sort. Sévère : Faim et Soif s'usent au
+ * double jusqu'à la fin du jour. Critique (Réserve vide) : perte de
+ * connaissance, `3 − mod. CON` segments. C'est la réciprocité de la section 2 :
+ * pousser sa magie à bout se paie dans le corps.
+ */
+function checkManaNeed(enc: Encounter, unit: Combatant, rng: Rng): void {
+  if (!unit.survival) return;
+  const profile = profileOf(unit.attributes);
+  const effect = manaEffect(manaTier(unit.mana, effectiveStat(unit, 'mana')), profile.con);
+  const now = clockOf(enc);
+
+  if (effect.strain && unit.survival.strainDay !== now.day) {
+    unit.survival = { ...unit.survival, strainDay: now.day };
+    push(enc, 'survival', `${unit.name} puise au fond de sa Réserve.`, {
+      actorId: unit.id,
+      details: ['Manque de mana sévère : faim et soif s’usent deux fois plus vite jusqu’à la fin du jour.'],
+    });
+  }
+
+  if (effect.knockout && !unit.survival.out) {
+    const outcome = vigorSave(enc, unit, 'mana', rng);
+    if (outcome === 'tient') return;
+    const segments =
+      outcome === 'demi' ? halfKnockout(effect.knockout.segments) : effect.knockout.segments;
+    const at = absoluteSeconds(now);
+    unit.survival = {
+      ...unit.survival,
+      out: { cause: 'mana', until: at + segments * SEGMENT_SECONDS, sleep: false },
+    };
+    announceSurvivalEvent(enc, unit, { kind: 'knockout', cause: 'mana', at, sleep: false, segments });
+  }
+}
+
+/**
+ * Comble une jauge (tout, si `points` est absent) et l'annonce. Rend `true` si
+ * quelque chose a bougé.
+ */
 function fillGauge(
   enc: Encounter,
   unit: Combatant,
   gauge: SurvivalKey,
-  notches: number,
+  points: number | undefined,
   source: string,
 ): boolean {
   if (!unit.survival) return false;
   const def = gaugeOf(gauge);
-  const before = notchesLeft(gauge, unit.survival);
-  unit.survival = restoreGauge(unit.survival, gauge, notches);
-  const after = notchesLeft(gauge, unit.survival);
+  const profile = profileOf(unit.attributes);
+  const before = pointsLeft(gauge, unit.survival, profile);
+  unit.survival = restoreGauge(unit.survival, gauge, points);
+  const after = pointsLeft(gauge, unit.survival, profile);
   if (after === before) return false;
 
   push(
     enc,
     'survival',
-    `${unit.name} — ${source} : ${def.label.toLowerCase()} ${stageOf(gauge, unit.survival)} (${after}/${def.segments}).`,
+    `${unit.name} — ${source} : ${def.label.toLowerCase()} ${stageOf(gauge, unit.survival, profile)} (${after}/${profile.max[gauge]}).`,
     { actorId: unit.id },
   );
+  unit.endurance = Math.min(unit.endurance, effectiveStat(unit, 'endurance'));
   return true;
 }
 
@@ -2259,6 +2558,9 @@ function fillGauge(
  * ne disparaît pas mais devient une outre VIDE, qui se voit dans le sac et se
  * remplit à la prochaine source. Sans ce passage par l'inventaire, boire et
  * manger seraient gratuits, et tenir des jauges n'aurait aucun sens.
+ *
+ * Un lot de rations de voyage, lui, s'ENTAME : manger une journée en retire une
+ * des sept, et le lot ne quitte le sac qu'une fois vide (cf. `charges.ts`).
  */
 function consumeFood(enc: Encounter, unit: Combatant, line: CarriedItem): void {
   const food = nourishmentOf(line);
@@ -2269,21 +2571,31 @@ function consumeFood(enc: Encounter, unit: Combatant, line: CarriedItem): void {
   }
 
   const nom = line.name;
-  line.qty -= 1;
+  const vide = spendUse(line);
   if (line.qty <= 0) unit.inventory.splice(unit.inventory.indexOf(line), 1);
 
-  // Ce que la ligne laisse derrière elle (l'outre vidée), le cas échéant.
-  if (food.becomes) {
+  // Ce que la ligne laisse derrière elle (l'outre vidée), le cas échéant — et
+  // seulement quand un exemplaire entier vient d'être fini.
+  if (vide && food.becomes) {
     const reste = unit.inventory.find((i) => i.name === food.becomes);
     if (reste) reste.qty += 1;
     else unit.inventory.push({ name: food.becomes, qty: 1, kind: 'other' });
   }
 
-  const changed = fillGauge(enc, unit, food.gauge, food.notches, nom);
+  const changed = fillGauge(enc, unit, food.gauge, food.points, nom);
   if (!changed) {
     push(enc, 'survival', `${unit.name} entame ${nom} sans en avoir besoin.`, { actorId: unit.id });
   }
   if (food.note) push(enc, 'info', `${unit.name} — ${food.note}`, { actorId: unit.id });
+  // Un lot entamé dit ce qu'il lui reste : c'est le compte qu'on refait au
+  // feu de camp, « encore quatre jours de rations ».
+  if (usesPerOf(line) > 1 && line.qty > 0) {
+    const reste = remainingUses(line);
+    push(enc, 'survival', `${unit.name} — ${nom} : encore ${reste} usage${reste > 1 ? 's' : ''}.`, {
+      actorId: unit.id,
+      details: [`${line.qty} exemplaire${line.qty > 1 ? 's' : ''}${usesLabel(line) ? `, entamé ${usesLabel(line)}` : ''}`],
+    });
+  }
 }
 
 /* ── Le décor qu'on manipule ───────────────────────────────────────────────
@@ -2472,16 +2784,27 @@ function resolveDoor(
 /**
  * Range une quantité dans un sac, en empilant sur la ligne de même nom. Rend ce
  * qui a réellement été rangé.
+ *
+ * `uses` range une PART d'exemplaire : la journée de vivres qu'un chevreuil
+ * rapporte n'est pas le lot de sept jours qu'on achète à l'étape.
  */
-function stow(unit: Combatant, item: string, qty: number): number {
+function stow(unit: Combatant, item: string, qty: number, uses?: number): number {
   const nombre = Math.max(1, Math.round(qty));
+  // Le slug relie la ligne à sa fiche wiki : sans lui, le sac afficherait un
+  // nom sans page, et le report sur la fiche perdrait son poids.
+  const food = nourishmentOf({ name: item });
+  const per = usesPerOf({ name: item });
+  const entame = uses !== undefined && uses < per ? Math.max(1, Math.round(uses)) : undefined;
   const line = unit.inventory.find((i) => i.name === item);
-  if (line) line.qty += nombre;
+  if (line) absorbUses(line, nombre, entame);
   else {
-    // Le slug relie la ligne à sa fiche wiki : sans lui, le sac afficherait un
-    // nom sans page, et le report sur la fiche perdrait son poids.
-    const food = nourishmentOf({ name: item });
-    unit.inventory.push({ name: item, qty: nombre, slug: food?.slug, kind: 'other' });
+    unit.inventory.push({
+      name: item,
+      qty: nombre,
+      slug: food?.slug,
+      kind: 'other',
+      ...(entame !== undefined ? { usesLeft: entame } : {}),
+    });
   }
   return nombre;
 }
@@ -2553,9 +2876,10 @@ function takeFrom(
     // Tout rafler : on copie la pile avant de la vider, sinon on itère sur ce
     // qu'on est en train de retirer.
     for (const line of [...pile]) {
+      const avant = line.qty;
       const moved = take(pile, line.name, line.qty);
       if (moved <= 0) continue;
-      pour(actor.inventory, { ...line, qty: moved });
+      pour(actor.inventory, portionOf(line, moved, avant));
       taken.push(`${line.name} ×${moved}`);
     }
     const gold = Math.max(0, Math.round(target.lootGold ?? 0));
@@ -2566,9 +2890,10 @@ function takeFrom(
     }
   } else {
     const line = pile.find((l) => l.name === item);
+    const avant = line?.qty ?? 0;
     const moved = take(pile, item, qty ?? line?.qty ?? 0);
     if (moved > 0 && line) {
-      pour(actor.inventory, { ...line, qty: moved });
+      pour(actor.inventory, portionOf(line, moved, avant));
       taken.push(`${line.name} ×${moved}`);
     }
   }
@@ -2688,7 +3013,7 @@ function advance(enc: Encounter, rng: Rng): void {
       // Six secondes de plus au compteur. Un combat ne déplace pas l'aiguille
       // de beaucoup, mais il assèche : `COMBAT_ACTIVITY` use la soif trois fois
       // plus vite que la marche, et vingt rounds finissent par se voir.
-      passTime(enc, ROUND_SECONDS, COMBAT_ACTIVITY, { silent: true });
+      passTime(enc, ROUND_SECONDS, COMBAT_ACTIVITY, rng, { silent: true });
       // Le ciel vieillit d'abord : une météo à bout de course ne frappe pas un
       // round de plus avant de se dissiper.
       ageWeather(enc);
@@ -2798,7 +3123,7 @@ function resolveMove(enc: Encounter, actorId: string, to: GridPos, rng: Rng): vo
 
   const budget = affordableMovement(unit);
   const reach = reachableCells(unit, budget, enc.grid, terrainFor(enc, unit), enc.combatants);
-  const destination = reach.get(`${to.x},${to.y}`);
+  let destination = reach.get(`${to.x},${to.y}`);
   if (!destination) {
     const souffle = movementBudget(unit) - unit.moved > budget ? ' (souffle insuffisant)' : '';
     push(enc, 'info', `${unit.name} ne peut pas atteindre cette case${souffle}.`, {
@@ -2808,10 +3133,21 @@ function resolveMove(enc: Encounter, actorId: string, to: GridPos, rng: Rng): vo
   }
 
   const from = unit.pos;
+  // Les pièges du trajet, dans l'ordre. Des mâchoires ARRÊTENT la marche : le
+  // pion s'immobilise sur leur case, et le reste du chemin n'est pas fait.
+  let path = pathTo(reach, to);
+  const pieges = hazardsOnPath(enc, unit, allegianceOf(enc, unit), path);
+  const arret = pieges.find((p) => p.hazard.spec.stops);
+  if (arret) {
+    path = path.slice(0, arret.step + 1);
+    to = path[arret.step];
+    destination = reach.get(cellKey(to))!;
+  }
+  const subis = pieges.filter((p) => !arret || p.step <= arret.step).map((p) => p.hazard);
   // Le trajet effectivement suivi, relevé AVANT le déplacement : c'est lui que
   // la vue fera parcourir au pion. Ne l'écrit que la marche — un saut n'a pas
   // de route, et c'est ainsi que l'on distingue les deux sans les nommer.
-  enc.walked = { unitId: unit.id, path: pathTo(reach, to) };
+  enc.walked = { unitId: unit.id, path };
   // Le péage se lit sur le CUMUL : trois petits bonds coûtent ce que coûte le
   // trajet d'un trait, pas moins.
   const toll = movementToll(unit.moved + destination.cost) - movementToll(unit.moved);
@@ -2849,8 +3185,75 @@ function resolveMove(enc: Encounter, actorId: string, to: GridPos, rng: Rng): vo
     });
   }
 
+  // Ce qu'on a trouvé sous ses pieds, une fois arrivé : c'est là que l'on sait
+  // si le pion s'est arrêté sur des mâchoires.
+  springHazards(enc, unit, subis, rng);
+
   // S'éloigner casse ce qui tenait à distance : c'est ici qu'une marque lâche.
   enforceTethers(enc);
+}
+
+/* ── Pièges ────────────────────────────────────────────────────────────────
+   Chausse-trappes et mâchoires : une capacité différée, qui part sur qui met
+   le pied dessus (cf. `hazards.ts` pour la géométrie et le registre).
+─────────────────────────────────────────────────────────────────────────── */
+
+/** Pose au sol le piège qu'une capacité décrit, centré sur `at`. */
+function setDownHazard(enc: Encounter, actor: Combatant, ability: CombatAbility, at: GridPos): void {
+  const pose = ability.placesHazard;
+  if (!pose) return;
+  const nom = ability.consumes?.item ?? ability.name;
+  const piege = placeHazard(enc, nom, at, pose.radiusMeters, pose.spec, allegianceOf(enc, actor), actor.id);
+  push(enc, 'info', `${actor.name} pose ${nom.toLowerCase()} en (${at.x}, ${at.y}).`, {
+    actorId: actor.id,
+    details: [
+      `${piege.cells.length} case${piege.cells.length > 1 ? 's' : ''} piégée${piege.cells.length > 1 ? 's' : ''}`,
+      'ses alliés savent où poser le pied',
+    ],
+  });
+}
+
+/**
+ * Fait agir les pièges qu'un corps vient de rencontrer. Des pointes restent en
+ * place ; des mâchoires se referment une fois, puis restent au sol comme un
+ * objet qu'on ramasse.
+ */
+function springHazards(enc: Encounter, unit: Combatant, hazards: Hazard[], rng: Rng): void {
+  for (const hazard of hazards) {
+    if (unit.down) break;
+    const spec = hazard.spec;
+    const details: string[] = [];
+    let total = 0;
+    for (const d of spec.damages ?? []) {
+      const done = dealDamage(enc, unit, rng.int(d.min, d.max), d.type, true);
+      total += done.applied;
+      details.push(`${damageLabel(d.type)} : ${done.detail}`);
+    }
+    push(
+      enc,
+      total ? 'damage' : 'status',
+      `${unit.name} met le pied dans ${hazard.name.toLowerCase()}${total ? ` : ${total} dégâts` : ''}.`,
+      { targetId: unit.id, details },
+    );
+    if (total > 0) breakConcentration(enc, unit, total, rng);
+
+    // Des pattes nues ne se protègent pas des pointes comme une botte ferrée.
+    const creature = unit.origin.kind === 'bestiary';
+    const poseur = findUnit(enc, hazard.ownerId ?? '');
+    for (const inflict of [...(spec.inflicts ?? []), ...(creature ? (spec.creatureInflicts ?? []) : [])]) {
+      if (!rng.chance(inflict.chance)) continue;
+      applyStatus(enc, unit, inflict.status, poseur, { duration: inflict.duration });
+    }
+
+    if (spec.springs) {
+      removeHazard(enc, hazard.id);
+      const [case0] = hazard.cells;
+      dropOnGround(enc, case0, { name: hazard.name, qty: 1, kind: 'other' });
+      push(enc, 'info', `${hazard.name} s’est refermé : il reste au sol en (${case0.x}, ${case0.y}).`, {
+        targetId: unit.id,
+      });
+    }
+  }
 }
 
 /* ── Utilisation d'une capacité ────────────────────────────────────────────── */
@@ -2933,6 +3336,11 @@ function cannotAfford(
   if (ability.kind === 'spell') {
     const silenced = blockedBy(unit, 'preventsCasting');
     if (silenced) return `${unit.name} ne peut pas lancer de sort (« ${silenced.name} »).`;
+  } else if (ability.kind !== 'guard') {
+    // Les poignets pris, on ne manie plus rien — mais on parle encore, donc un
+    // sort reste possible (d'où le `else`).
+    const bound = blockedBy(unit, 'preventsWeapons');
+    if (bound) return `${unit.name} a les poignets pris (« ${bound.name} ») : ni arme, ni geste précis.`;
   }
 
   // On lit la réserve COURANTE, pas le maximum : le mana se dépense en combat.
@@ -2942,7 +3350,9 @@ function cannotAfford(
 
   const consumed = ability.consumes;
   if (consumed) {
-    const carried = carriedQty(unit, consumed.item);
+    // En USAGES, pas en exemplaires : un flacon de sels entamé sert encore.
+    const line = unit.inventory.find((i) => i.name === consumed.item);
+    const carried = line ? remainingUses(line) : 0;
     if (carried < consumed.qty) {
       return `Plus de ${consumed.item.toLowerCase()} (${carried}/${consumed.qty}).`;
     }
@@ -3013,6 +3423,8 @@ export function cannotUse(
   unit: Combatant,
   ability: CombatAbility,
   at: GridPos,
+  /** Au camp, tout le monde est à portée de main : ni distance, ni ligne de vue. */
+  withinReach = false,
 ): string | null {
   const depense = slotSpent(unit, ability);
   if (depense) return depense;
@@ -3034,6 +3446,25 @@ export function cannotUse(
     // n'a pas le prix d'un grès façonné sur place.
     const cout = cannotAfford(enc, unit, forme.ability, effectiveManaCost(enc, forme.ability, unit));
     if (cout) return cout;
+  }
+
+  // Une minute pour armer un piège : un round n'y suffit pas. Il se pose en
+  // préparant l'embuscade, pas au milieu d'elle.
+  if (ability.outOfCombatOnly && phaseOf(enc) === 'combat') {
+    return 'Trop long à mettre en place en plein combat : à poser hors combat.';
+  }
+
+  // Ce que l'objet exige de sa cible — la taille d'un filet, l'immobilité
+  // qu'il faut pour fermer des entraves. Sans cible sur la case, c'est la
+  // portée qui répondra plus bas.
+  const visee = unitAtCell(enc, at);
+  if (visee && visee.id !== unit.id) {
+    if (ability.maxTargetFootprint && visee.footprint > ability.maxTargetFootprint) {
+      return `${visee.name} est trop grand pour ${ability.name.toLowerCase()}.`;
+    }
+    if (ability.requiresHelpless && !helpless(visee)) {
+      return `${visee.name} se défend encore : il faut une cible à terre, endormie ou hors d'état d'agir.`;
+    }
   }
 
   // On ne projette pas ce qu'on n'a pas. Le test vit ici plutôt que dans la
@@ -3074,7 +3505,7 @@ export function cannotUse(
       : `Aucune « ${nom} » de ${unit.name} sur qui agir.`;
   }
 
-  if (ability.shape.kind !== 'self') {
+  if (ability.shape.kind !== 'self' && !withinReach) {
     const distance = unitToCellMeters(unit, at);
     if (distance > ability.rangeMeters + 1e-6)
       return `Hors de portée (${distance.toFixed(1)} m > ${ability.rangeMeters} m).`;
@@ -3091,6 +3522,13 @@ export function cannotUse(
   }
   return null;
 }
+
+/**
+ * Hors d'état de se défendre : à terre, ou sous un statut qui empêche d'agir
+ * (sommeil, paralysie, étourdissement, évanouissement).
+ */
+export const helpless = (unit: Combatant): boolean =>
+  unit.down || !!blockedBy(unit, 'preventsAction');
 
 /* ── Dégâts annoncés ───────────────────────────────────────────────────────
    Ce qu'une capacité infligera, calculé exactement comme `resolveAgainst` le
@@ -3253,16 +3691,25 @@ export function carriedQty(unit: Combatant, item: string): number {
 }
 
 /**
- * Retire des exemplaires du sac. La ligne est laissée à 0 plutôt que supprimée :
+ * Dépense des usages du sac. La ligne est laissée à 0 plutôt que supprimée :
  * un carquois vide reste visible sur la fiche, ce qui dit au joueur qu'il en
  * avait — et qu'il faut en reprendre.
+ *
+ * Un objet à plusieurs usages s'entame avant de s'épuiser : une dose de sels
+ * ne jette pas le flacon (cf. `charges.ts`).
  */
-function consume(unit: Combatant, item: string, qty: number): number {
+function consume(unit: Combatant, item: string, qty: number): CarriedItem | undefined {
   const line = unit.inventory.find((i) => i.name === item);
-  if (!line) return 0;
-  const taken = Math.min(line.qty, qty);
-  line.qty -= taken;
-  return line.qty;
+  if (!line) return undefined;
+  for (let i = 0; i < qty && line.qty > 0; i++) spendUse(line);
+  return line;
+}
+
+/** Ce qu'il reste d'une ligne, dit comme le joueur le compte. */
+function stockLabel(line: CarriedItem | undefined): string {
+  if (!line) return '0';
+  const entame = usesLabel(line);
+  return entame ? `${line.qty}, entamé ${entame}` : `${line.qty}`;
 }
 
 /** Résout une capacité contre une cible unique. Retourne les lignes de journal. */
@@ -4180,7 +4627,7 @@ function resolveUnequip(enc: Encounter, actorId: string, slot: string): void {
 function handOver(bag: CarriedItem[], item: CarriedItem, qty: number): void {
   const existing = bag.find((c) => c.name === item.name);
   if (existing) {
-    existing.qty += qty;
+    absorbUses(existing, qty, item.usesLeft, item.usesPer);
     // Une ligne homonyme déjà présente peut venir d'une saisie à la main, donc
     // sans matière connue. L'arrivée la renseigne.
     existing.metallic ??= item.metallic;
@@ -4430,9 +4877,10 @@ function resolvePickUp(
   const voulu = item ? pile.filter((l) => l.name === item) : [...pile];
   const pris: string[] = [];
   for (const line of voulu) {
+    const avant = line.qty;
     const moved = takeFromGround(enc, at, line.name, qty ?? line.qty);
     if (moved <= 0) continue;
-    handOver(actor.inventory, line, moved);
+    handOver(actor.inventory, portionOf(line, moved, avant), moved);
     pris.push(`${line.name} ×${moved}`);
   }
 
@@ -4870,12 +5318,13 @@ function resolveUse(
   targetIds: string[] | undefined,
   rng: Rng,
   item?: string,
+  withinReach = false,
 ): void {
   const actor = findUnit(enc, actorId);
   let ability = actor?.abilities.find((a) => a.id === abilityId);
   if (!actor || !ability) return;
 
-  const refusal = cannotUse(enc, actor, ability, at);
+  const refusal = cannotUse(enc, actor, ability, at, withinReach);
   if (refusal) {
     push(enc, 'info', refusal, { actorId: actor.id });
     return;
@@ -4979,6 +5428,8 @@ function resolveUse(
   const targets = unitsInEffect(enc, actor, ability, at, targetIds);
 
   actor.mana -= manaSpent;
+  // Réévalué à chaque sort lancé : le fond de la Réserve se paie dans le corps.
+  if (manaSpent > 0) checkManaNeed(enc, actor, rng);
   // Le sort est lancé : il compte pour sa propre progression. On enregistre
   // le LANCER, pas l'XP — le barème est affaire de règles, pas de pion.
   if (ability.kind === 'spell' && ability.ref) {
@@ -5004,7 +5455,8 @@ function resolveUse(
   let stockLine = '';
   if (ability.consumes) {
     const left = consume(actor, ability.consumes.item, ability.consumes.qty);
-    stockLine = `−${ability.consumes.qty} ${ability.consumes.item} (reste ${left})`;
+    const unite = left && usesPerOf(left) > 1 ? ' usage de' : '';
+    stockLine = `−${ability.consumes.qty}${unite} ${ability.consumes.item} (reste ${stockLabel(left)})`;
   }
 
   push(
@@ -5041,8 +5493,13 @@ function resolveUse(
       removeWall(enc, mur.id);
       push(enc, 'info', `${mur.name} s’effondre.`, { actorId: actor.id });
     }
-  } else if (!targets.length) {
+  } else if (!targets.length && !ability.placesHazard) {
     push(enc, 'info', 'Aucune cible valide dans la zone.', { actorId: actor.id });
+  }
+
+  // Un piège ne vise personne : il se pose, et attendra qu'on marche dessus.
+  if (ability.placesHazard) {
+    setDownHazard(enc, actor, ability, at);
   }
 
   // Le projectile quitte le sac AVANT de voler : ses dégâts et son type sont
@@ -5121,6 +5578,17 @@ function resolveUse(
   // L'objet retombe. Il ne disparaît jamais : sans cela, projeter son épée
   // revenait à la détruire, et le sort n'était qu'une attaque qui coûte une arme.
   if (projectile) landProjectile(enc, actor, projectile, at, touche, rng);
+
+  // Un filet lancé retombe là où il visait : sur la cible s'il l'a prise, au
+  // sol à ses pieds s'il l'a manquée. On le ramasse ensuite comme le reste.
+  if (ability.dropsOnTarget && ability.consumes && inBounds(at, enc.grid)) {
+    const ligne = actor.inventory.find((i) => i.name === ability.consumes!.item);
+    dropOnGround(
+      enc,
+      at,
+      ligne ? { ...ligne, qty: 1, usesLeft: undefined } : { name: ability.consumes.item, qty: 1, kind: 'other' },
+    );
+  }
 
   // La marque se consume dans l'explosion : c'est ce qui empêche d'en faire une
   // source de dégâts qu'on répéterait sans jamais retourner marquer personne.
@@ -5471,7 +5939,7 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
     }
 
     case 'passTime':
-      passTime(enc, action.seconds, action.activity, { note: action.note });
+      passTime(enc, action.seconds, action.activity, rng, { note: action.note, individual: action.individual });
       break;
 
     case 'setClock':
@@ -5503,7 +5971,7 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
         ? [findUnit(enc, action.actorId)].filter((u): u is Combatant => !!u)
         : living(enc).filter((u) => !action.team || u.team === action.team);
       let any = false;
-      for (const unit of targets) any = fillGauge(enc, unit, action.gauge, action.notches, source) || any;
+      for (const unit of targets) any = fillGauge(enc, unit, action.gauge, action.points, source) || any;
       if (!any) {
         push(enc, 'survival', `${source} — personne n’en avait besoin.`);
       }
@@ -5532,10 +6000,11 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
         // Le mieux garni d'abord : on entame la grosse ration avant les restes.
         const line = unit.inventory
           .filter((i) => i.qty > 0 && nourishmentOf(i)?.gauge === action.gauge)
-          .sort((a, b) => (nourishmentOf(b)?.notches ?? 0) - (nourishmentOf(a)?.notches ?? 0))[0];
+          .sort((a, b) => (nourishmentOf(b)?.points ?? 0) - (nourishmentOf(a)?.points ?? 0))[0];
 
         if (!line) {
-          if (notchesLeft(action.gauge, unit.survival) < gaugeOf(action.gauge).segments) {
+          const profile = profileOf(unit.attributes);
+          if (pointsLeft(action.gauge, unit.survival, profile) < profile.max[action.gauge]) {
             affames.push(unit.name);
           }
           continue;
@@ -5549,6 +6018,58 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
           details: ['Les vivres manquent dans leur sac.'],
         });
       }
+      break;
+    }
+
+    case 'setHazard': {
+      const actor = findUnit(enc, action.actorId);
+      if (!actor) break;
+      if (phaseOf(enc) === 'combat') {
+        push(enc, 'info', 'En plein combat, un piège se pose avec une action, pas avec une minute de préparation.', {
+          actorId: actor.id,
+        });
+        break;
+      }
+      const geste = actor.abilities.find((a) => a.placesHazard && a.consumes?.item === action.item);
+      const ligne = actor.inventory.find((i) => i.name === action.item);
+      if (!geste || !ligne || remainingUses(ligne) <= 0) {
+        push(enc, 'info', `${actor.name} n’a pas de ${action.item.toLowerCase()} à poser.`, { actorId: actor.id });
+        break;
+      }
+      const at = action.at ?? actor.pos;
+      if (!cellsWithinReach(actor).some((c) => samePos(c, at))) {
+        push(enc, 'info', `${actor.name} est trop loin pour poser ça là.`, { actorId: actor.id });
+        break;
+      }
+      consume(actor, action.item, 1);
+      setDownHazard(enc, actor, geste, at);
+      break;
+    }
+
+    case 'recoverHazards': {
+      const actor = findUnit(enc, action.actorId);
+      if (!actor) break;
+      if (phaseOf(enc) === 'combat') {
+        push(enc, 'info', 'Relever des pièges prend du temps : hors combat seulement.', { actorId: actor.id });
+        break;
+      }
+      const camp = allegianceOf(enc, actor);
+      const bras = cellsWithinReach(actor);
+      const releves = (enc.hazards ?? []).filter(
+        (h) => h.team === camp && h.cells.some((c) => bras.some((b) => samePos(b, c))),
+      );
+      for (const piege of releves) {
+        removeHazard(enc, piege.id);
+        stow(actor, piege.name, 1);
+      }
+      push(
+        enc,
+        'loot',
+        releves.length
+          ? `${actor.name} relève ${releves.map((h) => h.name.toLowerCase()).join(', ')}.`
+          : `${actor.name} ne trouve aucun piège de son camp à portée de bras.`,
+        { actorId: actor.id },
+      );
       break;
     }
 
@@ -5570,10 +6091,11 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
 
     case 'hunt': {
       const actor = findUnit(enc, action.actorId);
-      if (!actor) {
-        push(enc, 'info', 'Personne pour mener la battue.');
-        break;
-      }
+      if (!actor || !canGoOut(enc, actor, 'mener la battue')) break;
+
+      // On part d'abord, on revient ensuite : le temps court quoi qu'il arrive,
+      // et le journal le dit AVANT la prise.
+      goOut(enc, actor, HUNT_SECONDS, HUNT_ACTIVITY, `${actor.name} part en battue.`, rng);
 
       const roll = rng.d100();
       // La Nature pousse le résultat vers le haut de la table : savoir lire une
@@ -5582,14 +6104,16 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
       const outcome = huntOutcome(roll + bonus);
       // La prise revient à CELUI QUI A LANCÉ la chasse : c'est son sac qui la
       // porte. Le partage, ensuite, se fait à la main comme le reste.
-      if (outcome.nourishment) stow(actor, outcome.nourishment.name, 1);
+      if (outcome.nourishment) stow(actor, outcome.nourishment.name, 1, outcome.uses);
 
       push(
         enc,
         'survival',
         outcome.nourishment
-          ? `${actor.name} chasse : ${outcome.label.toLowerCase()} — ${outcome.nourishment.name}.`
-          : `${actor.name} chasse et rentre bredouille.`,
+          ? `${actor.name} revient de la chasse : ${outcome.label.toLowerCase()} — ${outcome.nourishment.name}` +
+            (outcome.uses ? ` (${outcome.uses} jour${outcome.uses > 1 ? 's' : ''})` : '') +
+            '.'
+          : `${actor.name} revient de la chasse bredouille.`,
         {
           actorId: actor.id,
           details: [
@@ -5600,6 +6124,227 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
           ],
         },
       );
+      break;
+    }
+
+    case 'forage': {
+      const actor = findUnit(enc, action.actorId);
+      if (!actor || !canGoOut(enc, actor, 'partir cueillir')) break;
+
+      goOut(enc, actor, FORAGE_SECONDS, FORAGE_ACTIVITY, `${actor.name} part cueillir.`, rng);
+
+      const roll = rng.d100();
+      const bonus = huntBonus(actor.skills);
+      const outcome = forageOutcome(roll + bonus);
+      const prise = outcome.nourishment?.name ?? outcome.resource;
+      if (prise) stow(actor, prise, 1);
+
+      push(
+        enc,
+        'survival',
+        prise
+          ? `${actor.name} revient de la cueillette : ${prise}.`
+          : `${actor.name} revient de la cueillette les mains vides.`,
+        {
+          actorId: actor.id,
+          details: [
+            bonus
+              ? `d100 : ${roll} ${signed(bonus)} (Nature) = ${roll + bonus} — ${outcome.label}`
+              : `d100 : ${roll} — ${outcome.label} (${outcome.chance} %)`,
+            outcome.flavour,
+          ],
+        },
+      );
+      break;
+    }
+
+    case 'trainSpell': {
+      const actor = findUnit(enc, action.actorId);
+      const sort = actor?.abilities.find((a) => a.kind === 'spell' && a.ref === action.ref);
+      if (!actor || !sort) break;
+      if (!canGoOut(enc, actor, 's’entraîner')) break;
+
+      const seances = { ...(actor.spellTraining ?? {}) };
+      const faites = seances[action.ref] ?? 0;
+      const cout = effectiveManaCost(enc, sort, actor);
+
+      if (action.delta < 0) {
+        if (!faites) break;
+        if (faites > 1) seances[action.ref] = faites - 1;
+        else delete seances[action.ref];
+        actor.spellTraining = seances;
+        actor.mana = Math.min(effectiveStat(actor, 'mana'), actor.mana + cout);
+        push(enc, 'info', `${actor.name} — séance sur ${sort.name} retirée, ${cout} mana rendue.`, { actorId: actor.id });
+        break;
+      }
+
+      if (actor.mana < cout) {
+        push(enc, 'info', `${actor.name} n’a pas la mana pour travailler ${sort.name} (${actor.mana}/${cout}).`, {
+          actorId: actor.id,
+        });
+        break;
+      }
+      actor.mana -= cout;
+      seances[action.ref] = faites + 1;
+      actor.spellTraining = seances;
+      push(enc, 'survival', `${actor.name} travaille ${sort.name} (séance ${faites + 1}) : −${cout} mana.`, {
+        actorId: actor.id,
+        details: [`${actor.mana}/${effectiveStat(actor, 'mana')} mana`],
+      });
+      break;
+    }
+
+    case 'campTrap': {
+      if (phaseOf(enc) === 'combat') {
+        push(enc, 'info', 'Les pièges du camp se posent et se relèvent hors combat.');
+        break;
+      }
+      const pieges = (enc.campTraps ??= []);
+      const piege = action.trapId ? pieges.find((t) => t.id === action.trapId) : undefined;
+
+      if (action.act === 'set') {
+        const actor = action.actorId ? findUnit(enc, action.actorId) : undefined;
+        const kind = action.item ? campTrapKind(action.item) : undefined;
+        if (!actor || !kind || !canGoOut(enc, actor, 'poser un piège')) break;
+        const ligne = actor.inventory.find((i) => i.name.toLowerCase() === kind.item.toLowerCase() && i.qty > 0);
+        if (!ligne) {
+          push(enc, 'info', `${actor.name} n’a pas de ${kind.item.toLowerCase()} dans son sac.`, { actorId: actor.id });
+          break;
+        }
+        consume(actor, ligne.name, 1);
+        pieges.push({ id: `camptrap-${Date.now().toString(36)}-${pieges.length}`, item: ligne.name, ownerId: actor.id });
+        push(enc, 'survival', `${actor.name} pose ${kind.item.toLowerCase()} autour du camp (${kind.role.toLowerCase()}).`, {
+          actorId: actor.id,
+          details: [kind.effect],
+        });
+      } else if (action.act === 'lift' || action.act === 'liftAll') {
+        const releves = action.act === 'liftAll' ? [...pieges] : piege ? [piege] : [];
+        for (const t of releves) {
+          const porteur =
+            (t.ownerId ? findUnit(enc, t.ownerId) : undefined) ??
+            (action.actorId ? findUnit(enc, action.actorId) : undefined) ??
+            living(enc)[0];
+          if (porteur) stow(porteur, t.item, 1);
+          pieges.splice(pieges.indexOf(t), 1);
+        }
+        if (releves.length) {
+          push(enc, 'survival', `Pièges relevés : ${releves.map((t) => t.item.toLowerCase()).join(', ')}. Ils retournent au sac.`);
+        }
+      } else if (piege) {
+        piege.sprung = action.act === 'spring';
+        const kind = campTrapKind(piege.item);
+        push(
+          enc,
+          'survival',
+          action.act === 'spring'
+            ? `${piege.item} se déclenche !`
+            : `${piege.item} est réarmé.`,
+          { details: action.act === 'spring' && kind ? [kind.effect] : undefined },
+        );
+      }
+      if (!pieges.length) delete enc.campTraps;
+      break;
+    }
+
+    case 'snare': {
+      const actor = findUnit(enc, action.actorId);
+      if (!actor) break;
+
+      if (action.act === 'set') {
+        if (!canGoOut(enc, actor, 'poser un piège en forêt')) break;
+        if (carriedQty(actor, SNARE_ITEM) < 1) {
+          push(enc, 'info', `${actor.name} n’a pas de ${SNARE_ITEM.toLowerCase()} dans son sac.`, { actorId: actor.id });
+          break;
+        }
+        consume(actor, SNARE_ITEM, 1);
+        goOut(enc, actor, SNARE_SET_SECONDS, FORAGE_ACTIVITY, `${actor.name} part poser un piège en forêt.`, rng);
+        const pieges = (enc.snares ??= []);
+        pieges.push({
+          id: `snare-${Date.now().toString(36)}-${pieges.length}`,
+          ownerId: actor.id,
+          setAt: absoluteSeconds(clockOf(enc)),
+        });
+        push(enc, 'survival', `${actor.name} a armé un ${SNARE_ITEM.toLowerCase()} sur une coulée.`, {
+          actorId: actor.id,
+          details: [`Rien à espérer avant ${formatDuration(SNARE_WAIT_SECONDS)}.`],
+        });
+        break;
+      }
+
+      const piege = enc.snares?.find((t) => t.id === action.snareId);
+      if (!piege || !canGoOut(enc, actor, 'aller voir le piège')) break;
+      const rapporte = action.act === 'lift';
+      goOut(
+        enc,
+        actor,
+        SNARE_CHECK_SECONDS,
+        FORAGE_ACTIVITY,
+        `${actor.name} ${rapporte ? 'part rapporter' : 'va voir'} le piège en forêt.`,
+        rng,
+      );
+
+      const maintenant = absoluteSeconds(clockOf(enc));
+      const attente = maintenant - piege.setAt;
+      if (attente < SNARE_WAIT_SECONDS) {
+        push(
+          enc,
+          'survival',
+          `${actor.name} trouve le piège intact : trop tôt, rien n’est encore passé.`,
+          { actorId: actor.id, details: [`Posé depuis ${formatDuration(attente)} sur ${formatDuration(SNARE_WAIT_SECONDS)}.`] },
+        );
+      } else {
+        const roll = rng.d100();
+        const bonus = huntBonus(actor.skills);
+        const outcome = snareOutcome(roll + bonus);
+        if (outcome.nourishment) stow(actor, outcome.nourishment.name, 1, outcome.uses);
+        push(
+          enc,
+          'survival',
+          outcome.nourishment
+            ? `${actor.name} relève le piège : ${outcome.label.toLowerCase()} — ${outcome.nourishment.name}.`
+            : `${actor.name} relève le piège : il est vide.`,
+          {
+            actorId: actor.id,
+            details: [
+              bonus
+                ? `d100 : ${roll} ${signed(bonus)} (Nature) = ${roll + bonus} — ${outcome.label}`
+                : `d100 : ${roll} — ${outcome.label} (${outcome.chance} %)`,
+              outcome.flavour,
+            ],
+          },
+        );
+        // Réarmé sur place : la prochaine prise se compte à partir de maintenant.
+        piege.setAt = maintenant;
+      }
+
+      if (rapporte) {
+        stow(actor, SNARE_ITEM, 1);
+        enc.snares = enc.snares!.filter((t) => t !== piege);
+        push(enc, 'survival', `${actor.name} rapporte le ${SNARE_ITEM.toLowerCase()} au camp.`, { actorId: actor.id });
+      }
+      if (!enc.snares?.length) delete enc.snares;
+      break;
+    }
+
+    case 'campUse': {
+      const actor = findUnit(enc, action.actorId);
+      const objet = actor?.abilities.find((a) => a.id === action.abilityId && a.kind === 'item');
+      if (!actor || !objet) break;
+      if (phaseOf(enc) === 'combat') {
+        push(enc, 'info', 'En plein combat, un objet se joue à son tour, depuis le plateau.', { actorId: actor.id });
+        break;
+      }
+      if (!canGoOut(enc, actor, 'se servir de son sac')) break;
+      const cible = (action.targetId ? findUnit(enc, action.targetId) : undefined) ?? actor;
+
+      // Hors combat, pas de tour : l'action et l'action bonus n'ont pas cours.
+      // On les libère le temps du geste, et on les rend libres après.
+      actor.actionUsed = false;
+      actor.bonusActionUsed = false;
+      const ids = objet.shape.kind === 'targets' ? [cible.id] : undefined;
+      resolveUse(enc, actor.id, objet.id, cible.pos, ids, rng, undefined, true);
+      actor.actionUsed = false;
+      actor.bonusActionUsed = false;
       break;
     }
 
@@ -5629,16 +6374,15 @@ function perform(enc: Encounter, action: CombatAction, rng: Rng): void {
       const actor = findUnit(enc, action.actorId);
       if (!actor?.survival) break;
       const gauge = gaugeOf(action.gauge);
-      actor.survival = {
-        ...actor.survival,
-        [action.gauge]: elapsedForNotches(action.gauge, action.notches),
-      };
+      const profile = profileOf(actor.attributes);
+      actor.survival = withPoints(actor.survival, action.gauge, action.points, profile);
       push(
         enc,
         'survival',
-        `${actor.name} — ${gauge.label.toLowerCase()} : ${stageOf(action.gauge, actor.survival)} (${notchesLeft(action.gauge, actor.survival)}/${gauge.segments}) — MJ.`,
+        `${actor.name} — ${gauge.label.toLowerCase()} : ${stageOf(action.gauge, actor.survival, profile)} (${pointsLeft(action.gauge, actor.survival, profile)}/${profile.max[action.gauge]}) — MJ.`,
         { actorId: actor.id },
       );
+      actor.endurance = Math.min(actor.endurance, effectiveStat(actor, 'endurance'));
       break;
     }
   }

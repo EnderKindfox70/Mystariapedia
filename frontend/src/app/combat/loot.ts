@@ -1,5 +1,6 @@
 import { CarriedItem, WieldSpec } from './combat.types';
 import { Rng } from './dice';
+import { absorbUses, usesLeftMoving } from './charges';
 
 /* ──────────────────────────────────────────────────────────────────────────
    FOUILLER LES CORPS
@@ -58,6 +59,10 @@ export interface LootItem {
   metallic?: boolean;
   weightKg?: number;
   weapon?: WieldSpec;
+  /** Usages par exemplaire, et ce qui reste du dernier s'il est entamé. */
+  usesPer?: number;
+  usesLeft?: number;
+  weatherWards?: string[];
 }
 
 /** Ce qu'une dépouille a rendu, en plus de ses lignes : sa bourse. */
@@ -95,7 +100,7 @@ export function rollDrops(drops: LootDrop[] | undefined, rng: Rng): LootItem[] {
  */
 export function add(pile: LootItem[], item: LootItem): LootItem[] {
   const existing = pile.find((l) => l.name === item.name);
-  if (existing) existing.qty += item.qty;
+  if (existing) absorbUses(existing, item.qty, item.usesLeft, item.usesPer);
   else pile.push({ ...item });
   return pile;
 }
@@ -111,6 +116,17 @@ export function take(pile: LootItem[], name: string, qty: number): number {
 }
 
 /**
+ * Ce qui part d'une ligne quand on en prend `moved` exemplaires : la même
+ * ligne, sans son exemplaire entamé si l'on n'a pas tout pris — il reste au
+ * fond de la pile, comme on laisse le flacon ouvert pour prendre les pleins.
+ */
+export const portionOf = <T extends LootItem | CarriedItem>(line: T, moved: number, before: number): T => ({
+  ...line,
+  qty: moved,
+  usesLeft: usesLeftMoving(line, moved, before),
+});
+
+/**
  * Verse une ligne de butin dans un sac.
  *
  * Le butin entre en `other` : une dépouille n'est ni une munition ni une
@@ -120,12 +136,13 @@ export function take(pile: LootItem[], name: string, qty: number): number {
 export function pour(bag: CarriedItem[], item: LootItem): void {
   const existing = bag.find((c) => c.name === item.name);
   if (existing) {
-    existing.qty += item.qty;
+    absorbUses(existing, item.qty, item.usesLeft, item.usesPer);
     // Une ligne homonyme déjà présente peut venir d'une saisie à la main, donc
     // sans identité connue. L'arrivée la renseigne.
     existing.metallic ??= item.metallic;
     existing.weightKg ??= item.weightKg;
     existing.weapon ??= item.weapon;
+    existing.weatherWards ??= item.weatherWards;
     return;
   }
   bag.push({
@@ -136,6 +153,9 @@ export function pour(bag: CarriedItem[], item: LootItem): void {
     metallic: item.metallic,
     weightKg: item.weightKg,
     weapon: item.weapon,
+    usesPer: item.usesPer,
+    usesLeft: item.usesLeft,
+    weatherWards: item.weatherWards,
   });
 }
 
@@ -157,6 +177,9 @@ export function carriedAsLoot(bag: CarriedItem[]): LootItem[] {
     metallic: c.metallic,
     weightKg: c.weightKg,
     weapon: c.weapon,
+    usesPer: c.usesPer,
+    usesLeft: c.usesLeft,
+    weatherWards: c.weatherWards,
   }));
 }
 

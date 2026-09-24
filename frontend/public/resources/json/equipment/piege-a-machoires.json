@@ -55,6 +55,40 @@
     "Marquer l'emplacement de chaque piège posé, et les relever tous avant de lever le camp. Un piège oublié finit toujours par prendre quelqu'un.",
     "Poser un piège sur un chemin fréquenté est un crime dans la plupart des royaumes, et se juge comme un meurtre si quelqu'un y laisse un pied."
   ],
+  "tags": [
+    "use"
+  ],
+  "use": {
+    "label": "Armer le piège",
+    "rangeMeters": 1.5,
+    "consumed": true,
+    "outOfCombatOnly": true,
+    "hazard": {
+      "radiusMeters": 0,
+      "damages": [
+        {
+          "min": 1,
+          "max": 6,
+          "type": "piercing"
+        }
+      ],
+      "inflicts": [
+        {
+          "status": "enracinement",
+          "chance": 100,
+          "duration": -1
+        },
+        {
+          "status": "saignement",
+          "chance": 100
+        }
+      ],
+      "stops": true,
+      "springs": true,
+      "maxFootprint": 2
+    },
+    "note": "Se libérer exige un jet de Force difficile, ou un tiers qui rouvre les mâchoires (une action, deux mains)."
+  },
   "references": [
     {
       "label": "Matériel associé",
